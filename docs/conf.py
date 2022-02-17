@@ -33,6 +33,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
+    'matplotlib.sphinxext.plot_directive',
+    'numpydoc'
 ]
 
 

@@ -11,6 +11,7 @@ autoprot documentation
    
    installation
    preprocessing
+   analysis
    visualization
    workflows
 

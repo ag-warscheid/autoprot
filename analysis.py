@@ -1,11 +1,19 @@
-import os
+# -*- coding: utf-8 -*-
+"""
+Autoprot Analysis Functions.
+
+@author: Wignand
+
+@documentation: Julian
+"""
+# import os
 from subprocess import run, PIPE
 from importlib import resources
-from pathlib import Path
+# from pathlib import Path
 from scipy.stats import ttest_1samp, ttest_ind, zscore
 from scipy.spatial import distance
 from scipy.cluster import hierarchy
-from scipy.cluster.hierarchy import maxdists,fcluster
+# from scipy.cluster.hierarchy import maxdists,fcluster
 from statsmodels.stats import multitest as mt
 import pandas as pd
 import numpy as np
@@ -16,14 +24,14 @@ import pylab as pl
 import colorsys
 import seaborn as sns
 from operator import itemgetter
-import itertools
+# import itertools
 from Bio import Entrez
 import time
 from autoprot import visualization as vis
 from autoprot import RHelper
-import wordcloud as wc
+# import wordcloud as wc
 import warnings
-import missingno as msn
+# import missingno as msn
 from gprofiler import GProfiler
 gp = GProfiler(
     user_agent="autoprot",
@@ -39,18 +47,85 @@ RSCRIPT, R = RHelper.returnRPath()
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 def ttest(df, reps, cond="", mean=True, adjustPVals=True):
-    """
-    @params 
-    :df: pandas data frame
-    :reps: the replicates to be included in the statistical test either 
-    a list of the replicates or a list containing two list with the respective replicates
-    :cond: the name of the condition. This is used for naming the returned results
-    :mean: whether to calculate the logFC of the provided data
-    For the one sample ttest log2 transformed ratios are expected
-    For the two sample ttest log transformed intensities are expected
-    if mean=True for two sample ttest the log2 ratio of the provided replicates will
-    be calculated
-    """
+    r"""
+    Perform one or two sample ttest.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    reps : list of str or list of lists of str
+        The replicates to be included in the statistical test.
+        Either a list of the replicates or a list containing two list with the respective replicates.
+    cond : str, optional
+        The name of the condition.
+        This is used for naming the returned results.
+        The default is "".
+    mean : bool, optional
+        Whether to calculate the logFC of the provided data.
+        For the one sample ttest log2 transformed ratios are expected.
+        For the two sample ttest log transformed intensities are expected.
+        If mean=True for two sample ttest, the log2 ratio of the provided replicates will be calculated.
+        The default is True.
+    adjustPVals : bool, optional
+        Whether to adjust P-values. The default is True.
+
+    Returns
+    -------
+    df : pd.DataFrame
+        Input dataframe with additional cols.
+
+    Examples
+    --------
+    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
+    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
+    >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
+    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
+    >>> prot_tt["pValue_TvM"].hist(bins=50)
+    >>> plt.show()
+    
+    .. plot::
+        :context: close-figs
+
+        import autoprot.analysis as ana
+        import autoprot.preprocessing as pp
+        import pandas as pd
+        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
+                        'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        protRatio = prot.filter(regex="Ratio .\/. normalized")
+        protLog = pp.log(prot, protRatio, base=2)
+        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
+        prot_tt["pValue_TvM"].hist(bins=50)
+        plt.show()
+    
+    >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+    ...                    "a2":np.random.normal(loc=0, size=4000),
+    ...                    "a3":np.random.normal(loc=0, size=4000),
+    ...                    "b1":np.random.normal(loc=0.5, size=4000),
+    ...                    "b2":np.random.normal(loc=0.5, size=4000),
+    ...                    "b3":np.random.normal(loc=0.5, size=4000),})
+    >>> autoprot.analysis.ttest(df=df,
+                                reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
+    >>> plt.show()
+    
+    .. plot::
+        :context: close-figs
+
+        import autoprot.analysis as ana
+        import pandas as pd
+        df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+                  "a2":np.random.normal(loc=0, size=4000),
+                  "a3":np.random.normal(loc=0, size=4000),
+                  "b1":np.random.normal(loc=0.5, size=4000),
+                  "b2":np.random.normal(loc=0.5, size=4000),
+                  "b3":np.random.normal(loc=0.5, size=4000),})
+        ana.ttest(df=df,
+                  reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
+        plt.show()
+    
+    """   
     cond = '_'+cond
     if isinstance(reps[0], list) and len(reps) == 2:
         df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: np.ma.filled(ttest_ind(x[:len(reps[0])], x[len(reps[0]):], nan_policy="omit")[1],np.nan),1).astype(float)
@@ -69,10 +144,10 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         
     return df
 
-
 def adjustP(df, pCol, method="fdr_bh"):
     """
-    Wrapper for statsmodels.multitest
+    Wrapper for statsmodels.multitest.
+    
     Methods include:
     'b': 'Bonferroni',
     's': 'Sidak',
@@ -92,7 +167,6 @@ def adjustP(df, pCol, method="fdr_bh"):
     df[f"adj.{pCol}"] = np.nan
     df.loc[idx, f"adj.{pCol}"] = mt.multipletests(df[pCol].loc[idx], method=method)[1]
     return df
-
 
 def cohenD(df, group1, group2):
     """
@@ -630,11 +704,28 @@ class autoHCA:
 
 class KSEA:
     """
-    class that performs kinase substrate enrichment analysis. You have to provide phosphoproteomic data.
+    Perform kinase substrate enrichment analysis.
+    
+    You have to provide phosphoproteomic data.
     This data has to contain information about Gene name, position and amino acid of the peptides with
-    "Gene names", "Position" and "Amino acid" as the respective column names. Optionally you can provide
-    a "Multiplicity" column.
+    "Gene names", "Position" and "Amino acid" as the respective column names.
+    Optionally you can provide a "Multiplicity" column.
+    
+    Methods
+    -------
+    addSubstrate(kinase, substrate, subModRsd)
+        Function that allows user to manually add substrates.
+    removeManualSubs
+    annotate
+    getKinaseOverview
+    ksea
+    returnEnrichment
+    plotEnrichment
+    volcanos
+    returnKinaseSubstrate
+    annotateDf
     """
+
     def __init__(self, data):
         with resources.open_text("autoprot.data","Kinase_Substrate_Dataset") as d:
             self.PSP_KS = pd.read_csv(d, sep='\t')
