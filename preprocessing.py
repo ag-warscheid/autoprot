@@ -508,6 +508,17 @@ def goAnnot(prots, gos, onlyProts=False, exact=True):
         or
         Series with gene names
 
+    Examples
+    --------
+    >>> gos = ["ribosome"]
+    >>> go = autoprot.preprocessing.goAnnot(prot["Gene names"],gos, onlyProts=False)
+    >>> go.head()
+       index Gene names  GeneID       GO_ID   GO_term
+    0   1944      RPS27    6232  GO:0005840  ribosome
+    1   6451      RPS25    6230  GO:0005840  ribosome
+    2   7640     RPL36A    6173  GO:0005840  ribosome
+    3  11130      RRBP1    6238  GO:0005840  ribosome
+    4  16112        SF1    7536  GO:0005840  ribosome
     """
     with resources.open_text("autoprot.data","Homo_sapiens.gene_info") as d:
         geneInfo = pd.read_csv(d, sep='\t')
@@ -619,7 +630,7 @@ def motifAnnot(df, motif, col="Sequence window"):
 
 
 def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
-    """
+    r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
     The final distribution will be mean shifted and has a smaller variation.
@@ -647,6 +658,31 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     pd.dataframe
         The dataframe with imputed values.
 
+    Examples
+    --------
+    >>> forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
+    >>> impProt = pp.impMinProb(forImp, phos.filter(regex="Int.*R1").columns,
+    ...                         width=.4, downshift=2.5)
+    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50,
+    ...                                                                         label="not Imputed")
+    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50,
+    ...                                                                        label="Imputed")
+    >>> plt.legend()
+    
+    .. plot::
+        :context: close-figs
+    
+        import autoprot.preprocessing as pp
+        import autoprot.visualization as vis
+        import pandas as pd
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
+        impProt = pp.impMinProb(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
+        fig, ax1 = plt.subplots(1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50, label="not Imputed", ax=ax1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50, label="Imputed", ax=ax1)
+        plt.legend()
+        plt.show()
     """
     df = df.copy(deep=True)
 
@@ -674,7 +710,7 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
 
 
 def expSemiCol(df, scCol, newCol, castTo=None):
-    """
+    r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
     Parameters
@@ -693,6 +729,24 @@ def expSemiCol(df, scCol, newCol, castTo=None):
     df : pd.dataframe
         Dataframe with the semicolon-separated values on separate rows.
 
+    Examples
+    --------
+    >>> expSemi = phos.sample(100)
+    >>> expSemi["Proteins"].head()
+    0    P61255;B1ARA3;B1ARA5
+    0    P61255;B1ARA3;B1ARA5
+    0    P61255;B1ARA3;B1ARA5
+    1    Q6XZL8;F7CVL0;F6SJX8
+    1    Q6XZL8;F7CVL0;F6SJX8
+    Name: Proteins, dtype: object
+    >>> expSemi = autoprot.preprocessing.expSemiCol(expSemi, "Proteins", "SingleProts")
+    >>> expSemi["SingleProts"].head()
+    0    P61255
+    0    B1ARA3
+    0    B1ARA5
+    1    Q6XZL8
+    1    F7CVL0
+    Name: SingleProts, dtype: object    
     """
     df = df.copy(deep=True)
     df = df.reset_index(drop=True)
@@ -892,7 +946,7 @@ def impSeq(df, cols):
 
 
 def quantileNorm(df, cols, returnCols=False, backend="r"):
-    """
+    r"""
     Perform quantile normalization.
 
     Parameters
@@ -928,7 +982,34 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
     [1] https://doi.org/10.1093/bioinformatics/19.2.185
 
     [2] https://www.biorxiv.org/content/10.1101/012203v1.full
-
+   
+    Examples
+    --------
+    >>> import autoprot.preprocessing as pp
+    >>> import autoprot.visualization as vis
+    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+    >>> phosLog = pp.log(phos, phosRatio, base=2)
+    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+    
+    Until now this was only preprocessing for the normalisation.
+    
+    >>> phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend='r')
+    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+    >>> plt.show() #doctest: +SKIP
+    
+    .. plot::
+        :context: close-figs
+    
+        import autoprot.preprocessing as pp
+        import autoprot.visualization as vis
+        import pandas as pd
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        phosLog = pp.log(phos, phosRatio, base=2)
+        noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+        phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend='r')
+        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+        plt.show()
 
     """
     if "UID" in df.columns:
@@ -995,7 +1076,7 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
 
 
 def vsn(df, cols, returnCols=False, backend='r'):
-    """
+    r"""
     Perform Variance Stabilizing Normalization.
 
     Parameters
@@ -1026,6 +1107,33 @@ def vsn(df, cols, returnCols=False, backend='r'):
     samples onto a same scale with a set of parametric transformations
     and maximum likelihood estimation.
 
+    Examples
+    --------
+    >>> import autoprot.preprocessing as pp
+    >>> import autoprot.visualization as vis
+    >>> import pandas as pd
+    >>> phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
+    >>> noNorm = phos_lfq.filter(regex="Intensity .").columns
+    >>> phos_lfq[noNorm] = phos_lfq.filter(regex="Intensity .").replace(0, np.nan)
+    
+    Until now this was only preprocessing for the normalisation.
+    Note that we are treating LFQ pre-normalised values with VSN normalisation.
+    
+    >>> phos_lfq = pp.vsn(phos_lfq, noNorm)
+    >>> vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex="_norm").columns], data='Intensity', compare=True)
+    >>> plt.show() #doctest: +SKIP
+    
+    .. plot::
+        :context: close-figs
+    
+        import autoprot.preprocessing as pp
+        import autoprot.visualization as vis
+        import pandas as pd
+        phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
+        noNorm = phos_lfq.filter(regex="Intensity .").columns
+        phos_lfq[noNorm] = phos_lfq.filter(regex="Intensity .").replace(0, np.nan)
+        phos_lfq = pp.vsn(phos_lfq, noNorm)
+        vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex="_norm").columns], data='Intensity', compare=True)
     """
     d = os.getcwd()
     dataLoc = d + "/input.csv"
@@ -1067,7 +1175,7 @@ def vsn(df, cols, returnCols=False, backend='r'):
 
 
 def cyclicLOESS(df, cols, backend='r'):
-    """
+    r"""
     Perform cyclic Loess normalization.
 
     Parameters
@@ -1105,6 +1213,34 @@ def cyclicLOESS(df, cols, backend='r'):
 
     Cyclic loess is slower than quantile, but allows probe-wise weights and
     is more robust to unbalanced differential expression.
+
+    Examples
+    --------
+    >>> import autoprot.preprocessing as pp
+    >>> import autoprot.visualization as vis
+    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+    >>> phosLog = pp.log(phos, phosRatio, base=2)
+    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+    
+    Until now this was only preprocessing for the normalisation.
+    
+    >>> phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
+    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+    >>> plt.show() #doctest: +SKIP
+    
+    .. plot::
+        :context: close-figs
+    
+        import autoprot.preprocessing as pp
+        import autoprot.visualization as vis
+        import pandas as pd
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        phosLog = pp.log(phos, phosRatio, base=2)
+        noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+        phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
+        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+        plt.show()
 
     """
     d = os.getcwd()
@@ -1389,7 +1525,7 @@ def makeSimScore(m1, m2, corr="pearson"):
 
     References
     ----------
-    [1] www.doi.org/10.1126/scisignal.2001570
+    [1] https://www.doi.org/10.1126/scisignal.2001570
 
     """
     def calcMagnitude(m1,m2):
