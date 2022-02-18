@@ -6,14 +6,14 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
-# import os
+import os
 from subprocess import run, PIPE
 from importlib import resources
-# from pathlib import Path
+from pathlib import Path
 from scipy.stats import ttest_1samp, ttest_ind, zscore
 from scipy.spatial import distance
 from scipy.cluster import hierarchy
-# from scipy.cluster.hierarchy import maxdists,fcluster
+from scipy.cluster.hierarchy import maxdists,fcluster
 from statsmodels.stats import multitest as mt
 import pandas as pd
 import numpy as np
@@ -24,14 +24,14 @@ import pylab as pl
 import colorsys
 import seaborn as sns
 from operator import itemgetter
-# import itertools
+import itertools
 from Bio import Entrez
 import time
 from autoprot import visualization as vis
 from autoprot import RHelper
-# import wordcloud as wc
+import wordcloud as wc
 import warnings
-# import missingno as msn
+import missingno as msn
 from gprofiler import GProfiler
 gp = GProfiler(
     user_agent="autoprot",
@@ -84,7 +84,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
     >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
     >>> prot_tt["pValue_TvM"].hist(bins=50)
     >>> plt.show()
-    
+
     .. plot::
         :context: close-figs
 
@@ -99,7 +99,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
-    
+
     >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
     ...                    "a2":np.random.normal(loc=0, size=4000),
     ...                    "a3":np.random.normal(loc=0, size=4000),
@@ -109,7 +109,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
     >>> autoprot.analysis.ttest(df=df,
                                 reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
     >>> plt.show()
-    
+
     .. plot::
         :context: close-figs
 
@@ -124,101 +124,269 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         ana.ttest(df=df,
                   reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
         plt.show()
-    
-    """   
+
+    """
     cond = '_'+cond
     if isinstance(reps[0], list) and len(reps) == 2:
         df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: np.ma.filled(ttest_ind(x[:len(reps[0])], x[len(reps[0]):], nan_policy="omit")[1],np.nan),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if mean == True:
             df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
-        
+
     else:
         df[f"pValue{cond}"] = df[reps].apply(lambda x: np.ma.filled(ttest_1samp(x, nan_policy="omit", popmean=0)[1],np.nan),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if mean == True:
             df[f"logFC{cond}"] = df[reps].mean(1)
-            
+
     if adjustPVals == True:
         adjustP(df, f"pValue{cond}")
-        
+
     return df
 
 def adjustP(df, pCol, method="fdr_bh"):
+    r"""
+    Use statsmodels.multitest on dataframes.
+
+    Note: when nan in p-value this function will return only nan.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    pCol : str
+        column containing p-values for correction.
+    method : str, optional
+        'b': 'Bonferroni',
+        's': 'Sidak',
+        'h': 'Holm',
+        'hs': 'Holm-Sidak',
+        'sh': 'Simes-Hochberg',
+        'ho': 'Hommel',
+        'fdr_bh': 'FDR Benjamini-Hochberg',
+        'fdr_by': 'FDR Benjamini-Yekutieli',
+        'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
+        'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
+        'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'
+        The default is "fdr_bh".
+
+    Returns
+    -------
+    df : pd.DataFrame
+        The input dataframe with adjusted p-values.
+        The dataframe will have a column named "adj.{pCol}"
+
+    Examples
+    --------
+    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
+    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    >>> prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+    >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
+    >>> protLog = pp.log(prot, protRatio, base=2)
+    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=False)
+    >>> prot_tt_adj = ana.adjustP(prot_tt, pCol="pValue_TvM")
+    >>> prot_tt_adj.filter(regex='pValue').head()
+       pValue_TvM  adj.pValue_TvM
+    0         NaN             NaN
+    1    0.947334        0.966514
+    2         NaN             NaN
+    3         NaN             NaN
+    4    0.031292        0.206977
     """
-    Wrapper for statsmodels.multitest.
-    
-    Methods include:
-    'b': 'Bonferroni',
-    's': 'Sidak',
-    'h': 'Holm',
-    'hs': 'Holm-Sidak',
-    'sh': 'Simes-Hochberg',
-    'ho': 'Hommel',
-    'fdr_bh': 'FDR Benjamini-Hochberg',
-    'fdr_by': 'FDR Benjamini-Yekutieli',
-    'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
-    'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
-    'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'
-    
-    Note: when nan in pvalue this function will return only nan.
-    """
+    # indices of rows containing values
     idx = df[df[pCol].notnull()].index
+    # init new col with for adjusted p-values
     df[f"adj.{pCol}"] = np.nan
+    # apply correction for selected rows
     df.loc[idx, f"adj.{pCol}"] = mt.multipletests(df[pCol].loc[idx], method=method)[1]
     return df
 
 def cohenD(df, group1, group2):
     """
-    Function that calculates the Cohen's d effect size
+    Calculate Cohen's d effect size for two groups.
+
+    Parameters
+    ----------
+    df : pd.Dataframe
+        Input dataframe.
+    group1 : str
+        Colname for group1.
+    group2 : str
+        Colname for group2.
+
+    Returns
+    -------
+    df : pd.Dataframe
+        Input dataframe with a new column "cohenD".
+
+    Notes
+    -----
+    Cohen's d is defined as the difference between two means divided by a standard deviation for the data.
+    Note that the pooled standard deviation here is calculated differently than
+    originally proposed by Cohen.
+
+    References
+    ----------
+    [1] Cohen, Jacob (1988). Statistical Power Analysis for the Behavioral Sciences. Routledge.
+    [2] https://www.doi.org/10.22237/jmasm/1257035100
+
     """
     mean1 = df[group1].mean(1).values
     std1 = df[group1].std(1).values
     mean2 = df[group2].mean(1).values
     std2= df[group2].std(1).values
+    # TODO: the pooled sd here is calculated omitting the sample sizes n
+    # This is not exactly what was proposed for cohens d: https://en.wikipedia.org/wiki/Effect_size
     sd_pooled =  np.sqrt((std1**2 + std2**2) / 2)
     cohen_d = (abs(mean1 - mean2)) / sd_pooled
     df["cohenD"] = cohen_d
     return df
 
-
 class autoPCA:
-    """
-    The autoPCA class allows conducting a PCA 
-    furhter it encompasses a set of helpful visualizations
+    r"""
+    Conduct principal component analyses.
+
+    The class encompasses a set of helpful visualizations
     for further investigating the results of the PCA
     It needs the matrix on which the PCA is performed
     as well as row labels (rlabels)
     and column labels (clabels) corresponding to the
     provided matrix.
+
+    Notes
+    -----
+    PCA is a method which allows you to visually investigate the underlying structure
+    in your data after reduction of the dimensionality.
+    With the .autoPCA() you can easily perform a PCA and also generate exploratory figures.
+    Intro to PCA: https://learnche.org/pid/latent-variable-modelling/principal-component-analysis/index
+
+    Examples
+    --------
+    for PCA no missing values are allowed 
+    filter those and store complete dataframe
     
-    ToDo: Add interactive 3D scatter plot
+    >>> temp = prot[~prot.filter(regex="log2.*norm").isnull().any(1)]
+    
+    get the matrix of quantitative values corresponding to conditions of interest
+    Here we only use the first replicate for clarity
+    
+    >>> X = temp.filter(regex="log2.*norm.*_1$")
+    
+    generate appropiate names for the columns and rows of the matrix
+    for example here the columns represent the conditions and we are not interested in the rows (which are the genes)
+    
+    >>> clabels = X.columns
+    >>> rlabels = np.nan
+    
+    generate autopca object
+    
+    >>> autopca = autoprot.analysis.autoPCA(X, rlabels, clabels)
+    
+    Generate plots
+    
+    >>> autopca.scree()
+    >>> autopca.corrComp(annot=False)
+    >>> autopca.barLoad(1)
+    >>> autopca.barLoad(2)
+    >>> autopca.scorePlot(pc1=1, pc2=2)
+    >>> autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+    >>> autopca.biPlot(pc1=1, pc2=2)
+    
+    .. plot::
+        :context: close-figs
+
+        import autoprot.analysis as ana
+        import autoprot.preprocessing as pp
+        import pandas as pd
+
+        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep="\t", low_memory=False)
+        protRatio = prot.filter(regex="Ratio .\/. normalized")
+        protLog = pp.log(prot, protRatio, base=2)
+        temp = protLog[~protLog.filter(regex="log2.*norm").isnull().any(1)]
+        X = temp.filter(regex="log2.*norm.*_1$")
+        clabels = X.columns
+        rlabels = np.nan
+        autopca = ana.autoPCA(X, rlabels, clabels)
+        autopca.scree()
+        autopca.corrComp(annot=False)
+        autopca.barLoad(1)
+        autopca.barLoad(2)
+        autopca.scorePlot(pc1=1, pc2=2)
+        autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+        autopca.biPlot(pc1=1, pc2=2)
+        plt.show()
     """
+    
+    # =========================================================================
+    # TODO
+    # - Add interactive 3D scatter plot
+    # - Facilitate naming of columns and rows
+    # - Allow further customization of plots (e.g. figsize)
+    # - Implement pair plot for multiple dimensions
+    # =========================================================================
     def __init__(self, X, rlabels, clabels, batch=None):
+        """
+        Initialise PCA class.
+
+        Parameters
+        ----------
+        X : pd.DataFrame
+            Input dataframe.
+        rlabels : list of str
+            Row labels.
+        clabels : list of str
+            Column labels.
+        batch : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
         if not isinstance(X, pd.DataFrame):
             X = pd.DataFrame(X)
+        # drop any rows in the dataframe containing missing values
         self.X = X.dropna()
         self.label = clabels
         self.rlabel = rlabels
         self.batch = batch
-        self.pca, self.forVis =  self._performPCA(X, clabels)
+        # PCA is performed with the df containing missing values
+        self.pca, self.forVis = self._performPCA(X, clabels)
+        # generate scores from loadings
         self.Xt = self.pca.transform(self.X)
         self.expVar = self.pca.explained_variance_ratio_
 
     @staticmethod
     def _performPCA(X, label):
-        """
-        performs pca and also generates forVis dataframe
-        in this the loadings of the components are stored for visualization
-        """
+        """Perform pca and generate forVis dataframe."""
         pca = PCA().fit(X.dropna())
+        # components_ is and ndarray of shape (n_components, n_features)
+        # and contains the loadings/weights of each PCA eigenvector
         forVis = pd.DataFrame(pca.components_.T)
         forVis.columns = [f"PC{i}" for i in range(1, min(X.shape[0], X.T.shape[0])+1)]
         forVis["label"] = label
         return pca, forVis
 
-
     def scree(self, figsize=(15,5)):
+        """
+        Plot Scree plot and Explained variance vs number of components.
+
+        Parameters
+        ----------
+        figsize : TYPE, optional
+            DESCRIPTION. The default is (15,5).
+
+        Raises
+        ------
+        TypeError
+            No PCA object was initialised in the class.
+
+        Returns
+        -------
+        None.
+
+        """
         if not isinstance(self.pca,PCA):
             raise TypeError("This is a function to plot Scree plots. Provide fitted sklearn PCA object.")
 
@@ -242,8 +410,29 @@ class autoPCA:
         plt.title("Explained variance")
         sns.despine()
 
-
     def corrComp(self, annot=False):
+        """
+        Plot heatmap of PCA weights vs. variables.
+
+        Parameters
+        ----------
+        annot : bool, optional
+            If True, write the data value in each cell.
+            If an array-like with the same shape as data, then use this
+            to annotate the heatmap instead of the data.
+            Note that DataFrames will match on position, not index.
+            The default is False.
+
+        Notes
+        -----
+        2D representation how strong each observation (e.g. log protein ratio)
+        weights for each principal component.
+
+        Returns
+        -------
+        None.
+
+        """
         plt.figure()
         sns.heatmap(self.forVis.filter(regex="PC"), cmap=sns.color_palette("PuOr", 10), annot=annot)
         yp = [i+0.5 for i in range(len(self.label))]
@@ -253,10 +442,20 @@ class autoPCA:
 
     def barLoad(self, pc=1, n=25):
         """
-        Function that plots the loadings of a given component in a barplot
-        loadings are sorted
-        @parameter
-        pc: component to draw given as an integer 
+        Plot the loadings of a given component in a barplot.
+
+        Parameters
+        ----------
+        pc : int, optional
+            Component to draw. The default is 1.
+        n : int, optional
+            Plot only the n first rows.
+            The default is 25.
+
+        Returns
+        -------
+        None.
+
         """
         PC =  f"PC{pc}"
         forVis = self.forVis.copy()
@@ -270,18 +469,79 @@ class autoPCA:
                     hue_order=["negative", "positive"], palette=["teal", "purple"])
         ax.get_legend().remove()
         sns.despine()
-        
-        
+
     def returnLoad(self, pc=1, n=25):
+        """
+        Return the load for a given principal component.
+
+        Parameters
+        ----------
+        pc : int, optional
+            Component to draw. The default is 1.
+        n : int, optional
+            Plot only the n first rows.
+            The default is 25.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing load vs. condition.
+
+        """
         PC =  f"PC{pc}"
         forVis = self.forVis.copy()
         forVis[f"{PC}_abs"] = abs(forVis[PC])
         forVis = forVis.sort_values(by=f"{PC}_abs", ascending=False)[:n]
         return forVis[[PC, "label"]]
 
+    def returnScore(self):
+        """
+        Return a dataframe of all scorings for all principal components.
+
+        Returns
+        -------
+        scores : pd.DataFrame
+            Dataframe holding the principal components as colnames and
+            the scores for each protein on that PC as values.
+        """
+        columns = [f"PC{i+1}" for i in range(self.Xt.shape[1])]
+        scores = pd.DataFrame(self.Xt, columns=columns)
+        if self.batch is not None:
+            scores["batch"] = self.batch
+        return scores
 
     def scorePlot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5,5)):
-        
+        """
+        Generate a PCA score plot.
+
+        Parameters
+        ----------
+        pc1 : int, optional
+            Number of the first PC to plot. The default is 1.
+        pc2 : int, optional
+            Number of the second PC to plot. The default is 2.
+        labeling : bool, optional
+            If True, points are labelled with the corresponding
+            column labels. The default is False.
+        file : str, optional
+            Path to save the plot. The default is None.
+        figsize : tuple of int, optional
+            Figure size. The default is (5,5).
+
+        Notes
+        -----
+        This will return a scatterplot with as many points as there are
+        entries (i.e. protein IDs).
+        The scores for each PC are the original protein ratios multiplied with
+        the loading weights.
+        The score plot corresponds to the individual positions of of each protein
+        on a hyperplane generated by the pc1 and pc2 vectors.
+
+        Returns
+        -------
+        None.
+
+        """
         x = self.Xt[::,pc1-1]
         y = self.Xt[::,pc2-1]
         plt.figure(figsize=figsize)
@@ -292,12 +552,11 @@ class autoPCA:
             forVis = pd.DataFrame({"x":x,"y":y, "batch":self.batch})
             sns.scatterplot(data=forVis, x="x", y="y", hue=forVis["batch"])
         forVis["label"] = self.rlabel
-        
 
         plt.title("Score plot")
         plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1-1]*100,2)} %")
         plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
-        # plt.scatter(x,y)
+
         if labeling is True:
             ss = forVis["label"]
             xx = forVis["x"]
@@ -305,12 +564,39 @@ class autoPCA:
             for x,y,s in zip(xx,yy,ss):
                 plt.text(x,y,s)
         sns.despine()
-        
+
         if file is not None:
             plt.savefig(fr"{file}/ScorePlot.pdf")
 
+    def loadingPlot(self, pc1=1, pc2=2, labeling=False, figsize=(5,5)):
+        """
+        Generate a PCA loading plot.
 
-    def loadingPlot(self, pc1=1, pc2=2, labeling=False, figsize=(7,7)):
+        Parameters
+        ----------
+        pc1 : int, optional
+            Number of the first PC to plot. The default is 1.
+        pc2 : int, optional
+            Number of the second PC to plot. The default is 2.
+        labeling : bool, optional
+            If True, points are labelled with the corresponding
+            column labels. The default is False.
+        figsize : TYPE, optional
+            DESCRIPTION. The default is (5,5).
+
+        Notes
+        -----
+        This will return a scatterplot with as many points as there are
+        components (i.e. conditions) in the dataset.
+        For each component a load magnitude for two PCs will be printedd
+        that describes how much each condition influences the magnitude
+        of the respective PC.
+
+        Returns
+        -------
+        None.
+
+        """
         plt.figure(figsize=figsize)
         if self.batch is None or len(self.batch) != self.forVis.shape[0]:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
@@ -319,16 +605,47 @@ class autoPCA:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
             y=f"PC{pc2}",edgecolor=None, hue=self.batch)
         sns.despine()
+
+        plt.title("Loadings plot")
+        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1-1]*100,2)} %")
+        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
+
         if labeling is True:
             ss = self.forVis["label"]
             xx = self.forVis[f"PC{pc1}"]
             yy = self.forVis[f"PC{pc2}"]
             for x,y,s in zip(xx,yy,ss):
                 plt.text(x,y,s)
-    
-    
-    def biPlot(self, pc1=1, pc2=2, numLoad="all", figsize=(3,3), **kwargs):
-        
+
+
+    def biPlot(self, pc1=1, pc2=2, numLoad="all", figsize=(5,5), **kwargs):
+        """
+        Generate a biplot, a combined loadings and score plot.
+
+        Parameters
+        ----------
+        pc1 : int, optional
+            Number of the first PC to plot. The default is 1.
+        pc2 : int, optional
+            Number of the second PC to plot. The default is 2.
+        numLoad : int, optional
+            Plot only the n first rows.
+            The default is "all".
+        figsize : tuple of int, optional
+            Figure size. The default is (3,3).
+        **kwargs :
+            Passed to plt.scatter.
+
+        Notes
+        -----
+        In the biplot, scores are shown as points and loadings as
+        vectors.
+
+        Returns
+        -------
+        None.
+
+        """
         x = self.Xt[::,pc1-1]
         y = self.Xt[::,pc2-1]
         plt.figure(figsize=figsize)
@@ -337,32 +654,31 @@ class autoPCA:
         temp = self.forVis[[f"PC{pc1}", f"PC{pc2}"]]
         temp["label"] = self.label
         temp = temp.sort_values(by=f"PC{pc1}")
-        
+
         if numLoad == "all":
             loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].values
             labels = temp["label"].values
         else:
             loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].iloc[:numLoad].values
             labels = temp["label"].iloc[:numLoad].values
-            
+
         xscale = 1.0 / (self.Xt[::,pc1-1].max() - self.Xt[::,pc1-1].min())
         yscale = 1.0 / (self.Xt[::,pc2-1].max() - self.Xt[::,pc2-1].min())
         xmina = 0
         xmaxa = 0
         ymina = 0
-        ymaxa = 0
 
         for l, lab in zip(loadings, labels):
             #plt.plot([0,l[0]/xscale], (0, l[1]/yscale), color="purple")
             plt.arrow(x=0, y=0,dx=l[0]/xscale, dy= l[1]/yscale, color="purple",
                      head_width=.2)
             plt.text(x=l[0]/xscale, y=l[1]/yscale, s=lab)
-            
+
             if l[0]/xscale < xmina:
                 xmina = l[0]/xscale
             elif l[0]/xscale > xmaxa:
                 xmaxa = l[0]/xscale
-                
+
             if l[1]/yscale < ymina:
                 ymina = l[1]/yscale
             elif l[1]/yscale > ymina:
@@ -372,17 +688,28 @@ class autoPCA:
         plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
         sns.despine()
 
-    
     def pairPlot(self, n=0):
         """
-        function draws a pair plot of for pca for the given
-        number of dimensions (or all if none is specified.
-        !Be carful for large data this might crash you PC -> better specify n!
+        Draw a pair plot of for pca for the given number of dimensions.
+
+        Parameters
+        ----------
+        n : int, optional
+            Plot only the n first rows. The default is 0.
+
+        Notes
+        -----
+        Be careful for large data this might crash you PC -> better specify n!
+        
+        Returns
+        -------
+        None.
+
         """
-        #must be prettyfied quite a bit....
+        # TODO must be prettyfied quite a bit....
         if n == 0:
             n = self.Xt.shape[0]
-        
+
         forVis = pd.DataFrame(self.Xt[:,:n])
         i = np.argmin(self.Xt.shape)
         pcs = self.Xt.shape[i]
@@ -392,32 +719,52 @@ class autoPCA:
             sns.pairplot(forVis, hue="batch")
         else:
             sns.pairplot(forVis)
-        
-        
-    def returnScore(self):
-    
-        columns = [f"PC{i+1}" for i in range(self.Xt.shape[1])]
-        scores = pd.DataFrame(self.Xt, columns=columns)
-        if self.batch is not None:
-            scores["batch"] = self.batch
-        return scores
-
 
 class autoHCA:
     """
-    Class that is used for various cluster analysis
+    Conduct hierarchical cluster analysis.
+    
     Usesr provides dataframe and can afterwards
     use various metrics and methods to perfom and evaluate
     clustering.
     StandarWorkflow:
     makeLnkage() -> evalClustering() -> clusterMap() -> writeClusterFiles()
-    @params
-    :data:: the data to be clustered as numpy array
-    :labels:: the labels for the data as numpy array
+    
+    Examples
+    --------
+    autoProt provides a class which allows the easy implementation and
+    evaluation of a hierarchical cluster analysis.
+    You need provide the data.
+    You may also want to provide appropriate row and column labels.
+    Depending on what the aim of your cluster analysis is you might want to
+    perform a zscore transformation.
+    
+    
     """
-    
+
     def __init__(self, data, clabels=None, rlabels=None, zscore=None, linkage=None):
-    
+        """
+        Initialise the class.
+        
+        Parameters
+        ----------
+        data : np.array
+            The data to be clustered.
+        clabels : np.array, optional
+            Column labels. The default is None.
+        rlabels : np.array, optional
+            Row labels. The default is None.
+        zscore : int or None, optional
+            Axis along which to calculate the zscore.
+            The default is None.
+        linkage : TYPE, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
         self.data = self._checkData(data,clabels, rlabels, zscore)
         self.rlabels = rlabels
         if clabels is not None:
@@ -429,46 +776,77 @@ class autoHCA:
         self.clusterCol = None
         self.cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
-        
-        
     @staticmethod
     def _checkData(data, clabels, rlabels, zs):
         """
-        checks if data contains missing values
-        if these, and the respective labels are removed
+        Check if data contains missing values and remove them.
+
+        Parameters
+        ----------
+        data : np.array
+            The data to be clustered.
+        clabels : np.array, optional
+            Column labels.
+        rlabels : np.array, optional
+            Row labels.
+        zs : int or None
+            Axis to calculate zscore on. If None, not zscore is calculated.
+
+        Raises
+        ------
+        ValueError
+            DESCRIPTION.
+
+        Returns
+        -------
+        data : pd.DataFrame
+            Data transferred into Dataframe with colnames and rownames.
+
         """
+        # drop all rows containing missing values
         if rlabels is None and clabels is None:
             data = pd.DataFrame(data).dropna()
-        
+
+        # drop rows with values and assign colnames
         elif rlabels is None:
             if data.shape[1] != len(clabels):
                     raise ValueError("Data and labels must be same size!")
             data = pd.DataFrame(data).dropna()
             data.columns = clabels
 
+        # find columns with missing values and drop these
         elif clabels is None:
             if data.shape[0] != len(rlabels):
                 raise ValueError("Data and labels must be same size!")
             temp = pd.DataFrame(data)
+            # column indices without missing data
             to_keep = temp[temp.notnull().all(1)].index
-            temp["labels"] = rlabels
             temp = temp.loc[to_keep]
-            rlabels = temp["labels"]
-            data = temp.drop("labels", axis=1)
+            # temp["labels"] = rlabels
+            #rlabels = temp["labels"]
+            # data = temp.drop("labels", axis=1)
+            data = temp
             data.index = rlabels
 
+        # clabels and rlabels are provided
+        # check if row and col dimensions match and drop columns with
+        # missing values
         else:
             if data.shape[0] != len(rlabels) or data.shape[1] != len(clabels):
                 raise ValueError("Data and labels must be same size!")
             temp = pd.DataFrame(data)
+            # column indices without missing data
             to_keep = temp[temp.notnull().all(1)].index
-            temp["labels"] = rlabels
+            # temp["labels"] = rlabels
             temp = temp.loc[to_keep]
-            rlabels = temp["labels"]
-            data = temp.drop("labels", axis=1)
+            # rlabels = temp["labels"]
+            # data = temp.drop("labels", axis=1)
+            data = temp
             data.index = rlabels
             data.columns = clabels
-            
+
+        # if the zscore is calculate (i.e. if zs != None)
+        # a dataframe with zscores instead of values is calculated
         if zs is not None:
             temp = data.copy(deep=True).values
             tc = data.columns
@@ -477,16 +855,16 @@ class autoHCA:
             data = pd.DataFrame(X)
             data.columns = tc
             data.index = ti
-            
+
         return data
-        
-        
+
     def _get_N_HexCol(self, n):
+        """Return RGB values for colouring a number n of values."""
         HSV_tuples = [(x*1/n, 0.75, 0.6) for x in range(n)]
         RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
         return list(RGB_tuples)
-        
-        
+
+
     def _makeCluster(self, n, colors):
         self.cluster = fcluster(self.linkage, t=n, criterion="maxclust")
         self.clusterCol = fcluster(self.linkage, t=n, criterion="maxclust")
@@ -494,33 +872,34 @@ class autoHCA:
             colors = self._get_N_HexCol(n)
         for i in range(n):
             self.clusterCol = [colors[i] if j == i+1 else j for j in self.clusterCol]
-            
-    
+
+
     def _makeClusterTraces(self,n,file,colors, z_score=None):
         plt.figure(figsize=(5,3*n))
         temp = pd.DataFrame(self.data.copy(deep=True))
         if z_score is not None:
             temp = pd.DataFrame(zscore(temp, axis=1-z_score)) #seaborn and scipy work opposit
         temp["cluster"] = self.cluster
-        
+
         for i in range(n):
-            
+
             ax = plt.subplot(n, 1, i+1)
             temp2 = temp[temp["cluster"]==i+1].drop("cluster", axis=1)
-            
+
             #basically we just compute the root mean square deviation of the protein Towards the mean of the cluster
             #as a helper we take the -log of the rmsd in order To plot in the proper sequence
             temp2["distance"] = temp2.apply(lambda x: -np.log(np.sqrt(sum((x-temp2.mean())**2))),1)
-            
+
             if temp2.shape[0] == 1:
                 # if cluster contains only 1 entry
                 ax.set_title("Cluster {}".format(i+1))
                 ax.set_ylabel("")
                 ax.set_xlabel("")
-                ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3), color=color[idx], alpha=alpha[idx])
+                # ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3), color=color[idx], alpha=alpha[idx])
+                ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3))
                 plt.xticks(range(len(self.clabels)), self.clabels)
                 continue
-            
+
             temp2["distance"] = pd.cut(temp2["distance"],5)
 
             #get aestethics for traces
@@ -542,13 +921,13 @@ class autoHCA:
                     ax.plot(range(temp2.shape[1]-1),group.drop("distance", axis=1).iloc[j], color=color[idx], alpha=alpha[idx])
 
             plt.xticks(range(len(self.clabels)), self.clabels)
-            
+
             if file is not None:
                 name, ext = file.split('.')
                 filet = f"{name}_traces.{ext}"
                 plt.savefig(filet)
-            
-        
+
+
     def _makeSummary(self, n, file):
         """
         n: number of cluster
@@ -558,7 +937,7 @@ class autoHCA:
         temp["cluster"] = self.cluster
         grouped = temp.groupby("cluster")[self.data.columns].mean()
         lim = abs(grouped).max().max()
-        
+
         ylabel = [f"Cluster{i+1}\n{j} member" for i,j in enumerate(temp.groupby("cluster").count().iloc[:,0].values)]
         plt.figure()
         plt.title("Summary Of Clustering")
@@ -570,17 +949,17 @@ class autoHCA:
             filet = f"{name}_summary.{ext}"
             plt.tight_layout()
             plt.savefig(filet)
-        
-        
+
+
     def asDist(self, c):
         """
         function that takes a matrix (i.e. correlation matrix)
-        and converts it into a distance matrix which can be used 
+        and converts it into a distance matrix which can be used
         for hierachical clustering
         @param c: correlatoin matrix
         """
         return [c[i][j] for i in (range(c.shape[0])) for j in (range(c.shape[1])) if i<j]
-        
+
     def makeLinkage(self, method, metric):
         """
         Function that generates linkage used for HCA
@@ -595,8 +974,8 @@ class autoHCA:
         else:
             dist = distance.pdist(self.data, metric=metric)
         self.linkage = hierarchy.linkage(dist, method=method)
-        
-        
+
+
     def evalClustering(self,start=2, upTo=20, figsize=(15,5)):
         """
         Function evaluates number of cluster
@@ -608,7 +987,7 @@ class autoHCA:
             pred.append((davies_bouldin_score(self.data, cluster),
                        silhouette_score(self.data, cluster),
                        calinski_harabasz_score(self.data, cluster)))
-                    
+
         pred = np.array(pred)
         plt.figure(figsize=figsize)
         plt.subplot(131)
@@ -629,8 +1008,8 @@ class autoHCA:
         print(f"Best Davies Boulding at {start + list(pred[::,0]).index(min(pred[::,0]))} with {min(pred[::,0])}")
         print(f"Best Silhouoette_score at {start + list(pred[::,1]).index(max(pred[::,1]))} with {max(pred[::,1])}")
         print(f"Best Harabasz/Calinski at {start + list(pred[::,2]).index(max(pred[::,2]))} with {max(pred[::,2])}")
-        
-        
+
+
     def clusterMap(self, nCluster=None, colCluster=False, makeTraces=False, summary=False, file=None, rowColors=None,
                    colors=None,yticklabels="", **kwargs):
         """
@@ -642,14 +1021,14 @@ class autoHCA:
         :@rowColors: dict; dictionary of title and colors for row coloring has to be same length as provided data
         """
         # summaryMap: report heatmap with means of each cluster -> also provide summary for each cluster like number of entries?
-        #savemode just preliminary have to be overworked here 
-        
+        #savemode just preliminary have to be overworked here
+
         if nCluster is not None:
             self._makeCluster(nCluster, colors)
-            
+
         if "cmap" not in kwargs.keys():
             kwargs["cmap"] = self.cmap
-            
+
         if rowColors is not None:
             rowColors["cluster"] = self.clusterCol
             temp = pd.DataFrame(rowColors)
@@ -661,21 +1040,21 @@ class autoHCA:
         sns.clustermap(self.data, row_linkage=self.linkage,
                    row_colors=temp, col_cluster=colCluster,
                    yticklabels=yticklabels, **kwargs)
-                       
+
         if file is not None:
             plt.savefig(file)
-                       
+
         if makeTraces == True:
             if "z_score" in kwargs.keys():
                 self._makeClusterTraces(nCluster, file, z_score=kwargs["z_score"], colors=colors)
             else:
                 self._makeClusterTraces(nCluster, file, colors=colors)
-                
+
         if summary == True:
             self._makeSummary(nCluster, file)
-            
-            
-           
+
+
+
     def returnCluster(self):
         """
         return df with clustered data
@@ -683,11 +1062,11 @@ class autoHCA:
         temp = self.data
         temp["cluster"] = self.cluster
         return temp
-        
-        
+
+
     def writeClusterFiles(self, rootdir):
         """
-        generates folder with text files for each 
+        generates folder with text files for each
         cluster at provided rootdir
         """
         path = os.path.join(rootdir, "clusterResults")
@@ -695,7 +1074,7 @@ class autoHCA:
             pass
         else:
             os.mkdir(path)
-        
+
         temp = self.data
         temp["cluster"] = self.cluster
         for cluster in temp["cluster"].unique():
@@ -705,12 +1084,12 @@ class autoHCA:
 class KSEA:
     """
     Perform kinase substrate enrichment analysis.
-    
+
     You have to provide phosphoproteomic data.
     This data has to contain information about Gene name, position and amino acid of the peptides with
     "Gene names", "Position" and "Amino acid" as the respective column names.
     Optionally you can provide a "Multiplicity" column.
-    
+
     Methods
     -------
     addSubstrate(kinase, substrate, subModRsd)
@@ -770,13 +1149,13 @@ class KSEA:
     def addSubstrate(self, kinase, substrate, subModRsd):
         """
         function that allows user to manually add substrates
-        
+
         """
         it = iter([kinase, substrate, subModRsd])
         the_len = len(next(it))
         if not all(len(l) == the_len for l in it):
              raise ValueError('not all lists have same length!')
-             
+
         temp = pd.DataFrame(columns=self.PSP_KS.columns)
         for i in range(len(kinase)):
             temp.loc[i, "KINASE"] = kinase[i]
@@ -796,16 +1175,16 @@ class KSEA:
         """
         do we need crossspecies annotation?
         """
-        
-        
+
+
         if onlyInVivo==True:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
-            (self.PSP_KS["SUB_ORGANISM"] == organism) & 
+            (self.PSP_KS["SUB_ORGANISM"] == organism) &
             (self.PSP_KS["IN_VIVO_RXN"]=="X")) | (self.PSP_KS["source"]=="manual")]
         else:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
             (self.PSP_KS["SUB_ORGANISM"] == organism)) | (self.PSP_KS["source"]=="manual")]
-        
+
         if "Multiplicity" in self.data.columns:
             self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity","mergeID"]],
             temp,
@@ -819,14 +1198,14 @@ class KSEA:
             right_on=["SUB_GENE", "SUB_MOD_RSD"],
             how="left")
 
-        
+
         self.koi = self.__extractKois(self.annotDf)
 
 
     def getKinaseOverview(self, kois=None):
-    
+
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
-        
+
         sns.histplot(self.koi["#Subs"], bins=50, ax= ax[0])
         sns.despine(ax=ax[0])
         ax[0].set_title("Overview of #Subs per kinase")
@@ -846,7 +1225,7 @@ class KSEA:
         labelleft=False) # labels along the bottom edge are off
         ax[1].set_xlim(0,1)
         ax[1].set_ylim(0,1)
-        
+
         #plot table
         ax[1].text(x=0, y=1-0.01, s="Top10\nKinase")
         ax[1].text(x=0.1, y=1-0.01, s="#Subs")
@@ -901,7 +1280,7 @@ class KSEA:
                            "P38" : ["P38A","P38B","P38C","P338D"]}
             for key in simplify:
                 copyAnnotDf["KINASE"].replace(simplify[key], [key]*len(simplify[key]), inplace=True)
-            
+
             #drop rows which are now duplicates
             if "Multiplicity" in copyAnnotDf.columns:
                 idx = copyAnnotDf[["ucGene","MOD_RSD","Multiplicity", "KINASE"]].drop_duplicates().index
@@ -909,11 +1288,11 @@ class KSEA:
                 idx = copyAnnotDf[["ucGene","MOD_RSD", "KINASE"]].drop_duplicates().indx
             copyAnnotDf = copyAnnotDf.loc[idx]
             self.simpleDf = copyAnnotDf
-            
+
             self.koi = self.__extractKois(self.simpleDf)
-            
+
         koi = self.koi[self.koi["#Subs"]>=minSubs]["Kinase"]
-        
+
         self.kseaResults = pd.DataFrame(columns = ["kinase", "score"])
         copyAnnotDf = copyAnnotDf.merge(self.data[[col,"mergeID"]], on="mergeID", how="left")
         for kinase in koi:
@@ -928,12 +1307,12 @@ class KSEA:
             print("First perform the enrichment")
         else:
         #dropna in case of multiple columns in data
-        #sometimes there are otherwise nan 
+        #sometimes there are otherwise nan
         #nans are dropped in ksea enrichment
             return self.kseaResults.dropna()
 
 
-    def plotEnrichment(self, up_col="orange", down_col="blue", 
+    def plotEnrichment(self, up_col="orange", down_col="blue",
     bg_col = "lightgray", plotBg = True, ret=False, title="",
     figsize=(5,10)):
         """
@@ -949,7 +1328,7 @@ class KSEA:
             plt.yticks(fontsize=10)
             plt.title(title)
             if plotBg == True:
-                sns.barplot(data= self.kseaResults.dropna(), x="score",y="kinase", 
+                sns.barplot(data= self.kseaResults.dropna(), x="score",y="kinase",
                 palette=self.kseaResults.dropna()["color"])
             else:
                 sns.barplot(data= self.kseaResults[self.kseaResults["color"]!=bg_col].dropna(), x="score",y="kinase",
@@ -983,7 +1362,7 @@ class KSEA:
             df = self.simpleDf.copy(deep=True)
         else:
             df = self.annotDf.copy(deep=True)
-            
+
         if isinstance(kinase, list):
             idx = []
             for k in kinase:
@@ -993,7 +1372,7 @@ class KSEA:
             dfFilter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper())==kinase.upper()]
         else:
             raise ValueError("Please provide either a string or a list of strings representing kinases of interest.")
-            
+
         dfFilter = pd.merge(dfFilter[['GENE', 'KINASE','KIN_ACC_ID','SUBSTRATE','SUB_ACC_ID',
                                        'SUB_GENE','SUB_MOD_RSD', 'SITE_GRP_ID','SITE_+/-7_AA', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#',
                                        'source', "mergeID"]],
@@ -1016,7 +1395,7 @@ class KSEA:
                 df[kinase] = 0
                 df.loc[df["mergeID"].isin(ids),kinase] = 1
             return df.drop("mergeID", axis=1)
-        else: 
+        else:
             print("Please provide Kinase for annotation.")
 
 
@@ -1032,7 +1411,7 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
     :vis:: boolean, whether to return barplot showing missingness
     :extraVis:: boolean, whether to return matrix plot showing missingness
     """
-            
+
     def create_data(df):
         """
         takes df and output
@@ -1058,10 +1437,10 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         data = sorted(data,key=itemgetter(3))
         for idx, col in enumerate(data):
             col.append(idx)
-        
+
         return data
-        
-        
+
+
     def describe(data, n,saveDir, sort='ascending'):
         """
         prints data
@@ -1075,24 +1454,24 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
             n = len(data)
         if n<0:
             raise ValueError("'n' has to be a positive integer!")
-        
+
         if sort == 'ascending':
             pass
         elif sort == 'descending':
             data = data[::-1]
-        
+
         for i in range(n):
-            print("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2], 
+            print("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2],
                                                                                data[i][1], round(data[i][3],2)))
             print('-'*80)
-        
+
         if saveDir:
             with open(saveDir + "/missAnalysis_text.txt", 'w') as f:
                 for i in range(n):
-                    f.write("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2], 
+                    f.write("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2],
                                                                                        data[i][1], round(data[i][3],2)))
                     f.write('-'*80)
-                    
+
         return True
 
 
@@ -1108,12 +1487,12 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
             n = len(data)
         if n<0:
             raise ValueError("'n' has to be a positive integer!")
-        
+
         if sort == 'ascending':
             pass
         elif sort == 'descending':
             data=data[::-1]
-            
+
         data = pd.DataFrame(data=data, columns=["Name", "tot_values","tot_miss", "perc_miss", "rank"])
         plt.figure(figsize=(7,7))
         ax = plt.subplot()
@@ -1140,8 +1519,8 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         if saveDir:
             plt.savefig(saveDir + "/missAnalysis_vis2.pdf")
         return True
-    
-    
+
+
     df = df[cols]
     data = create_data(df)
     if text==True:
@@ -1152,7 +1531,7 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         visualize_extra(df, saveDir)
 
 
-def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""], 
+def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                   exclusion=[""], customSearchTerm=None, makeWordCloud=False,
                   sort='pub+date', retmax=20, output="print"):
     """
@@ -1160,11 +1539,11 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
     Provide the search terms and pubmed will be searched for paper matching those
     The exclusion list can be used to exclude certain words to be contained in a paper
     If you want to perform more complicated searches use the possibility of using
-    a custom term. 
-    
+    a custom term.
+
     If you search for a not excact term you can use *
     For example opto* will also return optogenetic.
-    
+
     @params:
     ::ToA: List of words which must occur in Titel or Abstract
     ::text: List of words which must occur in text
@@ -1174,8 +1553,8 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
     ::CustomSearchTerm: Enter a custom search term (make use of advanced pubmed search functionality)
     ::makeWordCloud: Boolen, toggles whether to draw a wordcloud of the words in retrieved abstrace
     """
-    
-    
+
+
 
     def search(query,retmax, sort):
         Entrez.email = 'your.email@example.com'
@@ -1221,7 +1600,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 if not isinstance(abstract, str):
                     abstracts.append(abstract["AbstractText"][0])
         abstracts = (" ").join(abstracts)
-        
+
         #when exlusion list is added in wordcloud add those
         el = ["sup"]
 
@@ -1254,7 +1633,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                     print('-'*100)
                     print('*'*100)
                     print('-'*100)
-                    
+
         elif output[-4:] == ".txt":
             with open(output, 'w', encoding="utf-8") as f:
                 for i in final:
@@ -1286,11 +1665,11 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                         f.write('\n')
                         f.write('-'*100)
                         f.write('\n')
-                        
+
         # would be nice to have a nicer format -> idea write with html and save as such! :) noice!
         else:
             if output[-5:] == ".html":
-                pass 
+                pass
             else:
                 output += "/PubCrawlerResults.html"
             with open(output, 'w', encoding="utf-8") as f:
@@ -1344,15 +1723,15 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         if not isinstance(abstract, str):
             abstract = abstract["AbstractText"][0]
         abstract = abstract.split(" ")
-                
+
         if typ == "txt":
             for idx, word in enumerate(abstract):
                 f.write(word)
                 f.write(' ')
                 if idx%20==0 and idx>0:
                     f.write('\n')
-                
-               
+
+
         elif typ == "html":
             f.write('<p style="color:#202020">')
             for idx, word in enumerate(abstract):
@@ -1363,21 +1742,21 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                     f.write('<p style="color:#202020">')
             f.write('</p>')
 
-    
+
 
     # if function is executed in a loop a small deleay to ensure pubmed is responding
     time.sleep(0.5)
-    
+
     if customSearchTerm is None:
         term = makeSearchTerm(text, ToA, author, phrase,
                       exclusion)
     else:
         term = customSearchTerm
-    
+
     results = search(term, retmax, sort)["IdList"]
     if len(results) > 0:
         results2 = fetchDetails(set(results))
-    
+
         titles = []
         abstracts = []
         authors = []
@@ -1387,7 +1766,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         dates = []
         journals = []
         final = dict()
-        
+
         for paper in results2["PubmedArticle"]:
             #get titles
             titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
@@ -1417,7 +1796,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             #get pids
             pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"]=="pubmed"][0]))
             #get dates
-            
+
             rawDate = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
             try:
                 date = f"{rawDate['Year']}-{rawDate['Month']}-{rawDate['Day']}"
@@ -1426,13 +1805,13 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             dates.append(date)
             #get journal
             journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
-        
+
         final[term] = (titles,authors,abstracts,dois, links, pids, dates, journals)
 
         if makeWordCloud == True:
             makewc(final, output)
         genOutput(final, output, makeWordCloud)
- 
+
     else:
         print("No results for " + term)
 
@@ -1441,7 +1820,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=1):
     """
     https://medium.com/@langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a
     example:
-    
+
     evalDF = loess("t1/2_median_HeLa", "t1/2_median_Huh", data = comp, alpha=0.9, poly_degree=1)
 
     fig = plt.figure()
@@ -1453,7 +1832,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=1):
     plt.ylim(1,12)
     ax.plot([0, 1], [0, 1], transform=ax.transAxes)
     """
-    
+
     def loc_eval(x, b):
         loc_est = 0
         for i in enumerate(b): loc_est+=i[1]*(x**i[0])
@@ -1513,26 +1892,26 @@ def edm(A,B):
 def limma(df, reps, cond="", customDesign=None):
     """
     Function that performs moderated ttest as implemented in limma
-    
+
     TODO: better handle coefficient extraction in R
     """
-    
+
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
     if customDesign is None:
         designLoc = d + "/design.csv"
-    
+
     if "UID" in df.columns:
         pass
-    else: 
+    else:
         df["UID"] = range(1, df.shape[0]+1)
-    
+
     #if not isinstance(reps, list):
     #    cols = cols.to_list()
     #flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
-    
+
     if customDesign is None:
         if isinstance(reps[0], list) and len(reps) == 2:
             test = "twoSample"
@@ -1544,7 +1923,7 @@ def limma(df, reps, cond="", customDesign=None):
     else:
         test = "custom"
         designLoc = customDesign
-    
+
     command = [R, '--vanilla',
     RSCRIPT, #script location
     "limma", #functionName
@@ -1554,17 +1933,17 @@ def limma(df, reps, cond="", customDesign=None):
     designLoc #design location
     ]
     run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-   
+
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]
     df = df.merge(res, on="UID")
-    
+
     os.remove(dataLoc)
     os.remove(outputLoc)
     if customDesign is None:
         if isinstance(reps[0], list) and len(reps) == 2:
             os.remove(designLoc)
-    
+
     return df
 
 
@@ -1574,22 +1953,22 @@ def rankProd(df, reps, cond=""):
     At the moment one sample test only
     Test for up and downregulated genes separatly therefore returns two p values
     """
-    
+
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
-    
+
     if "UID" in df.columns:
         pass
-    else: 
+    else:
         df["UID"] = range(1, df.shape[0]+1)
-    
+
     #if not isinstance(reps, list):
     #    cols = cols.to_list()
     #flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
-    
-    
+
+
     command = [R, '--vanilla',
     RSCRIPT, #script location
     "rankProd", #functionName
@@ -1597,14 +1976,14 @@ def rankProd(df, reps, cond=""):
     outputLoc, #output file,
     ]
     run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    
+
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]
     df = df.merge(res, on="UID")
-    
+
     os.remove(dataLoc)
     os.remove(outputLoc)
-    
+
     return df
 
 
@@ -1620,27 +1999,27 @@ def annotatePS(df, ps, colsToKeep=[]):
         if file == "regSites":
             return df["GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["MOD_RSD"].fillna("").apply(lambda x: x.split('-')[0])
         return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["SUB_MOD_RSD"].fillna("")
-    
+
     with resources.open_text("autoprot.data","Kinase_Substrate_Dataset") as d:
                 KS = pd.read_csv(d, sep='\t')
                 KS["merge"] = makeMergeCol(KS, "KS")
     with resources.open_text("autoprot.data","Regulatory_sites") as d:
                 regSites = pd.read_csv(d, sep='\t')
                 regSites["merge"] = makeMergeCol(regSites)
-                
+
     KS_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
     regSites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
                    'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
-                   
+
     df = df.copy(deep=True)
     df.rename(columns={ps:"merge"}, inplace=True)
     df = df[["merge"] + colsToKeep]
     df = df.merge(KS[KS_coi], on="merge", how="left")
     df = df.merge(regSites[regSites_coi], on="merge", how="left")
-    
+
     return df
-    
-    
+
+
 def goAnalysis(geneList, organism="hsapiens"):
     """
     performs go Enrichment analysis (also KEGG and REAC)
@@ -1651,11 +2030,11 @@ def goAnalysis(geneList, organism="hsapiens"):
         except:
             raise ValueError("Please provide a list of gene names")
     return gp.profile(organism=organism, query=geneList,no_evidences=False)
-    
-    
+
+
 def makePSM(seq, seqLen):
     """
-    Function that generates a position score matrix for a set 
+    Function that generates a position score matrix for a set
     of given sequences
     Returns the percentage of each amino acid for each position
     could be further normalized using a PSM of unrelated/background sequences
@@ -1683,7 +2062,7 @@ def makePSM(seq, seqLen):
         'T':0,
     }
 
-    seq = [i for i in seq if len(i)==seqLen] 
+    seq = [i for i in seq if len(i)==seqLen]
     seqT = [''.join(s) for s in zip(*seq)]
     scoreMatrix = []
     for pos in seqT:
@@ -1705,7 +2084,7 @@ def makePSM(seq, seqLen):
     for i in range(m.shape[0]):
         x = [j for j in scoreMatrix[i].values()]
         m[i] = x
-        
+
     m = pd.DataFrame(m, columns=aa_dic.keys())
-        
+
     return m.T
