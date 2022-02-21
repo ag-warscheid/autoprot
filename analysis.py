@@ -285,15 +285,12 @@ class autoPCA:
     
     >>> autopca = autoprot.analysis.autoPCA(X, rlabels, clabels)
     
-    Generate plots
+    The scree plots describe how much of the total variance of the dataset is
+    explained ba the first n components. As you want to explain as variance as
+    possible with as little variables as possible, chosing the number of components
+    directly right to the steep descend of the plot is usually a good idea.
     
     >>> autopca.scree()
-    >>> autopca.corrComp(annot=False)
-    >>> autopca.barLoad(1)
-    >>> autopca.barLoad(2)
-    >>> autopca.scorePlot(pc1=1, pc2=2)
-    >>> autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
-    >>> autopca.biPlot(pc1=1, pc2=2)
     
     .. plot::
         :context: close-figs
@@ -311,13 +308,65 @@ class autoPCA:
         rlabels = np.nan
         autopca = ana.autoPCA(X, rlabels, clabels)
         autopca.scree()
+    
+    The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
+    influenced by a change in that variable) relative to the variables (i.e. the 
+    experiment conditions). If a weight (colorbar) is close to zero, the corresponding
+    PC is barely influenced by it.
+    
+    >>> autopca.corrComp(annot=False)
+    
+    .. plot::
+        :context: close-figs
+
         autopca.corrComp(annot=False)
+    
+    The bar loading plot is a different way to represent the weights/loads for each
+    condition and principle component. High values indicate a high influence of the
+    variable/condition on the PC.
+    
+    >>> autopca.barLoad(1)
+    >>> autopca.barLoad(2)
+    
+    .. plot::
+        :context: close-figs
+        
         autopca.barLoad(1)
-        autopca.barLoad(2)
+        autopca.barLoad(2)  
+        
+    The score plot shows how the different data points (i.e. proteins) are positioned
+    with respect to two principal components.
+    In more detail, the scores are the original data values multiplied by the
+    weights of each value for each principal component.
+    Usually they will separate more in the direction of PC1 as this component
+    explains the largest share of the data variance
+    
+    >>> autopca.scorePlot(pc1=1, pc2=2)
+    
+    .. plot::
+        :context: close-figs
+
         autopca.scorePlot(pc1=1, pc2=2)
+
+    The loading plot is the 2D representation of the barLoading plots and shows
+    the weights how each variable influences the two PCs.
+    
+    >>> autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+    
+    .. plot::
+        :context: close-figs
+        
         autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+    
+    The Biplot is a combination of loading plot and score plot as it shows the
+    scores for each protein as point and the weights for each variable as
+    vectors.
+    >>> autopca.biPlot(pc1=1, pc2=2)
+    
+    .. plot::
+        :context: close-figs
+    
         autopca.biPlot(pc1=1, pc2=2)
-        plt.show()
     """
     
     # =========================================================================
@@ -726,7 +775,7 @@ class autoPCA:
             sns.pairplot(forVis)
 
 class autoHCA:
-    """
+    r"""
     Conduct hierarchical cluster analysis.
     
     Usesr provides dataframe and can afterwards
@@ -744,7 +793,83 @@ class autoHCA:
     Depending on what the aim of your cluster analysis is you might want to
     perform a zscore transformation.
     
+    This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.
+    See source of generated images for details.
     
+    The autoHCA class is first initialised.
+    For this the fold-changes between two conditions are extracted from the dataframe
+    and new unique row labels containing the gene names, the phosphorylated amino
+    acid incl its position and the multiplicity e.g. 'Auts2 S469-1'.
+    The column labels are the conditions to compare.
+    
+    >>> data = temp[["logFC_TvM", "logFC_TvC"]].values
+    >>> clabels = ["TvM", "TvC"]
+    >>> rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
+    ... + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
+    ... '-' + temp["Multiplicity"].astype(str)
+    >>> clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
+    
+    A hierarchical clustering is generated using the makeLinkage method
+    
+    >>> clusterRes.makeLinkage(method="ward", metric="euclidean")
+    
+    To visualise the optimal number of clusters to match the data, the evalClustering
+    function provides three different metrices. See documentation of the function for
+    details on the metrices.
+    
+    >>> clusterRes.evalClustering(upTo=20)
+    
+    .. plot::
+        :context: close-figs
+        
+        import autoprot.preprocessing as pp
+        import autoprot.analysis as ana
+        import pandas as pd
+
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pp.cleaning(phos, file = "Phospho (STY)")   
+        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        phos = pp.log(phos, phosRatio, base=2)    
+        phos = pp.filterLocProb(phos, thresh=.75)
+        phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
+        phos = pp.removeNonQuant(phos, phosRatio)
+
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+
+        twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
+                        'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
+        twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
+                        "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
+        
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
+
+        temp = phos_expanded[(phos_expanded[["pValue_TvM", "pValue_TvC"]]<0.05).any(1)]
+        
+        data = temp[["logFC_TvM", "logFC_TvC"]].values
+        clabels = ["TvM", "TvC"]
+        rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
+        + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
+        '-' + temp["Multiplicity"].astype(str)
+        
+        clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
+        clusterRes.makeLinkage(method="ward", metric="euclidean")
+        clusterRes.evalClustering(upTo=20)
+        
+        plt.show()
+        
+        
+    After chosing a number of clusters, a cluster map together with several evaluation
+    plots such as line traces that show the RMSD variation of the data under the
+    different conditions for every cluster can be computed
+        
+    >>> clusterRes.clusterMap(nCluster=5, makeTraces=True)
+    
+        .. plot::
+            :context: close-figs
+            
+            clusterRes.clusterMap(nCluster=5, makeTraces=True)
     """
 
     def __init__(self, data, clabels=None, rlabels=None, zscore=None, linkage=None):
@@ -892,23 +1017,17 @@ class autoHCA:
         self.cluster = fcluster(self.linkage, # the hierarchical clustering
                                 t=n, # max number of clusters
                                 criterion="maxclust") # forms maximumum n=t clusters
+        
         # there should be as many colours as clusters
         if colors is None or len(colors) != n:
             colors = self._get_N_HexCol(n)
-        # produce n * x colours (with n = number of clusters and
-        # x = number of datapoints)
-        # TODO Check hat happens here: self.ClusterCol is overwritten n-1 times
-        # from seaborn:
-        # List of colors to label for either the rows or columns.
-        # Useful to evaluate whether samples within a group are clustered together.
-        # Can use nested lists or DataFrame for multiple color levels of labeling.
-        # If given as a pandas.DataFrame or pandas.Series,
-        # labels for the colors are extracted from the DataFrames column names
-        # or from the name of the Series.
-        # DataFrame/Series colors are also matched to the data by their index,
-        # ensuring colors are drawn in the correct order.
-        for i in range(n):
-            self.clusterCol = [colors[i] if j == i+1 else j for j in self.cluster]
+        
+        # indices of the colour list starting from 1
+        indices = [i+1 for i in range(len(colors))]
+        # dict mapping cluster numbers to colours
+        cluster2color = dict(zip(indices, colors))
+        # map the colours to the cluster names
+        self.clusterCol = [cluster2color[k] for k in self.cluster]
 
 
     def _makeClusterTraces(self,n,file,colors, z_score=None):
@@ -1010,9 +1129,22 @@ class autoHCA:
 
     def _makeSummary(self, n, file):
         """
-        n: number of cluster
-        ToDo: Maybe enable switch between heatmap and trace?
+        Make summary of clustering.
+
+        Parameters
+        ----------
+        n : int
+            number of clusters.
+        file : str
+            Path to write summary.
+
+        Returns
+        -------
+        None.
+
         """
+        # TODO Maybe enable switch between heatmap and trace?
+
         temp = self.data.copy(deep=True)
         temp["cluster"] = self.cluster
         grouped = temp.groupby("cluster")[self.data.columns].mean()
@@ -1046,8 +1178,8 @@ class autoHCA:
             List corresponsding to left off-diagonal elememnts of the
             correlation matrix.
             
-        Example
-        -------
+        Examples
+        --------
         >>> a = [
         ...     [0.1, .32, .2,  0.4, 0.8], 
         ...     [.23, .18, .56, .61, .12], 
@@ -1229,8 +1361,8 @@ class autoHCA:
 
         """
         # summaryMap: report heatmap with means of each cluster
-        # -> also provide summary for each cluster like number of entries?
-        #savemode just preliminary have to be overworked here
+        # TODO -> also provide summary for each cluster like number of entries?
+        # TODO savemode just preliminary have to be overworked here
 
         # generates self.cluster with cluster labels and
         # self.clusterCol with some matrix of colours
@@ -1245,44 +1377,65 @@ class autoHCA:
             rowColors["cluster"] = self.clusterCol
             # convert dict to dataframe to use as multi-index labeling col in sns
             temp = pd.DataFrame(rowColors)
-            # 
-            cols = ["cluster"] + temp.drop("cluster", axis=1).columns.to_list()
-            temp = temp[cols]
+            # set the same index as the data to plot
             temp.index = self.data.index
         else:
+            # if no extra labeling row is provided, use only the list of
+            # colours corresponding to cluster names
             temp = self.clusterCol
 
-        sns.clustermap(self.data, row_linkage=self.linkage,
-                   row_colors=temp, col_cluster=colCluster,
-                   yticklabels=yticklabels, **kwargs)
+        # We plot usually ratios or zscores
+        value_type = 'z-score' if "z_score" in kwargs.keys() else 'value'
 
+        sns.clustermap(self.data, # Rectangular data for clustering. Cannot contain NAs.
+                       row_linkage=self.linkage, # precalculated distance metric
+                       row_colors=temp, # list of colours or pd.DataFrame with colours
+                       col_cluster=colCluster, # cluster the columns
+                       yticklabels=yticklabels, # set coname labels
+                       cbar_kws={'label': value_type},
+                       **kwargs)
+        
+        # save the file if necessary
         if file is not None:
             plt.savefig(file)
 
+        # compute RMSD traces for the deviations of values in each cluster
+        # separated by condition
         if makeTraces == True:
             if "z_score" in kwargs.keys():
                 self._makeClusterTraces(nCluster, file, z_score=kwargs["z_score"], colors=colors)
             else:
                 self._makeClusterTraces(nCluster, file, colors=colors)
 
+        # generate a summary
         if summary == True:
             self._makeSummary(nCluster, file)
 
 
-
     def returnCluster(self):
-        """
-        return df with clustered data
-        """
+        """Return dataframe with clustered data."""
         temp = self.data
+        # add the cluster information as col
         temp["cluster"] = self.cluster
         return temp
 
 
     def writeClusterFiles(self, rootdir):
         """
-        generates folder with text files for each
-        cluster at provided rootdir
+        Generate a folder with text files for each cluster.
+
+        Parameters
+        ----------
+        rootdir : str
+            Path to target dir.
+            If the folder is named clusterResults, text files will be saved
+            within.
+            Else a new folder clusterResults will be created.
+
+        Returns
+        -------
+        None.
+
         """
         path = os.path.join(rootdir, "clusterResults")
         if "clusterResults" in os.listdir(rootdir):
@@ -1304,20 +1457,6 @@ class KSEA:
     This data has to contain information about Gene name, position and amino acid of the peptides with
     "Gene names", "Position" and "Amino acid" as the respective column names.
     Optionally you can provide a "Multiplicity" column.
-
-    Methods
-    -------
-    addSubstrate(kinase, substrate, subModRsd)
-        Function that allows user to manually add substrates.
-    removeManualSubs
-    annotate
-    getKinaseOverview
-    ksea
-    returnEnrichment
-    plotEnrichment
-    volcanos
-    returnKinaseSubstrate
-    annotateDf
     """
 
     def __init__(self, data):
