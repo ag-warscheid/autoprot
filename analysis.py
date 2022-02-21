@@ -46,6 +46,7 @@ RSCRIPT, R = RHelper.returnRPath()
 #check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
+
 def ttest(df, reps, cond="", mean=True, adjustPVals=True):
     r"""
     Perform one or two sample ttest.
@@ -56,7 +57,8 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         Input dataframe.
     reps : list of str or list of lists of str
         The replicates to be included in the statistical test.
-        Either a list of the replicates or a list containing two list with the respective replicates.
+        Either a list of the replicates or a list containing two list with the
+        respective replicates.
     cond : str, optional
         The name of the condition.
         This is used for naming the returned results.
@@ -65,7 +67,8 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         Whether to calculate the logFC of the provided data.
         For the one sample ttest log2 transformed ratios are expected.
         For the two sample ttest log transformed intensities are expected.
-        If mean=True for two sample ttest, the log2 ratio of the provided replicates will be calculated.
+        If mean=True for two sample ttest, the log2 ratio of the provided
+        replicates will be calculated.
         The default is True.
     adjustPVals : bool, optional
         Whether to adjust P-values. The default is True.
@@ -126,7 +129,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         plt.show()
 
     """
-    cond = '_'+cond
+    cond = '_' + cond
     if isinstance(reps[0], list) and len(reps) == 2:
         df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: np.ma.filled(ttest_ind(x[:len(reps[0])], x[len(reps[0]):], nan_policy="omit")[1],np.nan),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
@@ -336,8 +339,10 @@ class autoPCA:
             Row labels.
         clabels : list of str
             Column labels.
-        batch : TYPE, optional
-            DESCRIPTION. The default is None.
+        batch : list of str, optional
+            Labels for distinct conditions used to colour dots in score plot.
+            Must be the length of rlabels.
+            The default is None.
 
         Returns
         -------
@@ -866,40 +871,105 @@ class autoHCA:
 
 
     def _makeCluster(self, n, colors):
-        self.cluster = fcluster(self.linkage, t=n, criterion="maxclust")
-        self.clusterCol = fcluster(self.linkage, t=n, criterion="maxclust")
+        """
+        Form flat clusters from the hierarchical clustering of linkage.
+
+        Parameters
+        ----------
+        n : int
+            Max number of clusters.
+        colors : None or list of RGB_tuples
+            Colors for the clusters.
+            If none, new colors are generated.
+
+        Returns
+        -------
+        None.
+
+        """
+        # self.cluster is an ndarray of length x
+        # with x = number of original data points
+        self.cluster = fcluster(self.linkage, # the hierarchical clustering
+                                t=n, # max number of clusters
+                                criterion="maxclust") # forms maximumum n=t clusters
+        # there should be as many colours as clusters
         if colors is None or len(colors) != n:
             colors = self._get_N_HexCol(n)
+        # produce n * x colours (with n = number of clusters and
+        # x = number of datapoints)
+        # TODO Check hat happens here: self.ClusterCol is overwritten n-1 times
+        # from seaborn:
+        # List of colors to label for either the rows or columns.
+        # Useful to evaluate whether samples within a group are clustered together.
+        # Can use nested lists or DataFrame for multiple color levels of labeling.
+        # If given as a pandas.DataFrame or pandas.Series,
+        # labels for the colors are extracted from the DataFrames column names
+        # or from the name of the Series.
+        # DataFrame/Series colors are also matched to the data by their index,
+        # ensuring colors are drawn in the correct order.
         for i in range(n):
-            self.clusterCol = [colors[i] if j == i+1 else j for j in self.clusterCol]
+            self.clusterCol = [colors[i] if j == i+1 else j for j in self.cluster]
 
 
     def _makeClusterTraces(self,n,file,colors, z_score=None):
+        """
+        Plot RMSD vs colname line plots.
+
+        Shaded areas representing groups of RMSDs are plotted.
+
+        Parameters
+        ----------
+        n : int
+            Number of Clusters to visualise.
+        file : str
+            Filename with extension to save file to.
+            Will be extended by FNAME_traces.EXT.
+        colors : list of str or None.
+            Colours for the traces. If none, the same predefined colours will
+            be used for all n traces.
+        z_score : int or None, optional
+            Axis along which to standardise the data by z-score transformation.
+            The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
         plt.figure(figsize=(5,3*n))
         temp = pd.DataFrame(self.data.copy(deep=True))
         if z_score is not None:
-            temp = pd.DataFrame(zscore(temp, axis=1-z_score)) #seaborn and scipy work opposit
+            # calculate the z-score using scipy using the other axis (i.e. axis=0 if
+            # 1 was provided and vice versa)
+            temp = pd.DataFrame(zscore(temp, axis=1-z_score)) #seaborn and scipy work opposite
+        # ndarray containing the cluster numbers for each data point
         temp["cluster"] = self.cluster
 
+        # iterate over the generated clusters
         for i in range(n):
 
             ax = plt.subplot(n, 1, i+1)
+            # slice data points belonging to a certain cluster number
             temp2 = temp[temp["cluster"]==i+1].drop("cluster", axis=1)
 
-            #basically we just compute the root mean square deviation of the protein Towards the mean of the cluster
-            #as a helper we take the -log of the rmsd in order To plot in the proper sequence
+            # compute the root mean square deviation of the z-scores or the protein log fold changes
+            # as a helper we take the -log of the rmsd in order to plot in the proper sequence
+            # i.e. low RMSDs take on large -log values and thereofore are plotted
+            # last and on the top
             temp2["distance"] = temp2.apply(lambda x: -np.log(np.sqrt(sum((x-temp2.mean())**2))),1)
 
             if temp2.shape[0] == 1:
-                # if cluster contains only 1 entry
+                # if cluster contains only 1 entry i.e. one condition
                 ax.set_title("Cluster {}".format(i+1))
                 ax.set_ylabel("")
                 ax.set_xlabel("")
                 # ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3), color=color[idx], alpha=alpha[idx])
-                ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3))
+                ax.plot(range(temp2.shape[1]-1),
+                        temp2.drop("distance", axis=1).values.reshape(3))
                 plt.xticks(range(len(self.clabels)), self.clabels)
                 continue
 
+            # bin the RMSDs into five groups
             temp2["distance"] = pd.cut(temp2["distance"],5)
 
             #get aestethics for traces
@@ -908,20 +978,30 @@ class autoHCA:
             else:
                 color = [colors[i]]*5
             color=color[::-1]
-            alpha=[0.6,0.4,0.25,0.2,0.1]
-            alpha=alpha[::-1]
+            alpha=[0.1, 0.2, 0.25, 0.4, 0.6]
 
+            # group into the five RMSD bins
             grouped = temp2.groupby("distance")
 
             ax.set_title("Cluster {}".format(i+1))
-            ax.set_ylabel("")
-            ax.set_xlabel("")
+            if z_score == None:
+                ax.set_ylabel("-ln RMSD(value)")
+            else:
+                ax.set_ylabel("-ln RMSD(z-score)")
+            ax.set_xlabel("Condition")
+            
+            # for every RMSD group
             for idx, (i, group) in enumerate(grouped):
+                # for every condition (i.e. colname)
                 for j in range(group.shape[0]):
-                    ax.plot(range(temp2.shape[1]-1),group.drop("distance", axis=1).iloc[j], color=color[idx], alpha=alpha[idx])
-
+                    ax.plot(range(temp2.shape[1]-1),
+                            group.drop("distance", axis=1).iloc[j],
+                            color=color[idx],
+                            alpha=alpha[idx])
+            # set the tick labels as the colnames
             plt.xticks(range(len(self.clabels)), self.clabels)
 
+            # save to file if asked
             if file is not None:
                 name, ext = file.split('.')
                 filet = f"{name}_traces.{ext}"
@@ -953,37 +1033,132 @@ class autoHCA:
 
     def asDist(self, c):
         """
-        function that takes a matrix (i.e. correlation matrix)
-        and converts it into a distance matrix which can be used
-        for hierachical clustering
-        @param c: correlatoin matrix
+        Convert a matrix (i.e. correlation matrix) into a distance matrix for hierachical clustering.
+
+        Parameters
+        ----------
+        c : np.ndarray
+            Input matrix.
+
+        Returns
+        -------
+        list
+            List corresponsding to left off-diagonal elememnts of the
+            correlation matrix.
+            
+        Example
+        -------
+        >>> a = [
+        ...     [0.1, .32, .2,  0.4, 0.8], 
+        ...     [.23, .18, .56, .61, .12], 
+        ...     [.9,   .3,  .6,  .5,  .3], 
+        ...     [.34, .75, .91, .19, .21]
+        ...      ]
+        >>> c = np.corrcoef(a)
+        >>> c
+        array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],
+               [-0.35153114,  1.        ,  0.23810227,  0.15958285],
+               [-0.74736506,  0.23810227,  1.        , -0.03960706],
+               [-0.48917666,  0.15958285, -0.03960706,  1.        ]])
+        >>> autoprot.autoHCA.asDist(c)
+        [-0.3515311393849671,
+         -0.7473650573493561,
+         -0.4891766567441463,
+         0.23810227412143423,
+         0.15958285448266604,
+         -0.03960705975653923]
         """
         return [c[i][j] for i in (range(c.shape[0])) for j in (range(c.shape[1])) if i<j]
 
     def makeLinkage(self, method, metric):
         """
-        Function that generates linkage used for HCA
-        params@
-        :method:: which method is used for the clustering (single, average, complete)
-        :metric:: which metric is used to calculate distance
-        :zscore:: whether to performe zscore transformation prior to clustering
+        Perform hierarchical clustering on the data.
+
+        Parameters
+        ----------
+        method : str
+            Which method is used for the clustering.
+            Possible are 'single', 'average' and 'complete' and all values
+            for method of scipy.cluster.hierarchy.linkage
+            See: https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+        metric : str
+            Which metric is used to calculate distance.
+            Possible values are 'pearson', 'spearman' and all metrics
+            implemented in scipy.spatial.distance.pdist
+            See: https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
+
+        Returns
+        -------
+        None.
+
         """
+        # First calculate a distance metric between the points
         if metric in ["pearson", "spearman"]:
             corr = pd.DataFrame(self.data).T.corr(metric).values
             dist = self.asDist(1 - corr)
         else:
             dist = distance.pdist(self.data, metric=metric)
+        # perform hierarchical clustering using the distance metric
+        # the returned matrix self-linkage contains n-1 x 4 elements
+        # with each row representing
+        # cluster1, cluster2, distance_between_1_and_2,
+        # number_of_observations_in_the_cluster
         self.linkage = hierarchy.linkage(dist, method=method)
 
 
     def evalClustering(self,start=2, upTo=20, figsize=(15,5)):
         """
-        Function evaluates number of cluster
+        Evaluate number of clusters.
+
+        Parameters
+        ----------
+        start : int, optional
+            The minimum number of clusters to plot. The default is 2.
+        upTo : int, optional
+            The maximum nbumber of clusters to plot. The default is 20.
+        figsize : tuple of float or int, optional
+            The size of the plotted figure.
+            The default is (15,5).
+
+        Notes
+        -----
+        Davies-Bouldin score:
+            The score is defined as the average similarity measure of each 
+            cluster with its most similar cluster, where similarity is the
+            ratio of within-cluster distances to between-cluster distances.
+            Thus, clusters which are farther apart and less dispersed will
+            result in a better score.
+            The minimum score is zero, with lower values indicating better
+            clustering.
+        Silhouette score:
+            The Silhouette Coefficient is calculated using the mean
+            intra-cluster distance (a) and the mean nearest-cluster
+            distance (b) for each sample. The Silhouette Coefficient for a
+            sample is (b - a) / max(a, b). To clarify, b is the distance
+            between a sample and the nearest cluster that the sample is not a
+            part of. Note that Silhouette Coefficient is only defined if
+            number of labels is 2 <= n_labels <= n_samples - 1.
+            The best value is 1 and the worst value is -1. Values near 0
+            indicate overlapping clusters. Negative values generally indicate
+            that a sample has been assigned to the wrong cluster, as a
+            different cluster is more similar.
+        Harabasz score:
+            It is also known as the Variance Ratio Criterion.
+            The score is defined as ratio between the within-cluster dispersion
+            and the between-cluster dispersion.
+
+        Returns
+        -------
+        None.
+
         """
         upTo += 1
         pred = []
         for i in range(start,upTo):
+            # return the assigned cluster labels for each data point
             cluster = fcluster(self.linkage,t=i, criterion='maxclust')
+            # calculate scores based on assigned cluster labels and
+            # the original data points
             pred.append((davies_bouldin_score(self.data, cluster),
                        silhouette_score(self.data, cluster),
                        calinski_harabasz_score(self.data, cluster)))
@@ -1010,19 +1185,55 @@ class autoHCA:
         print(f"Best Harabasz/Calinski at {start + list(pred[::,2]).index(max(pred[::,2]))} with {max(pred[::,2])}")
 
 
-    def clusterMap(self, nCluster=None, colCluster=False, makeTraces=False, summary=False, file=None, rowColors=None,
+    def clusterMap(self, nCluster=None, colCluster=False, makeTraces=False,
+                   summary=False, file=None, rowColors=None,
                    colors=None,yticklabels="", **kwargs):
         """
-        :@nCluster: int; how many clusters to be generated
-        :@colCluster: bool; whether to cluster the columns
-        :@makeTraces: bool; whether to generated traces of each cluster
-        :@summary: not implemented -> generates some kind of summary
-        :@file: pathname; if provided figure is saved there
-        :@rowColors: dict; dictionary of title and colors for row coloring has to be same length as provided data
+        Visualise the clustering.
+
+        Parameters
+        ----------
+        nCluster : int, optional
+            How many clusters to annotate. The default is None.
+        colCluster : bool, optional
+            Whether to cluster the columns. The default is False.
+        makeTraces : bool, optional
+            Whether to generate traces of each cluster. The default is False.
+        summary : bool, optional
+            Whether to generate a summery.
+            NOT IMPLEMENTED.
+            The default is False.
+        file : str, optional
+            Path to the output plot file. The default is None.
+        rowColors : dict, optional
+            dictionary of title and colors for row coloring.
+            Generates an additional column in the heatmeap showing
+            the indicated columns values as colors.
+            Has to be same length as provided data.
+            The default is None.
+        colors : list of str, optional
+            Colors for the annotated clusters.
+            Has to be the same size as nCluster.
+            The default is None.
+        yticklabels : TYPE, optional
+            DESCRIPTION. The default is "".
+        **kwargs :
+            passed to seaborn.clustermap.
+            See https://seaborn.pydata.org/generated/seaborn.clustermap.html
+            May also contain 'z-score' that is used during making of
+            cluster traces.
+
+        Returns
+        -------
+        None.
+
         """
-        # summaryMap: report heatmap with means of each cluster -> also provide summary for each cluster like number of entries?
+        # summaryMap: report heatmap with means of each cluster
+        # -> also provide summary for each cluster like number of entries?
         #savemode just preliminary have to be overworked here
 
+        # generates self.cluster with cluster labels and
+        # self.clusterCol with some matrix of colours
         if nCluster is not None:
             self._makeCluster(nCluster, colors)
 
@@ -1030,12 +1241,16 @@ class autoHCA:
             kwargs["cmap"] = self.cmap
 
         if rowColors is not None:
+            # add the cluster color information
             rowColors["cluster"] = self.clusterCol
+            # convert dict to dataframe to use as multi-index labeling col in sns
             temp = pd.DataFrame(rowColors)
+            # 
             cols = ["cluster"] + temp.drop("cluster", axis=1).columns.to_list()
             temp = temp[cols]
             temp.index = self.data.index
-        else: temp = self.clusterCol
+        else:
+            temp = self.clusterCol
 
         sns.clustermap(self.data, row_linkage=self.linkage,
                    row_colors=temp, col_cluster=colCluster,

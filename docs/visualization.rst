@@ -1,5 +1,5 @@
-visualization module
---------------------
+Data Visualization
+------------------
 
 .. automodule:: autoprot.visualization
    :members:

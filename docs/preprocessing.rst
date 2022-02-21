@@ -1,5 +1,5 @@
-The preprocessing module
-------------------------
+Data Preprocessing
+------------------
 
 The preprocessing module contains several functions to preprocess data.
 

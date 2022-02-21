@@ -1,5 +1,5 @@
-autoprot workflows
-------------------
+Workflows
+---------
 
 .. automodule:: autoprot.workflows
    :members:
