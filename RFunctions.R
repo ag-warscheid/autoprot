@@ -65,7 +65,6 @@ limmaFunction <- function(dfv) {
     design <- data.frame(coef)
   }
   
-  
   fit <- lmFit(dfv, design)
   eb <- eBayes(fit)
   res <- topTable(eb, coef="coef", number=Inf, confint = TRUE)

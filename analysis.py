@@ -9,11 +9,10 @@ Autoprot Analysis Functions.
 import os
 from subprocess import run, PIPE
 from importlib import resources
-from pathlib import Path
 from scipy.stats import ttest_1samp, ttest_ind, zscore
 from scipy.spatial import distance
 from scipy.cluster import hierarchy
-from scipy.cluster.hierarchy import maxdists,fcluster
+from scipy.cluster.hierarchy import fcluster
 from statsmodels.stats import multitest as mt
 import pandas as pd
 import numpy as np
@@ -24,12 +23,10 @@ import pylab as pl
 import colorsys
 import seaborn as sns
 from operator import itemgetter
-import itertools
 from Bio import Entrez
 import time
 from autoprot import visualization as vis
 from autoprot import RHelper
-import wordcloud as wc
 import warnings
 import missingno as msn
 from gprofiler import GProfiler
@@ -265,33 +262,33 @@ class autoPCA:
 
     Examples
     --------
-    for PCA no missing values are allowed 
+    for PCA no missing values are allowed
     filter those and store complete dataframe
-    
+
     >>> temp = prot[~prot.filter(regex="log2.*norm").isnull().any(1)]
-    
+
     get the matrix of quantitative values corresponding to conditions of interest
     Here we only use the first replicate for clarity
-    
+
     >>> X = temp.filter(regex="log2.*norm.*_1$")
-    
+
     generate appropiate names for the columns and rows of the matrix
     for example here the columns represent the conditions and we are not interested in the rows (which are the genes)
-    
+
     >>> clabels = X.columns
     >>> rlabels = np.nan
-    
+
     generate autopca object
-    
+
     >>> autopca = autoprot.analysis.autoPCA(X, rlabels, clabels)
-    
+
     The scree plots describe how much of the total variance of the dataset is
     explained ba the first n components. As you want to explain as variance as
     possible with as little variables as possible, chosing the number of components
     directly right to the steep descend of the plot is usually a good idea.
-    
+
     >>> autopca.scree()
-    
+
     .. plot::
         :context: close-figs
 
@@ -308,41 +305,41 @@ class autoPCA:
         rlabels = np.nan
         autopca = ana.autoPCA(X, rlabels, clabels)
         autopca.scree()
-    
+
     The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
-    influenced by a change in that variable) relative to the variables (i.e. the 
+    influenced by a change in that variable) relative to the variables (i.e. the
     experiment conditions). If a weight (colorbar) is close to zero, the corresponding
     PC is barely influenced by it.
-    
+
     >>> autopca.corrComp(annot=False)
-    
+
     .. plot::
         :context: close-figs
 
         autopca.corrComp(annot=False)
-    
+
     The bar loading plot is a different way to represent the weights/loads for each
     condition and principle component. High values indicate a high influence of the
     variable/condition on the PC.
-    
+
     >>> autopca.barLoad(1)
     >>> autopca.barLoad(2)
-    
+
     .. plot::
         :context: close-figs
-        
+
         autopca.barLoad(1)
-        autopca.barLoad(2)  
-        
+        autopca.barLoad(2)
+
     The score plot shows how the different data points (i.e. proteins) are positioned
     with respect to two principal components.
     In more detail, the scores are the original data values multiplied by the
     weights of each value for each principal component.
     Usually they will separate more in the direction of PC1 as this component
     explains the largest share of the data variance
-    
+
     >>> autopca.scorePlot(pc1=1, pc2=2)
-    
+
     .. plot::
         :context: close-figs
 
@@ -350,25 +347,25 @@ class autoPCA:
 
     The loading plot is the 2D representation of the barLoading plots and shows
     the weights how each variable influences the two PCs.
-    
+
     >>> autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
-    
+
     .. plot::
         :context: close-figs
-        
+
         autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
-    
+
     The Biplot is a combination of loading plot and score plot as it shows the
     scores for each protein as point and the weights for each variable as
     vectors.
     >>> autopca.biPlot(pc1=1, pc2=2)
-    
+
     .. plot::
         :context: close-figs
-    
+
         autopca.biPlot(pc1=1, pc2=2)
     """
-    
+
     # =========================================================================
     # TODO
     # - Add interactive 3D scatter plot
@@ -754,7 +751,7 @@ class autoPCA:
         Notes
         -----
         Be careful for large data this might crash you PC -> better specify n!
-        
+
         Returns
         -------
         None.
@@ -777,13 +774,13 @@ class autoPCA:
 class autoHCA:
     r"""
     Conduct hierarchical cluster analysis.
-    
+
     Usesr provides dataframe and can afterwards
     use various metrics and methods to perfom and evaluate
     clustering.
     StandarWorkflow:
     makeLnkage() -> evalClustering() -> clusterMap() -> writeClusterFiles()
-    
+
     Examples
     --------
     autoProt provides a class which allows the easy implementation and
@@ -792,44 +789,44 @@ class autoHCA:
     You may also want to provide appropriate row and column labels.
     Depending on what the aim of your cluster analysis is you might want to
     perform a zscore transformation.
-    
+
     This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.
     See source of generated images for details.
-    
+
     The autoHCA class is first initialised.
     For this the fold-changes between two conditions are extracted from the dataframe
     and new unique row labels containing the gene names, the phosphorylated amino
     acid incl its position and the multiplicity e.g. 'Auts2 S469-1'.
     The column labels are the conditions to compare.
-    
+
     >>> data = temp[["logFC_TvM", "logFC_TvC"]].values
     >>> clabels = ["TvM", "TvC"]
     >>> rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
     ... + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
     ... '-' + temp["Multiplicity"].astype(str)
     >>> clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
-    
+
     A hierarchical clustering is generated using the makeLinkage method
-    
+
     >>> clusterRes.makeLinkage(method="ward", metric="euclidean")
-    
+
     To visualise the optimal number of clusters to match the data, the evalClustering
     function provides three different metrices. See documentation of the function for
     details on the metrices.
-    
+
     >>> clusterRes.evalClustering(upTo=20)
-    
+
     .. plot::
         :context: close-figs
-        
+
         import autoprot.preprocessing as pp
         import autoprot.analysis as ana
         import pandas as pd
 
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phos = pp.cleaning(phos, file = "Phospho (STY)")   
+        phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-        phos = pp.log(phos, phosRatio, base=2)    
+        phos = pp.log(phos, phosRatio, base=2)
         phos = pp.filterLocProb(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
@@ -841,41 +838,70 @@ class autoHCA:
                         'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
         twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
-        
+
         phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
         phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
 
         temp = phos_expanded[(phos_expanded[["pValue_TvM", "pValue_TvC"]]<0.05).any(1)]
-        
+
         data = temp[["logFC_TvM", "logFC_TvC"]].values
         clabels = ["TvM", "TvC"]
         rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
         + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
         '-' + temp["Multiplicity"].astype(str)
-        
+
         clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
         clusterRes.makeLinkage(method="ward", metric="euclidean")
         clusterRes.evalClustering(upTo=20)
-        
+
         plt.show()
-        
-        
+
+
     After chosing a number of clusters, a cluster map together with several evaluation
     plots such as line traces that show the RMSD variation of the data under the
     different conditions for every cluster can be computed
-        
+
     >>> clusterRes.clusterMap(nCluster=5, makeTraces=True)
-    
-        .. plot::
-            :context: close-figs
-            
-            clusterRes.clusterMap(nCluster=5, makeTraces=True)
+
+    .. plot::
+        :context: close-figs
+
+        clusterRes.clusterMap(nCluster=5, makeTraces=True)
+
+
+    It is also possible to predefine the colours for the clusters and add an
+    additional row with colours indicating additional features such as the
+    phosphorylation multiplicity for a peptide.
+    Note that row_color is a dict linking a col name to a list of colours.
+
+    >>> temp["color"] = temp["Multiplicity"]
+    >>> temp["color"].replace([1,2,3], ["teal", "purple", "salmon"], inplace=True)
+    >>> rc = {"multiplicity" : temp["color"]}
+
+    >>> clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,
+    ...                       colors=["green", "chartreuse", "blue", "hotpink", "gold"])
+
+
+    .. plot::
+        :context: close-figs
+
+        temp["color"] = temp["Multiplicity"]
+        temp["color"].replace([1,2,3], ["teal", "purple", "salmon"], inplace=True)
+        rc = {"multiplicity" : temp["color"]}
+
+        clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,
+                              colors=["green", "chartreuse", "blue", "hotpink", "gold"])
+
+    Further you can also extract the clustering as dataframe or write them into files
+
+    >>> clusterDf = clusterRes.returnCluster()
+    >>> clusterRes.writeClusterFiles("thePathOfChoice")
     """
 
     def __init__(self, data, clabels=None, rlabels=None, zscore=None, linkage=None):
         """
         Initialise the class.
-        
+
         Parameters
         ----------
         data : np.array
@@ -1017,11 +1043,11 @@ class autoHCA:
         self.cluster = fcluster(self.linkage, # the hierarchical clustering
                                 t=n, # max number of clusters
                                 criterion="maxclust") # forms maximumum n=t clusters
-        
+
         # there should be as many colours as clusters
         if colors is None or len(colors) != n:
             colors = self._get_N_HexCol(n)
-        
+
         # indices of the colour list starting from 1
         indices = [i+1 for i in range(len(colors))]
         # dict mapping cluster numbers to colours
@@ -1108,7 +1134,7 @@ class autoHCA:
             else:
                 ax.set_ylabel("-ln RMSD(z-score)")
             ax.set_xlabel("Condition")
-            
+
             # for every RMSD group
             for idx, (i, group) in enumerate(grouped):
                 # for every condition (i.e. colname)
@@ -1177,13 +1203,13 @@ class autoHCA:
         list
             List corresponsding to left off-diagonal elememnts of the
             correlation matrix.
-            
+
         Examples
         --------
         >>> a = [
-        ...     [0.1, .32, .2,  0.4, 0.8], 
-        ...     [.23, .18, .56, .61, .12], 
-        ...     [.9,   .3,  .6,  .5,  .3], 
+        ...     [0.1, .32, .2,  0.4, 0.8],
+        ...     [.23, .18, .56, .61, .12],
+        ...     [.9,   .3,  .6,  .5,  .3],
         ...     [.34, .75, .91, .19, .21]
         ...      ]
         >>> c = np.corrcoef(a)
@@ -1255,7 +1281,7 @@ class autoHCA:
         Notes
         -----
         Davies-Bouldin score:
-            The score is defined as the average similarity measure of each 
+            The score is defined as the average similarity measure of each
             cluster with its most similar cluster, where similarity is the
             ratio of within-cluster distances to between-cluster distances.
             Thus, clusters which are farther apart and less dispersed will
@@ -1377,6 +1403,8 @@ class autoHCA:
             rowColors["cluster"] = self.clusterCol
             # convert dict to dataframe to use as multi-index labeling col in sns
             temp = pd.DataFrame(rowColors)
+            cols = ["cluster"] + temp.drop('cluster', axis=1).columns.to_list()
+            temp = temp[cols]
             # set the same index as the data to plot
             temp.index = self.data.index
         else:
@@ -1394,7 +1422,7 @@ class autoHCA:
                        yticklabels=yticklabels, # set coname labels
                        cbar_kws={'label': value_type},
                        **kwargs)
-        
+
         # save the file if necessary
         if file is not None:
             plt.savefig(file)
@@ -1450,23 +1478,182 @@ class autoHCA:
 
 
 class KSEA:
-    """
+    r"""
     Perform kinase substrate enrichment analysis.
 
-    You have to provide phosphoproteomic data.
-    This data has to contain information about Gene name, position and amino acid of the peptides with
-    "Gene names", "Position" and "Amino acid" as the respective column names.
-    Optionally you can provide a "Multiplicity" column.
+    Notes
+    -----
+    KSEA uses the Kinase-substrate dataset and the
+    regulatory-sites dataset from https://www.phosphosite.org/staticDownloads
+
+    Examples
+    --------
+    KSEA is a method to get insights on which kinases are active in a given
+    phosphoproteomic dataset. This is a great method to gain deeper insights
+    on the underlying signaling mechanisms and also to generate novel
+    hypothesis and find new connections in signaling processes.
+    The KSEA class allows you to easily perform the analysis and
+    comes with helpful functions to visualize and interpret your results.
+
+    In the first step of the analysis you have to generate a KSEA object.
+
+    >>> ksea = autoprot.analysis.KSEA(phos)
+
+    Next, you can annotate the data with respective kinases.
+    You can provide the function with a organism of your choice as well as
+    toggle whether or not to screen for only in vivo determined substrate
+    phosphorylation of the respective kinases.
+
+    >>> ksea.annotate(organism="mouse", onlyInVivo=True)
+
+    After the annotation it is always a good idea to get an overview of the
+    kinases in the data an how many substrates the have. Based on this you
+    might want to adjust a cutoff specifying the minimum number of substrates
+    per kinase.
+
+    >>> ksea.getKinaseOverview(kois=["Akt1","MKK4", "P38A", "Erk1"])
+
+    Next, you can perform the actual kinase substrate enrichment analysis.
+    The analysis is based on the log fold change of your data.
+    Therefore, you have to provide the function with the appropiate column of
+    your data and the minimum number of substrates per kinase.
+
+    >>> ksea.ksea(col="logFC_TvC", minSubs=5)
+
+    After the ksea has finished, you can get information for further analysis
+    such as the substrates of a specific kinase (or a list of kinases)
+
+    >>> ksea.returnKinaseSubstrate(kinase=["Akt1", "MKK4"]).sample() # doctest: +SKIP
+
+    or a new dataframe with additional columns for every kinase showing if the
+    protein is a substrate of that kinase or not
+
+    >>> ksea.annotateDf(kinases=["Akt1", "MKK4"]).iloc[:2,-5:]
+
+    Eventually, you can also generate plots of the enrichment analysis.
+
+    >>> ksea.plotEnrichment(up_col="salmon",
+    ...                     bg_col="pink",
+    ...                     down_col="hotpink")
+
+    .. plot::
+        :context: close-figs
+
+        import autoprot.preprocessing as pp
+        import autoprot.analysis as ana
+        import pandas as pd
+
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pp.cleaning(phos, file = "Phospho (STY)")
+        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        phos = pp.log(phos, phosRatio, base=2)
+        phos = pp.filterLocProb(phos, thresh=.75)
+        phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
+        phos = pp.removeNonQuant(phos, phosRatio)
+
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+
+        twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
+                        'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
+        twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
+                        "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
+
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
+
+        ksea = ana.KSEA(phos)
+        ksea.annotate(organism="mouse", onlyInVivo=True)
+        ksea.getKinaseOverview(kois=["Akt1","MKK4", "P38A", "Erk1"])
+        ksea.ksea(col="logFC_TvC", minSubs=5)
+
+        ksea.plotEnrichment(up_col="salmon",
+                            bg_col="pink",
+                            down_col="hotpink")
+
+    You can also highlight a list of kinases in volcano plots.
+    This is based on the autoprot volcano function.
+    You can pass all the common parameters to this function.
+
+    >>> ksea.volcanos(logFC="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
+    ...               annot="Gene names", sig_col="gray")
+
+    .. plot::
+        :context: close-figs
+
+        ksea.volcanos(logFC="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
+                      annot="Gene names", sig_col="gray")
+
+    Sometimes the enrichment is crowded by various kinase isoforms.
+    In such cases it makes sense to simplify the annotation by grouping those
+    isoforms together.
+
+    >>> simplify = {"ERK":["ERK1","ERK2"],
+    ...             "GSK3":["GSK3A", "GSK3B"]}
+    >>> ksea.ksea(col="logFC_TvC", minSubs=5, simplify=simplify)
+    >>> ksea.plotEnrichment()
+
+    .. plot::
+        :context: close-figs
+
+        simplify = {"ERK":["ERK1","ERK2"],
+                    "GSK3":["GSK3A", "GSK3B"]}
+        ksea.ksea(col="logFC_TvC", minSubs=5, simplify=simplify)
+        ksea.plotEnrichment()
+
+    Of course you can also get the ksea results as a dataframe to save or to further customize.
+
+    >>> ksea.returnEnrichment()
+
+    Of course is the database not exhaustive and you might want to add additional
+    substrates manually. This can be done the following way.
+    Manually added substrates are always added irrespective of the species used
+    for the annotation.
+
+    >>> ksea = ana.KSEA(phos)
+    >>> genes = ["RPGR"]
+    >>> modRsds = ["S564"]
+    >>> kinases = ["mTOR"]
+    >>> ksea.addSubstrate(kinase=kinases, substrate=genes, subModRsd=modRsds)
+
+    >>> ksea.annotate(organism="mouse", onlyInVivo=True)
+    >>> ksea.ksea(col="logFC_TvC", minSubs=5)
+    >>> ksea.plotEnrichment(plotBg=False)
+
+    >>> ksea.removeManualSubs()
+    >>> ksea.annotate(organism="mouse", onlyInVivo=True)
+    >>> ksea.ksea(col="logFC_TvC", minSubs=5)
+    >>> ksea.plotEnrichment(plotBg=False)
     """
 
     def __init__(self, data):
+        """
+        Initialise the KSEA object.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            A phosphoproteomics datasaet.
+            This data has to contain information about Gene name, position and amino acid of the peptides with
+            "Gene names", "Position" and "Amino acid" as the respective column names.
+            Optionally you can provide a "Multiplicity" column.
+
+        Returns
+        -------
+        None.
+
+        """
         with resources.open_text("autoprot.data","Kinase_Substrate_Dataset") as d:
             self.PSP_KS = pd.read_csv(d, sep='\t')
+        # harmonize gene naming
         self.PSP_KS["SUB_GENE"] = self.PSP_KS["SUB_GENE"].fillna("NA").apply(lambda x: x.upper())
+        # add source information
         self.PSP_KS["source"] = "PSP"
         with resources.open_text("autoprot.data","Regulatory_sites") as d:
             self.PSP_regSits = pd.read_csv(d, sep='\t')
+        # Harmonize the input data and store them to the class
         self.data = self.__preprocess(data.copy(deep=True))
+        # init other class objects
         self.annotDf = None
         self.kseaResults = None
         self.koi = None
@@ -1475,89 +1662,193 @@ class KSEA:
 
     @staticmethod
     def __preprocess(data):
+        """Define MOD_RSD, ucGene and mergeID cols in the input dataset."""
+        # New column containing the modified residue as Ser201
         data["MOD_RSD"] = data["Amino acid"] + data["Position"].fillna(0).astype(int).astype(str)
+        # The Gene names as defined for the Kinase substrate dataset
         data["ucGene"] = data["Gene names"].fillna("NA").apply(lambda x: x.upper())
+        # an index column
         data["mergeID"] = range(data.shape[0])
         return data
 
 
     def __enrichment(self,df, col, kinase):
+        """
+        Calculate the enrichment score for a certain kinase.
+
+        Parameters
+        ----------
+        df : pd.Dataframe
+            DESCRIPTION.
+        col : str
+            Column containing enrichment information e.g. intensity ratios.
+            Must be present in df.
+        kinase : str
+            Kinase to calculate the enrichment for.
+
+        Returns
+        -------
+        list
+            pair of kinase name and score.
+
+        """
+        # get enrichment values for rows containing the kinase of interest
         KS = df[col][df["KINASE"].fillna('').apply(lambda x: kinase in x)]
-        s = KS.mean()#mean FC of kinase subs
-        p = df[col].mean()#mean FC of all
-        m = KS.shape[0]#no of kinase subs
-        sig = df[col].std()#standard dev of FC of all
+        s = KS.mean() #mean FC of kinase subs
+        p = df[col].mean() #mean FC of all substrates
+        m = KS.shape[0] #number of kinase substrates
+        sig = df[col].std() #standard dev of FC of all
         score = ((s-p)*np.sqrt(m))/sig
         return [kinase,score]
 
 
     def __extractKois(self,df):
+        """
+        Count the number of substrates for each kinase in a merged df.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Merged dataframe containing kinase substrate pairs present in the
+            input dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns "Kinase" and "#Subs" containing the
+            numbers of appearances of each kinase in the merged input dataset.
+
+        """
+        # Extract all strings present in the KINASE column as list of str
+        # This is mainly out of caution as all entries in the kinase col should be
+        # stirngs
         koi = [i for i in list(df["KINASE"].values.flatten()) if isinstance(i,str) ]
+        # remove duplicates
         ks = set(koi)
+        # empty list to take on sets of kinase:count pairs
         temp = []
         for k in ks:
+            # count the number of appearances of each kinase name in the list of kinase names
             temp.append((k,koi.count(k)))
         return pd.DataFrame(temp, columns=["Kinase", "#Subs"])
 
 
     def addSubstrate(self, kinase, substrate, subModRsd):
         """
-        function that allows user to manually add substrates
+        Manually add a substrate to the database.
+
+        Parameters
+        ----------
+        kinase : list of str
+            Name of the kinase e.g. PAK2.
+        substrate : list of str
+            Name of the substrate e.g. Prkd1.
+        subModRsd : list of str
+            Phosphorylated residues e.g. S203.
+
+        Raises
+        ------
+        ValueError
+            If the three provided lists do not match in length.
+
+        Returns
+        -------
+        None.
 
         """
+        # a bit cumbersome way to check if all lists
+        # are of the same lengths
         it = iter([kinase, substrate, subModRsd])
         the_len = len(next(it))
         if not all(len(l) == the_len for l in it):
              raise ValueError('not all lists have same length!')
 
+        # generate new empty df to fill in the new kinases
         temp = pd.DataFrame(columns=self.PSP_KS.columns)
         for i in range(len(kinase)):
             temp.loc[i, "KINASE"] = kinase[i]
             temp.loc[i, "SUB_GENE"] = substrate[i]
             temp.loc[i, "SUB_MOD_RSD"] = subModRsd[i]
             temp.loc[i, "source"] = "manual"
+        # append to the original database from PSP
         self.PSP_KS = self.PSP_KS.append(temp, ignore_index=True)
 
-
+    # TODO find a better name
     def removeManualSubs(self):
+        """Remove all manual entries from the PSP database."""
         self.PSP_KS = self.PSP_KS[self.PSP_KS["source"]=="PSP"]
 
-
-    def annotate(self,
-        organism="human",
-        onlyInVivo=False):
+    def annotate(self, organism="human", onlyInVivo=False):
         """
-        do we need crossspecies annotation?
+        Annotate with known kinase substrate pairs.
+
+        Parameters
+        ----------
+        organism : str, optional
+            The target organism. The default is "human".
+        onlyInVivo : bool, optional
+            Whether to restrict analysis to in vivo evidence.
+            The default is False.
+
+        Notes
+        -----
+        Manually added kinases will be included in the annotation search
+        independent of the setting of organism and onInVivo.
+
+        Returns
+        -------
+        None.
         """
-
-
+        # return a kinase substrate dataframe including only entries of the
+        # target organism that were validated in vitro
         if onlyInVivo==True:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
             (self.PSP_KS["SUB_ORGANISM"] == organism) &
             (self.PSP_KS["IN_VIVO_RXN"]=="X")) | (self.PSP_KS["source"]=="manual")]
+        # only filter for the target organism
         else:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
             (self.PSP_KS["SUB_ORGANISM"] == organism)) | (self.PSP_KS["source"]=="manual")]
 
+        # merge the kinase substrate data tables with the input dataframe
+        # include the multiplicity column in the merge if present in the
+        # input dataframe
+        # the substrate gene names and the modification position are used for
+        # merging
         if "Multiplicity" in self.data.columns:
             self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity","mergeID"]],
-            temp,
-            left_on=["ucGene", "MOD_RSD"],
-            right_on=["SUB_GENE", "SUB_MOD_RSD"],
-            how="left")
+                                    temp,
+                                    left_on=["ucGene", "MOD_RSD"],
+                                    right_on=["SUB_GENE", "SUB_MOD_RSD"],
+                                    how="left") # keep only entries that are present in the input dataframe
         else:
             self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "mergeID"]],
-            temp,
-            left_on=["ucGene", "MOD_RSD"],
-            right_on=["SUB_GENE", "SUB_MOD_RSD"],
-            how="left")
+                                    temp,
+                                    left_on=["ucGene", "MOD_RSD"],
+                                    right_on=["SUB_GENE", "SUB_MOD_RSD"],
+                                    how="left")
 
-
+        # generate a df with kinase:number of substrate pairs for the dataset
         self.koi = self.__extractKois(self.annotDf)
 
 
     def getKinaseOverview(self, kois=None):
+        """
+        Plot a graphical overview of the kinases acting on the proteins in the dataset.
 
+        Parameters
+        ----------
+        kois : list of str, optional
+            Kinases of interest for which a detailed overview of substrate numbers
+            is plotted. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        # ax[0] is a histogram of kinase substrate numbers and
+        # ax[1] is a table of top10 kinases
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
 
         sns.histplot(self.koi["#Subs"], bins=50, ax= ax[0])
@@ -1569,14 +1860,13 @@ class KSEA:
         ax[1].spines["top"].set_visible(False)
         ax[1].spines["bottom"].set_visible(False)
         ax[1].spines["right"].set_visible(False)
-        ax[1].tick_params(
-        axis='both',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom=False,      # ticks along the bottom edge are off
-        top=False,         # ticks along the top edge are off
-        left=False,
-        labelbottom=False,
-        labelleft=False) # labels along the bottom edge are off
+        ax[1].tick_params(axis='both', # changes apply to the x-axis
+                          which='both', # both major and minor ticks are affected
+                          bottom=False, # ticks along the bottom edge are off
+                          top=False, # ticks along the top edge are off
+                          left=False,
+                          labelbottom=False,
+                          labelleft=False) # labels along the bottom edge are off
         ax[1].set_xlim(0,1)
         ax[1].set_ylim(0,1)
 
@@ -1617,9 +1907,42 @@ class KSEA:
 
 
     def ksea(self, col, minSubs = 5, simplify=None):
+        r"""
+        Calculate Kinase Enrichment Score.
+
+        Parameters
+        ----------
+        col : str
+            Column used for the analysis containing the kinase substrate
+            enrichments.
+        minSubs : int, optional
+            Minumum number of substrates a kinase must have to be considered.
+            The default is 5.
+        simplify : None, "auto" or dict, optional
+            Merge multiple kinases during analysis.
+            Using "auto" a predefined set of kinase isoforms is merged.
+            If provided with a dict, the dict has to contain a list of kinases
+            to merge as values and the name of the merged kinases as key.
+            The default is None.
+
+        Notes
+        -----
+        The enrichment score is calculated as
+
+        .. math::
+            \frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{all}}}{\sigma_{all}}
+
+        i.e. the difference in mean fold change between kinase and all substrates
+        multiplied by the square root of number of kinase substrates and divided
+        by the standard deviation of the fold change of all substrates.
+
+        Returns
+        -------
+        None.
+
         """
-        function in which enrichment score is calculated
-        """
+        # TODO wouldnt it make more sense to perform simplification in the
+        # Annotate function?
         copyAnnotDf = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
@@ -1639,24 +1962,33 @@ class KSEA:
             if "Multiplicity" in copyAnnotDf.columns:
                 idx = copyAnnotDf[["ucGene","MOD_RSD","Multiplicity", "KINASE"]].drop_duplicates().index
             else:
-                idx = copyAnnotDf[["ucGene","MOD_RSD", "KINASE"]].drop_duplicates().indx
+                idx = copyAnnotDf[["ucGene","MOD_RSD", "KINASE"]].drop_duplicates().index
             copyAnnotDf = copyAnnotDf.loc[idx]
             self.simpleDf = copyAnnotDf
 
+            # repeat annotation with the simplified dataset
             self.koi = self.__extractKois(self.simpleDf)
 
+        # filter kinases with at least minSubs number of substrates
         koi = self.koi[self.koi["#Subs"]>=minSubs]["Kinase"]
 
+        # init empty df
         self.kseaResults = pd.DataFrame(columns = ["kinase", "score"])
+        # add the enrichment column back to the annotation df using the mergeID
         copyAnnotDf = copyAnnotDf.merge(self.data[[col,"mergeID"]], on="mergeID", how="left")
         for kinase in koi:
+            # calculate the enrichment score
             k, s = self.__enrichment(copyAnnotDf[copyAnnotDf[col].notnull()], col, kinase)
+            # new dataframe containing kinase names and scores
             temp = pd.DataFrame(data={"kinase":k, "score":s}, index=[0])
+            # add the new df to the pre-initialised df
             self.kseaResults = self.kseaResults.append(temp, ignore_index=True)
+        # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
 
 
     def returnEnrichment(self):
+        """Return a dataframe of kinase:score pairs."""
         if self.kseaResults is None:
             print("First perform the enrichment")
         else:
@@ -1666,67 +1998,148 @@ class KSEA:
             return self.kseaResults.dropna()
 
 
-    def plotEnrichment(self, up_col="orange", down_col="blue",
-    bg_col = "lightgray", plotBg = True, ret=False, title="",
-    figsize=(5,10)):
+    def plotEnrichment(self, up_col="orange", down_col="blue", bg_col = "lightgray",
+                       plotBg = True, ret=False, title="", figsize=(5,10)):
         """
-        function that can be used to plot the KSEA results
+        Plot the KSEA results.
+
+        Parameters
+        ----------
+        up_col : str, optional
+            Color for enriched/upregulated kinases.
+            The default is "orange".
+        down_col : str, optional
+            Colour for deriched/downregulated kinases.
+            The default is "blue".
+        bg_col : str, optional
+            Colour for not kinases that did not change significantly.
+            The default is "lightgray".
+        plotBg : bool, optional
+            Whether or not to plot the unaffected kinases.
+            The default is True.
+        ret : bool, optional
+            Whether to return the figure object.
+            The default is False.
+        title : str, optional
+            Title of the figure. The default is "".
+        figsize : tuple of int, optional
+            Figure size. The default is (5,10).
+
+        Returns
+        -------
+        fig : matplotlib figure.
+            Only returned in ret is True.
+
         """
         if self.kseaResults is None:
             print("First perform the enrichment")
         else:
+            # set all proteins to bg_col
             self.kseaResults["color"] = bg_col
+            # highlight up and downregulated
             self.kseaResults.loc[self.kseaResults["score"]>2, "color"] = up_col
             self.kseaResults.loc[self.kseaResults["score"]<-2, "color"] = down_col
+            # init figure
             fig = plt.figure(figsize=figsize)
             plt.yticks(fontsize=10)
             plt.title(title)
+            # only plot the unaffected substrates if plotBg is True
             if plotBg == True:
                 sns.barplot(data= self.kseaResults.dropna(), x="score",y="kinase",
                 palette=self.kseaResults.dropna()["color"])
             else:
+                # else remove the unaffected substrates from the plotting df
                 sns.barplot(data= self.kseaResults[self.kseaResults["color"]!=bg_col].dropna(), x="score",y="kinase",
                 palette=self.kseaResults[self.kseaResults["color"]!=bg_col].dropna()["color"])
+
+            # remove top and right spines/plot lines
             sns.despine()
             plt.legend([],[], frameon=False)
             plt.axvline(0,0,1, ls="dashed", color="lightgray")
+            # return the figure object only if demanded
             if ret == True:
                 plt.tight_layout()
                 return fig
 
-
     def volcanos(self, logFC, p, kinases=[], **kwargs):
         """
-        function that can be used to plot volcanos highlighting substrates
-        of given kinase
+        Plot volcano plots highlighting substrates of a given kinase.
+
+        Parameters
+        ----------
+        logFC : str
+            Colname of column containing the log fold changes.
+            Must be present in the dataframe KSEA was initialised with.
+        p : str
+            Colname of column containing the p values.
+            Must be present in the dataframe KSEA was initialised with.
+        kinases : list of str, optional
+            Limit the analysis to these kinases. The default is [].
+        **kwargs :
+            passed to autoprot.visualisation.volcano.
+
+        Returns
+        -------
+        None.
+
         """
+        # generate a df containing only the kinases of interest
         df = self.annotateDf(kinases=kinases)
         for k in kinases:
+            # index for highlighting the selected kinase substrates
             idx = df[df[k]==1].index
             vis.volcano(df, logFC, p=p, highlight=idx,
-            custom_hl={"label":k},
-            custom_fg={"alpha":.5}, **kwargs)
+                        custom_hl={"label":k},
+                        custom_fg={"alpha":.5},
+                        **kwargs)
 
 
     def returnKinaseSubstrate(self, kinase):
         """
-        returns new dataframe with respective substrates of kinase
+        Return new dataframe with substrates of one or multiple kinase(s).
+
+        Parameters
+        ----------
+        kinase : str or list of str
+            Kinase(s) to analyse.
+
+        Raises
+        ------
+        ValueError
+            If kinase is neither list of str nor str.
+
+        Returns
+        -------
+        dfFilter : pd.Dataframe
+            Dataframe containing detailed information on kinase-substrate pairs
+            including reference literature.
+
         """
+        # use the simplified dataset if it is present
         if self.simpleDf is not None:
             df = self.simpleDf.copy(deep=True)
+        # otherwise use the complete dataset including kinase isoforms
         else:
             df = self.annotDf.copy(deep=True)
 
+        # if a list of kinases is provided, iterate through the list and
+        # collect corresponding indices
         if isinstance(kinase, list):
             idx = []
+            # find the rows corresponding to each kinase
             for k in kinase:
                 idx.append(df[df["KINASE"].fillna("NA").apply(lambda x: x.upper())==k.upper()].index)
+            # merge all row indices and use them to create a sub-df containing
+            # only the kinases of interest
             dfFilter = df.loc[pl.flatten(idx)]
+        # if only a single kinase is provided, filter the input df directly
         elif isinstance(kinase, str):
             dfFilter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper())==kinase.upper()]
         else:
             raise ValueError("Please provide either a string or a list of strings representing kinases of interest.")
 
+        # data are merged implicitely on common colnames i.e. on SITE_GRP_ID
+        # only entries present in the filtered annotDfare retained
         dfFilter = pd.merge(dfFilter[['GENE', 'KINASE','KIN_ACC_ID','SUBSTRATE','SUB_ACC_ID',
                                        'SUB_GENE','SUB_MOD_RSD', 'SITE_GRP_ID','SITE_+/-7_AA', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#',
                                        'source', "mergeID"]],
@@ -1739,39 +2152,131 @@ class KSEA:
 
     def annotateDf(self, kinases=[]):
         """
-        adds column to provided dataframe with given kinases and boolean value
-        indicating whether or not peptide is kinase substrate
+        Annotate the provided dataframe with boolean columns for given kinases.
+
+        Parameters
+        ----------
+        kinases : list of str, optional
+            List of kinases. The default is [].
+
+        Returns
+        -------
+        pd.DataFrame
+            annotated dataframe containing a column for each provided kinase
+            with boolean values representing a row/protein being a kinase
+            substrate or not.
+
         """
         if len(kinases) > 0:
+            # remove the two columns from the returned df
             df = self.data.drop(["MOD_RSD", "ucGene"], axis=1)
             for kinase in kinases:
+                # find substrates for the given kinase in the dataset
                 ids = self.returnKinaseSubstrate(kinase)["mergeID"]
+                # init the boolean column with zeros
                 df[kinase] = 0
+                # check if the unique ID for each protein is present in the
+                # returnKinaseSubstrate df. If so set the column value to 1.
                 df.loc[df["mergeID"].isin(ids),kinase] = 1
+            # remnove also the mergeID column before returning the df
             return df.drop("mergeID", axis=1)
         else:
-            print("Please provide Kinase for annotation.")
+            print("Please provide kinase(s) for annotation.")
 
 
-def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=False,
-                 saveDir=None):
+def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True,
+                 extraVis=False, saveDir=None):
+    r"""
+    Print missing statistics for a dataframe.
 
+    Parameters
+    ----------
+    df : TYPE
+        DESCRIPTION.
+    cols : TYPE
+        DESCRIPTION.
+    n : int, optional
+        How many rows of the dataframe to displayed.
+        The default is 999.
+    sort : str, optional
+        "ascending" or "descending".
+        The default is 'ascending'.
+    text : bool, optional
+        Whether to output text summaryMap.
+        The default is True.
+    vis : bool, optional
+        whether to return barplot showing missingness.
+        The default is True.
+    extraVis : bool, optional
+        Whether to return matrix plot showing missingness.
+        The default is False.
+    saveDir : TYPE, optional
+        DESCRIPTION. The default is None.
+
+    Raises
+    ------
+    ValueError
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    Examples
+    --------
+    miss_analysis gives a quick overview of the missingness of the provided
+    dataframe. You can provide the complete or prefiltered dataframe as input.
+    Providing n allows you to specify how many of the entries of the dataframe
+    (sorted by missingness) are displayed (i.e. only display the n columns with
+    most (or least) missing values) With the sort argument you can define
+    whether the dataframe is sorted by least to most missing values or vice versa
+    (using "descending" and "ascending", respectively). The vis and extra_vis
+    arguments can be used to toggle the graphical output.
+    In case of large data (a lot of columns) those might be better turned off.
+
+    >>> autoprot.analysis.missAnalysis(phos_expanded,
+    ...                                twitchVsctrl+twitchVsmild+mildVsctrl,
+    ...                                sort="descending",
+    ...                                extraVis = True)
+
+    .. plot::
+        :context: close-figs
+
+        import autoprot.preprocessing as pp
+        import autoprot.analysis as ana
+        import pandas as pd
+
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pp.cleaning(phos, file = "Phospho (STY)")
+        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        phos = pp.log(phos, phosRatio, base=2)
+        phos = pp.filterLocProb(phos, thresh=.75)
+        phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
+        phos = pp.removeNonQuant(phos, phosRatio)
+
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+
+        twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
+                        'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
+        twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
+                        "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
+        mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
+                      "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
+
+        ana.missAnalysis(phos_expanded,
+                         twitchVsctrl+twitchVsmild+mildVsctrl,
+                         text=False,
+                         sort="descending",
+                         extraVis = True)
     """
-    function takes dataframe and
-    prints missing stats
-    :n:: int,  how much of the dataframe shall be displayed
-    :sort:: (ascending, descending) which way to sort the df
-    :text:: boolean, whether to output text summaryMap
-    :vis:: boolean, whether to return barplot showing missingness
-    :extraVis:: boolean, whether to return matrix plot showing missingness
-    """
-
     def create_data(df):
-        """
-        takes df and output
-        data for missing entrys
-        """
+        """Calculate summary missing statistics."""
         data = []
+        # implicitly iterate over df cols
         for i in df:
             #len df
             n = df.shape[0]
@@ -1783,23 +2288,43 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         data = add_ranking(data)
         return data
 
-
     def add_ranking(data):
-        """
-        adds ranking
-        """
+        """Sort data by the percentage of missingness."""
         data = sorted(data,key=itemgetter(3))
+        # add a number corresponding to the position in the ranking
+        # to every condition aka column.
         for idx, col in enumerate(data):
             col.append(idx)
-
         return data
 
 
     def describe(data, n,saveDir, sort='ascending'):
         """
-        prints data
-        :n how many entries are displayed
-        :sort - determines which way data is sorted [ascending; descending]
+        Print summary statistics as text based on data df.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Dataframe with columns [colname,total_n, n_missing, percentage, rank]
+        n : int
+            How many entries are displayed.
+        saveDir : str
+            Path to dump txt output.
+        sort : TYPE, optional
+            How to sort data.
+            Possible values are 'ascending' and 'descending'.
+            The default is 'ascending'.
+
+        Raises
+        ------
+        ValueError
+            If n is not properly chosen.
+
+        Returns
+        -------
+        bool
+            True if successful.
+
         """
         if n == 999:
             n = len(data)
@@ -1814,27 +2339,58 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         elif sort == 'descending':
             data = data[::-1]
 
+        allines = ''
         for i in range(n):
-            print("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2],
-                                                                               data[i][1], round(data[i][3],2)))
-            print('-'*80)
+            allines += "{} has {} of {} entries missing ({}%).".format(data[i][0],
+                                                                  data[i][2],
+                                                                  data[i][1],
+                                                                  round(data[i][3],2))
+            allines += '\n'
+            # line separator
+            allines += '-'*80
 
         if saveDir:
             with open(saveDir + "/missAnalysis_text.txt", 'w') as f:
                 for i in range(n):
-                    f.write("{} has {} of {} entries missing ({}%).".format(data[i][0], data[i][2],
-                                                                                       data[i][1], round(data[i][3],2)))
-                    f.write('-'*80)
+                    f.write(allines)
+
+        # write all lines at once
+        print(allines)
 
         return True
 
 
     def visualize(data, n, saveDir, sort='ascending'):
         """
-        visualizes the n entries of dataframe
-        :sort - determines which way data is sorted [ascending; descending]
+        Visualize the % missingness of first n entries of dataframe as a bar plot.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Dataframe with columns [colname,total_n, n_missing, percentage, rank]
+        n : int
+            How many entries are displayed.
+            If None, all entries are displayed.
+            Default is None.
+        saveDir : str
+            Path to dump txt output.
+        sort : TYPE, optional
+            How to sort data.
+            Possible values are 'ascending' and 'descending'.
+            The default is 'ascending'.
+
+        Raises
+        ------
+        ValueError
+            If the n is incorrect.
+
+        Returns
+        -------
+        bool
+            True if function successful.
+
         """
-        if n == 999:
+        if n == None:
             n = len(data)
         elif n>len(data):
             print("'n' is larger than dataframe!\nDisplaying complete dataframe.")
@@ -1847,19 +2403,27 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
         elif sort == 'descending':
             data=data[::-1]
 
-        data = pd.DataFrame(data=data, columns=["Name", "tot_values","tot_miss", "perc_miss", "rank"])
+        data = pd.DataFrame(data=data,
+                            columns=["Name", "tot_values","tot_miss", "perc_miss", "rank"])
+
         plt.figure(figsize=(7,7))
         ax = plt.subplot()
-        splot = sns.barplot(x=data["tot_miss"].iloc[:n], y=data["Name"].iloc[:n])
+        # plot colname against total missing values
+        splot = sns.barplot(x=data["tot_miss"].iloc[:n],
+                            y=data["Name"].iloc[:n])
+
+        # add the percentage of missingness to every bar of the plot
         for idx,p in enumerate(splot.patches):
             s=str(round(data.iloc[idx,3],2))+'%'
             x=p.get_width()+p.get_width()*.01
             y=p.get_y()+p.get_height()/2
             splot.annotate(s, (x,y))
+
         plt.title("Missing values of dataframe columns.")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.set_ylabel("")
+
         if saveDir:
             plt.savefig(saveDir + "/missAnalysis_vis1.pdf")
 
@@ -1867,21 +2431,46 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True, extraVis=F
 
 
     def visualize_extra(df, saveDir):
-        import missingno as msn
+        """
+        Visualize the missingness in the dataset using missingno.
+
+        Notes
+        -----
+        Plots are generated with missingno.matrix.
+        See https://github.com/ResidentMario/missingno
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe to check for missing values.
+        saveDir : str
+            Path to save the figures.
+
+        Returns
+        -------
+        bool
+            True if successful.
+
+        """
         plt.figure(figsize=(10,7))
         msn.matrix(df, sort="ascending")
         if saveDir:
             plt.savefig(saveDir + "/missAnalysis_vis2.pdf")
         return True
 
-
+    # only analyse subset of cols
     df = df[cols]
+    # sorted list of lists with every sublist containing
+    # [colname,total_n, n_missing, percentage, rank]
     data = create_data(df)
     if text==True:
-        describe(data,n, saveDir, sort)
+        # print summary statistics and saves them to file
+        describe(data, n, saveDir, sort)
     if vis == True:
-        visualize(data,n, saveDir, sort)
+        # generate a bar plot of percent missingness vs colname
+        visualize(data, n, saveDir, sort)
     if extraVis == True:
+        # plot a fancy missingness matrix for the original dataframe
         visualize_extra(df, saveDir)
 
 
@@ -1889,7 +2478,10 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                   exclusion=[""], customSearchTerm=None, makeWordCloud=False,
                   sort='pub+date', retmax=20, output="print"):
     """
-    Get Pubmed abstracts
+    Get Pubmed abstracts.
+
+    Notes
+    -----
     Provide the search terms and pubmed will be searched for paper matching those
     The exclusion list can be used to exclude certain words to be contained in a paper
     If you want to perform more complicated searches use the possibility of using
@@ -1898,19 +2490,91 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
     If you search for a not excact term you can use *
     For example opto* will also return optogenetic.
 
-    @params:
-    ::ToA: List of words which must occur in Titel or Abstract
-    ::text: List of words which must occur in text
-    ::author: List of authors which must occor in Author list
-    ::phrase: List of phrases which should occur in text. Seperate word in phrases with hyphen (e.g. akt-signaling)
-    ::exclusion: List of words which must not occur in text
-    ::CustomSearchTerm: Enter a custom search term (make use of advanced pubmed search functionality)
-    ::makeWordCloud: Boolen, toggles whether to draw a wordcloud of the words in retrieved abstrace
+    Parameters
+    ----------
+    text : list of str, optional
+        List of words which must occur in text.
+        The default is [""].
+    ToA : list of str, optional
+        List of words which must occur in Titel or Abstract.
+        The default is [""].
+    author : list of str, optional
+        List of authors which must occor in Author list.
+        The default is [""].
+    phrase : list of str, optional
+        List of phrases which should occur in text.
+        Seperate word in phrases with hyphen (e.g. akt-signaling).
+        The default is [""].
+    exclusion : list of str, optional
+        List of words which must not occur in text.
+        The default is [""].
+    customSearchTerm : str, optional
+        Enter a custom search term (make use of advanced pubmed search functionality).
+        If this is supplied all other search terms will be ignored.
+        The default is None.
+    makeWordCloud : bool, optional
+        Whether to draw a wordcloud of the words in retrieved abstrace.
+        The default is False.
+    sort : str, optional
+        How to sort the results.
+        The default is 'pub+date'.
+    retmax : int, optional
+        Maximum number of found articles to return.
+        The default is 20.
+    output : str, optional
+        How to handle the output.
+        Possible values are 'SOMEPATH.txt',
+        'SOMEPATH.html' or 'SOMEPATH'.
+        If no extension is given, the output will be html.
+        The default is "print".
+
+    Returns
+    -------
+    None.
+
+    Examples
+    --------
+    To generate a wordcloud and print the results of the found articles to the 
+    prompt use the following command
+    
+    >>> autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+                                          makeWordCloud=True)
+    
+    .. plot::
+        :context: close-figs
+
+        import autoprot.analysis as ana
+        ana.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+                            makeWordCloud=True)
+
+    Even more comfortably, you can also save the results incl. the wordcloud
+    as html file
+    
+    >>>  autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+                                          makeWordCloud=True,
+                                          output='./MyPubmedSearch.html')
+
     """
-
-
-
     def search(query,retmax, sort):
+        """
+        Perform a PubMed search.
+
+        Parameters
+        ----------
+        query : str
+            PubMed search term.
+        retmax : int
+            Maximum number of items to return.
+        sort : str
+            By which to sort the results.
+
+        Returns
+        -------
+        results : Bio.Entrez.Parser.DictionaryElement
+            A dictionary holding a summary of the search results.
+
+        """
+        # seemingly no true mail address is required.
         Entrez.email = 'your.email@example.com'
         handle = Entrez.esearch(db='pubmed',
                                 sort=sort,
@@ -1920,8 +2584,21 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         results = Entrez.read(handle)
         return results
 
-
     def fetchDetails(id_list):
+        """
+        Get detailed information on articles from their PubMed IDs.
+
+        Parameters
+        ----------
+        id_list : list of str
+            List of PubMed IDs.
+
+        Returns
+        -------
+        results : Bio.Entrez.Parser.DictionaryElement
+            A dictionary holding detailed infos on the articles.
+
+        """
         ids = ','.join(id_list)
         Entrez.email = 'your.email@example.com'
         handle = Entrez.efetch(db='pubmed',
@@ -1930,15 +2607,38 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         results = Entrez.read(handle)
         return results
 
-
     def makeSearchTerm(text, ToA, author, phrase, exclusion):
+        """
+        Generate PubMed search term.
 
+        Parameters
+        ----------
+        text : list of str, optional
+            List of words which must occur in text.
+        ToA : list of str, optional
+            List of words which must occur in Titel or Abstract.
+        author : list of str, optional
+            List of authors which must occor in Author list.
+        phrase : list of str, optional
+            List of phrases which should occur in text.
+            Seperate word in phrases with hyphen (e.g. akt-signaling).
+        exclusion : list of str, optional
+            List of words which must not occur in text.
+
+        Returns
+        -------
+        term : str
+            A PubMed search term.
+
+        """
+        # Generate long list of concatenated search terms
         term = [i+"[Title/Abstract]" if i != "" else "" for i in ToA] +\
                 [i+"[Text Word]" if i != "" else "" for i in text] +\
                 [i+"[Author]" if i != "" else "" for i in author] + \
                 [i if i != "" else "" for i in phrase]
         term = (" AND ").join([i for i in term if i != ""])
 
+        # add exclusions joined by NOT
         if exclusion != [""]:
             exclusion = (" NOT ").join(exclusion)
             term = (" NOT ").join([term] + [exclusion])
@@ -1946,16 +2646,34 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         else:
             return term
 
-
     def makewc(final, output):
+        """
+        Make a word cloud picture from Pubmed search abstracts.
+
+        Parameters
+        ----------
+        final : dict
+            Dictionary mapping a search term to detailed results.
+        output : str
+            Path to the dir for saving the images.
+
+        Returns
+        -------
+        None.
+
+        """
         abstracts = []
+        # for every search term (there usually is only one)
         for i in final:
+            # the abstract is the third element in the list
             for abstract in final[i][2]:
+                # if there was no abstract found, the value will be 'no abstract'
                 if not isinstance(abstract, str):
                     abstracts.append(abstract["AbstractText"][0])
         abstracts = (" ").join(abstracts)
 
         #when exlusion list is added in wordcloud add those
+        # TODO properly implement the inclusion of exclusions
         el = ["sup"]
 
         fig = vis.wordcloud(text=abstracts, exlusionwords=el)
@@ -1966,7 +2684,27 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 
 
     def genOutput(final, output, makeWordCloud):
+        """
+        Return results summary.
 
+        Parameters
+        ----------
+        final : dict
+            Dictionary mapping a search term to detailed results.
+        output : str
+            If 'print' returns the results on the prompt.
+            If path to txt-file: saves as txt file
+            If path to html-files: saves as html file.
+            If path is a folder: save as html inside that folder.
+        makeWordCloud : bool
+            Include wordcloud in HTML output.
+            Note this only works for html output paths.
+
+        Returns
+        -------
+        None.
+
+        """
         if output == "print":
             for i in final:
                 for title,author, abstract, doi, link, pid, date, journal in\
@@ -2020,12 +2758,10 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                         f.write('-'*100)
                         f.write('\n')
 
-        # would be nice to have a nicer format -> idea write with html and save as such! :) noice!
-        else:
-            if output[-5:] == ".html":
-                pass
-            else:
-                output += "/PubCrawlerResults.html"
+        # if the output is an html file or a folder, write html
+        elif output[-5:] == ".html" or os.path.isdir(output):
+            if os.path.isdir(output):
+               output = os.path.join(output, "PubCrawlerResults.html")
             with open(output, 'w', encoding="utf-8") as f:
                 f.write("<!DOCTYPE html>")
                 f.write("<html>")
@@ -2040,7 +2776,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 f.write("</head>")
                 f.write('<body style="background-color:#FFE5B4">')
                 if makeWordCloud == True:
-                    f.write(f'<img src="WordCloud.png" alt="WordCloud" class="center">')
+                    f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
                 for i in final:
                     for title,author, abstract, doi, link, pid, date, journal in\
                     zip(final[i][0],final[i][1],final[i][2],final[i][3],final[i][4],final[i][5],final[i][6],final[i][7]):
@@ -2072,8 +2808,24 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 f.write("</body>")
                 f.write("</html>")
 
-
     def writeAbstract(abstract, f, typ):
+        """
+        Write abstracts in blocks to avoid long lines.
+
+        Parameters
+        ----------
+        abstract : list of str
+            A list containing the abstract on position 0.
+        f : filehandler
+            filehandler holding the output file.
+        typ : str
+            'html' or 'txt.
+
+        Returns
+        -------
+        None.
+
+        """
         if not isinstance(abstract, str):
             abstract = abstract["AbstractText"][0]
         abstract = abstract.split(" ")
@@ -2085,7 +2837,6 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 if idx%20==0 and idx>0:
                     f.write('\n')
 
-
         elif typ == "html":
             f.write('<p style="color:#202020">')
             for idx, word in enumerate(abstract):
@@ -2096,19 +2847,22 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                     f.write('<p style="color:#202020">')
             f.write('</p>')
 
-
-
     # if function is executed in a loop a small deleay to ensure pubmed is responding
     time.sleep(0.5)
 
     if customSearchTerm is None:
-        term = makeSearchTerm(text, ToA, author, phrase,
-                      exclusion)
+        # generate a pubmed search term from user input
+        term = makeSearchTerm(text, ToA, author, phrase, exclusion)
     else:
+        # if the user provides a custom searhc term, ignore all other input
         term = customSearchTerm
 
+    # Perform the PubMed search and return the PubMed IDs of the found articles
     results = search(term, retmax, sort)["IdList"]
+
+    # if the search was successful
     if len(results) > 0:
+        # get more detailed results including abstracts, authors etc
         results2 = fetchDetails(set(results))
 
         titles = []
@@ -2121,6 +2875,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         journals = []
         final = dict()
 
+        # iterate through the articles
         for paper in results2["PubmedArticle"]:
             #get titles
             titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
@@ -2160,54 +2915,115 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             #get journal
             journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
 
+        # sum up the results in a dict containing the search term as key
         final[term] = (titles,authors,abstracts,dois, links, pids, dates, journals)
 
         if makeWordCloud == True:
+            # plot a picture of words in the found abstracts
             makewc(final, output)
+
+        # generate a txt or html output or print to the prompt
         genOutput(final, output, makeWordCloud)
 
     else:
         print("No results for " + term)
 
 
-def loess(data, xvals, yvals, alpha, poly_degree=1):
+def loess(data, xvals, yvals, alpha, poly_degree=2):
+    r"""
+    Calculate a LOcally-Weighted Scatterplot Smoothing Fit.
+    
+    See: https://medium.com/@langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a
+    
+
+    Parameters
+    ----------
+    data : pd.Dataframe
+        Input dataframe.
+    xvals : str
+        Colname of x values.
+    yvals : str
+        Colname of y values.
+    alpha : float
+        Sensitivity of the estimation.
+        Controls how much of the total number of values is used during weighing.
+        0 <= alpha <= 1.
+    poly_degree : int, optional
+        Degree of the fitted polynomial. The default is 2.
+
+    Returns
+    -------
+    None.
+
+    Notes
+    -----
+    Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
+    the data around every point using low-order functions and giving less weight to distant
+    data points.
+
+    Examples
+    --------
+    >>> np.random.seed(10)
+    >>> x_values = np.random.randint(-50,110,size=(250))
+    >>> y_values = np.square(x_values)/1.5 + np.random.randint(-1000,1000, size=len(x_values))
+    >>> df = pd.DataFrame({"Xvalue" : x_values,
+                           "Yvalue" : y_values
+                           })
+
+    >>> evalDF = autoprot.analysis.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
+    >>> fig = plt.figure()
+    >>> ax = plt.subplot()
+    >>> sns.scatterplot(df["Xvalue"], df["Yvalue"])
+    >>> ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
+    
+    .. plot::
+        :context: close-figs
+        
+        import autoprot.analysis as ana
+
+        x_values = np.random.randint(-50,110,size=(250))
+        y_values = np.square(x_values)/1.5 + np.random.randint(-1000,1000, size=len(x_values))
+        df = pd.DataFrame({"Xvalue" : x_values,
+                           "Yvalue" : y_values
+                           })
+        evalDF = ana.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
+        fig = plt.figure()
+        ax = plt.subplot()
+        sns.scatterplot(df["Xvalue"], df["Yvalue"])
+        ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
+        plt.show()
     """
-    https://medium.com/@langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a
-    example:
-
-    evalDF = loess("t1/2_median_HeLa", "t1/2_median_Huh", data = comp, alpha=0.9, poly_degree=1)
-
-    fig = plt.figure()
-    ax = plt.subplot()
-    sns.scatterplot(comp["t1/2_median_HeLa"], comp["t1/2_median_Huh"])
-
-    ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
-    plt.xlim(1,12)
-    plt.ylim(1,12)
-    ax.plot([0, 1], [0, 1], transform=ax.transAxes)
-    """
-
     def loc_eval(x, b):
         loc_est = 0
         for i in enumerate(b): loc_est+=i[1]*(x**i[0])
         return(loc_est)
-
+    
+    # generate x,y value pairs and sort them according to x
     all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
+    # separate the values again into x and y cols
     xvals, yvals = zip(*all_data)
+    # generate empty df for final fit
     evalDF = pd.DataFrame(columns=['v','g'])
+    
     n = len(xvals)
     m = n + 1
+    # how many datapoints to include in the weighing
+    # alpha determines the relative proportion of values considered during weighing
     q = int(np.floor(n * alpha) if alpha <= 1.0 else n)
+    # the average point to point distance in x direction
     avg_interval = ((max(xvals)-min(xvals))/len(xvals))
+    # calculate upper on lower boundaries
     v_lb = min(xvals)-(.5*avg_interval)
     v_ub = (max(xvals)+(.5*avg_interval))
+    # coordinates for the fitting points
     v = enumerate(np.linspace(start=v_lb, stop=v_ub, num=m), start=1)
+    # create an array of ones of the same length as xvals
     xcols = [np.ones_like(xvals)]
+    
     for j in range(1, (poly_degree + 1)):
         xcols.append([i ** j for i in xvals])
     X = np.vstack(xcols).T
     for i in v:
-        iterpos = i[0]
         iterval = i[1]
         iterdists = sorted([(j, np.abs(j-iterval)) for j in xvals], key=lambda x: x[1])
         _, raw_dists = zip(*iterdists)
@@ -2231,11 +3047,22 @@ def loess(data, xvals, yvals, alpha, poly_degree=1):
 
 def edm(A,B):
     """
-    Function that forms euclidean distrance matrix
-    https://medium.com/swlh/euclidean-distance-matrix-4c3e1378d87f
-    params:
-    :a: matrix; matrix A
-    :b: matrix; matrix B
+    Calculate an euclidean distance matrix between two matrices.
+    
+    See:  https://medium.com/swlh/euclidean-distance-matrix-4c3e1378d87f
+
+    Parameters
+    ----------
+    A : np.ndarray
+        Matrix 1.
+    B : np.ndarray
+        Matrix 2.
+
+    Returns
+    -------
+    np.ndarray
+        Distance matrix.
+
     """
     p1 = np.sum(A**2, axis=1)[:, np.newaxis]
     p2 = np.sum(B**2, axis=1)
@@ -2245,11 +3072,64 @@ def edm(A,B):
 
 def limma(df, reps, cond="", customDesign=None):
     """
-    Function that performs moderated ttest as implemented in limma
+    Perform moderated ttest as implemented from R LIMMA.
 
-    TODO: better handle coefficient extraction in R
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    reps : list of lists of str
+        Column names of the replicates.
+        Common replicates are grouped together in a single list.
+    cond : str, optional
+        Term to append to the newly generated colnames.
+        The default is "".
+    customDesign : str, optional
+        Path to custom design file.
+        The default is None.
+
+    Returns
+    -------
+    df : pd.DataFrame
+        DESCRIPTION.
+
+    Notes
+    -----
+    A custom design representing the design matrix of the microarray experiment,
+    with rows corresponding to arrays and columns to coefficients to be estimated
+    can be provided using customDesign.
+    If customDesign is the unit vector meaning that the arrays are treated as replicates.
+    See: https://www.rdocumentation.org/packages/limma/versions/3.28.14/topics/lmFit
+
+    Examples
+    --------
+    >>> prot_limma = ana.limma(prot, twitchVsctrl, cond="_TvM")
+    >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+    ...                    "a2":np.random.normal(loc=0, size=4000),
+    ...                    "a3":np.random.normal(loc=0, size=4000),
+    ...                    "b1":np.random.normal(loc=0.5, size=4000),
+    ...                    "b2":np.random.normal(loc=0.5, size=4000),
+    ...                    "b3":np.random.normal(loc=0.5, size=4000),})
+    >>> testRes = ana.limma(df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
+    >>> testRes["P.Value_test"].hist()
+    
+    .. plot::
+        :context: close-figs
+        
+        import autoprot.analysis as ana
+    
+        df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+                           "a2":np.random.normal(loc=0, size=4000),
+                           "a3":np.random.normal(loc=0, size=4000),
+                           "b1":np.random.normal(loc=0.5, size=4000),
+                           "b2":np.random.normal(loc=0.5, size=4000),
+                           "b3":np.random.normal(loc=0.5, size=4000),})
+        testRes = ana.limma(df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
+        testRes["P.Value_test"].hist()
+        plt.show()
+        
     """
-
+    # TODO: better handle coefficient extraction in R
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
@@ -2261,19 +3141,34 @@ def limma(df, reps, cond="", customDesign=None):
     else:
         df["UID"] = range(1, df.shape[0]+1)
 
-    #if not isinstance(reps, list):
-    #    cols = cols.to_list()
     #flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
 
+    # Normally no customDesign is provided
     if customDesign is None:
+        # if two lists are provided with reps, this likely is a twoSample test
         if isinstance(reps[0], list) and len(reps) == 2:
             test = "twoSample"
             design = pd.DataFrame({"Intercept":[1]*(len(reps[0])+len(reps[1])),
                                    "coef":[0]*len(reps[0]) + [1]*len(reps[1])})
+# =============================================================================
+#             TODO: What makes the Intercept here
+#             creates a design matrix such as
+#                 Intercept  coef
+#              0          1     0
+#              1          1     0
+#              2          1     0
+#              3          1     1
+#              4          1     1
+#              5          1     1
+# =============================================================================
+            # save the design for R to read
             pp.to_csv(design, designLoc)
         else:
             test = "oneSample"
+            # The R function will generate a design matrix corresponding to
+            # ones
+    # if there is a custom design matrix, use it
     else:
         test = "custom"
         designLoc = customDesign
@@ -2303,11 +3198,28 @@ def limma(df, reps, cond="", customDesign=None):
 
 def rankProd(df, reps, cond=""):
     """
-    Function that performs RankProd test as in R RankProd package
-    At the moment one sample test only
-    Test for up and downregulated genes separatly therefore returns two p values
-    """
+    Perform RankProd test as in R RankProd package.
 
+    At the moment one sample test only.
+    Test for up and downregulated genes separatly therefore returns two p values.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    reps : list of lists of str
+        Column names of the replicates.
+        Common replicates are grouped together in a single list.
+    cond : str, optional
+        Term to append to the newly generated colnames.
+        The default is "".
+
+    Returns
+    -------
+    df : TYPE
+        DESCRIPTION.
+
+    """
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
@@ -2343,13 +3255,27 @@ def rankProd(df, reps, cond=""):
 
 def annotatePS(df, ps, colsToKeep=[]):
     """
-    Function that annotates phosphosites with information derived from PSP.
-    @params:
-    :df:: dataframe containing PS of interst
-    :ps:: column containing info about the PS - format: GeneName_AminoacidPositoin (e.g. AKT_T308)
-    :colsToKeep:: which columns from original dataframe (input df) to keep in output
+    Annotate phosphosites with information derived from PhosphositePlus.
+
+    Parameters
+    ----------
+    df : pd.Dataframe
+        dataframe containing PS of interst.
+    ps : str
+        Column containing info about the PS.
+        Format: GeneName_AminoacidPositoin (e.g. AKT_T308).
+    colsToKeep : list of str, optional
+        Which columns from original dataframe (input df) to keep in output.
+        The default is [].
+
+    Returns
+    -------
+    pd.Dataframe
+        The input dataframe with the kept columns and additional phosphosite cols.
+
     """
     def makeMergeCol(df, file="regSites"):
+        """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
             return df["GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["MOD_RSD"].fillna("").apply(lambda x: x.split('-')[0])
         return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["SUB_MOD_RSD"].fillna("")
@@ -2373,10 +3299,36 @@ def annotatePS(df, ps, colsToKeep=[]):
 
     return df
 
-
 def goAnalysis(geneList, organism="hsapiens"):
     """
-    performs go Enrichment analysis (also KEGG and REAC)
+    Perform go Enrichment analysis (also KEGG and REAC).
+
+    Parameters
+    ----------
+    geneList : list of str
+        list of gene names.
+    organism : str, optional
+        identifier for the organism.
+        See https://biit.cs.ut.ee/gprofiler/page/organism-list for details.
+        The default is "hsapiens".
+
+    Raises
+    ------
+    ValueError
+        If the input could not be parsed as list of gene names.
+
+    Returns
+    -------
+    gp.profile
+        DESCRIPTION.
+
+    Examples
+    --------
+    >>> autoprot.analysis.goAnalysis(['PEX14', 'PEX18']).iloc[:3,:3]
+    ... source      native                                    name
+    ... 0  CORUM  CORUM:1984                 PEX14 homodimer complex
+    ... 1  GO:CC  GO:1990429          peroxisomal importomer complex
+    ... 2  GO:BP  GO:0036250  peroxisome transport along microtubule
     """
     if not isinstance(geneList, list):
         try:
@@ -2388,10 +3340,50 @@ def goAnalysis(geneList, organism="hsapiens"):
 
 def makePSM(seq, seqLen):
     """
-    Function that generates a position score matrix for a set
-    of given sequences
-    Returns the percentage of each amino acid for each position
-    could be further normalized using a PSM of unrelated/background sequences
+    Generate a position score matrix for a set of sequences.
+
+    Returns the percentage of each amino acid for each position that 
+    can be further normalized using a PSM of unrelated/background sequences.
+
+    Parameters
+    ----------
+    seq : list of str
+        list of sequences.
+    seqLen : int
+        Length of the peptide sequences.
+        Must match to the list provided.
+
+    Returns
+    -------
+    pd.Dataframe
+        Dataframe holding the prevalence for every amino acid per position in 
+        the input sequences.
+        
+    Examples
+    --------
+    >>> autoprot.analysis.makePSM(['PEPTIDE', 'PEGTIDE', 'GGGGGGG'], 7)
+    ...           0         1         2         3         4         5         6
+    ... G  0.333333  0.333333  0.666667  0.333333  0.333333  0.333333  0.333333
+    ... P  0.666667  0.000000  0.333333  0.000000  0.000000  0.000000  0.000000
+    ... A  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... V  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... L  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... I  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000
+    ... M  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... C  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... F  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... Y  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... W  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... H  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... K  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... R  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... Q  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... N  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... E  0.000000  0.666667  0.000000  0.000000  0.000000  0.000000  0.666667
+    ... D  0.000000  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000
+    ... S  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    ... T  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000  0.000000
+
     """
     aa_dic = {
         'G':0,
