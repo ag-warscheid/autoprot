@@ -426,7 +426,8 @@ class autoPCA:
         Parameters
         ----------
         figsize : TYPE, optional
-            DESCRIPTION. The default is (15,5).
+            The size of the figure object.
+            The default is (15,5).
 
         Raises
         ------
@@ -632,8 +633,9 @@ class autoPCA:
         labeling : bool, optional
             If True, points are labelled with the corresponding
             column labels. The default is False.
-        figsize : TYPE, optional
-            DESCRIPTION. The default is (5,5).
+        figsize : tuple of int, optional
+            The size of the figure object.
+            The default is (5,5).
 
         Notes
         -----
@@ -913,8 +915,9 @@ class autoHCA:
         zscore : int or None, optional
             Axis along which to calculate the zscore.
             The default is None.
-        linkage : TYPE, optional
-            DESCRIPTION. The default is None.
+        linkage : scipy.cluster.hierarchy.linkage object, optional
+            Precalculated linkage object.
+            The default is None.
 
         Returns
         -------
@@ -951,7 +954,7 @@ class autoHCA:
         Raises
         ------
         ValueError
-            DESCRIPTION.
+            If the length of the labels does not fit the data size.
 
         Returns
         -------
@@ -1373,8 +1376,8 @@ class autoHCA:
             Colors for the annotated clusters.
             Has to be the same size as nCluster.
             The default is None.
-        yticklabels : TYPE, optional
-            DESCRIPTION. The default is "".
+        yticklabels : list of str, optional
+            Labels for the y ticks. The default is "".
         **kwargs :
             passed to seaborn.clustermap.
             See https://seaborn.pydata.org/generated/seaborn.clustermap.html
@@ -1679,7 +1682,7 @@ class KSEA:
         Parameters
         ----------
         df : pd.Dataframe
-            DESCRIPTION.
+            Input datafame with enrichment information.
         col : str
             Column containing enrichment information e.g. intensity ratios.
             Must be present in df.
@@ -2184,17 +2187,17 @@ class KSEA:
             print("Please provide kinase(s) for annotation.")
 
 
-def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True,
+def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
                  extraVis=False, saveDir=None):
     r"""
     Print missing statistics for a dataframe.
 
     Parameters
     ----------
-    df : TYPE
-        DESCRIPTION.
-    cols : TYPE
-        DESCRIPTION.
+    df : pd.Dataframe
+        Input dataframe with missing values.
+    cols : list of str
+        Columns to perform missing values analysis on.
     n : int, optional
         How many rows of the dataframe to displayed.
         The default is 999.
@@ -2210,18 +2213,18 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True,
     extraVis : bool, optional
         Whether to return matrix plot showing missingness.
         The default is False.
-    saveDir : TYPE, optional
-        DESCRIPTION. The default is None.
+    saveDir : str, optional
+        Path to folder where the results should be saved.
+        The default is None.
 
     Raises
     ------
     ValueError
-        DESCRIPTION.
+        If n is incorrectly specified.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    None.
 
     Examples
     --------
@@ -2452,8 +2455,8 @@ def missAnalysis(df,cols,n=999, sort='ascending',text=True, vis=True,
             True if successful.
 
         """
-        plt.figure(figsize=(10,7))
-        msn.matrix(df, sort="ascending")
+        fig, ax = plt.subplots(1)
+        msn.matrix(df, sort="ascending", ax=ax)
         if saveDir:
             plt.savefig(saveDir + "/missAnalysis_vis2.pdf")
         return True
@@ -3091,7 +3094,7 @@ def limma(df, reps, cond="", customDesign=None):
     Returns
     -------
     df : pd.DataFrame
-        DESCRIPTION.
+        The input dataframe with additional columns.
 
     Notes
     -----
@@ -3216,8 +3219,8 @@ def rankProd(df, reps, cond=""):
 
     Returns
     -------
-    df : TYPE
-        DESCRIPTION.
+    df : pd.DataFrame
+        Input dataframe with additional columns from RankProd.
 
     """
     d = os.getcwd()
@@ -3320,7 +3323,7 @@ def goAnalysis(geneList, organism="hsapiens"):
     Returns
     -------
     gp.profile
-        DESCRIPTION.
+        Dataframe-like object with the GO annotations.
 
     Examples
     --------
