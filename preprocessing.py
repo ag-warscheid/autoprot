@@ -197,15 +197,17 @@ def log(df, cols, base=2, invert=None, returnCols=False):
     4               1.236503
     """
     df=df.copy() # make sure to keep the original dataframe unmodified
-    if base == 2:
-        for c in cols:
-            df[f"log2_{c}"] = np.log2(df[c])
-    elif base==10:
-        for c in cols:
-            df[f"log10_{c}"] = np.log10(df[c])
-    else:
-        for c in cols:
-            df[f"log{base}_{c}".format(base)] = np.log(df[c]) / np.log(base)
+    # ignore divide by 0 errors
+    with np.errstate(divide='ignore'):
+        if base == 2:
+            for c in cols:
+                df[f"log2_{c}"] = np.log2(df[c])
+        elif base==10:
+            for c in cols:
+                df[f"log10_{c}"] = np.log10(df[c])
+        else:
+            for c in cols:
+                df[f"log{base}_{c}".format(base)] = np.log(df[c]) / np.log(base)
     newCols = [f"log{base}_{c}" for c in cols]
 
     if invert is not None:

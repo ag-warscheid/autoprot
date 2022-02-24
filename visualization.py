@@ -13,43 +13,31 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
-import matplotlib.cm as cm
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-import matplotlib.image as mplimg
 import matplotlib.ticker as ticker
-import pylab as pl
-import importlib
+import pylab as pl 
 from autoprot import venn
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
 import logomaker
 import colorsys
 import matplotlib.patches as patches
-import colorsys
 from itertools import chain
-
-from datetime import date
 
 from wordcloud import WordCloud
 from wordcloud import STOPWORDS
 
-from pdfminer3.layout import LAParams, LTTextBox
+from pdfminer3.layout import LAParams
 from pdfminer3.pdfpage import PDFPage
 from pdfminer3.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer3.converter import PDFPageAggregator, TextConverter
+from pdfminer3.converter import TextConverter
 
 import io
-
 from PIL import Image
-
-import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 
 plt.rcParams['pdf.fonttype'] = 42
 
-from io import BytesIO
-from scipy.stats import ttest_1samp
 
 # TODO: Add functionality of embedding all the plots as subplots in figures by providing ax parameter
 

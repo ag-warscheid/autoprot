@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Autoprot Workflows.
+
+@author: Wignand
+
+@documentation: Julian
+"""
 from autoprot import preprocessing as pp
 from autoprot import visualization as vis
 from autoprot import analysis as ana
@@ -6,9 +14,38 @@ import matplotlib.pyplot as plt
 import os
 import datetime
 
-
-
 class workflow():
+    """
+    Implements complete analysis workflow standard enrichment analysis.
+    
+    Notes
+    -----
+    You have to call the methods of the class individually depending on your analysis scheme.
+
+    Parameters
+    ----------
+    file: str
+        Path to input csv file.
+    saveDir: str
+        path to folder where the results are saved.
+    replicates: list of list of str, optional
+        Colnames of the replicates. The default is [].
+    intCols: list of str or str, optional
+        Intensity colnames. The default is "".
+    corrAnalysis: str, optional
+        Possible values are ‘none’, ‘small’, ‘complete’.
+        The default is ‘none’.
+    missAnalysis: str, optional
+        Whether to return only text output or figures or both from the missing
+        values analysis. Possible values are ‘none’, ‘text’, ‘vis’, ‘complete’.
+        The default is ‘none’.
+    minValid: int, optional
+        Minimum valid values between replicates. The default is 1.
+    test: str, optional
+        The kind of significance test to perform.
+        Possible values are ‘limma’ and ‘standard’. The default is “limma”.
+    """    
+    
     def __init__(self, file, saveDir, replicates=[], intCols="", 
                 corrAnalysis='none', #'none', 'small', 'complete'
                 missAnalysis='none', #'none', 'text', 'vis', 'complete'
@@ -50,6 +87,22 @@ class workflow():
     
     
     def getRatioCols(self, normalized=True, re=None):
+        """
+        Return the colnames of columns holding the ratios.
+
+        Parameters
+        ----------
+        normalized : bool, optional
+            If the data is normalised or not. The default is True.
+        re : regular expression, optional
+            If given, the columns are selected based on the regex. The default is None.
+
+        Returns
+        -------
+        list
+            list of colnames.
+
+        """
         if re:
             return self.data.filter(regex=re).columns.to_list()
         else:
@@ -60,19 +113,44 @@ class workflow():
                 
                 
     def getIntensityCols(self, re=None):
+        """
+        Return the colnames of columns holding intensities.
+
+        Parameters
+        ----------
+        re : regular expression, optional
+            If given, the columns are selected based on the regex. The default is None.
+
+        Returns
+        -------
+        list
+            list of colnames.
+
+        """
         if re:
             return self.data.filter(regex=re).columns.to_list()
         else:
             return self.data.filter(regex="Intensity . .*").columns.to_list()
-                
-                
-    # def setRatioCols(self, ratios):
-        # self.ratioCols = ratios
-        
         
     def setReplicates(self, replicates, names=None, log=None, invert=None):
         """
-        :@log: int, 2 or 10 - base of log
+        Perform log calculation and inversion if required on the ratio columns.
+
+        Parameters
+        ----------
+        replicates : list of list of str
+            List containing the grouped replicates..
+        names : list of list of str, optional
+            Titles for the replicates. The default is None.
+        log : int, optional
+            The base of the logarithm. The default is None.
+        invert : list of list of int, optional
+            The default is None.
+
+        Returns
+        -------
+        None.
+
         """
         self.replicates = replicates
         self.ratioCols = np.ravel(self.replicates)
@@ -90,6 +168,21 @@ class workflow():
         
         
     def setIntensityCols(self, intensities, log=False):
+        """
+        Initialise the names of the intensity columns and log-transform their values.
+
+        Parameters
+        ----------
+        intensities : list of str
+            list of columns holding intensity values..
+        log : bool, optional
+            Whether to log the intensity values. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
         self.intCols = intensities
         if log==True:
             self.data, self.intCols = pp.log(self.data, self.intCols, returnCols=True)
@@ -97,9 +190,23 @@ class workflow():
             
     def getSig(self, name, which="both", pt=None):
         """
-        returns dataframe with significant entries
-        :@which: both, up, down; return all only up or down regulated entries
-        :@pt: sets a pt different than the overall pt
+        Retun index of significant entries.
+
+        Parameters
+        ----------
+        name : str
+            name of the experiment as e.g. in logFC_NAME.
+        which : str, optional
+            return all only up or down regulated entries Possible values are ‘up’, ‘down’ and ‘both’.
+            The default is "both".
+        pt : numeric, optional
+            p-value threshold. The default is None.
+
+        Returns
+        -------
+        pd.index
+            Indices of significant values.
+
         """
         if not pt:
             pt = self.pt
@@ -114,6 +221,23 @@ class workflow():
             
             
     def filterSig(self, name):
+        """
+        Filter a dataframe so that only significantly regulated entries are retained.
+
+        Parameters
+        ----------
+        name : str
+            name of the experiment as e.g. in logFC_NAME.
+
+        Notes
+        -----
+        The filtered dataframe is saved directly in the directory defined for the class.
+
+        Returns
+        -------
+        None.
+
+        """
         up = self.getSig(name, "up")
         down = self.getSig(name, "down")
         print(f"{up.shape[0]} proteins are significantly up-regulated at a p threshold of {self.pt}")
@@ -134,10 +258,17 @@ class workflow():
                 for i in down["Gene names"].fillna("").apply(lambda x: x.split(';')[0]):
                     f.write(i)
                     f.write('\n')
-        
-                       
                        
     def missAna(self):
+        """
+        Perform missing values analysis.
+
+        Returns
+        -------
+        bool
+            True if missing values analysis was not set for the class. Else none.
+
+        """
         if self.missAnalysis == 'none':
             return True
         else:
@@ -160,6 +291,15 @@ class workflow():
             
             
     def corrAna(self):
+        """
+        Perform correlation analysis.
+
+        Returns
+        -------
+        bool
+            True if correlation analysis was not set for the class. Else none.
+
+        """
         if self.corrAnalysis == 'none':
             return True
         else:
@@ -181,11 +321,38 @@ class workflow():
                 plt.show()
             else:
                 print('This is not a valid paramter for corrAnalysis.')
-                
-                
-
 
 class proteomeLabeled(workflow):
+    """
+    Class to perform standard proteomics data analysis workflow.
+    
+    Parameters
+    ----------
+    data: str
+        Path to input csv file.
+    saveDir: str
+        path to folder where the results are saved.
+    corrAnalysis: str, optional
+        Possible values are ‘none’, ‘small’, ‘complete’.
+        The default is ‘none’.
+    missAnalysis: str, optional
+        Whether to return only text output or figures or both from the missing
+        values analysis. Possible values are ‘none’, ‘text’, ‘vis’, ‘complete’.
+        The default is ‘none’.
+    minValid: int, optional
+        Minimum valid values between replicates. The default is 1.
+    test: str, optional
+        The kind of significance test to perform.
+        Possible values are ‘limma’ and ‘standard’. The default is “limma”.
+    intCols: list of str or str, optional
+        Intensity colnames. The default is "".
+    replicates: list of list of str, optional
+        Colnames of the replicates. The default is [].
+    filetype: str, optional
+        Which file is provided in the dataframe. Possible values are “proteinGroups”; “Phospho (STY)”, “evidence”, “modificationSpecificPeptides” or “peptides”.
+        The default is “proteinGroups”.
+    """
+    
     def __init__(self, data, saveDir, 
                 corrAnalysis='none', #'none', 'small', 'complete'
                 missAnalysis='none', #'none', 'text', 'vis', 'complete'
@@ -202,6 +369,14 @@ class proteomeLabeled(workflow):
 
 
     def DEAna(self):
+        """
+        Perform significance analysis and generate volcano plot.
+
+        Returns
+        -------
+        None.
+
+        """
         for rep, name in zip(self.replicates, self.replicateNames):
                     print(f"Analysis of {name}")
                     if self.test == "limma":
@@ -219,6 +394,14 @@ class proteomeLabeled(workflow):
 
 
     def preprocessing(self):
+        """
+        Preprocess the data.
+
+        Returns
+        -------
+        None.
+
+        """
         print("PREPROCESSING")
         print("-"*50)
         print("Data cleaning:")
@@ -236,6 +419,14 @@ class proteomeLabeled(workflow):
                             
                             
     def analysis(self):
+        """
+        Perform significance analysis and save the analysed data as tsv file.
+
+        Returns
+        -------
+        None.
+
+        """
         print("ANALYSIS")
         print("-"*50)
         self.DEAna()

@@ -3,7 +3,7 @@
 
 
 from itertools import chain
-from collections import Iterable
+# from collections import Iterable
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import colors

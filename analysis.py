@@ -2938,7 +2938,6 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     
     See: https://medium.com/@langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a
     
-
     Parameters
     ----------
     data : pd.Dataframe
@@ -2983,6 +2982,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         :context: close-figs
         
         import autoprot.analysis as ana
+        import seaborn as sns
 
         x_values = np.random.randint(-50,110,size=(250))
         y_values = np.square(x_values)/1.5 + np.random.randint(-1000,1000, size=len(x_values))
@@ -3074,7 +3074,7 @@ def edm(A,B):
 
 
 def limma(df, reps, cond="", customDesign=None):
-    """
+    r"""
     Perform moderated ttest as implemented from R LIMMA.
 
     Parameters
