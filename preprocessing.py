@@ -1564,7 +1564,7 @@ def normToProt(entry, protDf, toNormalize):
     ----------
     entry : pd.Series
         Row-like object with index "Protein group IDs".
-    protDf : TYPE
+    protDf : pd.DataFrame
         MQ ProteinGroups data to which data is normalized.
     toNormalize : list of str
         Which columns to normalize.

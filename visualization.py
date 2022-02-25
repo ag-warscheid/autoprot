@@ -87,12 +87,11 @@ def correlogram(df, columns=None, file="proteinGroups",log=True,saveDir = None,
     Raises
     ------
     ValueError
-        DESCRIPTION.
+        If provided list of columns is not suitable.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    None.
 
     Examples
     --------
@@ -713,12 +712,13 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
     Raises
     ------
     ValueError
-        DESCRIPTION.
+        If the number of provided columns is below 2 or greater than 6.
 
     Returns
     -------
-    fig : TYPE
-        DESCRIPTION.
+    fig : matplotlib.figure
+        The figure object.
+        Only returned if retFig is True, else None.
 
     Examples
     --------
@@ -1679,7 +1679,7 @@ def plotTraces(df, cols, labels=None, colors=None, zScore=None,
     df : pd.DataFame
         Input dataframe.
     cols : list of str
-        DESCRIPTION.
+        The colnames from which the values are plotted.
     labels : list of str, optional
         Corresponds to data, used to label traces.
         The default is None.
@@ -1815,8 +1815,8 @@ def sequenceLogo(df, motif, file=None, ST=False):
 
     Parameters
     ----------
-    df : TYPE
-        DESCRIPTION.
+    df : pd.DataFrame
+        The dataframe from which experimentally determined sequences are extracted.
     motif : tuple of str
         A tuple of the motif and its name.
         The phosphosite residue in the motif should be indicated by a
@@ -2019,8 +2019,9 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
 
     Parameters
     ----------
-    name : TYPE
-        DESCRIPTION.
+    name : str
+        Name of the protein.
+        Used for plot title.
     length : int
         Length of the protein.
     domain_position : list of int
@@ -2474,7 +2475,7 @@ def BHplot(df, ps, adj_ps,title=None, alpha=0.05, zoom=20):
     title : str, optional
         Plot title. The default is None.
     alpha : flaot, optional
-        DESCRIPTION. The default is 0.05.
+        The significance level drawn in the plot. The default is 0.05.
     zoom : int, optional
         Zoom on the first n points. The default is 20.
 

@@ -425,7 +425,7 @@ class autoPCA:
 
         Parameters
         ----------
-        figsize : TYPE, optional
+        figsize : tuple of int, optional
             The size of the figure object.
             The default is (15,5).
 
@@ -2313,7 +2313,7 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
             How many entries are displayed.
         saveDir : str
             Path to dump txt output.
-        sort : TYPE, optional
+        sort : str, optional
             How to sort data.
             Possible values are 'ascending' and 'descending'.
             The default is 'ascending'.
@@ -2377,7 +2377,7 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
             Default is None.
         saveDir : str
             Path to dump txt output.
-        sort : TYPE, optional
+        sort : str, optional
             How to sort data.
             Possible values are 'ascending' and 'descending'.
             The default is 'ascending'.
@@ -2766,7 +2766,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             if os.path.isdir(output):
                output = os.path.join(output, "PubCrawlerResults.html")
             with open(output, 'w', encoding="utf-8") as f:
-                f.write("<!DOCTYPE html>")
+                f.write("<!DOC html>")
                 f.write("<html>")
                 f.write("<head>")
                 f.write("<style>")
