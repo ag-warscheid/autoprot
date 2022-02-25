@@ -21,6 +21,8 @@ from Bio.pairwise2 import format_alignment
 from scipy.stats import pearsonr, spearmanr
 from scipy import stats
 from sklearn.metrics import auc
+from urllib import parse
+from ftplib import FTP
 
 RSCRIPT, R = RHelper.returnRPath()
 
@@ -144,7 +146,7 @@ def cleaning(df, file="proteinGroups"):
     return df
 
 
-def log(df, cols, base=2, invert=None, returnCols=False):
+def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
     r"""
     Perform log transformation.
 
@@ -161,7 +163,10 @@ def log(df, cols, base=2, invert=None, returnCols=False):
         Columns are multiplied with corresponding number.
         The default is None.
     returnCols : bool, optional
-        Whether to return a list of names corresponding to the columns added to the dataframe. The default is False.
+        Whether to return a list of names corresponding to the columns added
+        to the dataframe. The default is False.
+    replace_inf : bool, optional
+        Whether to replace inf and -inf values by np.nan
 
     Returns
     -------
@@ -201,13 +206,24 @@ def log(df, cols, base=2, invert=None, returnCols=False):
     with np.errstate(divide='ignore'):
         if base == 2:
             for c in cols:
-                df[f"log2_{c}"] = np.log2(df[c])
+                if replace_inf:
+                    df[f"log2_{c}"] = np.nan_to_num(np.log2(df[c]), neginf=np.nan, posinf=np.nan)
+                else:
+                    df[f"log2_{c}"] = np.log2(df[c])
         elif base==10:
             for c in cols:
-                df[f"log10_{c}"] = np.log10(df[c])
+                if replace_inf:
+                    df[f"log10_{c}"] = np.nan_to_num(np.log10(df[c]), neginf=np.nan, posinf=np.nan)
+                else:
+                    df[f"log10_{c}"] = np.log10(df[c])
         else:
             for c in cols:
-                df[f"log{base}_{c}".format(base)] = np.log(df[c]) / np.log(base)
+                if replace_inf:
+                    df[f"log{base}_{c}".format(base)] = np.nan_to_num(np.log(df[c]) / np.log(base),
+                                                                      neginf=np.nan,
+                                                                      posinf=np.nan)
+                else:
+                    df[f"log{base}_{c}".format(base)] = np.log(df[c]) / np.log(base)
     newCols = [f"log{base}_{c}" for c in cols]
 
     if invert is not None:
@@ -1605,3 +1621,88 @@ def normToProt(entry, protDf, toNormalize):
         # TODO Does this work? isnt poi[toNormalize] a df and entry a series?
         corrected = entry[toNormalize] - poi[toNormalize]
     return pd.Series(corrected.values[0])
+
+def fetchFromPRIDE(accession, term, ignore_caps=True):
+    """
+    Get download links files belonging to a PRIDE identifier.
+
+    Parameters
+    ----------
+    accession : str
+        PRIDE identifier.
+    term : str
+        Part of the filename belonging to the project.
+        For example 'proteingroups'
+    ignore_caps : bool, optional
+        Whether to ignore capitalisation during matching of terms.
+        The default is True.
+
+    Returns
+    -------
+    file_locs : dict
+        Dict mapping filenames to FTP download links.
+
+    Examples
+    --------
+    Generate a dict mapping file names to ftp download links.
+    Not that only files containing the string proteingroups are retrieved.
+    
+    >>> ftpDict = pp.fetchFromPRIDE("PXD031829", 'proteingroups')
+
+    """
+    js_list = requests.get(f'https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession={accession}',
+                           headers={'Accept': 'application/json'}).json()
+    
+    file_locs = {}
+    
+    for fdict in js_list:
+        fname = fdict['fileName']
+        if ignore_caps is True:
+            fname = fname.lower()
+            term = term.lower()
+        if term in fname:
+            for protocol in fdict['publicFileLocations']:
+                if protocol['name'] == 'FTP Protocol':
+                    file_locs[fname] = protocol['value']
+                    print(f'Found file {fname}')
+    return file_locs
+
+def downloadFromFTP(url, saveDir, loginname='anonymous', loginpw=''):
+    r"""
+    Download a file from FTP.
+
+    Parameters
+    ----------
+    url : TYPE
+        DESCRIPTION.
+    saveDir : TYPE
+        DESCRIPTION.
+    loginname : str
+        Login name for the FTP server.
+        Default is 'anonymous' working for the PRIDE FTP server.
+    loginpw : str
+        Password for access to the FTP server.
+        Default is ''
+    Returns
+    -------
+    str
+        Path to the downloaded file.
+
+    Examples
+    --------
+    Download all files from a dictionary holding file names and ftp links and
+    save the paths to the downloaded files in a list.
+    
+    >>> downloadedFiles = []
+    >>> for file in ftpDict.keys():
+    ...     downloadedFiles.append(pp.downloadFromFTP(ftpDict[file], r'C:\Users\jbender\Documents\python_playground'))
+    
+    """
+    path, file = os.path.split(parse.urlparse(url).path)
+    ftp = FTP(parse.urlparse(url).netloc)
+    ftp.login(loginname, loginpw)
+    ftp.cwd(path)
+    ftp.retrbinary("RETR " + file, open(os.path.join(saveDir, file), 'wb').write)
+    print(f'Downloaded {file}')
+    ftp.quit()
+    return os.path.join(saveDir, file)

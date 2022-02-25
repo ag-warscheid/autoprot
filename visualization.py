@@ -14,7 +14,7 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as ticker
-import pylab as pl 
+import pylab as pl
 from autoprot import venn
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
@@ -573,8 +573,9 @@ def boxplot(df, reps, title=None, labels=[], compare=False,
         return fig
 
 
-def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank Plot", figsize=(15,7), file=None,
-                  hline=None, **kwargs):
+def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
+                  title="Rank Plot", figsize=(15,7), file=None, hline=None,
+                  ax=None, **kwargs):
     """
     Draw a rank plot.
 
@@ -586,7 +587,7 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
         the column with the values to be ranked (e.g. Intensity values).
         The default is "log10_Intensity".
     label : str, optional
-        Coname of the column with the labels.
+        Colname of the column with the labels.
         The default is None.
     n : int, optional
         How many points to label on the top and bottom of the y-scale.
@@ -602,6 +603,8 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
     hline : numeric, optional
         y value to place a horizontal line.
         The default is None.
+    ax : matplotlib.axis
+        Axis to plot on
     **kwargs :
         Passed to seaborn.scatterplot.
 
@@ -620,7 +623,6 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
     ...                                      title="Rank Plot",
     ...                                      hline=8, marker="d")
 
-
     .. plot::
         :context: close-figs
 
@@ -633,6 +635,11 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
 
     """
     # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
+    
+    # remove NaNs
+    data = data.copy().dropna(subset=rankCol)
+    
+    # if data has mroe columns than 1
     if data.shape[1] > 1:
         data = data.sort_values(by=rankCol, ascending=True)
         y = data[rankCol]
@@ -641,24 +648,34 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
 
     x = range(data.shape[0])
 
-    plt.figure(figsize=figsize)
+    # new plot if no axis was given
+    if ax == None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.gca()
+
+    # plot on the axis
     sns.scatterplot(x=x,y=y,
-                   linewidth=0, **kwargs)
+                   linewidth=0,
+                   ax=ax,
+                   **kwargs)
 
     if hline is not None:
-        plt.axhline(hline,0,1, ls="dashed", color="lightgray")
+        ax.axhline(hline,0,1, ls="dashed", color="lightgray")
 
     if label is not None:
+        # high intensity labels labels
         top_y = y.iloc[-1]
+
         top_yy = np.linspace(top_y-n*0.4, top_y, n)
         top_oy = y[-n:]
         top_xx = x[-n:]
         top_ss = data[label].iloc[-n:]
 
         for ys,xs,ss,oy in zip(top_yy, top_xx, top_ss, top_oy):
-            plt.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
-            plt.text(x=xs+len(x)*.1, y=ys, s=ss)
+            ax.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
+            ax.text(x=xs+len(x)*.1, y=ys, s=ss)
 
+        # low intensity labels
         low_y = y.iloc[0]
         low_yy = np.linspace(low_y, low_y+n*0.4, n)
         low_oy = y[:n]
@@ -666,12 +683,13 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5, title="Rank 
         low_ss = data[label].iloc[:n]
 
         for ys,xs,ss,oy in zip(low_yy, low_xx, low_ss, low_oy):
-            plt.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
-            plt.text(x=xs+len(x)*.1, y=ys, s=ss)
+            ax.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
+            ax.text(x=xs+len(x)*.1, y=ys, s=ss)
 
     sns.despine()
-    plt.xlabel("# rank")
-    plt.title(title)
+    ax.set_xlabel("# rank")
+    if ax == None:
+        plt.title(title)
 
     if file is not None:
         plt.savefig(fr"{file}/RankPlot.pdf")
@@ -2214,7 +2232,7 @@ def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
         return fig
 
 
-def chargePlot(df, figsize=(12,8), typ="bar", retFig=False):
+def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
 
@@ -2231,6 +2249,8 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False):
     retFig : bool, optional
         Whether to return the figure.
         The default is False.
+    ax : matplotlib axis
+        Axis to plot on
 
     Returns
     -------
@@ -2275,8 +2295,11 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False):
     df = pd.DataFrame(noOfPhos, columns=["charge"])
 
     if typ=="bar":
-        fig = plt.figure(figsize=figsize)
-        ax = sns.countplot(x="charge", data=df)
+        if ax == None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.gca()
+            
+        sns.countplot(x="charge", data=df, ax=ax)
         plt.title('charge')
         plt.xlabel('charge')
         ncount = df.shape[0]
@@ -2303,9 +2326,11 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False):
         ax.set_ylim(0,ncount)
         ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
     elif typ=="pie":
-        fig = plt.figure(figsize=figsize)
-        plt.pie([i[0] for i in count], labels=[i[1] for i in count]);
-        plt.title("charge")
+        if ax == None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.gca()
+        ax.pie([i[0] for i in count], labels=[i[1] for i in count]);
+        ax.set_title("charge")
     if retFig==True:
         return fig
 
@@ -2489,17 +2514,17 @@ def BHplot(df, ps, adj_ps,title=None, alpha=0.05, zoom=20):
     and right with a zoom on the first 6 values (zoom=7).
     The grey line indicates the provided alpha level. Values below it are considered
     significantly different.
-    
+
     >>> autoprot.visualization.BHplot(phos,'pValue_TvC', 'adj.pValue_TvC', alpha=0.05, zoom=7)
-    
+
     .. plot::
         :context: close-figs
-    
+
         import autoprot.preprocessing as pp
         import autoprot.analysis as ana
         import autoprot.visualization as vis
         import pandas as pd
-    
+
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
@@ -2507,10 +2532,10 @@ def BHplot(df, ps, adj_ps,title=None, alpha=0.05, zoom=20):
         phos = pp.filterLocProb(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
-    
+
         phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
         phos_expanded = pp.expandSiteTable(phos, phosRatio)
-    
+
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
 
