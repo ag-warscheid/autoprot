@@ -635,10 +635,10 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
 
     """
     # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
-    
+
     # remove NaNs
     data = data.copy().dropna(subset=rankCol)
-    
+
     # if data has mroe columns than 1
     if data.shape[1] > 1:
         data = data.sort_values(by=rankCol, ascending=True)
@@ -2031,7 +2031,8 @@ def sequenceLogo(df, motif, file=None, ST=False):
         generateSequenceLogo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
                              motif="{} - {}".format(motif[0], motif[1]))
 
-def visPs(name, length, domain_position, ps, pl,plc, pls=4):
+def visPs(name, length, domain_position=[], ps=None, pl=None, plc=None, pls=4, ax=None,
+          domain_color='tab10'):
     """
     Visualize domains and phosphosites on a protein of interest.
 
@@ -2042,8 +2043,8 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
         Used for plot title.
     length : int
         Length of the protein.
-    domain_position : list of int
-        the amino acids at which domains begin and end (protein start and end have not to be included).
+    domain_position : list of tuples of int
+        Each element is a tuple of domain start and end postiions.
     ps : list of int
         position of phosphosites.
     pl : list of str
@@ -2052,6 +2053,11 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
         optionally one can provide a list of colors for the phosphosite labels.
     pls : int, optional
         Fontsize for the phosphosite labels. The default is 4.
+    ax: matplotlib axis, optional
+        To draw on an existing axis
+    domain_color: str
+        Either a matplotlib colormap (see https://predictablynoisy.com/matplotlib/gallery/color/colormap_reference.html)
+        or a single color
 
     Returns
     -------
@@ -2081,8 +2087,8 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
 
         name = "AKT1S1"
         length = 256
-        domain_position = [35,43,
-             77,96]
+        domain_position = [(35,43),
+                           (77,96)]
         ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]
         pl = ["pS88", "pS92", "pS116", "pS183", "pS202", "pS203", "pS211", "pS212", "pS246"]
         plc = ['C', 'A', 'A', 'C', 'Cd', 'D', 'D', 'B', 'D']
@@ -2090,12 +2096,22 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
         plt.show()
 
     """
-    def get_N_HexCol(N=5):
-
-        HSV_tuples = [(x*1/N, 0.75, 0.6) for x in range(N)]
-        RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
-        return list(RGB_tuples)
-
+    # check if domain_color is a cmap name
+    try:
+        cm = plt.get_cmap(domain_color)
+        color = cm(np.linspace(0,1,len(domain_position)))
+    except ValueError:
+        # it is not, so is it a single colour?
+        if isinstance(domain_color, str):
+            color = [domain_color,]*len(domain_position)
+        # is it a list of colours
+        elif isinstance(domain_color, list):
+            if len(domain_color) == len(domain_position):
+                color = domain_color
+            else:
+                raise Exception('Please provide one domain colour per domain')
+        else:
+            raise Exception('You must provide a colormap name, a colour name or a list of colour names')
 
     textColor = {"A"  : "gray",
                  "Ad" : "gray",
@@ -2106,33 +2122,34 @@ def visPs(name, length, domain_position, ps, pl,plc, pls=4):
                  "D"  : "#770087",
                  "Dd" : "#008080"}
 
-    color = None #No color options yet
-
     lims = (1, length)
     height = lims[1]/25
 
+    if ax == None:
+        fig1 = plt.figure(figsize=(15,2))
+        ax1 = fig1.add_subplot(111, aspect='equal')
+    else:
+        ax1 = ax
 
-    #start and end positions of domains
-    a=[0]+domain_position#beginning
-    c= domain_position + [length]#end
+    # background of the whole protein in grey
+    ax1.add_patch(
+            patches.Rectangle((0, 0), length, height,color='lightgrey') )
 
-    #colors for domains
-    if not color:
-        #color2 = get_N_HexCol(N=len(domain_position)+1)
-        color2 = ["#EEF1F4"]*50
-        color = ["gray"]*(len(domain_position)+1)
-        color = list(chain.from_iterable(([(i,j) for i,j in zip(color,color2)])))
-
-    fig1 = plt.figure(figsize=(15,2))
-    ax1 = fig1.add_subplot(111, aspect='equal')
-    for i in range(len(a)):
-        width = c[i] - a[i]
+    for idx, (start, end) in enumerate(domain_position):
+        width = end - start
         ax1.add_patch(
-            patches.Rectangle((a[i], 0), width, height,color=color[i]) )
-    for i, site in enumerate(ps):
-        plt.axvline(site,0,1, color="red")
-        plt.text(site-1, height-(height+height*0.15),pl[i], fontsize=pls, rotation=90,
-                color=textColor[plc[i]])
+            patches.Rectangle((start, 0), width, height,color=color[idx]) )
+
+    # only plot phosphosite if there are any
+    if ps != None:
+        for idx, site in enumerate(ps):
+            plt.axvline(site,0,1, color="red")
+            plt.text(site-1,
+                     height-(height+height*0.15),
+                     pl[idx] if pl != None else '',
+                     fontsize=pls,
+                     rotation=90,
+                     color=textColor[plc[idx]] if plc != None else 'black')
 
     plt.subplots_adjust(left=0.25)
     plt.ylim(height)
@@ -2298,7 +2315,7 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
         if ax == None:
             fig = plt.figure(figsize=figsize)
             ax = fig.gca()
-            
+
         sns.countplot(x="charge", data=df, ax=ax)
         plt.title('charge')
         plt.xlabel('charge')
