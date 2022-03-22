@@ -150,6 +150,10 @@ cython_debug/
 
 # data
 data/
+autoprot.conf
 
 # Sphinx
 docs/_build
+
+# R
+.Rhistory

@@ -2973,9 +2973,8 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
                            })
 
     >>> evalDF = autoprot.analysis.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
-    >>> fig = plt.figure()
-    >>> ax = plt.subplot()
-    >>> sns.scatterplot(df["Xvalue"], df["Yvalue"])
+    >>> fig, ax = plt.subplots(1,1)
+    >>> sns.scatterplot(df["Xvalue"], df["Yvalue"], ax=ax)
     >>> ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
     
     .. plot::
@@ -2990,9 +2989,8 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
                            "Yvalue" : y_values
                            })
         evalDF = ana.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
-        fig = plt.figure()
-        ax = plt.subplot()
-        sns.scatterplot(df["Xvalue"], df["Yvalue"])
+        fig, ax = plt.subplots(1,1)
+        sns.scatterplot(df["Xvalue"], df["Yvalue"], ax=ax)
         ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
         plt.show()
     """
@@ -3106,7 +3104,6 @@ def limma(df, reps, cond="", customDesign=None):
 
     Examples
     --------
-    >>> prot_limma = ana.limma(prot, twitchVsctrl, cond="_TvM")
     >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
     ...                    "a2":np.random.normal(loc=0, size=4000),
     ...                    "a3":np.random.normal(loc=0, size=4000),
