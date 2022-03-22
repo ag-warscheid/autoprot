@@ -31,9 +31,15 @@ Head over to the `R repo <https://cran.r-project.org/bin/>`_ and download a vers
 Alternatively, you may `install R using anaconda <https://docs.anaconda.com/anaconda/user-guide/tasks/using-r-language/>`_.
 Locate the directory in which R was installed (usually something like "C:\Program Files\R\R-4.1.1" or within the anaconda folder).
 
-Next, locate the file RHelper.py within the autoprot directory and edit both paths.
-RSCRIPT should be an absolute path to the RFunctions.R script inside the autorpot directory.
-R is the path to your R installation such as "C:\Program Files\R\R-4.1.1\bin/x64/Rscript.exe".
+Once you run autoprot, it will generate an autoprot.conf file in which you have to define the paths to your Rscript executable and to the RFunctions.R file inside the autoprot directory.
+Run autoprot again and it will use the paths from the edited file.
+Autoprot uses several R libraries that it will attempt to automatically install if they are not present.
+However, a manual timeout is set to 10 min to prevent the script being caught in infinite loops.
+If the automatic installation is not finished within 10 min, try increasing the timeout (in sec) in RHelper.py.
+Moreover, automatic install using anaconda requires additional conda packages to be installed:
+
+conda install -c conda-forge r-gmp
+conda install -c conda-forge r-rmpfr
 
 The autoprot virtual environment
 ================================

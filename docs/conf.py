@@ -71,6 +71,7 @@ import pandas as pd
 import numpy as np
 sys.path.append('../autoprot/')
 import autoprot
+import matplotlib.pyplot as plt
 
 prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
 phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep='\t', low_memory=False)
