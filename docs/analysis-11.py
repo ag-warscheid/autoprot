@@ -1,0 +1,1 @@
+autopca.loadingPlot(pc1=1, pc2=2, labeling=True)

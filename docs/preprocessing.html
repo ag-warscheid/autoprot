@@ -1,0 +1,1075 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Data Preprocessing &#8212; autoprot  documentation</title>
+    
+    <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/pydata-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    
+    <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Analysis" href="analysis.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">autoprot</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="installation.html">
+  Installation
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  Data Preprocessing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="analysis.html">
+  Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="visualization.html">
+  Data Visualization
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="workflows.html">
+  Workflows
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="data-preprocessing">
+<h1>Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h1>
+<p>The preprocessing module contains several functions to preprocess data.</p>
+<span class="target" id="module-autoprot.preprocessing"></span><p>Autoprot Preprocessing Functions.</p>
+<p>&#64;author: Wignand</p>
+<p>&#64;documentation: Julian</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.cleaning">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">cleaning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'proteinGroups'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#cleaning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.cleaning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove contaminant, reverse and identified by site only entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to clean up.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Which file is provided in the dataframe.
+Possible values are “proteinGroups”; “Phospho (STY)”, “evidence”,  “modificationSpecificPeptides” or “peptides”.
+The default is “proteinGroups”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – The cleaned dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Cleaning can target different MQ txt files such as proteinGroups and
+phospho (STY) tables. The variables phos and prot are parsed MQ results tables.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prot_clean</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">cleaning</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="s2">&quot;proteinGroups&quot;</span><span class="p">)</span>
+<span class="go">4910 rows before filter operation.</span>
+<span class="go">4624 rows after filter operation.</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phos_clean</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">cleaning</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;Phospho (STY)&quot;</span><span class="p">)</span>
+<span class="go">47936 rows before filter operation.</span>
+<span class="go">47420 rows after filter operation.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.cyclicLOESS">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">cyclicLOESS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#cyclicLOESS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.cyclicLOESS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform cyclic Loess normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform normlisation on.</p></li>
+<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True also the column names of the normalized columns are returned.
+The default is False.</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em>, </em><em>optional</em>) – Only ‘r’ is implemented. The default is “r”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The original dataframe with extra columns _normalized.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="https://doi.org/10.1093/bioinformatics/19.2.185">https://doi.org/10.1093/bioinformatics/19.2.185</a></p>
+<p>[2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by local fitting. J. Am. Stat. Assoc., 83, 596–610</p>
+<p>[3] <a class="reference external" href="https://en.wikipedia.org/wiki/Local_regression">https://en.wikipedia.org/wiki/Local_regression</a></p>
+<p class="rubric">Notes</p>
+<p>Cyclic loess normalization applies loess normalization to all possible pairs of arrays,
+usually cycling through all pairs several times.
+Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
+the data around every point using low-order functions and giving less weight to distant
+data points.</p>
+<p>Cyclic loess is slower than quantile, but allows probe-wise weights and
+is more robust to unbalanced differential expression.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.preprocessing</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.visualization</span> <span class="k">as</span> <span class="nn">vis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosLog</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noNorm</span> <span class="o">=</span> <span class="n">phosLog</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2_Ratio ./. R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+<p>Until now this was only preprocessing for the normalisation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phos_norm_r</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">cyclicLOESS</span><span class="p">(</span><span class="n">phosLog</span><span class="p">,</span> <span class="n">noNorm</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">phos_norm_r</span><span class="p">,</span> <span class="p">[</span><span class="n">noNorm</span><span class="p">,</span> <span class="n">phos_norm_r</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;_norm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">compare</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> 
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//preprocessing-1.py">Source code</a>, <a class="reference external" href=".//preprocessing-1.png">png</a>, <a class="reference external" href=".//preprocessing-1.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-1.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/preprocessing-1.png" class="plot-directive" src="_images/preprocessing-1.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.expSemiCol">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">expSemiCol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scCol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newCol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">castTo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#expSemiCol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.expSemiCol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand a semicolon containing string column and generate a new column based on its content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.dataframe</em>) – Dataframe to expant columns.</p></li>
+<li><p><strong>scCol</strong> (<em>str</em>) – Colname of a column containing semicolon-separated values.</p></li>
+<li><p><strong>newCol</strong> (<em>str</em>) – Name for the newly generated column.</p></li>
+<li><p><strong>castTo</strong> (<em>dtype</em><em>, </em><em>optional</em>) – If provided new column will be set to the provided dtype. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – Dataframe with the semicolon-separated values on separate rows.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.dataframe</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">expSemi</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expSemi</span><span class="p">[</span><span class="s2">&quot;Proteins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">0    P61255;B1ARA3;B1ARA5</span>
+<span class="go">0    P61255;B1ARA3;B1ARA5</span>
+<span class="go">0    P61255;B1ARA3;B1ARA5</span>
+<span class="go">1    Q6XZL8;F7CVL0;F6SJX8</span>
+<span class="go">1    Q6XZL8;F7CVL0;F6SJX8</span>
+<span class="go">Name: Proteins, dtype: object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expSemi</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">expSemiCol</span><span class="p">(</span><span class="n">expSemi</span><span class="p">,</span> <span class="s2">&quot;Proteins&quot;</span><span class="p">,</span> <span class="s2">&quot;SingleProts&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">expSemi</span><span class="p">[</span><span class="s2">&quot;SingleProts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">0    P61255</span>
+<span class="go">0    B1ARA3</span>
+<span class="go">0    B1ARA5</span>
+<span class="go">1    Q6XZL8</span>
+<span class="go">1    F7CVL0</span>
+<span class="go">Name: SingleProts, dtype: object</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.expandSiteTable">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">expandSiteTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#expandSiteTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.expandSiteTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a phosphosite table into a phosphopeptide table.</p>
+<p>This functions is used for Phospho (STY)Sites.txt files.
+It converts the phosphosite table into a phosphopeptide table.
+After expansion peptides with no quantitative information are dropped.
+You might want to consider to remove some columns after the expansion.
+For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones, or vice versa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to be expanded. Must contain a column named “id.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Cols which are going to be expanded (format: Ratio.*___.).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Raised if the dataframe does not contain all columns correspondiong to the
+provided columns without __n extension.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Filtered dataframe.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosLog</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phosLog</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2_Ratio .\/. normalized R.___&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phos_expanded</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">expandSiteTable</span><span class="p">(</span><span class="n">phosLog</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">)</span>
+<span class="go">47936 phosphosites in dataframe.</span>
+<span class="go">47903 phosphopeptides in dataframe after expansion.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.filterLocProb">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">filterLocProb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#filterLocProb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.filterLocProb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter by localization probability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to filter.</p></li>
+<li><p><strong>thresh</strong> (<em>int</em><em>, </em><em>optional</em>) – Entries with localization probability below will be removed. The default is .75.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The .filterLocProb() function filters a Phospho (STY)Sites.txt file.
+You can provide the desired threshold with the <em>thresh</em> parameter.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phos_filter</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">filterLocProb</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">.75</span><span class="p">)</span>
+<span class="go">47936 rows before filter operation.</span>
+<span class="go">33311 rows after filter operation.</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Filtered dataframe.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.filterSeqCov">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">filterSeqCov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#filterSeqCov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.filterSeqCov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter by sequence coverage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to filter.</p></li>
+<li><p><strong>thresh</strong> (<em>int</em><em>, </em><em>optional</em>) – Entries below that value will be excluded from the dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of sequence coverage colnames.
+A row is excluded fromt the final dataframe the value in any of the provided columns is below the threshold.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.filterVv">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">filterVv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#filterVv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.filterVv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter dataframe for minimum number of valid values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to be filtered.</p></li>
+<li><p><strong>groups</strong> (<em>list of lists of str</em>) – Lists of colnames of the experimental groups.
+Each group is filtered for at least n vv.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum amount of valid values. The default is 2.</p></li>
+<li><p><strong>vv</strong> (<em>bool</em><em>, </em><em>optional</em>) – True for minimum amount of valid values; False for maximum amount of missing values. The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The function filterVv() filters the dataframe for a minimum number of valid values per group.
+You have to provide the data, the groups as well as the desired number of valid values.
+If the specified n is not reached in one or more groups the respective row is dropped.
+Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">protRatio</span> <span class="o">=</span> <span class="n">prot</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Ratio .\/. normalized&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protLog</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">protRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC18_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_3&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="s1">&#39;log2_Ratio H/L normalized BC36_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC36_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC36_2&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;log2_Ratio H/L normalized BC18_1&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/M normalized BC18_2&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/L normalized BC18_3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="s2">&quot;log2_Ratio M/L normalized BC36_1&quot;</span><span class="p">,</span> <span class="s2">&quot;log2_Ratio H/L normalized BC36_2&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/M normalized BC36_2&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;log2_Ratio M/L normalized BC18_1&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/L normalized BC18_2&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio M/L normalized BC18_3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="s2">&quot;log2_Ratio H/M normalized BC36_1&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio M/L normalized BC36_2&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/L normalized BC36_2&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protFilter</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">filterVv</span><span class="p">(</span><span class="n">protLog</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">4910 rows before filter operation.</span>
+<span class="go">2674 rows after filter operation.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.getSubCellLoc">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">getSubCellLoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'compartments'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loca</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gene</span> <span class="pre">names'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#getSubCellLoc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.getSubCellLoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the df with subcellular localization.</p>
+<p>For compartments gene names are required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series</strong> (<em>pd.Series</em>) – Must contain the colname to identify genes.</p></li>
+<li><p><strong>database</strong> (<em>str</em><em>, </em><em>optional</em>) – Possible values are “compartments” and “hpa”.
+The default is “compartments”.</p></li>
+<li><p><strong>loca</strong> (<em>str</em><em>, </em><em>optional</em>) – Only required for the compartments database.
+Filter the returned localisation table by this string.
+Must match exactly to the localisation terms in the compartments DB.
+The default is None.</p></li>
+<li><p><strong>colname</strong> (<em>str</em><em>, </em><em>optional</em>) – Colname holding the gene names.
+The default is “Gene names”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Wrong value is provided for the database arg.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The compartments database is obtained from <a class="reference external" href="https://compartments.jensenlab.org/Downloads">https://compartments.jensenlab.org/Downloads</a> .
+The hpa database is the human protein atlas available at <a class="reference external" href="https://www.proteinatlas.org">https://www.proteinatlas.org</a> .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>pd.DataFrame</em> – Dataframe with columns “ENSMBL”, “Gene name”, “LOCID”, “LOCNAME”, “SCORE”
+for compartments database.</p></li>
+<li><p><em>tuple of lists (mainLoc, altLoc)</em> – Lists of main and alternative localisations if the hpa database was chosen.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s1">&#39;PEX14&#39;</span><span class="p">,],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Gene names&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all subcellular localisations of PEX14.
+The second line filters the returned dataframe so that only values with the
+highest score are retained. The dataframe is converted to list for better
+visualisation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loc_df</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">getSubCellLoc</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">loc_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">loc_df</span><span class="p">[</span><span class="n">loc_df</span><span class="p">[</span><span class="s1">&#39;SCORE&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">loc_df</span><span class="p">[</span><span class="s1">&#39;SCORE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="s1">&#39;LOCNAME&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="go">[&#39;Bounding membrane of organelle&#39;, &#39;Cellular anatomical entity&#39;, &#39;Cytoplasm&#39;, &#39;Intracellular&#39;, &#39;Intracellular membrane-bounded organelle&#39;, &#39;Intracellular organelle&#39;, &#39;Membrane&#39;, &#39;Microbody&#39;, &#39;Microbody membrane&#39;, &#39;Nucleus&#39;, &#39;Organelle&#39;, &#39;Organelle membrane&#39;, &#39;Peroxisomal membrane&#39;, &#39;Peroxisome&#39;, &#39;Whole membrane&#39;, &#39;cellular_component&#39;, &#39;membrane-bounded organelle&#39;, &#39;protein-containing complex&#39;]</span>
+</pre></div>
+</div>
+<p>Get the score for PEX14 being peroxisomally localised</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loc_df</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">getSubCellLoc</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">loca</span><span class="o">=</span><span class="s1">&#39;Peroxisome&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loc_df</span><span class="p">[</span><span class="s1">&#39;SCORE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">5.0</span>
+</pre></div>
+</div>
+<p>Using the Human Protein Atlas, a tuple of two lists containing the main and
+alternative localisations is returned</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">getSubCellLoc</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;hpa&#39;</span><span class="p">)</span>
+<span class="go">([&#39;Peroxisomes&#39;], [&#39;Nucleoli fibrillar center&#39;])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.goAnnot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">goAnnot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlyProts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#goAnnot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.goAnnot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a list of experimentally determined gene names by GO annotation.</p>
+<p>Homo sapiens.gene_info and gene2go files are needed for annotation</p>
+<p>In case of multiple gene names per line (e.g. AKT1;PKB)
+only the first name will be extracted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prots</strong> (<em>list of str</em>) – List of Gene names.</p></li>
+<li><p><strong>gos</strong> (<em>list of str</em>) – List of go terms.</p></li>
+<li><p><strong>onlyProts</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return dataframe or only list of gene names annotated with terms. The default is False.</p></li>
+<li><p><strong>exact</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether go term must match exactly. i.e. MAPK activity &lt;-&gt; regulation of MAPK acitivity etc. The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with columns “index”, “Gene names”, “GeneID”, “GO_ID”, “GO_term”
+or
+Series with gene names</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame or pd.Series</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gos</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ribosome&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">go</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">goAnnot</span><span class="p">(</span><span class="n">prot</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">],</span><span class="n">gos</span><span class="p">,</span> <span class="n">onlyProts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">go</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   index Gene names  GeneID       GO_ID   GO_term</span>
+<span class="go">0   1944      RPS27    6232  GO:0005840  ribosome</span>
+<span class="go">1   6451      RPS25    6230  GO:0005840  ribosome</span>
+<span class="go">2   7640     RPL36A    6173  GO:0005840  ribosome</span>
+<span class="go">3  11130      RRBP1    6238  GO:0005840  ribosome</span>
+<span class="go">4  16112        SF1    7536  GO:0005840  ribosome</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.impMinProb">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">impMinProb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colsToImpute</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxMissing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#impMinProb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.impMinProb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an imputation by modeling a distribution on the far left site of the actual distribution.</p>
+<p>The final distribution will be mean shifted and has a smaller variation.
+Intensities should be log transformed before being supplied to this function.</p>
+<p>Downsshift: mean - downshift*sigma
+Var: width*sigma</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.dataframe</em>) – Dataframe on which imputation is performed.</p></li>
+<li><p><strong>colsToImpute</strong> (<em>list</em>) – Columns to impute. Should correspond to a single condition (i.e. control).</p></li>
+<li><p><strong>maxMissing</strong> (<em>int</em><em>, </em><em>optional</em>) – How many missing values have to be missing across all columns to perfom imputation
+If None all values have to be missing. The default is None.</p></li>
+<li><p><strong>downshift</strong> (<em>float</em><em>, </em><em>optional</em>) – How many Stds to lower values the mean of the new population is shifted. The default is 1.8.</p></li>
+<li><p><strong>width</strong> (<em>float</em><em>, </em><em>optional</em>) – How to scale the Std of the new distribution with respect to the original. The default is .3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dataframe with imputed values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.dataframe</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">forImp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Int.*R1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">impProt</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">impMinProb</span><span class="p">(</span><span class="n">forImp</span><span class="p">,</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Int.*R1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">width</span><span class="o">=</span><span class="mf">.4</span><span class="p">,</span> <span class="n">downshift</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">impProt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Int.*R1&quot;</span><span class="p">)[</span><span class="n">impProt</span><span class="p">[</span><span class="s2">&quot;Imputed&quot;</span><span class="p">]</span><span class="o">==</span><span class="kc">False</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>                                                                        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;not Imputed&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">impProt</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Int.*R1&quot;</span><span class="p">)[</span><span class="n">impProt</span><span class="p">[</span><span class="s2">&quot;Imputed&quot;</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="gp">... </span>                                                                       <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Imputed&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//preprocessing-2.py">Source code</a>, <a class="reference external" href=".//preprocessing-2.png">png</a>, <a class="reference external" href=".//preprocessing-2.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-2.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/preprocessing-2.png" class="plot-directive" src="_images/preprocessing-2.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.impSeq">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">impSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#impSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.impSeq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform sequential imputation in R using impSeq from rrcovNA.</p>
+<p>See <a class="reference external" href="https://rdrr.io/cran/rrcovNA/man/impseq.html">https://rdrr.io/cran/rrcovNA/man/impseq.html</a> for a description of the
+algorithm.
+SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x’]. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.dataframe</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform imputation of.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – Dataframe with imputed values.
+Cols with imputed values are names _imputed.
+Contains a col UID that was used for processing.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.log">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform log transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Cols which are transformed.</p></li>
+<li><p><strong>base</strong> (<em>int</em><em>, </em><em>optional</em>) – Base of log. The default is 2.</p></li>
+<li><p><strong>invert</strong> (<em>list of int</em><em>, </em><em>optional</em>) – Vector corresponding in length to number of to columns.
+Columns are multiplied with corresponding number.
+The default is None.</p></li>
+<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return a list of names corresponding to the columns added to the dataframe. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The log transformed dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.Dataframe</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>First collect colnames holding the intensity ratios.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">protRatio</span> <span class="o">=</span> <span class="n">prot</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )B&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+<p>Some ratios need to be inverted as a result from label switches.
+This can be accomplished using the invert variable.
+Log transformations using arbitrary bases can be used, however, 2 and 10 are
+most commonly applied.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">invert</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span>
+<span class="gp">... </span>      <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot2</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">protRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phos2</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The resulting dataframe contains log ratios or NaN.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prot2</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log.+_Ratio M/L BC18_1$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   log2_Ratio M/L BC18_1</span>
+<span class="go">0                    NaN</span>
+<span class="go">1              -0.478609</span>
+<span class="go">2                    NaN</span>
+<span class="go">3                    NaN</span>
+<span class="go">4               1.236503</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.makeSimScore">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">makeSimScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pearson'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#makeSimScore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.makeSimScore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate similarity score.</p>
+<p>To quantitatively describe the resemblance between the temporal profiles
+observed after subjecting the cells to the two treatments.
+Implemented as described in [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m1</strong> (<em>array-like</em>) – Time course of SILAC ratios after treatment 1.</p></li>
+<li><p><strong>m2</strong> (<em>array-like</em>) – Time course of SILAC ratios after treatment 2.</p></li>
+<li><p><strong>corr</strong> (<em>str</em><em>, </em><em>optional</em>) – Correlation parameter.
+‘Pearson’ or ‘Spearman’. The default is “pearson”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>S-score that describes both the resemblance of the patterns of
+regulation and the resemblance between the degrees of regulation
+in the range from zero to infinity.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Similar temporal profiles result in high S-scores</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">makeSimScore</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span>
+<span class="go">50.97173553835997</span>
+</pre></div>
+</div>
+<p>Low resemblance results in low scores</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">makeSimScore</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span>
+<span class="go">16.33374591446012</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="https://www.doi.org/10.1126/scisignal.2001570">https://www.doi.org/10.1126/scisignal.2001570</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.mergeSemiCols">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">mergeSemiCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scCol1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scCol2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#mergeSemiCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.mergeSemiCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two dataframes on a semicolon separated column.</p>
+<p>Here m2 is merged to m1 (left merge).
+-&gt; entries in m2 which are not matched to m1 are dropped</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m1</strong> (<em>pd.Dataframe</em>) – First dataframe to merge.</p></li>
+<li><p><strong>m2</strong> (<em>pd.Dataframe</em>) – Second dataframe to merge with first.</p></li>
+<li><p><strong>scCol1</strong> (<em>str</em>) – Colname of a column containing semicolon-separated values in m1.</p></li>
+<li><p><strong>scCol2</strong> (<em>str</em><em>, </em><em>optional</em>) – Colname of a column containing semicolon-separated values in m2.
+If sCol2 is None it is assumed to be the same as sCol1.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Merged dataframe with expanded columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.motifAnnot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">motifAnnot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sequence</span> <span class="pre">window'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#motifAnnot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.motifAnnot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for phosphorylation motif in the provided dataframe.</p>
+<p>If not specified, the “Sequence window” column is searched.
+The phosphorylated central residue in a motif has to be indicated with “S/T”.
+Arbitrary amino acids can be denoted with x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – input dataframe.</p></li>
+<li><p><strong>motif</strong> (<em>str</em>) – Target motif. E.g. “RxRxxS/T”, “PxS/TP” or “RxRxxS/TxSxxR”</p></li>
+<li><p><strong>col</strong> (<em>str</em><em>, </em><em>optional</em>) – Alternative column to be searched in if Sequence window is not desired.
+The default is “Sequence window”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with additional boolean column with True/False for whether the motif is found in this .</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.normToProt">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">normToProt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protDf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toNormalize</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#normToProt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.normToProt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize phospho data to total protein level.</p>
+<p>Function has to be applied to phosphosite table.
+e.g. phosTable.apply(lambda x: normToProt(x, dfProt, toNormalize),1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>pd.Series</em>) – Row-like object with index “Protein group IDs”.</p></li>
+<li><p><strong>protDf</strong> (<em>pd.DataFrame</em>) – MQ ProteinGroups data to which data is normalized.</p></li>
+<li><p><strong>toNormalize</strong> (<em>list of str</em>) – Which columns to normalize.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – The input array does not contain an index “Protein group IDs”.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Input array with normalized values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.Series</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Normalization is calculated by subtracting the value of columns toNormalize
+of the protein dataframe from that of the entry, i.e. if intensity ratios
+such as log(pep/prot) should be obtained the operation has to be applied to
+log transformed columns as log(pep) - log(prot) = log(pep/prot).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.quantileNorm">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">quantileNorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#quantileNorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.quantileNorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform quantile normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform normlisation on.</p></li>
+<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True also the column names of the normalized columns are returned.
+The default is False.</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em>, </em><em>optional</em>) – ‘py’ or ‘r’. The default is “r”.
+While the python implementation is much faster than r (since R is executed in a subroutine), the
+R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The original dataframe with extra columns _normalized.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The quantile normalization forces the distributions of the samples to be the
+same on the basis of the quantiles of the samples by replacing each point of a
+sample with the mean of the corresponding quantile.
+This is applicable for large datasets with only few changes but will introduce
+errors if the rank assumption is violated i.e. if there are large variations
+across groups to compare. See [2].</p>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="https://doi.org/10.1093/bioinformatics/19.2.185">https://doi.org/10.1093/bioinformatics/19.2.185</a></p>
+<p>[2] <a class="reference external" href="https://www.biorxiv.org/content/10.1101/012203v1.full">https://www.biorxiv.org/content/10.1101/012203v1.full</a></p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.preprocessing</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.visualization</span> <span class="k">as</span> <span class="nn">vis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosLog</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noNorm</span> <span class="o">=</span> <span class="n">phosLog</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2_Ratio ./. R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+<p>Until now this was only preprocessing for the normalisation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phos_norm_r</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">quantileNorm</span><span class="p">(</span><span class="n">phosLog</span><span class="p">,</span> <span class="n">noNorm</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">phos_norm_r</span><span class="p">,</span> <span class="p">[</span><span class="n">noNorm</span><span class="p">,</span> <span class="n">phos_norm_r</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;_norm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">compare</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> 
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//preprocessing-3.py">Source code</a>, <a class="reference external" href=".//preprocessing-3.png">png</a>, <a class="reference external" href=".//preprocessing-3.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-3.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/preprocessing-3.png" class="plot-directive" src="_images/preprocessing-3.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.read_csv">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.read_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>pd.read_csv with modified default args.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Path to input file.</p></li>
+<li><p><strong>sep</strong> (<em>str</em><em>, </em><em>optional</em>) – Column separator. The default is ‘t’.</p></li>
+<li><p><strong>low_memory</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to reduce memory consumption by inferring dtypes from chunks. The default is False.</p></li>
+<li><p><strong>**kwargs</strong> – see <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html">https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html</a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The parsed dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.removeNonQuant">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">removeNonQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#removeNonQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.removeNonQuant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove entries without quantitative data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to filter.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – cols to be evaluated for missingness.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered dataframe.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="s1">&#39;b&#39;</span><span class="p">:[</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;c&#39;</span><span class="p">:[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">removeNonQuant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
+<span class="go">4 rows before filter operation.</span>
+<span class="go">3 rows after filter operation.</span>
+<span class="go">     a    b    c</span>
+<span class="go">0  1.0  4.0  NaN</span>
+<span class="go">1  2.0  0.0  NaN</span>
+<span class="go">3  4.0  1.0  1.0</span>
+</pre></div>
+</div>
+<p>Rows are only removed if the all values in the specified columns are NaN.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">removeNonQuant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">])</span>
+<span class="go">4 rows before filter operation.</span>
+<span class="go">4 rows after filter operation.</span>
+<span class="go">     a    b    c</span>
+<span class="go">0  1.0  4.0  NaN</span>
+<span class="go">1  2.0  0.0  NaN</span>
+<span class="go">2  NaN  NaN  1.0</span>
+<span class="go">3  4.0  1.0  1.0</span>
+</pre></div>
+</div>
+<p>Example with real data.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phosQuant</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">removeNonQuant</span><span class="p">(</span><span class="n">phosLog</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">)</span>
+<span class="go">47936 rows before filter operation.</span>
+<span class="go">39398 rows after filter operation.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.toCanonicalPS">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">toCanonicalPS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'human'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#toCanonicalPS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.toCanonicalPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert phosphosites to “canonical” phosphosites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series</strong> (<em>pd.Series</em>) – Series containing the indices “Gene names” and “Sequence Window”.
+Corresponds e.g. to MQ Phospho(STY)Sites.txt.</p></li>
+<li><p><strong>organism</strong> (<em>str</em><em>, </em><em>optional</em>) – This conversion is based on Uniprot Identifier used in PSP data.
+possible organisms: ‘mouse’, ‘human’, ‘rat’, ‘sheep’, ‘SARSCoV2’, ‘guinea pig’, ‘cow’,
+‘hamster’, ‘fruit fly’, ‘dog’, ‘rabbit’, ‘pig’, ‘chicken’, ‘frog’,
+‘quail’, ‘horse’, ‘goat’, ‘papillomavirus’, ‘water buffalo’,
+‘marmoset’, ‘turkey’, ‘cat’, ‘starfish’, ‘torpedo’, ‘SARSCoV1’,
+‘green monkey’, ‘ferret’. The default is “human”.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function compares a certain gene name to the genes found in the
+phosphosite plus (<a class="reference external" href="https://www.phosphosite.org">https://www.phosphosite.org</a>) phosphorylation site dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(UniProt ID, Position of phosphosite in the UniProt sequence)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple of (str, int)</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The correct position of the phosphorylation is returned independent of the
+completeness of the sequence window.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s1">&#39;PEX14&#39;</span><span class="p">,</span> <span class="s2">&quot;VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE&quot;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Gene names&#39;</span><span class="p">,</span> <span class="s1">&#39;Sequence window&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">toCanonicalPS</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">organism</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">)</span>
+<span class="go">(&#39;O75381&#39;, 282)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s1">&#39;PEX14&#39;</span><span class="p">,</span> <span class="s2">&quot;_____TSSSPGKEGHSPEGSTVTYHLLGP__&quot;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Gene names&#39;</span><span class="p">,</span> <span class="s1">&#39;Sequence window&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">toCanonicalPS</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">organism</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">)</span>
+<span class="go">(&#39;O75381&#39;, 282)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.to_csv">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe to write.</p></li>
+<li><p><strong>file</strong> (<em>str</em>) – Path to output file.</p></li>
+<li><p><strong>sep</strong> (<em>str</em><em>, </em><em>optional</em>) – Column separator. The default is ‘t’.</p></li>
+<li><p><strong>index</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to add the dataframe index to the output. The default is False.</p></li>
+<li><p><strong>**kwargs</strong> – see <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html">https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html</a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.vsn">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">vsn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#vsn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.vsn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Variance Stabilizing Normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform normlisation on.</p></li>
+<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True also the column names of the normalized columns are returned.
+The default is False.</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em>, </em><em>optional</em>) – Only ‘r’ is implemented. The default is “r”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The original dataframe with extra columns _normalized.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>[1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance stabilization applied to microarray data calibration and to the quantification of differential expression. Bioinformatics 18 Supplement 1, S96-S104.</p>
+<p class="rubric">Notes</p>
+<p>The Vsn is a statistical method aiming at making the sample
+variances nondependent from their mean intensities and bringing the
+samples onto a same scale with a set of parametric transformations
+and maximum likelihood estimation.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.preprocessing</span> <span class="k">as</span> <span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">autoprot.visualization</span> <span class="k">as</span> <span class="nn">vis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phos_lfq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;_static/testdata/Phospho (STY)Sites_lfq.zip&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noNorm</span> <span class="o">=</span> <span class="n">phos_lfq</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Intensity .&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phos_lfq</span><span class="p">[</span><span class="n">noNorm</span><span class="p">]</span> <span class="o">=</span> <span class="n">phos_lfq</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Intensity .&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Until now this was only preprocessing for the normalisation.
+Note that we are treating LFQ pre-normalised values with VSN normalisation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">phos_lfq</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">vsn</span><span class="p">(</span><span class="n">phos_lfq</span><span class="p">,</span> <span class="n">noNorm</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">phos_lfq</span><span class="p">,</span> <span class="p">[</span><span class="n">noNorm</span><span class="p">,</span> <span class="n">phos_lfq</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;_norm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;Intensity&#39;</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> 
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//preprocessing-4.py">Source code</a>, <a class="reference external" href=".//preprocessing-4.png">png</a>, <a class="reference external" href=".//preprocessing-4.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-4.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/preprocessing-4.png" class="plot-directive" src="_images/preprocessing-4.png" />
+</figure>
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="installation.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Installation</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="analysis.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Analysis</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, The autoprot contributors.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

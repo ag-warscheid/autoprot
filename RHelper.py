@@ -7,7 +7,7 @@ def checkRinstall():
     
     if not os.path.isfile(os.path.join(basepath, 'autoprot.conf')):
         with open(os.path.join(basepath, 'autoprot.conf'),'w') as wf:
-            wf.write("RSCRIPT = ''\nR = r''"
+            wf.write("RSCRIPT = RSCRIPTPATH\nR = RPATH"
                      )
         raise Exception('No R installation configured. Generated autoprot.conf. Please edit and try again.')
     else:
@@ -23,7 +23,7 @@ def checkRinstall():
                     conf_dir[k] = v
 
     if not os.path.isfile(conf_dir['RSCRIPT']):
-        raise Exception('The RSCRIPT variable should point to the RFunctinos.R file in your local autoprot directory and not to {}'.format(conf_dir['RSCRIPT']))
+        raise Exception('The RSCRIPT variable should point to the RFunctions.R file in your local autoprot directory and not to {}'.format(conf_dir['RSCRIPT']))
     elif not os.path.isfile(conf_dir['R']):
         raise Exception('The R variable should point to the Rscript executable. Make sure that it is not the R executable.')
 

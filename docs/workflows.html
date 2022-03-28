@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Workflows &#8212; autoprot  documentation</title>
+    
+    <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/pydata-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    
+    <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Data Visualization" href="visualization.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">autoprot</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="installation.html">
+  Installation
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="preprocessing.html">
+  Data Preprocessing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="analysis.html">
+  Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="visualization.html">
+  Data Visualization
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  Workflows
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="module-autoprot.workflows">
+<span id="workflows"></span><h1>Workflows<a class="headerlink" href="#module-autoprot.workflows" title="Permalink to this headline">¶</a></h1>
+<p>Autoprot Workflows.</p>
+<p>&#64;author: Wignand</p>
+<p>&#64;documentation: Julian</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.workflows.proteomeLabeled">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.workflows.</span></span><span class="sig-name descname"><span class="pre">proteomeLabeled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrAnalysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missAnalysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minValid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'limma'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'proteinGroups'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#proteomeLabeled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.proteomeLabeled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to perform standard proteomics data analysis workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str</em>) – Path to input csv file.</p></li>
+<li><p><strong>saveDir</strong> (<em>str</em>) – path to folder where the results are saved.</p></li>
+<li><p><strong>corrAnalysis</strong> (<em>str</em><em>, </em><em>optional</em>) – Possible values are ‘none’, ‘small’, ‘complete’.
+The default is ‘none’.</p></li>
+<li><p><strong>missAnalysis</strong> (<em>str</em><em>, </em><em>optional</em>) – Whether to return only text output or figures or both from the missing
+values analysis. Possible values are ‘none’, ‘text’, ‘vis’, ‘complete’.
+The default is ‘none’.</p></li>
+<li><p><strong>minValid</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum valid values between replicates. The default is 1.</p></li>
+<li><p><strong>test</strong> (<em>str</em><em>, </em><em>optional</em>) – The kind of significance test to perform.
+Possible values are ‘limma’ and ‘standard’. The default is “limma”.</p></li>
+<li><p><strong>intCols</strong> (<em>list of str</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – Intensity colnames. The default is “”.</p></li>
+<li><p><strong>replicates</strong> (<em>list of list of str</em><em>, </em><em>optional</em>) – Colnames of the replicates. The default is [].</p></li>
+<li><p><strong>filetype</strong> (<em>str</em><em>, </em><em>optional</em>) – Which file is provided in the dataframe. Possible values are “proteinGroups”; “Phospho (STY)”, “evidence”, “modificationSpecificPeptides” or “peptides”.
+The default is “proteinGroups”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.proteomeLabeled.DEAna">
+<span class="sig-name descname"><span class="pre">DEAna</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#proteomeLabeled.DEAna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.proteomeLabeled.DEAna" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform significance analysis and generate volcano plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.proteomeLabeled.analysis">
+<span class="sig-name descname"><span class="pre">analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#proteomeLabeled.analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.proteomeLabeled.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform significance analysis and save the analysed data as tsv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.proteomeLabeled.preprocessing">
+<span class="sig-name descname"><span class="pre">preprocessing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#proteomeLabeled.preprocessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.proteomeLabeled.preprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.workflows.</span></span><span class="sig-name descname"><span class="pre">workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrAnalysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missAnalysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minValid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'limma'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements complete analysis workflow standard enrichment analysis.</p>
+<p class="rubric">Notes</p>
+<p>You have to call the methods of the class individually depending on your analysis scheme.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Path to input csv file.</p></li>
+<li><p><strong>saveDir</strong> (<em>str</em>) – path to folder where the results are saved.</p></li>
+<li><p><strong>replicates</strong> (<em>list of list of str</em><em>, </em><em>optional</em>) – Colnames of the replicates. The default is [].</p></li>
+<li><p><strong>intCols</strong> (<em>list of str</em><em> or </em><em>str</em><em>, </em><em>optional</em>) – Intensity colnames. The default is “”.</p></li>
+<li><p><strong>corrAnalysis</strong> (<em>str</em><em>, </em><em>optional</em>) – Possible values are ‘none’, ‘small’, ‘complete’.
+The default is ‘none’.</p></li>
+<li><p><strong>missAnalysis</strong> (<em>str</em><em>, </em><em>optional</em>) – Whether to return only text output or figures or both from the missing
+values analysis. Possible values are ‘none’, ‘text’, ‘vis’, ‘complete’.
+The default is ‘none’.</p></li>
+<li><p><strong>minValid</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum valid values between replicates. The default is 1.</p></li>
+<li><p><strong>test</strong> (<em>str</em><em>, </em><em>optional</em>) – The kind of significance test to perform.
+Possible values are ‘limma’ and ‘standard’. The default is “limma”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.corrAna">
+<span class="sig-name descname"><span class="pre">corrAna</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.corrAna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.corrAna" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform correlation analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if correlation analysis was not set for the class. Else none.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.filterSig">
+<span class="sig-name descname"><span class="pre">filterSig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.filterSig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.filterSig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a dataframe so that only significantly regulated entries are retained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of the experiment as e.g. in logFC_NAME.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The filtered dataframe is saved directly in the directory defined for the class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.getIntensityCols">
+<span class="sig-name descname"><span class="pre">getIntensityCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">re</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.getIntensityCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.getIntensityCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the colnames of columns holding intensities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>re</strong> (<em>regular expression</em><em>, </em><em>optional</em>) – If given, the columns are selected based on the regex. The default is None.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of colnames.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.getRatioCols">
+<span class="sig-name descname"><span class="pre">getRatioCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">re</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.getRatioCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.getRatioCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the colnames of columns holding the ratios.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normalized</strong> (<em>bool</em><em>, </em><em>optional</em>) – If the data is normalised or not. The default is True.</p></li>
+<li><p><strong>re</strong> (<em>regular expression</em><em>, </em><em>optional</em>) – If given, the columns are selected based on the regex. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of colnames.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.getSig">
+<span class="sig-name descname"><span class="pre">getSig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'both'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.getSig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.getSig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retun index of significant entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name of the experiment as e.g. in logFC_NAME.</p></li>
+<li><p><strong>which</strong> (<em>str</em><em>, </em><em>optional</em>) – return all only up or down regulated entries Possible values are ‘up’, ‘down’ and ‘both’.
+The default is “both”.</p></li>
+<li><p><strong>pt</strong> (<em>numeric</em><em>, </em><em>optional</em>) – p-value threshold. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Indices of significant values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.missAna">
+<span class="sig-name descname"><span class="pre">missAna</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.missAna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.missAna" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform missing values analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if missing values analysis was not set for the class. Else none.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.setIntensityCols">
+<span class="sig-name descname"><span class="pre">setIntensityCols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intensities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.setIntensityCols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.setIntensityCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise the names of the intensity columns and log-transform their values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intensities</strong> (<em>list of str</em>) – list of columns holding intensity values..</p></li>
+<li><p><strong>log</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to log the intensity values. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.workflows.workflow.setReplicates">
+<span class="sig-name descname"><span class="pre">setReplicates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">replicates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/workflows.html#workflow.setReplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.workflows.workflow.setReplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform log calculation and inversion if required on the ratio columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>replicates</strong> (<em>list of list of str</em>) – List containing the grouped replicates..</p></li>
+<li><p><strong>names</strong> (<em>list of list of str</em><em>, </em><em>optional</em>) – Titles for the replicates. The default is None.</p></li>
+<li><p><strong>log</strong> (<em>int</em><em>, </em><em>optional</em>) – The base of the logarithm. The default is None.</p></li>
+<li><p><strong>invert</strong> (<em>list of list of int</em><em>, </em><em>optional</em>) – The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="visualization.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Data Visualization</p>
+        </div>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, The autoprot contributors.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+vis.correlogram(prot,mildLogInt, file='proteinGroups', lowerTriang="hexBin")

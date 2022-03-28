@@ -1,0 +1,1 @@
+autopca.biPlot(pc1=1, pc2=2)

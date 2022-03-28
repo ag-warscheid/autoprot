@@ -1646,14 +1646,14 @@ class KSEA:
         None.
 
         """
-        with resources.open_text("autoprot.data","Kinase_Substrate_Dataset") as d:
-            self.PSP_KS = pd.read_csv(d, sep='\t')
+        with resources.open_binary("autoprot.data","Kinase_Substrate_Dataset.zip") as d:
+            self.PSP_KS = pd.read_csv(d, sep='\t', compression='zip')
         # harmonize gene naming
         self.PSP_KS["SUB_GENE"] = self.PSP_KS["SUB_GENE"].fillna("NA").apply(lambda x: x.upper())
         # add source information
         self.PSP_KS["source"] = "PSP"
-        with resources.open_text("autoprot.data","Regulatory_sites") as d:
-            self.PSP_regSits = pd.read_csv(d, sep='\t')
+        with resources.open_binary("autoprot.data","Regulatory_sites.zip") as d:
+            self.PSP_regSits = pd.read_csv(d, sep='\t', compression='zip')
         # Harmonize the input data and store them to the class
         self.data = self.__preprocess(data.copy(deep=True))
         # init other class objects
@@ -3280,11 +3280,11 @@ def annotatePS(df, ps, colsToKeep=[]):
             return df["GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["MOD_RSD"].fillna("").apply(lambda x: x.split('-')[0])
         return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["SUB_MOD_RSD"].fillna("")
 
-    with resources.open_text("autoprot.data","Kinase_Substrate_Dataset") as d:
-                KS = pd.read_csv(d, sep='\t')
+    with resources.open_binary("autoprot.data","Kinase_Substrate_Dataset.zip") as d:
+                KS = pd.read_csv(d, sep='\t', compression='zip')
                 KS["merge"] = makeMergeCol(KS, "KS")
-    with resources.open_text("autoprot.data","Regulatory_sites") as d:
-                regSites = pd.read_csv(d, sep='\t')
+    with resources.open_binary("autoprot.data","Regulatory_sites.zip") as d:
+                regSites = pd.read_csv(d, sep='\t', compression='zip')
                 regSites["merge"] = makeMergeCol(regSites)
 
     KS_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']

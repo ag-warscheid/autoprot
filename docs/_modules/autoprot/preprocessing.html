@@ -1,0 +1,1798 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.preprocessing &#8212; autoprot  documentation</title>
+    
+    <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/pydata-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    
+    <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../index.html">
+<p class="title">autoprot</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../installation.html">
+  Installation
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../preprocessing.html">
+  Data Preprocessing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../analysis.html">
+  Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../visualization.html">
+  Data Visualization
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../workflows.html">
+  Workflows
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for autoprot.preprocessing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Preprocessing Functions.</span>
+
+<span class="sd">@author: Wignand</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">CalledProcessError</span>
+<span class="kn">from</span> <span class="nn">autoprot.decorators</span> <span class="kn">import</span> <span class="n">report</span>
+<span class="kn">from</span> <span class="nn">autoprot</span> <span class="kn">import</span> <span class="n">RHelper</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">pairwise2</span>
+<span class="kn">from</span> <span class="nn">Bio.pairwise2</span> <span class="kn">import</span> <span class="n">format_alignment</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">pearsonr</span><span class="p">,</span> <span class="n">spearmanr</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">auc</span>
+
+<span class="n">RSCRIPT</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">RHelper</span><span class="o">.</span><span class="n">returnRPath</span><span class="p">()</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Note: When using R functions provided column names might get changes</span>
+<span class="c1"># Especially, do not use +,- or spaces in your column names. Maybe write decorator to</span>
+<span class="c1"># validate proper column formatting and handle exceptions</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="read_csv"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.read_csv">[docs]</a><span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    pd.read_csv with modified default args.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Path to input file.</span>
+<span class="sd">    sep : str, optional</span>
+<span class="sd">        Column separator. The default is &#39;\t&#39;.</span>
+<span class="sd">    low_memory : bool, optional</span>
+<span class="sd">        Whether to reduce memory consumption by inferring dtypes from chunks. The default is False.</span>
+<span class="sd">    **kwargs :</span>
+<span class="sd">        see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The parsed dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="n">low_memory</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_csv"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.to_csv">[docs]</a><span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write to CSV file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to write.</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Path to output file.</span>
+<span class="sd">    sep : str, optional</span>
+<span class="sd">        Column separator. The default is &#39;\t&#39;.</span>
+<span class="sd">    index : bool, optional</span>
+<span class="sd">        Whether to add the dataframe index to the output. The default is False.</span>
+<span class="sd">    **kwargs :</span>
+<span class="sd">        see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="cleaning"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.cleaning">[docs]</a><span class="nd">@report</span>
+<span class="k">def</span> <span class="nf">cleaning</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;proteinGroups&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove contaminant, reverse and identified by site only entries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to clean up.</span>
+<span class="sd">    file : str, optional</span>
+<span class="sd">        Which file is provided in the dataframe.</span>
+<span class="sd">        Possible values are &quot;proteinGroups&quot;; &quot;Phospho (STY)&quot;, &quot;evidence&quot;,  &quot;modificationSpecificPeptides&quot; or &quot;peptides&quot;.</span>
+<span class="sd">        The default is &quot;proteinGroups&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The cleaned dataframe.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Cleaning can target different MQ txt files such as proteinGroups and</span>
+<span class="sd">    phospho (STY) tables. The variables phos and prot are parsed MQ results tables.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; prot_clean = autoprot.preprocessing.cleaning(prot, &quot;proteinGroups&quot;)</span>
+<span class="sd">    4910 rows before filter operation.</span>
+<span class="sd">    4624 rows after filter operation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; phos_clean = autoprot.preprocessing.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    47420 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">if</span> <span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;proteinGroups&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Potential contaminant&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="ow">or</span>\
+        <span class="p">(</span><span class="s2">&quot;Reverse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="ow">or</span>\
+        <span class="p">(</span><span class="s2">&quot;Only identified by site&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is this data already cleaned?</span><span class="se">\n</span><span class="s2">Mandatory columns for cleaning not present in data!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returning provided dataframe!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Reverse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Only identified by site&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">,</span><span class="s2">&quot;Reverse&quot;</span><span class="p">,</span> <span class="s1">&#39;Only identified by site&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;Phospho (STY)&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;evidence&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;modificationSpecificPeptides&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Potential contaminant&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="ow">or</span>\
+        <span class="p">(</span><span class="s2">&quot;Reverse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is this data already cleaned?</span><span class="se">\n</span><span class="s2">Mandatory columns for cleaning not present in data!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returning provided dataframe!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Reverse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">,</span><span class="s2">&quot;Reverse&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;peptides&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;Potential contaminant&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="ow">or</span>\
+        <span class="p">(</span><span class="s2">&quot;Reverse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is this data already cleaned?</span><span class="se">\n</span><span class="s2">Mandatory columns for cleaning not present in data!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returning provided dataframe!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Reverse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Potential contaminant&#39;</span><span class="p">,</span><span class="s2">&quot;Reverse&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform log transformation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Cols which are transformed.</span>
+<span class="sd">    base : int, optional</span>
+<span class="sd">        Base of log. The default is 2.</span>
+<span class="sd">    invert : list of int, optional</span>
+<span class="sd">        Vector corresponding in length to number of to columns.</span>
+<span class="sd">        Columns are multiplied with corresponding number.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    returnCols : bool, optional</span>
+<span class="sd">        Whether to return a list of names corresponding to the columns added to the dataframe. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.Dataframe</span>
+<span class="sd">        The log transformed dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    First collect colnames holding the intensity ratios.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; protRatio = prot.filter(regex=&quot;^Ratio .\/.( | normalized )B&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+
+<span class="sd">    Some ratios need to be inverted as a result from label switches.</span>
+<span class="sd">    This can be accomplished using the invert variable.</span>
+<span class="sd">    Log transformations using arbitrary bases can be used, however, 2 and 10 are</span>
+<span class="sd">    most commonly applied.</span>
+
+<span class="sd">    &gt;&gt;&gt; invert = [-1., -1., 1., 1., -1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,</span>
+<span class="sd">    ...       1., 1., 1., 1., 1., 1., 1., -1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,</span>
+<span class="sd">    ...       1., -1.]</span>
+<span class="sd">    &gt;&gt;&gt; prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert*2)</span>
+<span class="sd">    &gt;&gt;&gt; phos2 = autoprot.preprocessing.log(phos, phosRatio, base=10)</span>
+<span class="sd">    </span>
+<span class="sd">    The resulting dataframe contains log ratios or NaN.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; prot2.filter(regex=&quot;log.+_Ratio M/L BC18_1$&quot;).head()</span>
+<span class="sd">       log2_Ratio M/L BC18_1</span>
+<span class="sd">    0                    NaN</span>
+<span class="sd">    1              -0.478609</span>
+<span class="sd">    2                    NaN</span>
+<span class="sd">    3                    NaN</span>
+<span class="sd">    4               1.236503</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="c1"># ignore divide by 0 errors</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log2_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">base</span><span class="o">==</span><span class="mi">10</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log10_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="n">newCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">invert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">newCols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">newCols</span><span class="p">]</span> <span class="o">*</span> <span class="n">invert</span>
+    <span class="k">if</span> <span class="n">returnCols</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">newCols</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="filterLocProb"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.filterLocProb">[docs]</a><span class="nd">@report</span>
+<span class="k">def</span> <span class="nf">filterLocProb</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">.75</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter by localization probability.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    thresh : int, optional</span>
+<span class="sd">        Entries with localization probability below will be removed. The default is .75.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The .filterLocProb() function filters a Phospho (STY)Sites.txt file.</span>
+<span class="sd">    You can provide the desired threshold with the *thresh* parameter.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; phos_filter = autoprot.preprocessing.filterLocProb(phos, thresh=.75)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    33311 rows after filter operation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="k">if</span> <span class="s2">&quot;Localization prob&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This dataframe has no &#39;Localization prob&#39; column!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Localization prob&quot;</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">thresh</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="filterSeqCov"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.filterSeqCov">[docs]</a><span class="nd">@report</span>
+<span class="k">def</span> <span class="nf">filterSeqCov</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter by sequence coverage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    thresh : int, optional</span>
+<span class="sd">        Entries below that value will be excluded from the dataframe.</span>
+<span class="sd">    cols : list of str, optional</span>
+<span class="sd">        List of sequence coverage colnames.</span>
+<span class="sd">        A row is excluded fromt the final dataframe the value in any of the provided columns is below the threshold.</span>
+<span class="sd">        The default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresh</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Sequence coverage [%]&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresh</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="removeNonQuant"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.removeNonQuant">[docs]</a><span class="nd">@report</span>
+<span class="k">def</span> <span class="nf">removeNonQuant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove entries without quantitative data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        cols to be evaluated for missingness.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; df = pd.DataFrame({&#39;a&#39;:[1,2,np.nan,4], &#39;b&#39;:[4,0,np.nan,1], &#39;c&#39;:[None, None, 1, 1]})</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.removeNonQuant(df, cols=[&#39;a&#39;, &#39;b&#39;])</span>
+<span class="sd">    4 rows before filter operation.</span>
+<span class="sd">    3 rows after filter operation.</span>
+<span class="sd">         a    b    c</span>
+<span class="sd">    0  1.0  4.0  NaN</span>
+<span class="sd">    1  2.0  0.0  NaN</span>
+<span class="sd">    3  4.0  1.0  1.0</span>
+<span class="sd">    </span>
+<span class="sd">    Rows are only removed if the all values in the specified columns are NaN.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.removeNonQuant(df, cols=[&#39;b&#39;, &#39;c&#39;])</span>
+<span class="sd">    4 rows before filter operation.</span>
+<span class="sd">    4 rows after filter operation.</span>
+<span class="sd">         a    b    c</span>
+<span class="sd">    0  1.0  4.0  NaN</span>
+<span class="sd">    1  2.0  0.0  NaN</span>
+<span class="sd">    2  NaN  NaN  1.0</span>
+<span class="sd">    3  4.0  1.0  1.0</span>
+<span class="sd">    </span>
+<span class="sd">    Example with real data.</span>
+
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosQuant = autoprot.preprocessing.removeNonQuant(phosLog, phosRatio)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    39398 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="expandSiteTable"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.expandSiteTable">[docs]</a><span class="k">def</span> <span class="nf">expandSiteTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a phosphosite table into a phosphopeptide table.</span>
+
+<span class="sd">    This functions is used for Phospho (STY)Sites.txt files.</span>
+<span class="sd">    It converts the phosphosite table into a phosphopeptide table.</span>
+<span class="sd">    After expansion peptides with no quantitative information are dropped.</span>
+<span class="sd">    You might want to consider to remove some columns after the expansion.</span>
+<span class="sd">    For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones, or vice versa.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to be expanded. Must contain a column named &quot;id.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Cols which are going to be expanded (format: Ratio.*___.).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raised if the dataframe does not contain all columns correspondiong to the</span>
+<span class="sd">        provided columns without __n extension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosLog = autoprot.preprocessing.log(phos, phosRatio, base=2)</span>
+<span class="sd">    &gt;&gt;&gt; phosRatio = phosLog.filter(regex=&quot;log2_Ratio .\/. normalized R.___&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; phos_expanded = autoprot.preprocessing.expandSiteTable(phosLog, phosRatio)</span>
+<span class="sd">    47936 phosphosites in dataframe.</span>
+<span class="sd">    47903 phosphopeptides in dataframe after expansion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> phosphosites in dataframe.&quot;</span><span class="p">)</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span>
+    <span class="c1">#columns to melt</span>
+    <span class="n">melt</span> <span class="o">=</span> <span class="n">cols</span> <span class="c1"># e.g. &quot;Ratio M/L normalized R2___1&quot;</span>
+    <span class="n">melt_set</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">melt</span><span class="p">]))</span> <span class="c1"># e.g. &quot;Ratio M/L normalized R2&quot;</span>
+    <span class="c1">#Due to MaxQuant column names we might have to drop some columns</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">melt_set</span><span class="p">]</span> <span class="c1"># check if the colnames are present in the df</span>
+    <span class="k">if</span> <span class="kc">False</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">check</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">melt_set</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># remove cols w/o ___n</span>
+    <span class="k">if</span> <span class="kc">True</span> <span class="ow">in</span> <span class="n">check</span> <span class="ow">and</span> <span class="kc">False</span> <span class="ow">in</span> <span class="n">check</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The columns you provided or the dataframe are not suitable!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># generate a separated melted df for every entry in the melt_set</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">melt_set</span><span class="p">:</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="s1">&#39;___&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="c1"># reconstruct the ___n cols for each melt_set entry</span>
+        <span class="c1"># melt the dataframe generating an &#39;id&#39; column,</span>
+        <span class="c1"># a &#39;variable&#39; col with the previous colnames</span>
+        <span class="c1"># and a &#39;value&#39; col with the previous values</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cs</span><span class="p">],</span> <span class="n">id_vars</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">))</span>
+
+    <span class="c1"># =============================================================================</span>
+    <span class="c1">#     pd.melt</span>
+    <span class="c1">#</span>
+    <span class="c1">#     x, a__1, a__2, a__3</span>
+    <span class="c1">#     -&gt;</span>
+    <span class="c1">#     x, a, 1</span>
+    <span class="c1">#     x, a, 2</span>
+    <span class="c1">#     x, a, 3</span>
+    <span class="c1"># =============================================================================</span>
+
+    <span class="c1"># the large first df is now called temp</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">melt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># drop the ___n entries from the original df</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">df</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfs</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;___&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># reconstructs the colname without ___n, e.g. Ratio M/L normalized R2</span>
+        <span class="k">if</span> <span class="n">idx</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># the first df contains all peptides and all multiplicities as rows</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;Multiplicity&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span> <span class="c1"># e.g. 0, Ratio M/L normalized R2___1, 0.67391</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;___&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># e.g. 0, 1, 0.67391</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># in the subsquent dfs id and multplicities can be dropped as only the ratio is new information compared to the first df</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;Multiplicity&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;Multiplicity&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># keep only the x col</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="n">rsuffix</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span> <span class="c1"># horizontally joins the new col with the previous df</span>
+    <span class="c1"># merging on ids gives the melted peptides their names back´</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># is previously str</span>
+
+    <span class="k">if</span> <span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The expansion of site table is probably not correct!!! Check it! Maybe you provided wrong columns?&quot;</span><span class="p">)</span>
+
+    <span class="c1"># remove rows that contain no modified peptides</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">melt_set</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> phosphopeptides in dataframe after expansion.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">temp</span></div>
+
+<div class="viewcode-block" id="filterVv"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.filterVv">[docs]</a><span class="nd">@report</span>
+<span class="k">def</span> <span class="nf">filterVv</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">vv</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter dataframe for minimum number of valid values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to be filtered.</span>
+<span class="sd">    groups : list of lists of str</span>
+<span class="sd">        Lists of colnames of the experimental groups.</span>
+<span class="sd">        Each group is filtered for at least n vv.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Minimum amount of valid values. The default is 2.</span>
+<span class="sd">    vv : bool, optional</span>
+<span class="sd">        True for minimum amount of valid values; False for maximum amount of missing values. The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The function filterVv() filters the dataframe for a minimum number of valid values per group.</span>
+<span class="sd">    You have to provide the data, the groups as well as the desired number of valid values.</span>
+<span class="sd">    If the specified n is not reached in one or more groups the respective row is dropped.</span>
+<span class="sd">    Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.</span>
+
+<span class="sd">    &gt;&gt;&gt; protRatio = prot.filter(regex=&quot;Ratio .\/. normalized&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; protLog = autoprot.preprocessing.log(prot, protRatio, base=2)</span>
+
+<span class="sd">    &gt;&gt;&gt; a = [&#39;log2_Ratio H/M normalized BC18_1&#39;,&#39;log2_Ratio M/L normalized BC18_2&#39;,&#39;log2_Ratio H/M normalized BC18_3&#39;,</span>
+<span class="sd">    ...                 &#39;log2_Ratio H/L normalized BC36_1&#39;,&#39;log2_Ratio H/M normalized BC36_2&#39;,&#39;log2_Ratio M/L normalized BC36_2&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; b = [&quot;log2_Ratio H/L normalized BC18_1&quot;,&quot;log2_Ratio H/M normalized BC18_2&quot;,&quot;log2_Ratio H/L normalized BC18_3&quot;,</span>
+<span class="sd">    ...                 &quot;log2_Ratio M/L normalized BC36_1&quot;, &quot;log2_Ratio H/L normalized BC36_2&quot;,&quot;log2_Ratio H/M normalized BC36_2&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; c = [&quot;log2_Ratio M/L normalized BC18_1&quot;,&quot;log2_Ratio H/L normalized BC18_2&quot;,&quot;log2_Ratio M/L normalized BC18_3&quot;,</span>
+<span class="sd">    ...               &quot;log2_Ratio H/M normalized BC36_1&quot;,&quot;log2_Ratio M/L normalized BC36_2&quot;,&quot;log2_Ratio H/L normalized BC36_2&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; protFilter = autoprot.preprocessing.filterVv(protLog, groups=[a,b,c], n=3)</span>
+<span class="sd">    4910 rows before filter operation.</span>
+<span class="sd">    2674 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+
+    <span class="k">if</span> <span class="n">vv</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1">#TODO: Why not use notnull?</span>
+        <span class="c1"># idxs = [set(df[df[group].notnull().sum(1)) &gt;= n].index) for\</span>
+        <span class="c1">#        group in groups]</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[(</span><span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span><span class="o">-</span><span class="n">df</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span>\
+                <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span>\
+               <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">]</span>
+
+    <span class="c1"># indices that are valid in all groups</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">idxs</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="goAnnot"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.goAnnot">[docs]</a><span class="k">def</span> <span class="nf">goAnnot</span><span class="p">(</span><span class="n">prots</span><span class="p">,</span> <span class="n">gos</span><span class="p">,</span> <span class="n">onlyProts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter a list of experimentally determined gene names by GO annotation.</span>
+
+<span class="sd">    Homo sapiens.gene_info and gene2go files are needed for annotation</span>
+
+<span class="sd">    In case of multiple gene names per line (e.g. AKT1;PKB)</span>
+<span class="sd">    only the first name will be extracted.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prots : list of str</span>
+<span class="sd">        List of Gene names.</span>
+<span class="sd">    gos : list of str</span>
+<span class="sd">        List of go terms.</span>
+<span class="sd">    onlyProts : bool, optional</span>
+<span class="sd">        Whether to return dataframe or only list of gene names annotated with terms. The default is False.</span>
+<span class="sd">    exact : bool, optional</span>
+<span class="sd">        whether go term must match exactly. i.e. MAPK activity &lt;-&gt; regulation of MAPK acitivity etc. The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame or pd.Series</span>
+<span class="sd">        Dataframe with columns &quot;index&quot;, &quot;Gene names&quot;, &quot;GeneID&quot;, &quot;GO_ID&quot;, &quot;GO_term&quot;</span>
+<span class="sd">        or</span>
+<span class="sd">        Series with gene names</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; gos = [&quot;ribosome&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; go = autoprot.preprocessing.goAnnot(prot[&quot;Gene names&quot;],gos, onlyProts=False)</span>
+<span class="sd">    &gt;&gt;&gt; go.head()</span>
+<span class="sd">       index Gene names  GeneID       GO_ID   GO_term</span>
+<span class="sd">    0   1944      RPS27    6232  GO:0005840  ribosome</span>
+<span class="sd">    1   6451      RPS25    6230  GO:0005840  ribosome</span>
+<span class="sd">    2   7640     RPL36A    6173  GO:0005840  ribosome</span>
+<span class="sd">    3  11130      RRBP1    6238  GO:0005840  ribosome</span>
+<span class="sd">    4  16112        SF1    7536  GO:0005840  ribosome</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">&quot;autoprot.data&quot;</span><span class="p">,</span><span class="s2">&quot;Homo_sapiens.gene_info.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">geneInfo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">&quot;autoprot.data&quot;</span><span class="p">,</span><span class="s2">&quot;gene2go_alt.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">gene2go</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+    <span class="c1"># generate dataframe with single columns corresponding to experimental gene names</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prots</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">])</span>
+    <span class="c1"># add the column GeneID by merging with the geneInfo table</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">prots</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">geneInfo</span><span class="p">[[</span><span class="s2">&quot;Symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;GeneID&quot;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;Symbol&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="c1"># add the columns GO_ID and GO_term by merging on GeneID</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">prots</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">gene2go</span><span class="p">[[</span><span class="s2">&quot;GeneID&quot;</span><span class="p">,</span> <span class="s2">&quot;GO_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;GO_term&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;GeneID&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">onlyProts</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">go</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gos</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="s2">&quot;Symbol&quot;</span><span class="p">][</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">go</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">redProts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;Symbol&quot;</span><span class="p">][</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">go</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">redProts</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">go</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gos</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="s2">&quot;Symbol&quot;</span><span class="p">][</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">go</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">redProts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;Symbol&quot;</span><span class="p">][</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">go</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="n">redProts</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">go</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gos</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">go</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">redProts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">go</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">redProts</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;Symbol&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">go</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gos</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">go</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">redProts</span> <span class="o">=</span> <span class="n">redProts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">&quot;GO_term&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">go</span><span class="p">)])</span>
+            <span class="k">return</span> <span class="n">redProts</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;Symbol&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="motifAnnot"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.motifAnnot">[docs]</a><span class="k">def</span> <span class="nf">motifAnnot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">&quot;Sequence window&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Search for phosphorylation motif in the provided dataframe.</span>
+
+<span class="sd">    If not specified, the &quot;Sequence window&quot; column is searched.</span>
+<span class="sd">    The phosphorylated central residue in a motif has to be indicated with &quot;S/T&quot;.</span>
+<span class="sd">    Arbitrary amino acids can be denoted with x.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        input dataframe.</span>
+<span class="sd">    motif : str</span>
+<span class="sd">        Target motif. E.g. &quot;RxRxxS/T&quot;, &quot;PxS/TP&quot; or &quot;RxRxxS/TxSxxR&quot;</span>
+<span class="sd">    col : str, optional</span>
+<span class="sd">        Alternative column to be searched in if Sequence window is not desired.</span>
+<span class="sd">        The default is &quot;Sequence window&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.dataframe</span>
+<span class="sd">        Dataframe with additional boolean column with True/False for whether the motif is found in this .</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># make sure to keep the original dataframe unmodified</span>
+
+    <span class="c1"># TODO</span>
+    <span class="c1"># make some assertions that the column is indeed the proper MQ output</span>
+    <span class="c1"># (might want to customize the possibilites later)</span>
+
+    <span class="k">def</span> <span class="nf">findMotif</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">col</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">motlen</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;;&quot;</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
+            <span class="n">seqs</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">seqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">seq</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span><span class="n">seq</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos2</span><span class="p">:</span>
+                <span class="c1"># iterate over re match objects</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos2</span><span class="p">:</span>
+                    <span class="c1"># p.end() is the index of the last matching element of the searchstring</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                    <span class="c1"># only return a match if the motif in centred in the sequence window</span>
+                    <span class="c1"># i.e. if the corresponding peptide was identified</span>
+                    <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">motlen</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">assert</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># generate a regex string out of the input motif</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="n">motif</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;S/T&#39;</span><span class="p">,</span> <span class="s1">&#39;(S|T)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;(S|T)&quot;</span><span class="p">)</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="n">search</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">after</span>  <span class="o">=</span> <span class="n">search</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">:]</span>
+    <span class="c1"># the regex contains a lookbehind (?&lt;=SEQUENCEBEFORE), the actual modified residues (S/T)</span>
+    <span class="c1"># and a lookahead with the following seqeunce for this motif (?=SEQUENCEAFTER)</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(?&lt;=</span><span class="si">{</span><span class="n">before</span><span class="si">}</span><span class="s2">)(S|T)(?=</span><span class="si">{</span><span class="n">after</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="c1"># the lengths of the sequences in the sequence window column are all the same, take it from the first row</span>
+    <span class="n">motlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">findMotif</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">motif</span><span class="o">=</span><span class="n">search</span><span class="p">,</span> <span class="n">motlen</span><span class="o">=</span><span class="n">motlen</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="impMinProb"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.impMinProb">[docs]</a><span class="k">def</span> <span class="nf">impMinProb</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">colsToImpute</span><span class="p">,</span> <span class="n">maxMissing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">downshift</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">.3</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform an imputation by modeling a distribution on the far left site of the actual distribution.</span>
+
+<span class="sd">    The final distribution will be mean shifted and has a smaller variation.</span>
+<span class="sd">    Intensities should be log transformed before being supplied to this function.</span>
+
+<span class="sd">    Downsshift: mean - downshift*sigma</span>
+<span class="sd">    Var: width*sigma</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Dataframe on which imputation is performed.</span>
+<span class="sd">    colsToImpute : list</span>
+<span class="sd">        Columns to impute. Should correspond to a single condition (i.e. control).</span>
+<span class="sd">    maxMissing : int, optional</span>
+<span class="sd">        How many missing values have to be missing across all columns to perfom imputation</span>
+<span class="sd">        If None all values have to be missing. The default is None.</span>
+<span class="sd">    downshift : float, optional</span>
+<span class="sd">        How many Stds to lower values the mean of the new population is shifted. The default is 1.8.</span>
+<span class="sd">    width : float, optional</span>
+<span class="sd">        How to scale the Std of the new distribution with respect to the original. The default is .3.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.dataframe</span>
+<span class="sd">        The dataframe with imputed values.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; forImp = np.log10(phos.filter(regex=&quot;Int.*R1&quot;).replace(0, np.nan))</span>
+<span class="sd">    &gt;&gt;&gt; impProt = pp.impMinProb(forImp, phos.filter(regex=&quot;Int.*R1&quot;).columns,</span>
+<span class="sd">    ...                         width=.4, downshift=2.5)</span>
+<span class="sd">    &gt;&gt;&gt; impProt.filter(regex=&quot;Int.*R1&quot;)[impProt[&quot;Imputed&quot;]==False].mean(1).hist(density=True, bins=50,</span>
+<span class="sd">    ...                                                                         label=&quot;not Imputed&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; impProt.filter(regex=&quot;Int.*R1&quot;)[impProt[&quot;Imputed&quot;]==True].mean(1).hist(density=True, bins=50,</span>
+<span class="sd">    ...                                                                        label=&quot;Imputed&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; plt.legend()</span>
+<span class="sd">    </span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+<span class="sd">    </span>
+<span class="sd">        import autoprot.preprocessing as pp</span>
+<span class="sd">        import autoprot.visualization as vis</span>
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        phos = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_mod.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        forImp = np.log10(phos.filter(regex=&quot;Int.*R1&quot;).replace(0, np.nan))</span>
+<span class="sd">        impProt = pp.impMinProb(forImp, phos.filter(regex=&quot;Int.*R1&quot;).columns, width=.4, downshift=2.5)</span>
+<span class="sd">        fig, ax1 = plt.subplots(1)</span>
+<span class="sd">        impProt.filter(regex=&quot;Int.*R1&quot;)[impProt[&quot;Imputed&quot;]==False].mean(1).hist(density=True, bins=50, label=&quot;not Imputed&quot;, ax=ax1)</span>
+<span class="sd">        impProt.filter(regex=&quot;Int.*R1&quot;)[impProt[&quot;Imputed&quot;]==True].mean(1).hist(density=True, bins=50, label=&quot;Imputed&quot;, ax=ax1)</span>
+<span class="sd">        plt.legend()</span>
+<span class="sd">        plt.show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">maxMissing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">maxMissing</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colsToImpute</span><span class="p">)</span>
+    <span class="c1"># idxs of all rows in which imputation will be performed</span>
+    <span class="n">idx_noCtrl</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">colsToImpute</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxMissing</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Imputed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_noCtrl</span><span class="p">,</span><span class="s2">&quot;Imputed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">colsToImpute</span><span class="p">:</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">var</span>  <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">mean_</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">downshift</span><span class="o">*</span><span class="n">var</span>
+        <span class="n">var_</span> <span class="o">=</span> <span class="n">var</span><span class="o">*</span><span class="n">width</span>
+
+        <span class="c1">#generate random numbers matching the target dist</span>
+        <span class="n">rnd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mean_</span><span class="p">,</span> <span class="n">var_</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_noCtrl</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx_noCtrl</span><span class="p">):</span>
+            <span class="c1"># ctrl so that really no data is overwritten</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">col</span><span class="p">]):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">rnd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="expSemiCol"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.expSemiCol">[docs]</a><span class="k">def</span> <span class="nf">expSemiCol</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">scCol</span><span class="p">,</span> <span class="n">newCol</span><span class="p">,</span> <span class="n">castTo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand a semicolon containing string column and generate a new column based on its content.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Dataframe to expant columns.</span>
+<span class="sd">    scCol : str</span>
+<span class="sd">        Colname of a column containing semicolon-separated values.</span>
+<span class="sd">    newCol : str</span>
+<span class="sd">        Name for the newly generated column.</span>
+<span class="sd">    castTo : dtype, optional</span>
+<span class="sd">        If provided new column will be set to the provided dtype. The default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Dataframe with the semicolon-separated values on separate rows.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; expSemi = phos.sample(100)</span>
+<span class="sd">    &gt;&gt;&gt; expSemi[&quot;Proteins&quot;].head()</span>
+<span class="sd">    0    P61255;B1ARA3;B1ARA5</span>
+<span class="sd">    0    P61255;B1ARA3;B1ARA5</span>
+<span class="sd">    0    P61255;B1ARA3;B1ARA5</span>
+<span class="sd">    1    Q6XZL8;F7CVL0;F6SJX8</span>
+<span class="sd">    1    Q6XZL8;F7CVL0;F6SJX8</span>
+<span class="sd">    Name: Proteins, dtype: object</span>
+<span class="sd">    &gt;&gt;&gt; expSemi = autoprot.preprocessing.expSemiCol(expSemi, &quot;Proteins&quot;, &quot;SingleProts&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; expSemi[&quot;SingleProts&quot;].head()</span>
+<span class="sd">    0    P61255</span>
+<span class="sd">    0    B1ARA3</span>
+<span class="sd">    0    B1ARA5</span>
+<span class="sd">    1    Q6XZL8</span>
+<span class="sd">    1    F7CVL0</span>
+<span class="sd">    Name: SingleProts, dtype: object    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">#make temp df with expanded columns</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">scCol</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">#use stack to bring it into long format series and directly convert back to df</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">newCol</span><span class="p">])</span>
+    <span class="c1">#get first level of multiindex (corresponds to original index)</span>
+    <span class="n">temp</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#join on idex</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">castTo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">newCol</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">newCol</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">castTo</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="mergeSemiCols"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.mergeSemiCols">[docs]</a><span class="k">def</span> <span class="nf">mergeSemiCols</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">scCol1</span><span class="p">,</span> <span class="n">scCol2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge two dataframes on a semicolon separated column.</span>
+
+<span class="sd">    Here m2 is merged to m1 (left merge).</span>
+<span class="sd">    -&gt; entries in m2 which are not matched to m1 are dropped</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m1 : pd.Dataframe</span>
+<span class="sd">        First dataframe to merge.</span>
+<span class="sd">    m2 : pd.Dataframe</span>
+<span class="sd">        Second dataframe to merge with first.</span>
+<span class="sd">    scCol1 : str</span>
+<span class="sd">        Colname of a column containing semicolon-separated values in m1.</span>
+<span class="sd">    scCol2 : str, optional</span>
+<span class="sd">        Colname of a column containing semicolon-separated values in m2.</span>
+<span class="sd">        If sCol2 is None it is assumed to be the same as sCol1.</span>
+<span class="sd">        The default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.dataframe</span>
+<span class="sd">        Merged dataframe with expanded columns.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1">#     Example</span>
+<span class="c1">#</span>
+<span class="c1">#     df1</span>
+<span class="c1">#       col1  num1</span>
+<span class="c1">#     0  A;B     0</span>
+<span class="c1">#     1  C;D     1</span>
+<span class="c1">#     2  E;F     2</span>
+<span class="c1">#</span>
+<span class="c1">#     df2</span>
+<span class="c1">#       col2  num2</span>
+<span class="c1">#     0  A;B    10</span>
+<span class="c1">#     1  C;D    11</span>
+<span class="c1">#     2    E    12</span>
+<span class="c1">#</span>
+<span class="c1">#     mergeSemiCols(df1, df2, &#39;col1&#39;, &#39;col2&#39;)</span>
+<span class="c1">#       col1_x  num2 col1_y  num1</span>
+<span class="c1">#     0    A;B    10    A;B     0</span>
+<span class="c1">#     1    C;D    11    C;D     1</span>
+<span class="c1">#     2      E    12    E;F     2</span>
+<span class="c1"># =============================================================================</span>
+
+    <span class="c1">#helper functions</span>
+    <span class="k">def</span> <span class="nf">_formMergePairs</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Group the data back on the main data identifier and create the appropiate matching entries of the other data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : pd.groupby</span>
+<span class="sd">            Groupby object grouped on the first identifier.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            A Series with the idcs corresponding to m1 and the entries to the matching idcs in m2.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">i</span><span class="p">)]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ids</span>
+
+    <span class="k">def</span> <span class="nf">_aggreagateDuplicates</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="c1"># this might be a oversimplicfication but there should only be</span>
+        <span class="c1"># object columns and numerical columns in the data</span>
+
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;mergeID_m1&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">mode</span><span class="p">()</span>
+
+    <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">m2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1">#make IDs to reduce data after expansion</span>
+    <span class="n">m1</span><span class="p">[</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">m2</span><span class="p">[</span><span class="s2">&quot;mergeID_m2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># renome ssCol2 if it is not the same as ssCol1</span>
+    <span class="k">if</span> <span class="n">scCol1</span> <span class="o">!=</span> <span class="n">scCol2</span><span class="p">:</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">scCol2</span><span class="p">:</span><span class="n">scCol1</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">#expand the semicol columns and name the new col sUID</span>
+    <span class="n">m1Exp</span> <span class="o">=</span> <span class="n">expSemiCol</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">scCol1</span><span class="p">,</span><span class="s2">&quot;sUID&quot;</span><span class="p">)</span>
+    <span class="n">m2Exp</span> <span class="o">=</span> <span class="n">expSemiCol</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">scCol1</span><span class="p">,</span> <span class="s2">&quot;sUID&quot;</span><span class="p">)</span>
+
+    <span class="c1"># add the appropriate original row indices of m2 to the corresponding rows</span>
+    <span class="c1"># of m1Exp</span>
+    <span class="c1"># here one might want to consider other kind of merges</span>
+    <span class="n">merge</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">m1Exp</span><span class="p">,</span> <span class="n">m2Exp</span><span class="p">[[</span><span class="s2">&quot;mergeID_m2&quot;</span><span class="p">,</span> <span class="s2">&quot;sUID&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;sUID&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+    <span class="n">mergePairs</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[[</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">,</span> <span class="s2">&quot;mergeID_m2&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">_formMergePairs</span><span class="p">)</span>
+    <span class="c1">#This is neccessary if there are more than one matching columns</span>
+    <span class="n">mergePairs</span> <span class="o">=</span> <span class="n">mergePairs</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;mergeID_m2&quot;</span><span class="p">)</span>
+
+    <span class="c1"># merge of m2 columns</span>
+    <span class="n">mergePairs</span> <span class="o">=</span> <span class="p">(</span><span class="n">mergePairs</span>
+         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+         <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;mergeID_m2&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+         <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">)</span>
+         <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">_aggreagateDuplicates</span><span class="p">)</span>
+         <span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+
+    <span class="c1"># merge of m1 columns (those should all be unique)</span>
+    <span class="n">mergePairs</span> <span class="o">=</span> <span class="p">(</span><span class="n">mergePairs</span>
+                 <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">mergePairs</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">,</span> <span class="s2">&quot;mergeID_m2&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="impSeq"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.impSeq">[docs]</a><span class="k">def</span> <span class="nf">impSeq</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform sequential imputation in R using impSeq from rrcovNA.</span>
+
+<span class="sd">    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the</span>
+<span class="sd">    algorithm.</span>
+<span class="sd">    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x&#39;]. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform imputation of.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Dataframe with imputed values.</span>
+<span class="sd">        Cols with imputed values are names _imputed.</span>
+<span class="sd">        Contains a col UID that was used for processing.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># UID is basically a row index starting at 1</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+    <span class="s2">&quot;impSeq&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+    <span class="n">outputLoc</span> <span class="c1">#output file</span>
+    <span class="p">]</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_imputed&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="quantileNorm"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.quantileNorm">[docs]</a><span class="k">def</span> <span class="nf">quantileNorm</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform quantile normalization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform normlisation on.</span>
+<span class="sd">    returnCols : bool, optional</span>
+<span class="sd">        if True also the column names of the normalized columns are returned.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    backend : str, optional</span>
+<span class="sd">        &#39;py&#39; or &#39;r&#39;. The default is &quot;r&quot;.</span>
+<span class="sd">        While the python implementation is much faster than r (since R is executed in a subroutine), the</span>
+<span class="sd">        R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The original dataframe with extra columns _normalized.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The quantile normalization forces the distributions of the samples to be the</span>
+<span class="sd">    same on the basis of the quantiles of the samples by replacing each point of a</span>
+<span class="sd">    sample with the mean of the corresponding quantile.</span>
+<span class="sd">    This is applicable for large datasets with only few changes but will introduce</span>
+<span class="sd">    errors if the rank assumption is violated i.e. if there are large variations</span>
+<span class="sd">    across groups to compare. See [2].</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] https://doi.org/10.1093/bioinformatics/19.2.185</span>
+
+<span class="sd">    [2] https://www.biorxiv.org/content/10.1101/012203v1.full</span>
+<span class="sd">   </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.preprocessing as pp</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.visualization as vis</span>
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosLog = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">    &gt;&gt;&gt; noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
+<span class="sd">    </span>
+<span class="sd">    Until now this was only preprocessing for the normalisation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend=&#39;r&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
+<span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
+<span class="sd">    </span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+<span class="sd">    </span>
+<span class="sd">        import autoprot.preprocessing as pp</span>
+<span class="sd">        import autoprot.visualization as vis</span>
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        phos = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_mod.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phosLog = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">        noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
+<span class="sd">        phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend=&#39;r&#39;)</span>
+<span class="sd">        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+    <span class="c1">#TODO: Check why python backend fails so poorly</span>
+    <span class="c1"># See https://github.com/bmbolstad/preprocessCore/blob/master/R/normalize.quantiles.R</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;py&quot;</span><span class="p">:</span>
+        <span class="n">subDf</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="o">+</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">subDf</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">subDf</span> <span class="o">=</span> <span class="n">subDf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;UID&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">subDf</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="c1">#use numpy sort to sort columns independently</span>
+        <span class="n">subDf_sorted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">subDf</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">subDf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">subDf</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">subDf_mean</span> <span class="o">=</span> <span class="n">subDf_sorted</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">subDf_mean</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">subDf_mean</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Assign ranks across the cols, stack the cols so that a multiIndex series</span>
+        <span class="c1"># is created, map the subDf_mean series on the series and unstack again</span>
+        <span class="n">df_norm</span> <span class="o">=</span> <span class="n">subDf</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">subDf_mean</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
+        <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_normalized&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df_norm</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">df_norm</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+        <span class="n">df_norm</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_norm</span><span class="o">.</span><span class="n">index</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">df_norm</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_norm</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+        <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+        <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+        <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+        <span class="s2">&quot;quantile&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+        <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+        <span class="n">outputLoc</span> <span class="c1">#output file</span>
+        <span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error during execution of R function:</span><span class="se">\n</span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+        <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_normalized&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span><span class="p">(</span><span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please supply either &quot;r&quot; or &quot;py&quot; as value for the backend arg&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">returnCols</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">resCols</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="vsn"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.vsn">[docs]</a><span class="k">def</span> <span class="nf">vsn</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Variance Stabilizing Normalization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform normlisation on.</span>
+<span class="sd">    returnCols : bool, optional</span>
+<span class="sd">        if True also the column names of the normalized columns are returned.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    backend : str, optional</span>
+<span class="sd">        Only &#39;r&#39; is implemented. The default is &quot;r&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The original dataframe with extra columns _normalized.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance stabilization applied to microarray data calibration and to the quantification of differential expression. Bioinformatics 18 Supplement 1, S96-S104.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Vsn is a statistical method aiming at making the sample</span>
+<span class="sd">    variances nondependent from their mean intensities and bringing the</span>
+<span class="sd">    samples onto a same scale with a set of parametric transformations</span>
+<span class="sd">    and maximum likelihood estimation.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.preprocessing as pp</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.visualization as vis</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; phos_lfq = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_lfq.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">    &gt;&gt;&gt; noNorm = phos_lfq.filter(regex=&quot;Intensity .&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phos_lfq[noNorm] = phos_lfq.filter(regex=&quot;Intensity .&quot;).replace(0, np.nan)</span>
+<span class="sd">    </span>
+<span class="sd">    Until now this was only preprocessing for the normalisation.</span>
+<span class="sd">    Note that we are treating LFQ pre-normalised values with VSN normalisation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; phos_lfq = pp.vsn(phos_lfq, noNorm)</span>
+<span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex=&quot;_norm&quot;).columns], data=&#39;Intensity&#39;, compare=True)</span>
+<span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
+<span class="sd">    </span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+<span class="sd">    </span>
+<span class="sd">        import autoprot.preprocessing as pp</span>
+<span class="sd">        import autoprot.visualization as vis</span>
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        phos_lfq = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_lfq.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        noNorm = phos_lfq.filter(regex=&quot;Intensity .&quot;).columns</span>
+<span class="sd">        phos_lfq[noNorm] = phos_lfq.filter(regex=&quot;Intensity .&quot;).replace(0, np.nan)</span>
+<span class="sd">        phos_lfq = pp.vsn(phos_lfq, noNorm)</span>
+<span class="sd">        vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex=&quot;_norm&quot;).columns], data=&#39;Intensity&#39;, compare=True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+    <span class="s2">&quot;vsn&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+    <span class="n">outputLoc</span> <span class="c1">#output file</span>
+    <span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error during execution of R function:</span><span class="se">\n</span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_normalized&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">returnCols</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">resCols</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="cyclicLOESS"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.cyclicLOESS">[docs]</a><span class="k">def</span> <span class="nf">cyclicLOESS</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform cyclic Loess normalization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform normlisation on.</span>
+<span class="sd">    returnCols : bool, optional</span>
+<span class="sd">        if True also the column names of the normalized columns are returned.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    backend : str, optional</span>
+<span class="sd">        Only &#39;r&#39; is implemented. The default is &quot;r&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The original dataframe with extra columns _normalized.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] https://doi.org/10.1093/bioinformatics/19.2.185</span>
+
+<span class="sd">    [2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by local fitting. J. Am. Stat. Assoc., 83, 596–610</span>
+
+<span class="sd">    [3] https://en.wikipedia.org/wiki/Local_regression</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Cyclic loess normalization applies loess normalization to all possible pairs of arrays,</span>
+<span class="sd">    usually cycling through all pairs several times.</span>
+<span class="sd">    Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates</span>
+<span class="sd">    the data around every point using low-order functions and giving less weight to distant</span>
+<span class="sd">    data points.</span>
+
+<span class="sd">    Cyclic loess is slower than quantile, but allows probe-wise weights and</span>
+<span class="sd">    is more robust to unbalanced differential expression.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.preprocessing as pp</span>
+<span class="sd">    &gt;&gt;&gt; import autoprot.visualization as vis</span>
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosLog = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">    &gt;&gt;&gt; noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
+<span class="sd">    </span>
+<span class="sd">    Until now this was only preprocessing for the normalisation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend=&#39;r&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
+<span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
+<span class="sd">    </span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+<span class="sd">    </span>
+<span class="sd">        import autoprot.preprocessing as pp</span>
+<span class="sd">        import autoprot.visualization as vis</span>
+<span class="sd">        import pandas as pd</span>
+<span class="sd">        phos = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_mod.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phosLog = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">        noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
+<span class="sd">        phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend=&#39;r&#39;)</span>
+<span class="sd">        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+    <span class="s2">&quot;cloess&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+    <span class="n">outputLoc</span> <span class="c1">#output file</span>
+    <span class="p">]</span>
+
+    <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_normalized&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="toCanonicalPS"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.toCanonicalPS">[docs]</a><span class="k">def</span> <span class="nf">toCanonicalPS</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">organism</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert phosphosites to &quot;canonical&quot; phosphosites.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : pd.Series</span>
+<span class="sd">        Series containing the indices &quot;Gene names&quot; and &quot;Sequence Window&quot;.</span>
+<span class="sd">        Corresponds e.g. to MQ Phospho(STY)Sites.txt.</span>
+<span class="sd">    organism : str, optional</span>
+<span class="sd">        This conversion is based on Uniprot Identifier used in PSP data.</span>
+<span class="sd">        possible organisms: &#39;mouse&#39;, &#39;human&#39;, &#39;rat&#39;, &#39;sheep&#39;, &#39;SARSCoV2&#39;, &#39;guinea pig&#39;, &#39;cow&#39;,</span>
+<span class="sd">        &#39;hamster&#39;, &#39;fruit fly&#39;, &#39;dog&#39;, &#39;rabbit&#39;, &#39;pig&#39;, &#39;chicken&#39;, &#39;frog&#39;,</span>
+<span class="sd">        &#39;quail&#39;, &#39;horse&#39;, &#39;goat&#39;, &#39;papillomavirus&#39;, &#39;water buffalo&#39;,</span>
+<span class="sd">        &#39;marmoset&#39;, &#39;turkey&#39;, &#39;cat&#39;, &#39;starfish&#39;, &#39;torpedo&#39;, &#39;SARSCoV1&#39;,</span>
+<span class="sd">        &#39;green monkey&#39;, &#39;ferret&#39;. The default is &quot;human&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function compares a certain gene name to the genes found in the</span>
+<span class="sd">    phosphosite plus (https://www.phosphosite.org) phosphorylation site dataset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of (str, int)</span>
+<span class="sd">        (UniProt ID, Position of phosphosite in the UniProt sequence)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The correct position of the phosphorylation is returned independent of the</span>
+<span class="sd">    completeness of the sequence window.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; series=pd.Series([&#39;PEX14&#39;, &quot;VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE&quot;], index=[&#39;Gene names&#39;, &#39;Sequence window&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.toCanonicalPS(series, organism=&#39;human&#39;)</span>
+<span class="sd">    (&#39;O75381&#39;, 282)</span>
+<span class="sd">    &gt;&gt;&gt; series=pd.Series([&#39;PEX14&#39;, &quot;_____TSSSPGKEGHSPEGSTVTYHLLGP__&quot;], index=[&#39;Gene names&#39;, &#39;Sequence window&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.toCanonicalPS(series, organism=&#39;human&#39;)</span>
+<span class="sd">    (&#39;O75381&#39;, 282)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># open the phosphosite plus phosphorylation dataset</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s1">&#39;autoprot.data&#39;</span><span class="p">,</span><span class="s2">&quot;phosphorylation_site_dataset.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">ps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getUPAcc</span><span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="n">organism</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding organism.&quot;&quot;&quot;</span>
+        <span class="n">gene</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">upacc</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">ps</span><span class="p">[</span><span class="s2">&quot;GENE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">==</span><span class="n">gene</span><span class="p">))</span> <span class="o">&amp;</span>
+                           <span class="p">(</span><span class="n">ps</span><span class="p">[</span><span class="s2">&quot;ORGANISM&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">organism</span><span class="p">),</span> <span class="s2">&quot;ACC_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">upacc</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;notFound&quot;</span>
+
+    <span class="k">def</span> <span class="nf">getUPSeq</span><span class="p">(</span><span class="n">upacc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Download sequence from uniprot by UniProt ID.&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.uniprot.org/uniprot/</span><span class="si">{</span><span class="n">upacc</span><span class="si">}</span><span class="s2">.fasta&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">seq</span>
+
+    <span class="k">def</span> <span class="nf">getCanonicalPos</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">psSeq</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Align an experimental phosphosite sequence window to the corresponding UniProt sequence.&quot;&quot;&quot;</span>
+        <span class="n">alignment</span> <span class="o">=</span> <span class="n">pairwise2</span><span class="o">.</span><span class="n">align</span><span class="o">.</span><span class="n">localms</span><span class="p">(</span><span class="n">sequenceA</span><span class="o">=</span><span class="n">seq</span><span class="p">,</span>
+                                            <span class="n">sequenceB</span><span class="o">=</span><span class="n">psSeq</span><span class="p">,</span>
+                                            <span class="n">match</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="c1"># match score</span>
+                                            <span class="n">mismatch</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="c1"># mismatch penalty</span>
+                                            <span class="nb">open</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># open penalty</span>
+                                            <span class="n">extend</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># exted penalty</span>
+        <span class="c1"># Format the alignment e.g.</span>
+        <span class="c1"># &#39;1 ACCG\n  | ||\n1 A-CG\n  Score=5\n&#39;</span>
+        <span class="n">formAlign</span> <span class="o">=</span> <span class="n">format_alignment</span><span class="p">(</span><span class="o">*</span><span class="n">alignment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># get first position of alignment of seq i.e. in the UniProt sequence</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">formAlign</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># get first position of the alignment of psSeq</span>
+        <span class="n">start2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">formAlign</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="c1"># the position of the phosphosite in the UniProt Sequence is the first</span>
+        <span class="c1"># position of the alignment in seq minus the position of the alignment</span>
+        <span class="c1"># in psSeq (which is usually 1) minus the number of blanks in the sequence</span>
+        <span class="c1"># window plus 15 which is half the sequence for a sequence window length of 31</span>
+        <span class="n">canPos</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="p">((</span><span class="mi">15</span><span class="o">-</span><span class="n">n</span><span class="p">)</span><span class="o">-</span><span class="n">start2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">canPos</span>
+
+    <span class="n">gene</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">])</span>
+    <span class="c1"># get uniprot acc</span>
+    <span class="c1"># counter used if first gene name not found</span>
+    <span class="c1"># in that case appropiate seq window has to be used</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s1">&#39;;&#39;</span> <span class="ow">in</span> <span class="n">gene</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+            <span class="n">upacc</span> <span class="o">=</span> <span class="n">getUPAcc</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">organism</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">upacc</span> <span class="o">!=</span> <span class="s2">&quot;notFound&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">upacc</span> <span class="o">=</span> <span class="n">getUPAcc</span><span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="n">organism</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">upacc</span> <span class="o">==</span> <span class="s2">&quot;notFound&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;No matching phosphosite found&quot;</span>
+
+    <span class="c1">#get sequence</span>
+    <span class="n">seq</span> <span class="o">=</span> <span class="n">getUPSeq</span><span class="p">(</span><span class="n">upacc</span><span class="p">)</span>
+    <span class="c1"># get the sequence from the phosphosite annotation</span>
+    <span class="n">psSeq</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="s2">&quot;Sequence window&quot;</span><span class="p">]</span>
+    <span class="c1"># if multiple proteins were matched to the phosphosite sequence</span>
+    <span class="c1"># take only the sequence corresponding to the last match</span>
+    <span class="k">if</span> <span class="s1">&#39;;&#39;</span> <span class="ow">in</span> <span class="n">psSeq</span><span class="p">:</span>
+        <span class="n">psSeq</span> <span class="o">=</span> <span class="n">psSeq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="n">counter</span><span class="p">]</span>
+
+    <span class="c1"># n = number of blanks in the sequence window</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">psSeq</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">psSeq</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+    <span class="c1"># clean the experimental sequence from preceding and trailing blanks</span>
+    <span class="n">psSeq</span> <span class="o">=</span> <span class="n">psSeq</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">upacc</span><span class="p">,</span><span class="n">getCanonicalPos</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">psSeq</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getSubCellLoc"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.getSubCellLoc">[docs]</a><span class="k">def</span> <span class="nf">getSubCellLoc</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s2">&quot;compartments&quot;</span><span class="p">,</span> <span class="n">loca</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colname</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Annotate the df with subcellular localization.</span>
+
+<span class="sd">    For compartments gene names are required.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : pd.Series</span>
+<span class="sd">        Must contain the colname to identify genes.</span>
+<span class="sd">    database : str, optional</span>
+<span class="sd">        Possible values are &quot;compartments&quot; and &quot;hpa&quot;.</span>
+<span class="sd">        The default is &quot;compartments&quot;.</span>
+<span class="sd">    loca : str, optional</span>
+<span class="sd">        Only required for the compartments database.</span>
+<span class="sd">        Filter the returned localisation table by this string.</span>
+<span class="sd">        Must match exactly to the localisation terms in the compartments DB.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    colname : str, optional</span>
+<span class="sd">        Colname holding the gene names.</span>
+<span class="sd">        The default is &quot;Gene names&quot;.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Wrong value is provided for the database arg.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The compartments database is obtained from https://compartments.jensenlab.org/Downloads .</span>
+<span class="sd">    The hpa database is the human protein atlas available at https://www.proteinatlas.org .</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Dataframe with columns &quot;ENSMBL&quot;, &quot;Gene name&quot;, &quot;LOCID&quot;, &quot;LOCNAME&quot;, &quot;SCORE&quot;</span>
+<span class="sd">        for compartments database.</span>
+<span class="sd">    tuple of lists (mainLoc, altLoc)</span>
+<span class="sd">        Lists of main and alternative localisations if the hpa database was chosen.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; series = pd.Series([&#39;PEX14&#39;,], index=[&#39;Gene names&#39;])</span>
+<span class="sd">    </span>
+<span class="sd">    Find all subcellular localisations of PEX14.</span>
+<span class="sd">    The second line filters the returned dataframe so that only values with the</span>
+<span class="sd">    highest score are retained. The dataframe is converted to list for better</span>
+<span class="sd">    visualisation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.getSubCellLoc(series)    </span>
+<span class="sd">    &gt;&gt;&gt; sorted(loc_df.loc[loc_df[loc_df[&#39;SCORE&#39;] == loc_df[&#39;SCORE&#39;].max()].index,</span>
+<span class="sd">    ...                   &#39;LOCNAME&#39;].tolist())</span>
+<span class="sd">    [&#39;Bounding membrane of organelle&#39;, &#39;Cellular anatomical entity&#39;, &#39;Cytoplasm&#39;, &#39;Intracellular&#39;, &#39;Intracellular membrane-bounded organelle&#39;, &#39;Intracellular organelle&#39;, &#39;Membrane&#39;, &#39;Microbody&#39;, &#39;Microbody membrane&#39;, &#39;Nucleus&#39;, &#39;Organelle&#39;, &#39;Organelle membrane&#39;, &#39;Peroxisomal membrane&#39;, &#39;Peroxisome&#39;, &#39;Whole membrane&#39;, &#39;cellular_component&#39;, &#39;membrane-bounded organelle&#39;, &#39;protein-containing complex&#39;]</span>
+<span class="sd">    </span>
+<span class="sd">    Get the score for PEX14 being peroxisomally localised</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.getSubCellLoc(series, loca=&#39;Peroxisome&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; loc_df[&#39;SCORE&#39;].tolist()[0]</span>
+<span class="sd">    5.0</span>
+<span class="sd">    </span>
+<span class="sd">    Using the Human Protein Atlas, a tuple of two lists containing the main and</span>
+<span class="sd">    alternative localisations is returned</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.getSubCellLoc(series, database=&#39;hpa&#39;)</span>
+<span class="sd">    ([&#39;Peroxisomes&#39;], [&#39;Nucleoli fibrillar center&#39;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gene</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">database</span> <span class="o">==</span> <span class="s2">&quot;compartments&quot;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">&quot;autoprot.data&quot;</span><span class="p">,</span><span class="s2">&quot;human_compartment_integrated_full.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">compData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">compData</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ENSMBL&quot;</span><span class="p">,</span> <span class="s2">&quot;Gene name&quot;</span><span class="p">,</span> <span class="s2">&quot;LOCID&quot;</span><span class="p">,</span> <span class="s2">&quot;LOCNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;SCORE&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">loca</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if loca is not provided, a table with all predicted localisations</span>
+            <span class="c1"># is returned</span>
+            <span class="k">return</span> <span class="n">compData</span><span class="p">[(</span><span class="n">compData</span><span class="p">[</span><span class="s2">&quot;Gene name&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">gene</span><span class="p">)][[</span><span class="s2">&quot;LOCNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;SCORE&quot;</span><span class="p">]]</span>
+        <span class="c1"># if loca is provided, only rows with the correspoding locname and score</span>
+        <span class="c1"># are returned</span>
+        <span class="k">return</span> <span class="n">compData</span><span class="p">[(</span><span class="n">compData</span><span class="p">[</span><span class="s2">&quot;Gene name&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">gene</span><span class="p">)</span> <span class="o">&amp;</span>
+                <span class="p">(</span><span class="n">compData</span><span class="p">[</span><span class="s2">&quot;LOCNAME&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">loca</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">database</span> <span class="o">==</span> <span class="s2">&quot;hpa&quot;</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="s2">&quot;g,scl,scml,scal&quot;</span>
+        <span class="c1"># obtain protein atlas subset for the gene of interest</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;https://www.proteinatlas.org/api/search_download.php?search=</span><span class="si">{</span><span class="n">gene</span><span class="si">}</span><span class="s2">&amp;format=json&amp;columns=</span><span class="si">{</span><span class="n">cols</span><span class="si">}</span><span class="s2">&amp;compress=no&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">mainLoc</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;Subcellular main location&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&quot;Subcellular additional location&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;&quot;:[&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">altLoc</span>  <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;Subcellular additional location&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;&quot;:[&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">mainLoc</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;]&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mainLoc</span><span class="p">]</span>
+        <span class="n">altLoc</span>  <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">altLoc</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mainLoc</span><span class="p">,</span> <span class="n">altLoc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Database can be either &quot;compartments&quot; or &quot;hpa&quot;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="makeSimScore"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.makeSimScore">[docs]</a><span class="k">def</span> <span class="nf">makeSimScore</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;pearson&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate similarity score.</span>
+
+<span class="sd">    To quantitatively describe the resemblance between the temporal profiles</span>
+<span class="sd">    observed after subjecting the cells to the two treatments.</span>
+<span class="sd">    Implemented as described in [1].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m1 : array-like</span>
+<span class="sd">        Time course of SILAC ratios after treatment 1.</span>
+<span class="sd">    m2 : array-like</span>
+<span class="sd">        Time course of SILAC ratios after treatment 2.</span>
+<span class="sd">    corr : str, optional</span>
+<span class="sd">        Correlation parameter.</span>
+<span class="sd">        &#39;Pearson&#39; or &#39;Spearman&#39;. The default is &quot;pearson&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        S-score that describes both the resemblance of the patterns of</span>
+<span class="sd">        regulation and the resemblance between the degrees of regulation</span>
+<span class="sd">        in the range from zero to infinity. </span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Similar temporal profiles result in high S-scores</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; s1 = [1,1,1,2,3,4,4]</span>
+<span class="sd">    &gt;&gt;&gt; s2 = [1,1,1,2,3,3,4]</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.makeSimScore(s1, s2)</span>
+<span class="sd">    50.97173553835997</span>
+
+<span class="sd">    Low resemblance results in low scores</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; s2 = [1.1,1.1,1,1,1,1,1]</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.makeSimScore(s1, s2)</span>
+<span class="sd">    16.33374591446012</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] https://www.doi.org/10.1126/scisignal.2001570</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">calcMagnitude</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">):</span>
+        <span class="n">auca</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="p">)),</span> <span class="n">m1</span><span class="p">)</span>
+        <span class="n">aucb</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m2</span><span class="p">)),</span> <span class="n">m2</span><span class="p">)</span>
+        <span class="c1">#mcomp = np.divide(np.subtract(auca, aucb), np.add(auca, aucb))</span>
+        <span class="n">mcomp</span> <span class="o">=</span> <span class="p">(</span><span class="n">auca</span><span class="o">-</span><span class="n">aucb</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">auca</span><span class="o">+</span><span class="n">aucb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mcomp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">calcCorr</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="n">corr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">corr</span> <span class="o">==</span> <span class="s2">&quot;pearson&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">pearsonr</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">corr</span> <span class="o">==</span> <span class="s2">&quot;spearman&quot;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">spearmanr</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid correlation parameter.&#39;</span><span class="p">)</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dof</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">pval</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">dof</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pval</span>
+
+    <span class="n">pComp</span> <span class="o">=</span> <span class="n">calcCorr</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">)</span>
+    <span class="n">mComp</span> <span class="o">=</span> <span class="n">calcMagnitude</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">pComp</span><span class="o">*</span><span class="n">mComp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="normToProt"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.normToProt">[docs]</a><span class="k">def</span> <span class="nf">normToProt</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">protDf</span><span class="p">,</span> <span class="n">toNormalize</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize phospho data to total protein level.</span>
+
+<span class="sd">    Function has to be applied to phosphosite table.</span>
+<span class="sd">    e.g. phosTable.apply(lambda x: normToProt(x, dfProt, toNormalize),1)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry : pd.Series</span>
+<span class="sd">        Row-like object with index &quot;Protein group IDs&quot;.</span>
+<span class="sd">    protDf : pd.DataFrame</span>
+<span class="sd">        MQ ProteinGroups data to which data is normalized.</span>
+<span class="sd">    toNormalize : list of str</span>
+<span class="sd">        Which columns to normalize.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        The input array does not contain an index &quot;Protein group IDs&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.Series</span>
+<span class="sd">        Input array with normalized values.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Normalization is calculated by subtracting the value of columns toNormalize</span>
+<span class="sd">    of the protein dataframe from that of the entry, i.e. if intensity ratios</span>
+<span class="sd">    such as log(pep/prot) should be obtained the operation has to be applied to</span>
+<span class="sd">    log transformed columns as log(pep) - log(prot) = log(pep/prot).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">protIds</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;Protein group IDs&quot;</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The input array does not contain an index &quot;Protein group IDs&quot;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;;&#39;</span> <span class="ow">in</span> <span class="n">protIds</span><span class="p">:</span>
+        <span class="n">protIds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">protIds</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)]</span>
+        <span class="n">protDf</span> <span class="o">=</span> <span class="n">protDf</span><span class="p">[</span><span class="n">protDf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">protIds</span><span class="p">)]</span>
+        <span class="n">poi</span> <span class="o">=</span> <span class="n">protDf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Gene names&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># generate subset of protDf matching the ID of the current protein</span>
+        <span class="n">poi</span> <span class="o">=</span> <span class="n">protDf</span><span class="p">[</span><span class="n">protDf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">==</span><span class="nb">int</span><span class="p">(</span><span class="n">protIds</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">poi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1">#can*t normalize. either return non-normalized or drop value?</span>
+        <span class="n">corrected</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">toNormalize</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># log(pep) - log(prot) or log(pep/prot)</span>
+        <span class="c1"># TODO Does this work? isnt poi[toNormalize] a df and entry a series?</span>
+        <span class="n">corrected</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="n">toNormalize</span><span class="p">]</span> <span class="o">-</span> <span class="n">poi</span><span class="p">[</span><span class="n">toNormalize</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">corrected</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, The autoprot contributors.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

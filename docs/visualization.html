@@ -1,0 +1,1150 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Data Visualization &#8212; autoprot  documentation</title>
+    
+    <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/pydata-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    
+    <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Workflows" href="workflows.html" />
+    <link rel="prev" title="Analysis" href="analysis.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">autoprot</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="installation.html">
+  Installation
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="preprocessing.html">
+  Data Preprocessing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="analysis.html">
+  Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  Data Visualization
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="workflows.html">
+  Workflows
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="module-autoprot.visualization">
+<span id="data-visualization"></span><h1>Data Visualization<a class="headerlink" href="#module-autoprot.visualization" title="Permalink to this headline">¶</a></h1>
+<p>Autoprot Visualisation Functions.</p>
+<p>&#64;author: Wignand</p>
+<p>&#64;documentation: Julian</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.BHplot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">BHplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#BHplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.BHplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize Benjamini Hochberg p-value correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Dataframe with p values.</p></li>
+<li><p><strong>ps</strong> (<em>str</em>) – Colname of column with p-values.</p></li>
+<li><p><strong>adj_ps</strong> (<em>str</em>) – column with adj_p values.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Plot title. The default is None.</p></li>
+<li><p><strong>alpha</strong> (<em>flaot</em><em>, </em><em>optional</em>) – The significance level drawn in the plot. The default is 0.05.</p></li>
+<li><p><strong>zoom</strong> (<em>int</em><em>, </em><em>optional</em>) – Zoom on the first n points. The default is 20.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The function generates two plots, left with all datapoints sorted by p-value
+and right with a zoom on the first 6 values (zoom=7).
+The grey line indicates the provided alpha level. Values below it are considered
+significantly different.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">BHplot</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span><span class="s1">&#39;pValue_TvC&#39;</span><span class="p">,</span> <span class="s1">&#39;adj.pValue_TvC&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-1.py">Source code</a>, <a class="reference external" href=".//visualization-1.png">png</a>, <a class="reference external" href=".//visualization-1.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-1.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-1.png" class="plot-directive" src="_images/visualization-1.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.MAPlot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">MAPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MA</span> <span class="pre">Plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hover_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#MAPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.MAPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot log intensity ratios (M) vs. the average intensity (A).</p>
+<p class="rubric">Notes</p>
+<p>The MA plot is useful to determine whether a data normalization is needed.
+The majority of proteins is considered to be unchanged between between
+treatments and thereofore should lie on the y=0 line.
+If this is not the case, a normalisation should be applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.dataFrame</em>) – Input dataframe with log intensities.</p></li>
+<li><p><strong>x</strong> (<em>str</em>) – Colname containing intensities of experiment1.</p></li>
+<li><p><strong>y</strong> (<em>str</em>) – Colname containing intensities of experiment2.</p></li>
+<li><p><strong>interactive</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return an interactive plotly plot.
+The default is False.</p></li>
+<li><p><strong>fct</strong> (<em>numeric</em><em>, </em><em>optional</em>) – The value in M to draw a horizontal line.
+The default is None.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of the figure. The default is “MA Plot”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Size of the figure. The default is (6,6).</p></li>
+<li><p><strong>hover_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Colname to use for labels in interactive plot.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The MA plot allows to easily visualize difference in intensities between
+experiments or replicates and therefore to judge if data normalisation is
+required for further analysis.
+The majority of intensities should be unchanged between conditions and
+therefore most points should lie on the y=0 line.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">MAPlot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitch</span><span class="p">,</span> <span class="n">ctrl</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-2.py">Source code</a>, <a class="reference external" href=".//visualization-2.png">png</a>, <a class="reference external" href=".//visualization-2.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-2.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-2.png" class="plot-directive" src="_images/visualization-2.png" />
+</figure>
+<p>If this is not the case, a normalisation using e.g. LOESS should be applied</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">MAPlot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitch</span><span class="p">,</span> <span class="n">ctrl</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-3.py">Source code</a>, <a class="reference external" href=".//visualization-3.png">png</a>, <a class="reference external" href=".//visualization-3.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-3.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-3.png" class="plot-directive" src="_images/visualization-3.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.boxplot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">boxplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logFC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#boxplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.boxplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot intensity boxplots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – INput dataframe.</p></li>
+<li><p><strong>reps</strong> (<em>list of str</em>) – Colnames of replicates.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of the plot. The default is None.</p></li>
+<li><p><strong>labels</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List with labels for the axis.
+The default is [].</p></li>
+<li><p><strong>compare</strong> (<em>bool</em><em>, </em><em>optional</em>) – If False reps is expected to be a single list,
+if True two list are expected (e.g. normalized and non-normalized Ratios).
+The default is False.</p></li>
+<li><p><strong>data</strong> (<em>str</em><em>, </em><em>optional</em>) – Either “logFC” or “Intensity”. The default is “logFC”.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to a folder where the figure should be saved.
+The default is None.</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure object.
+The default is False.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (15,5).</p></li>
+<li><p><strong>**kwargs</strong> – Passed to pandas boxplot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the reps input does not match the compare setting.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>fig</strong> – Plot figure object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>plt.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>To inspect unnormalised data, you can generate a boxplot comparing the
+fold-change differences between conditions or replicates</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span><span class="n">reps</span><span class="o">=</span><span class="n">protRatio</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Unnormalized Ratios Boxplot&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">data</span><span class="o">=</span><span class="s2">&quot;logFC&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-4.py">Source code</a>, <a class="reference external" href=".//visualization-4.png">png</a>, <a class="reference external" href=".//visualization-4.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-4.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-4.png" class="plot-directive" src="_images/visualization-4.png" />
+</figure>
+<p>If you have two datasets for comparison (e.g. normalised and non-normalised)
+fold-changes, you can use boxplot to plot them side-by-side.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">prot</span><span class="p">,[</span><span class="n">protRatio</span><span class="p">,</span> <span class="n">protRatioNorm</span><span class="p">],</span> <span class="n">compare</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">title</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unormalized&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized&quot;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;logFC&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-5.py">Source code</a>, <a class="reference external" href=".//visualization-5.png">png</a>, <a class="reference external" href=".//visualization-5.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-5.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-5.png" class="plot-directive" src="_images/visualization-5.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.chargePlot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">chargePlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#chargePlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.chargePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a pie chart of the peptide charges of a phospho(STY) dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – Input dataframe.
+Must contain a column named “Charge”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – The size of the figure. The default is (12,8).</p></li>
+<li><p><strong>typ</strong> (<em>str</em><em>, </em><em>optional</em>) – “pie” or “bar”.
+The default is “bar”.</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure.
+The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fig</strong> – The figure object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot the charge states of a dataframe.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">chargePlot</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="s2">&quot;pie&quot;</span><span class="p">)</span>
+<span class="go">charge [total] - (count / # charge)</span>
+<span class="go">[(44, 1), (20583, 2), (17212, 3), (2170, 4), (61, 5), (4, 6)]</span>
+<span class="go">Percentage of charge [total] - (% / # charge)</span>
+<span class="go">[(0.11, 1), (51.36, 2), (42.95, 3), (5.41, 4), (0.15, 5), (0.01, 6)]</span>
+<span class="go">charge [total] - (count / # charge)</span>
+<span class="go">[(44, 1), (20583, 2), (17212, 3), (2170, 4), (61, 5), (4, 6)]</span>
+<span class="go">Percentage of charge [total] - (% / # charge)</span>
+<span class="go">[(0.11, 1), (51.36, 2), (42.95, 3), (5.41, 4), (0.15, 5), (0.01, 6)]</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-6.py">Source code</a>, <a class="reference external" href=".//visualization-6.png">png</a>, <a class="reference external" href=".//visualization-6.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-6.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-6.png" class="plot-directive" src="_images/visualization-6.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.corrMap">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">corrMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YlGn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pairPlot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#corrMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.corrMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot correlation heat- and clustermaps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.df</em>) – Dataframe from MaxQuant file.</p></li>
+<li><p><strong>columns</strong> (<em>list of strings</em><em>, </em><em>optional</em>) – The columns to be visualized. The default is None.</p></li>
+<li><p><strong>cluster</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot a clustermap.
+If True, only a clustermap will be returned.
+The default is False.</p></li>
+<li><p><strong>annot</strong> (<em>bool</em><em> or </em><em>rectangular dataset</em><em>, </em><em>optional</em>) – If True, write the data value in each cell.
+If an array-like with the same shape as data, then use this to annotate
+the heatmap instead of the data. Note that DataFrames will match on
+position, not index. The default is None.</p></li>
+<li><p><strong>cmap</strong> (<em>matplotlib colormap name</em><em> or </em><em>object</em><em>, or </em><em>list of colors</em><em>, </em><em>optional</em>) – The mapping from data values to color space.
+The default is “YlGn”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Size of the figure. The default is (7,7).</p></li>
+<li><p><strong>saveDir</strong> (<em>str</em><em>, </em><em>optional</em>) – Where the plots are saved. The default is None.</p></li>
+<li><p><strong>saveType</strong> (<em>str</em><em>, </em><em>optional</em>) – What format the saved plots have (pdf, png). The default is “pdf”.</p></li>
+<li><p><strong>saveName</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the saved file. The default is “pairPlot”.</p></li>
+<li><p><strong>ax</strong> (<em>plt.axis</em><em>, </em><em>optional</em>) – The axis to plot. The default is None.</p></li>
+<li><p><strong>**kwargs</strong> – passed to seaborn.heatmap and seaborn.clustermap.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>To plot a heatmap with annotated values call corrMap directly:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">corrMap</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-7.py">Source code</a>, <a class="reference external" href=".//visualization-7.png">png</a>, <a class="reference external" href=".//visualization-7.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-7.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-7.png" class="plot-directive" src="_images/visualization-7.png" />
+</figure>
+<p>If you want to plot the clustermap, set cluster to True.
+The correlation coefficients are colour-coded.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">corrMap</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">mildLogInt</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;autumn&quot;</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-8.py">Source code</a>, <a class="reference external" href=".//visualization-8.png">png</a>, <a class="reference external" href=".//visualization-8.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-8.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-8.png" class="plot-directive" src="_images/visualization-8.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.correlogram">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">correlogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'proteinGroups'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pdf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pairPlot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowerTriang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scatter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampleFrac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#correlogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.correlogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.</p>
+<p class="rubric">Notes</p>
+<p>The lower half of the correlogram shows a scatter plot comparing pairs of
+conditions while the upper part shows you the color coded correlation
+coefficients as well as the intersection of hits between both conditions.
+In tiles corresponding to self-comparison (the same value on y and x axis)
+a histogram of intensities is plotted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.df</em>) – Dataframe from MaxQuant file.</p></li>
+<li><p><strong>columns</strong> (<em>list of strings</em><em>, </em><em>optional</em>) – The columns to be visualized. The default is None.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – “proteinGroups” or “Phospho(STY)” (does only change annotation).
+The default is “proteinGroups”.</p></li>
+<li><p><strong>log</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether provided intensities are already log transformed.
+The default is True.</p></li>
+<li><p><strong>saveDir</strong> (<em>str</em><em>, </em><em>optional</em>) – Where the plots are saved. The default is None.</p></li>
+<li><p><strong>saveType</strong> (<em>str</em><em>, </em><em>optional</em>) – What format the saved plots have (pdf, png). The default is “pdf”.</p></li>
+<li><p><strong>saveName</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the saved file. The default is “pairPlot”.</p></li>
+<li><p><strong>lowerTriang</strong> (<em>&quot;scatter&quot;</em><em>, </em><em>&quot;hexBin&quot;</em><em> or </em><em>&quot;hist2d&quot;</em><em>, </em><em>optional</em>) – The kind of plot displayed in the lower triang.
+The default is “scatter”.</p></li>
+<li><p><strong>sampleFrac</strong> (<em>float</em><em>, </em><em>optional</em>) – Fraction between 0 and 1 to indicate fraction of entries to be shown in scatter.
+Might be useful for large correlograms in order to make it possible
+to work with those in illustrator.
+The default is None.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of bins for histograms.
+The default is 100.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If provided list of columns is not suitable.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>You may for example plot the protein intensitites of a single condition of
+your experiment .</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">correlogram</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;proteinGroups&#39;</span><span class="p">,</span> <span class="n">lowerTriang</span><span class="o">=</span><span class="s2">&quot;hist2d&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-9.py">Source code</a>, <a class="reference external" href=".//visualization-9.png">png</a>, <a class="reference external" href=".//visualization-9.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-9.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-9.png" class="plot-directive" src="_images/visualization-9.png" />
+</figure>
+<p>You may want to change the plot type on the lower left triangle.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">correlogram</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;proteinGroups&#39;</span><span class="p">,</span> <span class="n">lowerTriang</span><span class="o">=</span><span class="s2">&quot;hexBin&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-10.py">Source code</a>, <a class="reference external" href=".//visualization-10.png">png</a>, <a class="reference external" href=".//visualization-10.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-10.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-10.png" class="plot-directive" src="_images/visualization-10.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.intensityRank">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">intensityRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rankCol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log10_Intensity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rank</span> <span class="pre">Plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#intensityRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.intensityRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a rank plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>rankCol</strong> (<em>str</em><em>, </em><em>optional</em>) – the column with the values to be ranked (e.g. Intensity values).
+The default is “log10_Intensity”.</p></li>
+<li><p><strong>label</strong> (<em>str</em><em>, </em><em>optional</em>) – Coname of the column with the labels.
+The default is None.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – How many points to label on the top and bottom of the y-scale.
+The default is 5.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – The title of the plot.
+The default is “Rank Plot”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – The figure size. The default is (15,7).</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to a folder where the resulting sigure should be saved.
+The default is None.</p></li>
+<li><p><strong>hline</strong> (<em>numeric</em><em>, </em><em>optional</em>) – y value to place a horizontal line.
+The default is None.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to seaborn.scatterplot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Annotate a protein groups datafile with the proteins of highest and lowest
+intensity. The 15 most and least intense proteins will be labelled.
+Note that marker is passed to seaborn and results in points marked as diamonds.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">intensityRank</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rankCol</span><span class="o">=</span><span class="s2">&quot;log10_Intensity&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+<span class="gp">... </span>                                     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Rank Plot&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                     <span class="n">hline</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-11.py">Source code</a>, <a class="reference external" href=".//visualization-11.png">png</a>, <a class="reference external" href=".//visualization-11.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-11.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-11.png" class="plot-directive" src="_images/visualization-11.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.logIntPlot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">logIntPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logFC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'green'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LogFC</span> <span class="pre">Intensity</span> <span class="pre">Plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hover_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#logIntPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.logIntPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a log-foldchange vs log-intensity plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>logFC</strong> (<em>str</em>) – Colname containing log fold-changes.</p></li>
+<li><p><strong>Int</strong> (<em>str</em>) – Colname containing the log intensities.</p></li>
+<li><p><strong>fct</strong> (<em>float</em><em>, </em><em>optional</em>) – fold change threshold at which an entry is deemed significant regulated.
+The default is None.</p></li>
+<li><p><strong>annot</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether or not to annotate the plot. The default is None.</p></li>
+<li><p><strong>interactive</strong> (<em>bool</em><em>, </em><em>optional</em>) – The default is False.</p></li>
+<li><p><strong>sig_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for significant points. The default is “green”.</p></li>
+<li><p><strong>bg_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Background colour. The default is “lightgray”.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title for the plot.
+The default is “Volcano Plot”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Size of the figure. The default is (6,6).</p></li>
+<li><p><strong>hover_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Colname to use for labels in interactive plot.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The logFC Intensity plot requires the log fold changes as calculated e.g.
+during t-test or LIMMA analysis and (log) intensities to separate points
+on the y axis.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">logIntPlot</span><span class="p">(</span><span class="n">prot_limma</span><span class="p">,</span> <span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="s2">&quot;log10_Intensity BC4_3&quot;</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-12.py">Source code</a>, <a class="reference external" href=".//visualization-12.png">png</a>, <a class="reference external" href=".//visualization-12.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-12.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-12.png" class="plot-directive" src="_images/visualization-12.png" />
+</figure>
+<p>Similar to the visualization using a volcano plot, points of interest can be
+selected and labelled.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">logIntPlot</span><span class="p">(</span><span class="n">prot_limma</span><span class="p">,</span> <span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="s2">&quot;log10_Intensity BC4_3&quot;</span><span class="p">,</span>
+<span class="go">               fct=2, annot=True, interactive=False, hover_name=&quot;Gene names&quot;)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-13.py">Source code</a>, <a class="reference external" href=".//visualization-13.png">png</a>, <a class="reference external" href=".//visualization-13.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-13.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-13.png" class="plot-directive" src="_images/visualization-13.png" />
+</figure>
+<p>And the plots can also be investigated interactively</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">logIntPlot</span><span class="p">(</span><span class="n">prot_limma</span><span class="p">,</span> <span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="s2">&quot;log10_Intensity BC4_3&quot;</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.meanSd">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">meanSd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#meanSd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.meanSd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rank vs. standard deviation plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>reps</strong> (<em>list of str</em>) – Column names over which to calculate standard deviations and rank.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Visualise the intensity distirbutions of proteins depending on their
+total indensity.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">meanSd</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitchInt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-14.py">Source code</a>, <a class="reference external" href=".//visualization-14.png">png</a>, <a class="reference external" href=".//visualization-14.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-14.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-14.png" class="plot-directive" src="_images/visualization-14.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.modAa">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">modAa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#modAa"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.modAa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of modifications per amino acid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – The input dataframe.
+Must contain a column “Amino acid”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – The size of the figure. The default is (6,6).</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure object. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fig</strong> – The figure object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot pie chart of modified amino acids.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">modAa</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-15.py">Source code</a>, <a class="reference external" href=".//visualization-15.png">png</a>, <a class="reference external" href=".//visualization-15.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-15.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-15.png" class="plot-directive" src="_images/visualization-15.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.plotTraces">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">plotTraces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zScore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logFC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotSummary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotSummaryOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summaryColor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summaryType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summaryStyle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'solid'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#plotTraces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.plotTraces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot numerical data such as fold changes vs. columns (e.g. conditions).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – The colnames from which the values are plotted.</p></li>
+<li><p><strong>labels</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Corresponds to data, used to label traces.
+The default is None.</p></li>
+<li><p><strong>colors</strong> (<em>list of colours</em><em>, </em><em>optional</em>) – Colours to labels the traces.
+Must be the same length as the values in cols.
+The default is None.</p></li>
+<li><p><strong>zScore</strong> (<em>int</em><em>, </em><em>optional</em>) – Whether to apply zscore transformation.
+Must be between 0 and 1 for True.
+The default is None.</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em><em>, </em><em>optional</em>) – Label for the x axis. The default is “”.</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em><em>, </em><em>optional</em>) – Label for the y axis.
+The default is “logFC”.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of the plot.
+The default is “”.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib axis</em><em>, </em><em>optional</em>) – Axis to plot on.
+The default is None.</p></li>
+<li><p><strong>plotSummary</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot a line corresponding to a summary of the traces as defined
+by summaryType.
+The default is False.</p></li>
+<li><p><strong>plotSummaryOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot only the summary.
+The default is False.</p></li>
+<li><p><strong>summaryColor</strong> (<em>Colour-like</em><em>, </em><em>optional</em>) – The colour for the summary.
+The default is “red”.</p></li>
+<li><p><strong>summaryType</strong> (<em>str</em><em>, </em><em>optional</em>) – “Mean” or “Median”. The default is “Mean”.</p></li>
+<li><p><strong>summaryStyle</strong> (<em>matplotlib.linestyle</em><em>, </em><em>optional</em>) – Style for the summary trace as defined in
+<a class="reference external" href="https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html">https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html</a>.
+The default is “solid”.</p></li>
+<li><p><strong>**kwargs</strong> – passed to matplotlib.pyplot.plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot the log fold-changes of 10 phosphosites during three comparisons.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;logFC_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Gene names&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">plotTraces</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Column&#39;</span><span class="p">,</span> <span class="n">zScore</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-16.py">Source code</a>, <a class="reference external" href=".//visualization-16.png">png</a>, <a class="reference external" href=".//visualization-16.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-16.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-16.png" class="plot-directive" src="_images/visualization-16.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.probPlot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">probPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#probPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.probPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a QQ_plot of the provided column.</p>
+<p>Data are compared against a theoretical distribution (default is normal)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>col</strong> (<em>list of str</em>) – Columns containing the data for analysis.</p></li>
+<li><p><strong>dist</strong> (<em>str</em><em> or </em><em>stats.distributions instance</em><em>, </em><em>optional</em><em>, </em><em>optional</em>) – Distribution or distribution function name.
+The default is ‘norm’ for a normal probability plot.
+Objects that look enough like a stats.distributions instance
+(i.e. they have a ppf method) are also accepted.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Size of the figure. The default is (6,6).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot to check if the experimental data points follow the distribution function
+indicated by dist.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">probPlot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="s1">&#39;log10_Intensity H BC18_1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-17.py">Source code</a>, <a class="reference external" href=".//visualization-17.png">png</a>, <a class="reference external" href=".//visualization-17.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-17.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-17.png" class="plot-directive" src="_images/visualization-17.png" />
+</figure>
+<p>In contrast when the data does not follow the distribution, outliers from the
+linear plot will be visible.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">probPlot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="s1">&#39;log10_Intensity H BC18_1&#39;</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="n">stats</span><span class="o">.</span><span class="n">uniform</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-18.py">Source code</a>, <a class="reference external" href=".//visualization-18.png">png</a>, <a class="reference external" href=".//visualization-18.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-18.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-18.png" class="plot-directive" src="_images/visualization-18.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.sequenceLogo">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">sequenceLogo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ST</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#sequenceLogo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.sequenceLogo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate sequence logo plot based on experimentally observed phosphosites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The dataframe from which experimentally determined sequences are extracted.</p></li>
+<li><p><strong>motif</strong> (<em>tuple of str</em>) – A tuple of the motif and its name.
+The phosphosite residue in the motif should be indicated by a
+lowercase character.
+Example (“..R.R..s…….”, “MK_down”).</p></li>
+<li><p><strong>file</strong> (<em>str</em>) – Path to write the figure to file.
+Default is None.</p></li>
+<li><p><strong>ST</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, the phoshoresidue will be considered to be
+either S or T. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the phosphoresidue was not indicated by lowercase character.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>First define the motif of interest. Note that the phosphorylated residue
+should be marked by a lowercase character.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">motif</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;..R.R..s.......&quot;</span><span class="p">,</span> <span class="s2">&quot;MK_down&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">sequenceLogo</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">motif</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>allow s and t as central residue</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">sequenceLogo</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ST</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.styCountPlot">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">styCountPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#styCountPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.styCountPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.
+Must contain a column “Number of Phospho (STY)”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (12,8).</p></li>
+<li><p><strong>typ</strong> (<em>str</em><em>, </em><em>optional</em>) – ‘bar’ or ‘pie’. The default is “bar”.</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure. The default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fig</strong> – The figure object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot a bar chart of the distribution of the number of phosphosites on the peptides.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">styCountPlot</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">)</span>
+<span class="go">Number of phospho (STY) [total] - (count / # Phospho)</span>
+<span class="go">[(29, 0), (37276, 1), (16460, 2), (4276, 3), (530, 4), (52, 5)]</span>
+<span class="go">Percentage of phospho (STY) [total] - (% / # Phospho)</span>
+<span class="go">[(0.05, 0), (63.59, 1), (28.08, 2), (7.29, 3), (0.9, 4), (0.09, 5)]</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-19.py">Source code</a>, <a class="reference external" href=".//visualization-19.png">png</a>, <a class="reference external" href=".//visualization-19.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-19.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-19.png" class="plot-directive" src="_images/visualization-19.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.vennDiagram">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">vennDiagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proportional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#vennDiagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.vennDiagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw vennDiagrams.</p>
+<p>The .vennDiagram() function allows to draw venn diagrams for 2 to 6 replicates.
+Even though you can compare 6 replicates in a venn diagram does not mean
+that you should. It becomes extremly messy.</p>
+<p>The labels in the diagram can be read as follows:
+Comparing two conditions you will see the labels 10, 11 and 01. This can be read as:
+Only in replicate 1 (10), in both replicates (11) and only in replicate 2 (01).
+The same notation extends to all venn diagrams.</p>
+<p class="rubric">Notes</p>
+<p>vennDiagram compares row containing not NaN between columns. Therefore
+you have to pass columns containing NaN on rows where no common protein was
+found (e.g. after ratio calculation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (10,10).</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure.
+The default is False.</p></li>
+<li><p><strong>proportional</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to draw area-proportiona Venn diagrams.
+The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the number of provided columns is below 2 or greater than 6.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>fig</strong> – The figure object.
+Only returned if retFig is True, else None.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>You can specify up to 6 columns containing values and NaNs. Only rows showing
+values in two columns will be grouped together in the Venn diagram.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">prot</span><span class="p">[</span><span class="n">twitchVsmild</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">vennDiagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-20.py">Source code</a>, <a class="reference external" href=".//visualization-20.png">png</a>, <a class="reference external" href=".//visualization-20.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-20.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-20.png" class="plot-directive" src="_images/visualization-20.png" />
+</figure>
+<p>Only up to three conditions can be compared in non-proportional Venn
+diagrams</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">vennDiagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">proportional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-21.py">Source code</a>, <a class="reference external" href=".//visualization-21.png">png</a>, <a class="reference external" href=".//visualization-21.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-21.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-21.png" class="plot-directive" src="_images/visualization-21.png" />
+</figure>
+<p>Copmaring up to 6 conditions is possible but the resulting Venn diagrams
+get quite messy.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">prot</span><span class="p">[</span><span class="n">twitchVsmild</span><span class="p">[:</span><span class="mi">6</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">vennDiagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-22.py">Source code</a>, <a class="reference external" href=".//visualization-22.png">png</a>, <a class="reference external" href=".//visualization-22.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-22.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-22.png" class="plot-directive" src="_images/visualization-22.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.visPs">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">visPs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#visPs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.visPs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize domains and phosphosites on a protein of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the protein.
+Used for plot title.</p></li>
+<li><p><strong>length</strong> (<em>int</em>) – Length of the protein.</p></li>
+<li><p><strong>domain_position</strong> (<em>list of int</em>) – the amino acids at which domains begin and end (protein start and end have not to be included).</p></li>
+<li><p><strong>ps</strong> (<em>list of int</em>) – position of phosphosites.</p></li>
+<li><p><strong>pl</strong> (<em>list of str</em>) – label for ps (has to be in same order as ps).</p></li>
+<li><p><strong>plc</strong> (<em>list of colours</em>) – optionally one can provide a list of colors for the phosphosite labels.</p></li>
+<li><p><strong>pls</strong> (<em>int</em><em>, </em><em>optional</em>) – Fontsize for the phosphosite labels. The default is 4.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The figure object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Draw an overview on the phosphorylation of AKT1S1.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;AKT1S1&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domain_position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span><span class="mi">43</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="mi">77</span><span class="p">,</span><span class="mi">96</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">88</span><span class="p">,</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">116</span><span class="p">,</span> <span class="mi">183</span><span class="p">,</span> <span class="mi">202</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">211</span><span class="p">,</span> <span class="mi">212</span><span class="p">,</span> <span class="mi">246</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pl</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pS88&quot;</span><span class="p">,</span> <span class="s2">&quot;pS92&quot;</span><span class="p">,</span> <span class="s2">&quot;pS116&quot;</span><span class="p">,</span> <span class="s2">&quot;pS183&quot;</span><span class="p">,</span> <span class="s2">&quot;pS202&quot;</span><span class="p">,</span> <span class="s2">&quot;pS203&quot;</span><span class="p">,</span> <span class="s2">&quot;pS211&quot;</span><span class="p">,</span> <span class="s2">&quot;pS212&quot;</span><span class="p">,</span> <span class="s2">&quot;pS246&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>colors (A,B,C,D (gray -&gt; purple), Ad, Bd, Cd, Dd (gray -&gt; teal) can be used to indicate regulation)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plc</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;Cd&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">visPs</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">domain_position</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">pl</span><span class="p">,</span> <span class="n">plc</span><span class="p">,</span> <span class="n">pls</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-23.py">Source code</a>, <a class="reference external" href=".//visualization-23.png">png</a>, <a class="reference external" href=".//visualization-23.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-23.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-23.png" class="plot-directive" src="_images/visualization-23.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.volcano">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">volcano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logFC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'green'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Volcano</span> <span class="pre">Plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hover_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlight_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotHighlight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'alpha':</span> <span class="pre">0.33,</span> <span class="pre">'label':</span> <span class="pre">'background',</span> <span class="pre">'linewidth':</span> <span class="pre">0,</span> <span class="pre">'s':</span> <span class="pre">2}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_fg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_hl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retFig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#volcano"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.volcano" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw Volcano plot.</p>
+<p>This function can either plot a static or an interactive version of the
+volcano. Further it allows the user to set the desired logFC and p value
+threshold as well as toggle the annotation of the plot. If provided it is
+possible to highlight a selection of datapoints in the plot.
+Those will then be annotated instead of all significant entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – dataframe which contains the data.</p></li>
+<li><p><strong>logFC</strong> (<em>str</em>) – column of the dataframe with the log fold change.</p></li>
+<li><p><strong>p</strong> (<em>str</em><em>, </em><em>optional</em>) – column of the dataframe containing p values (provide score or p).
+The default is None.</p></li>
+<li><p><strong>score</strong> (<em>str</em><em>, </em><em>optional</em>) – column of the dataframe containing -log10(p values) (provide score or p).
+The default is None.</p></li>
+<li><p><strong>pt</strong> (<em>float</em><em>, </em><em>optional</em>) – p-value threshold under which a entry is deemed significantly regulated.
+The default is 0.05.</p></li>
+<li><p><strong>fct</strong> (<em>float</em><em>, </em><em>optional</em>) – fold change threshold at which an entry is deemed significant regulated.
+The default is None.</p></li>
+<li><p><strong>annot</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether or not to annotate the plot. The default is None.</p></li>
+<li><p><strong>interactive</strong> (<em>bool</em><em>, </em><em>optional</em>) – The default is False.</p></li>
+<li><p><strong>sig_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for significant points. The default is “green”.</p></li>
+<li><p><strong>bg_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Background colour. The default is “lightgray”.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title for the plot. The default is “Volcano Plot”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Size of the figure. The default is (6,6).</p></li>
+<li><p><strong>hover_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Colname to use for labels in interactive plot.
+The default is None.</p></li>
+<li><p><strong>highlight</strong> (<em>pd.index</em><em>, </em><em>optional</em>) – Rows to highlight in the plot.
+The default is None.</p></li>
+<li><p><strong>highlight_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for the highlights. The default is “red”.</p></li>
+<li><p><strong>annotHighlight</strong> (<em>str</em><em>, </em><em>optional</em>) – ‘all’ or ‘sig’.
+Whether to highlight all rows in indicated by highlight or only
+the significant positions.
+The default is “all”.</p></li>
+<li><p><strong>custom_bg</strong> (<em>dict</em><em>, </em><em>optional</em>) – Key:value pairs that are passed as kwargs to plt.scatter to define the background.
+Ignored for the interactive plots.
+The default is {}.</p></li>
+<li><p><strong>custom_fg</strong> (<em>dict</em><em>, </em><em>optional</em>) – Key:value pairs that are passed as kwargs to plt.scatter to define the foreground.
+Ignored for the interactive plots.
+The default is {}.</p></li>
+<li><p><strong>custom_hl</strong> (<em>dict</em><em>, </em><em>optional</em>) – Key:value pairs that are passed as kwargs to plt.scatter to define the highlighted points.
+Ignored for the interactive plots.
+The default is {}.</p></li>
+<li><p><strong>retFig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to return the figure, can be used to further
+customize it afterwards.. The default is False.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axis</em><em>, </em><em>optional</em>) – Axis to print on. The default is None.</p></li>
+<li><p><strong>legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot a legend. The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If neither a p-score nor a p value is provided by the user.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Setting a strict logFC threshold is arbitrary and should generally be avoided.
+Annotation of volcano plot can become cluttered quickly.
+You might want to prettify annotation in illustrator.
+Alternatively, use VolcanoDashBoard to interactively annotate your Volcano
+plot or an interactive version of volcano plot to investigate the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The figure object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>matplotlib.figure</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The function .volcano() draws a volcano plot.
+You can either provide precalculated scores or raw (adjusted) p values.
+You can also set a desired significance threshold (p value as well as logFC).
+You can customize the volcano plot, for instance you can also choose between
+interactive and static plot. When you provide a set of indices in the
+highlight parameter those will be highlighted for you in the plot.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-24.py">Source code</a>, <a class="reference external" href=".//visualization-24.png">png</a>, <a class="reference external" href=".//visualization-24.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-24.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-24.png" class="plot-directive" src="_images/visualization-24.png" />
+</figure>
+<p>The volcano function allows a certain amount of customisation. E.g. proteins
+exceeding a certain threshold can be annotated and titles and colours can
+be adapted to your needs.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">pt</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">fct</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span> <span class="n">sig_col</span><span class="o">=</span><span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="n">bg_col</span><span class="o">=</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom Title&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-25.py">Source code</a>, <a class="reference external" href=".//visualization-25.png">png</a>, <a class="reference external" href=".//visualization-25.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-25.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-25.png" class="plot-directive" src="_images/visualization-25.png" />
+</figure>
+<p>Moreover, custom entries can be highlghted such as target proteins of a study.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="n">prot_limma</span><span class="p">[</span><span class="n">prot_limma</span><span class="p">[</span><span class="s1">&#39;logFC_TvM&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-26.py">Source code</a>, <a class="reference external" href=".//visualization-26.png">png</a>, <a class="reference external" href=".//visualization-26.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-26.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-26.png" class="plot-directive" src="_images/visualization-26.png" />
+</figure>
+<p>Using dictionaries of matplotlib keywords eventually allows a higher degree
+of customisation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">highlight_col</span> <span class="o">=</span> <span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="n">sig_col</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">custom_bg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">.1</span><span class="p">},</span>
+<span class="gp">... </span>            <span class="n">custom_fg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">.33</span><span class="p">},</span>
+<span class="gp">... </span>            <span class="n">custom_hl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span><span class="mi">40</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span><span class="s2">&quot;purple&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-27.py">Source code</a>, <a class="reference external" href=".//visualization-27.png">png</a>, <a class="reference external" href=".//visualization-27.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-27.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-27.png" class="plot-directive" src="_images/visualization-27.png" />
+</figure>
+<p>You can also collect the volcano plot on an axis and plot multiple plots
+on a single figure.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-28.py">Source code</a>, <a class="reference external" href=".//visualization-28.png">png</a>, <a class="reference external" href=".//visualization-28.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-28.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-28.png" class="plot-directive" src="_images/visualization-28.png" />
+</figure>
+<p>If you set the interactive keyword arg to True, you can explore your volcano
+plots interactively using plotly.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hover_name</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span>
+<span class="go">                fct=0.4)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.visualization.wordcloud">
+<span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">wordcloud</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdffile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exlusionwords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#wordcloud"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.wordcloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Wordcloud from string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – text input as a string.</p></li>
+<li><p><strong>exlusionwords</strong> (<em>list of str</em><em>, </em><em>optional</em>) – list of words to exclude from wordcloud. The default is None.</p></li>
+<li><p><strong>background_color</strong> (<em>colour</em><em>, </em><em>optional</em>) – The background colour of the plot. The default is “white”.</p></li>
+<li><p><strong>mask</strong> (<em>'round'</em><em> or </em><em>path to png file</em><em>, </em><em>optional</em>) – Used to mask the wordcloud.
+set it either to round or true and add a .png file.
+The default is None.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – file is given as path with path/to/file.filetype.
+The default is “”.</p></li>
+<li><p><strong>contour_width</strong> (<em>int</em><em>, </em><em>optional</em>) – If mask is not None and contour_width &gt; 0, draw the mask contour.
+The default is 0.</p></li>
+<li><p><strong>**kwargs</strong> – passed to wordcloud.WordCloud.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Plot Hello World</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">wordcloud</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">contour_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//visualization-29.py">Source code</a>, <a class="reference external" href=".//visualization-29.png">png</a>, <a class="reference external" href=".//visualization-29.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-29.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/visualization-29.png" class="plot-directive" src="_images/visualization-29.png" />
+</figure>
+<p>You can also use the extractPDF method to input a pdf text instead of a text
+string</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">wordcloud</span><span class="o">.</span><span class="n">extractPDF</span><span class="p">(</span><span class="s1">&#39;/path/to/pdf&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">wordcloud</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">contour_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="analysis.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Analysis</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="workflows.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Workflows</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, The autoprot contributors.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

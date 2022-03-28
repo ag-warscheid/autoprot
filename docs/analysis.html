@@ -1,0 +1,1636 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Analysis &#8212; autoprot  documentation</title>
+    
+    <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/pydata-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+    
+    <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Visualization" href="visualization.html" />
+    <link rel="prev" title="Data Preprocessing" href="preprocessing.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">autoprot</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="installation.html">
+  Installation
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="preprocessing.html">
+  Data Preprocessing
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="visualization.html">
+  Data Visualization
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="workflows.html">
+  Workflows
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="analysis">
+<h1>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h1>
+<p>The analysis submodule contains handy functions for the further analysis of your data. Functions include basic statistical tests, clustering and dimension reduction algorithms.</p>
+<span class="target" id="module-autoprot.analysis"></span><p>Autoprot Analysis Functions.</p>
+<p>&#64;author: Wignand</p>
+<p>&#64;documentation: Julian</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">KSEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform kinase substrate enrichment analysis.</p>
+<p class="rubric">Notes</p>
+<p>KSEA uses the Kinase-substrate dataset and the
+regulatory-sites dataset from <a class="reference external" href="https://www.phosphosite.org/staticDownloads">https://www.phosphosite.org/staticDownloads</a></p>
+<p class="rubric">Examples</p>
+<p>KSEA is a method to get insights on which kinases are active in a given
+phosphoproteomic dataset. This is a great method to gain deeper insights
+on the underlying signaling mechanisms and also to generate novel
+hypothesis and find new connections in signaling processes.
+The KSEA class allows you to easily perform the analysis and
+comes with helpful functions to visualize and interpret your results.</p>
+<p>In the first step of the analysis you have to generate a KSEA object.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">KSEA</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, you can annotate the data with respective kinases.
+You can provide the function with a organism of your choice as well as
+toggle whether or not to screen for only in vivo determined substrate
+phosphorylation of the respective kinases.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">organism</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">,</span> <span class="n">onlyInVivo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After the annotation it is always a good idea to get an overview of the
+kinases in the data an how many substrates the have. Based on this you
+might want to adjust a cutoff specifying the minimum number of substrates
+per kinase.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">getKinaseOverview</span><span class="p">(</span><span class="n">kois</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span><span class="s2">&quot;MKK4&quot;</span><span class="p">,</span> <span class="s2">&quot;P38A&quot;</span><span class="p">,</span> <span class="s2">&quot;Erk1&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Next, you can perform the actual kinase substrate enrichment analysis.
+The analysis is based on the log fold change of your data.
+Therefore, you have to provide the function with the appropiate column of
+your data and the minimum number of substrates per kinase.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">minSubs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After the ksea has finished, you can get information for further analysis
+such as the substrates of a specific kinase (or a list of kinases)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">returnKinaseSubstrate</span><span class="p">(</span><span class="n">kinase</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span> <span class="s2">&quot;MKK4&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> 
+</pre></div>
+</div>
+<p>or a new dataframe with additional columns for every kinase showing if the
+protein is a substrate of that kinase or not</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">annotateDf</span><span class="p">(</span><span class="n">kinases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span> <span class="s2">&quot;MKK4&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>
+</pre></div>
+</div>
+<p>Eventually, you can also generate plots of the enrichment analysis.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">plotEnrichment</span><span class="p">(</span><span class="n">up_col</span><span class="o">=</span><span class="s2">&quot;salmon&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">bg_col</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                    <span class="n">down_col</span><span class="o">=</span><span class="s2">&quot;hotpink&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-1.py">Source code</a>)</p>
+<figure class="align-default" id="id1">
+<img alt="_images/analysis-1_00.png" class="plot-directive" src="_images/analysis-1_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-1_00.png">png</a>, <a class="reference external" href=".//analysis-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_00.pdf">pdf</a>)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<img alt="_images/analysis-1_01.png" class="plot-directive" src="_images/analysis-1_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-1_01.png">png</a>, <a class="reference external" href=".//analysis-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_01.pdf">pdf</a>)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>You can also highlight a list of kinases in volcano plots.
+This is based on the autoprot volcano function.
+You can pass all the common parameters to this function.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">volcanos</span><span class="p">(</span><span class="n">logFC</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;pValue_TvC&quot;</span><span class="p">,</span> <span class="n">kinases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span> <span class="s2">&quot;MKK4&quot;</span><span class="p">],</span>
+<span class="gp">... </span>              <span class="n">annot</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span> <span class="n">sig_col</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-2.py">Source code</a>)</p>
+<figure class="align-default" id="id3">
+<img alt="_images/analysis-2_00.png" class="plot-directive" src="_images/analysis-2_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-2_00.png">png</a>, <a class="reference external" href=".//analysis-2_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_00.pdf">pdf</a>)</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<img alt="_images/analysis-2_01.png" class="plot-directive" src="_images/analysis-2_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-2_01.png">png</a>, <a class="reference external" href=".//analysis-2_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_01.pdf">pdf</a>)</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Sometimes the enrichment is crowded by various kinase isoforms.
+In such cases it makes sense to simplify the annotation by grouping those
+isoforms together.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simplify</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ERK&quot;</span><span class="p">:[</span><span class="s2">&quot;ERK1&quot;</span><span class="p">,</span><span class="s2">&quot;ERK2&quot;</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s2">&quot;GSK3&quot;</span><span class="p">:[</span><span class="s2">&quot;GSK3A&quot;</span><span class="p">,</span> <span class="s2">&quot;GSK3B&quot;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">minSubs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="n">simplify</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">plotEnrichment</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-3.py">Source code</a>, <a class="reference external" href=".//analysis-3.png">png</a>, <a class="reference external" href=".//analysis-3.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-3.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-3.png" class="plot-directive" src="_images/analysis-3.png" />
+</figure>
+<p>Of course you can also get the ksea results as a dataframe to save or to further customize.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">returnEnrichment</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Of course is the database not exhaustive and you might want to add additional
+substrates manually. This can be done the following way.
+Manually added substrates are always added irrespective of the species used
+for the annotation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">KSEA</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">genes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RPGR&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">modRsds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S564&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kinases</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mTOR&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">addSubstrate</span><span class="p">(</span><span class="n">kinase</span><span class="o">=</span><span class="n">kinases</span><span class="p">,</span> <span class="n">substrate</span><span class="o">=</span><span class="n">genes</span><span class="p">,</span> <span class="n">subModRsd</span><span class="o">=</span><span class="n">modRsds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">organism</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">,</span> <span class="n">onlyInVivo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">minSubs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">plotEnrichment</span><span class="p">(</span><span class="n">plotBg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">removeManualSubs</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">organism</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">,</span> <span class="n">onlyInVivo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">minSubs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">plotEnrichment</span><span class="p">(</span><span class="n">plotBg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.addSubstrate">
+<span class="sig-name descname"><span class="pre">addSubstrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subModRsd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.addSubstrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.addSubstrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manually add a substrate to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kinase</strong> (<em>list of str</em>) – Name of the kinase e.g. PAK2.</p></li>
+<li><p><strong>substrate</strong> (<em>list of str</em>) – Name of the substrate e.g. Prkd1.</p></li>
+<li><p><strong>subModRsd</strong> (<em>list of str</em>) – Phosphorylated residues e.g. S203.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the three provided lists do not match in length.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.annotate">
+<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">organism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'human'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onlyInVivo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.annotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate with known kinase substrate pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>organism</strong> (<em>str</em><em>, </em><em>optional</em>) – The target organism. The default is “human”.</p></li>
+<li><p><strong>onlyInVivo</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to restrict analysis to in vivo evidence.
+The default is False.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Manually added kinases will be included in the annotation search
+independent of the setting of organism and onInVivo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.annotateDf">
+<span class="sig-name descname"><span class="pre">annotateDf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.annotateDf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.annotateDf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the provided dataframe with boolean columns for given kinases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kinases</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of kinases. The default is [].</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>annotated dataframe containing a column for each provided kinase
+with boolean values representing a row/protein being a kinase
+substrate or not.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.getKinaseOverview">
+<span class="sig-name descname"><span class="pre">getKinaseOverview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kois</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.getKinaseOverview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.getKinaseOverview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a graphical overview of the kinases acting on the proteins in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kois</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Kinases of interest for which a detailed overview of substrate numbers
+is plotted. The default is None.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.ksea">
+<span class="sig-name descname"><span class="pre">ksea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minSubs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simplify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.ksea"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.ksea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Kinase Enrichment Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>col</strong> (<em>str</em>) – Column used for the analysis containing the kinase substrate
+enrichments.</p></li>
+<li><p><strong>minSubs</strong> (<em>int</em><em>, </em><em>optional</em>) – Minumum number of substrates a kinase must have to be considered.
+The default is 5.</p></li>
+<li><p><strong>simplify</strong> (<em>None</em><em>, </em><em>&quot;auto&quot;</em><em> or </em><em>dict</em><em>, </em><em>optional</em>) – Merge multiple kinases during analysis.
+Using “auto” a predefined set of kinase isoforms is merged.
+If provided with a dict, the dict has to contain a list of kinases
+to merge as values and the name of the merged kinases as key.
+The default is None.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The enrichment score is calculated as</p>
+<div class="math notranslate nohighlight">
+\[\frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{all}}}{\sigma_{all}}\]</div>
+<p>i.e. the difference in mean fold change between kinase and all substrates
+multiplied by the square root of number of kinase substrates and divided
+by the standard deviation of the fold change of all substrates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.plotEnrichment">
+<span class="sig-name descname"><span class="pre">plotEnrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">up_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'orange'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotBg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">10)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.plotEnrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.plotEnrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the KSEA results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>up_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Color for enriched/upregulated kinases.
+The default is “orange”.</p></li>
+<li><p><strong>down_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for deriched/downregulated kinases.
+The default is “blue”.</p></li>
+<li><p><strong>bg_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for not kinases that did not change significantly.
+The default is “lightgray”.</p></li>
+<li><p><strong>plotBg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to plot the unaffected kinases.
+The default is True.</p></li>
+<li><p><strong>ret</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure object.
+The default is False.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of the figure. The default is “”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (5,10).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fig</strong> – Only returned in ret is True.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib figure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.removeManualSubs">
+<span class="sig-name descname"><span class="pre">removeManualSubs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.removeManualSubs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.removeManualSubs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all manual entries from the PSP database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.returnEnrichment">
+<span class="sig-name descname"><span class="pre">returnEnrichment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.returnEnrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.returnEnrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe of kinase:score pairs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.returnKinaseSubstrate">
+<span class="sig-name descname"><span class="pre">returnKinaseSubstrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.returnKinaseSubstrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.returnKinaseSubstrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return new dataframe with substrates of one or multiple kinase(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kinase</strong> (<em>str</em><em> or </em><em>list of str</em>) – Kinase(s) to analyse.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If kinase is neither list of str nor str.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>dfFilter</strong> – Dataframe containing detailed information on kinase-substrate pairs
+including reference literature.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.KSEA.volcanos">
+<span class="sig-name descname"><span class="pre">volcanos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logFC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#KSEA.volcanos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.KSEA.volcanos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot volcano plots highlighting substrates of a given kinase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logFC</strong> (<em>str</em>) – Colname of column containing the log fold changes.
+Must be present in the dataframe KSEA was initialised with.</p></li>
+<li><p><strong>p</strong> (<em>str</em>) – Colname of column containing the p values.
+Must be present in the dataframe KSEA was initialised with.</p></li>
+<li><p><strong>kinases</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Limit the analysis to these kinases. The default is [].</p></li>
+<li><p><strong>**kwargs</strong> – passed to autoprot.visualisation.volcano.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.adjustP">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">adjustP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pCol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fdr_bh'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#adjustP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.adjustP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use statsmodels.multitest on dataframes.</p>
+<p>Note: when nan in p-value this function will return only nan.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>pCol</strong> (<em>str</em>) – column containing p-values for correction.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – ‘b’: ‘Bonferroni’,
+‘s’: ‘Sidak’,
+‘h’: ‘Holm’,
+‘hs’: ‘Holm-Sidak’,
+‘sh’: ‘Simes-Hochberg’,
+‘ho’: ‘Hommel’,
+‘fdr_bh’: ‘FDR Benjamini-Hochberg’,
+‘fdr_by’: ‘FDR Benjamini-Yekutieli’,
+‘fdr_tsbh’: ‘FDR 2-stage Benjamini-Hochberg’,
+‘fdr_tsbky’: ‘FDR 2-stage Benjamini-Krieger-Yekutieli’,
+‘fdr_gbs’: ‘FDR adaptive Gavrilov-Benjamini-Sarkar’
+The default is “fdr_bh”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – The input dataframe with adjusted p-values.
+The dataframe will have a column named “adj.{pCol}”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">twitchVsmild</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC18_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_3&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="s1">&#39;log2_Ratio H/L normalized BC36_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC36_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC36_2&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;_static/testdata/proteinGroups.zip&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protRatio</span> <span class="o">=</span> <span class="n">prot</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Ratio .\/. normalized&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protLog</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">protRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot_tt</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">ttest</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">protLog</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="n">twitchVsmild</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;TvM&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">adjustPVals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot_tt_adj</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">adjustP</span><span class="p">(</span><span class="n">prot_tt</span><span class="p">,</span> <span class="n">pCol</span><span class="o">=</span><span class="s2">&quot;pValue_TvM&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot_tt_adj</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s1">&#39;pValue&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   pValue_TvM  adj.pValue_TvM</span>
+<span class="go">0         NaN             NaN</span>
+<span class="go">1    0.947334        0.966514</span>
+<span class="go">2         NaN             NaN</span>
+<span class="go">3         NaN             NaN</span>
+<span class="go">4    0.031292        0.206977</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.annotatePS">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">annotatePS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colsToKeep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#annotatePS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.annotatePS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate phosphosites with information derived from PhosphositePlus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – dataframe containing PS of interst.</p></li>
+<li><p><strong>ps</strong> (<em>str</em>) – Column containing info about the PS.
+Format: GeneName_AminoacidPositoin (e.g. AKT_T308).</p></li>
+<li><p><strong>colsToKeep</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Which columns from original dataframe (input df) to keep in output.
+The default is [].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The input dataframe with the kept columns and additional phosphosite cols.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">autoHCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zscore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conduct hierarchical cluster analysis.</p>
+<p>Usesr provides dataframe and can afterwards
+use various metrics and methods to perfom and evaluate
+clustering.
+StandarWorkflow:
+makeLnkage() -&gt; evalClustering() -&gt; clusterMap() -&gt; writeClusterFiles()</p>
+<p class="rubric">Examples</p>
+<p>autoProt provides a class which allows the easy implementation and
+evaluation of a hierarchical cluster analysis.
+You need provide the data.
+You may also want to provide appropriate row and column labels.
+Depending on what the aim of your cluster analysis is you might want to
+perform a zscore transformation.</p>
+<p>This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.
+See source of generated images for details.</p>
+<p>The autoHCA class is first initialised.
+For this the fold-changes between two conditions are extracted from the dataframe
+and new unique row labels containing the gene names, the phosphorylated amino
+acid incl its position and the multiplicity e.g. ‘Auts2 S469-1’.
+The column labels are the conditions to compare.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[[</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="s2">&quot;logFC_TvC&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clabels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TvM&quot;</span><span class="p">,</span> <span class="s2">&quot;TvC&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rlabels</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> \
+<span class="gp">... </span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Amino acid&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span>\
+<span class="gp">... </span><span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">autoHCA</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">clabels</span><span class="o">=</span><span class="n">clabels</span><span class="p">,</span> <span class="n">rlabels</span><span class="o">=</span><span class="n">rlabels</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A hierarchical clustering is generated using the makeLinkage method</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">makeLinkage</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To visualise the optimal number of clusters to match the data, the evalClustering
+function provides three different metrices. See documentation of the function for
+details on the metrices.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">evalClustering</span><span class="p">(</span><span class="n">upTo</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-4.py">Source code</a>, <a class="reference external" href=".//analysis-4.png">png</a>, <a class="reference external" href=".//analysis-4.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-4.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-4.png" class="plot-directive" src="_images/analysis-4.png" />
+</figure>
+<p>After chosing a number of clusters, a cluster map together with several evaluation
+plots such as line traces that show the RMSD variation of the data under the
+different conditions for every cluster can be computed</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">clusterMap</span><span class="p">(</span><span class="n">nCluster</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">makeTraces</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-5.py">Source code</a>)</p>
+<figure class="align-default" id="id5">
+<img alt="_images/analysis-5_00.png" class="plot-directive" src="_images/analysis-5_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-5_00.png">png</a>, <a class="reference external" href=".//analysis-5_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-5_00.pdf">pdf</a>)</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<img alt="_images/analysis-5_01.png" class="plot-directive" src="_images/analysis-5_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-5_01.png">png</a>, <a class="reference external" href=".//analysis-5_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-5_01.pdf">pdf</a>)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>It is also possible to predefine the colours for the clusters and add an
+additional row with colours indicating additional features such as the
+phosphorylation multiplicity for a peptide.
+Note that row_color is a dict linking a col name to a list of colours.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="s2">&quot;salmon&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;multiplicity&quot;</span> <span class="p">:</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">clusterMap</span><span class="p">(</span><span class="n">nCluster</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">makeTraces</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rowColors</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>
+<span class="gp">... </span>                      <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;chartreuse&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;hotpink&quot;</span><span class="p">,</span> <span class="s2">&quot;gold&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-6.py">Source code</a>)</p>
+<figure class="align-default" id="id7">
+<img alt="_images/analysis-6_00.png" class="plot-directive" src="_images/analysis-6_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-6_00.png">png</a>, <a class="reference external" href=".//analysis-6_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_00.pdf">pdf</a>)</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<img alt="_images/analysis-6_01.png" class="plot-directive" src="_images/analysis-6_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-6_01.png">png</a>, <a class="reference external" href=".//analysis-6_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_01.pdf">pdf</a>)</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Further you can also extract the clustering as dataframe or write them into files</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterDf</span> <span class="o">=</span> <span class="n">clusterRes</span><span class="o">.</span><span class="n">returnCluster</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">writeClusterFiles</span><span class="p">(</span><span class="s2">&quot;thePathOfChoice&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.asDist">
+<span class="sig-name descname"><span class="pre">asDist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.asDist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.asDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a matrix (i.e. correlation matrix) into a distance matrix for hierachical clustering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>c</strong> (<em>np.ndarray</em>) – Input matrix.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List corresponsding to left off-diagonal elememnts of the
+correlation matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">.32</span><span class="p">,</span> <span class="mf">.2</span><span class="p">,</span>  <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">.23</span><span class="p">,</span> <span class="mf">.18</span><span class="p">,</span> <span class="mf">.56</span><span class="p">,</span> <span class="mf">.61</span><span class="p">,</span> <span class="mf">.12</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">.9</span><span class="p">,</span>   <span class="mf">.3</span><span class="p">,</span>  <span class="mf">.6</span><span class="p">,</span>  <span class="mf">.5</span><span class="p">,</span>  <span class="mf">.3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">.34</span><span class="p">,</span> <span class="mf">.75</span><span class="p">,</span> <span class="mf">.91</span><span class="p">,</span> <span class="mf">.19</span><span class="p">,</span> <span class="mf">.21</span><span class="p">]</span>
+<span class="gp">... </span>     <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span>
+<span class="go">array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],</span>
+<span class="go">       [-0.35153114,  1.        ,  0.23810227,  0.15958285],</span>
+<span class="go">       [-0.74736506,  0.23810227,  1.        , -0.03960706],</span>
+<span class="go">       [-0.48917666,  0.15958285, -0.03960706,  1.        ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">autoHCA</span><span class="o">.</span><span class="n">asDist</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">[-0.3515311393849671,</span>
+<span class="go"> -0.7473650573493561,</span>
+<span class="go"> -0.4891766567441463,</span>
+<span class="go"> 0.23810227412143423,</span>
+<span class="go"> 0.15958285448266604,</span>
+<span class="go"> -0.03960705975653923]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.clusterMap">
+<span class="sig-name descname"><span class="pre">clusterMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nCluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colCluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">makeTraces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rowColors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.clusterMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.clusterMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualise the clustering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nCluster</strong> (<em>int</em><em>, </em><em>optional</em>) – How many clusters to annotate. The default is None.</p></li>
+<li><p><strong>colCluster</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to cluster the columns. The default is False.</p></li>
+<li><p><strong>makeTraces</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to generate traces of each cluster. The default is False.</p></li>
+<li><p><strong>summary</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to generate a summery.
+NOT IMPLEMENTED.
+The default is False.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the output plot file. The default is None.</p></li>
+<li><p><strong>rowColors</strong> (<em>dict</em><em>, </em><em>optional</em>) – dictionary of title and colors for row coloring.
+Generates an additional column in the heatmeap showing
+the indicated columns values as colors.
+Has to be same length as provided data.
+The default is None.</p></li>
+<li><p><strong>colors</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Colors for the annotated clusters.
+Has to be the same size as nCluster.
+The default is None.</p></li>
+<li><p><strong>yticklabels</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Labels for the y ticks. The default is “”.</p></li>
+<li><p><strong>**kwargs</strong> – passed to seaborn.clustermap.
+See <a class="reference external" href="https://seaborn.pydata.org/generated/seaborn.clustermap.html">https://seaborn.pydata.org/generated/seaborn.clustermap.html</a>
+May also contain ‘z-score’ that is used during making of
+cluster traces.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.evalClustering">
+<span class="sig-name descname"><span class="pre">evalClustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upTo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.evalClustering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.evalClustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate number of clusters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>int</em><em>, </em><em>optional</em>) – The minimum number of clusters to plot. The default is 2.</p></li>
+<li><p><strong>upTo</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum nbumber of clusters to plot. The default is 20.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of float</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – The size of the plotted figure.
+The default is (15,5).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>Davies-Bouldin score:</dt><dd><p>The score is defined as the average similarity measure of each
+cluster with its most similar cluster, where similarity is the
+ratio of within-cluster distances to between-cluster distances.
+Thus, clusters which are farther apart and less dispersed will
+result in a better score.
+The minimum score is zero, with lower values indicating better
+clustering.</p>
+</dd>
+<dt>Silhouette score:</dt><dd><p>The Silhouette Coefficient is calculated using the mean
+intra-cluster distance (a) and the mean nearest-cluster
+distance (b) for each sample. The Silhouette Coefficient for a
+sample is (b - a) / max(a, b). To clarify, b is the distance
+between a sample and the nearest cluster that the sample is not a
+part of. Note that Silhouette Coefficient is only defined if
+number of labels is 2 &lt;= n_labels &lt;= n_samples - 1.
+The best value is 1 and the worst value is -1. Values near 0
+indicate overlapping clusters. Negative values generally indicate
+that a sample has been assigned to the wrong cluster, as a
+different cluster is more similar.</p>
+</dd>
+<dt>Harabasz score:</dt><dd><p>It is also known as the Variance Ratio Criterion.
+The score is defined as ratio between the within-cluster dispersion
+and the between-cluster dispersion.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.makeLinkage">
+<span class="sig-name descname"><span class="pre">makeLinkage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.makeLinkage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.makeLinkage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform hierarchical clustering on the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – Which method is used for the clustering.
+Possible are ‘single’, ‘average’ and ‘complete’ and all values
+for method of scipy.cluster.hierarchy.linkage
+See: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html</a></p></li>
+<li><p><strong>metric</strong> (<em>str</em>) – Which metric is used to calculate distance.
+Possible values are ‘pearson’, ‘spearman’ and all metrics
+implemented in scipy.spatial.distance.pdist
+See: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html</a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.returnCluster">
+<span class="sig-name descname"><span class="pre">returnCluster</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.returnCluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.returnCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dataframe with clustered data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.writeClusterFiles">
+<span class="sig-name descname"><span class="pre">writeClusterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.writeClusterFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.writeClusterFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a folder with text files for each cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rootdir</strong> (<em>str</em>) – Path to target dir.
+If the folder is named clusterResults, text files will be saved
+within.
+Else a new folder clusterResults will be created.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">autoPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conduct principal component analyses.</p>
+<p>The class encompasses a set of helpful visualizations
+for further investigating the results of the PCA
+It needs the matrix on which the PCA is performed
+as well as row labels (rlabels)
+and column labels (clabels) corresponding to the
+provided matrix.</p>
+<p class="rubric">Notes</p>
+<p>PCA is a method which allows you to visually investigate the underlying structure
+in your data after reduction of the dimensionality.
+With the .autoPCA() you can easily perform a PCA and also generate exploratory figures.
+Intro to PCA: <a class="reference external" href="https://learnche.org/pid/latent-variable-modelling/principal-component-analysis/index">https://learnche.org/pid/latent-variable-modelling/principal-component-analysis/index</a></p>
+<p class="rubric">Examples</p>
+<p>for PCA no missing values are allowed
+filter those and store complete dataframe</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="n">prot</span><span class="p">[</span><span class="o">~</span><span class="n">prot</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2.*norm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>get the matrix of quantitative values corresponding to conditions of interest
+Here we only use the first replicate for clarity</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2.*norm.*_1$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>generate appropiate names for the columns and rows of the matrix
+for example here the columns represent the conditions and we are not interested in the rows (which are the genes)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clabels</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rlabels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</pre></div>
+</div>
+<p>generate autopca object</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">autoPCA</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">clabels</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The scree plots describe how much of the total variance of the dataset is
+explained ba the first n components. As you want to explain as variance as
+possible with as little variables as possible, chosing the number of components
+directly right to the steep descend of the plot is usually a good idea.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">scree</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-7.py">Source code</a>, <a class="reference external" href=".//analysis-7.png">png</a>, <a class="reference external" href=".//analysis-7.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-7.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-7.png" class="plot-directive" src="_images/analysis-7.png" />
+</figure>
+<p>The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
+influenced by a change in that variable) relative to the variables (i.e. the
+experiment conditions). If a weight (colorbar) is close to zero, the corresponding
+PC is barely influenced by it.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">corrComp</span><span class="p">(</span><span class="n">annot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-8.py">Source code</a>, <a class="reference external" href=".//analysis-8.png">png</a>, <a class="reference external" href=".//analysis-8.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-8.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-8.png" class="plot-directive" src="_images/analysis-8.png" />
+</figure>
+<p>The bar loading plot is a different way to represent the weights/loads for each
+condition and principle component. High values indicate a high influence of the
+variable/condition on the PC.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">barLoad</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">barLoad</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-9.py">Source code</a>)</p>
+<figure class="align-default" id="id9">
+<img alt="_images/analysis-9_00.png" class="plot-directive" src="_images/analysis-9_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-9_00.png">png</a>, <a class="reference external" href=".//analysis-9_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-9_00.pdf">pdf</a>)</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
+<img alt="_images/analysis-9_01.png" class="plot-directive" src="_images/analysis-9_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-9_01.png">png</a>, <a class="reference external" href=".//analysis-9_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-9_01.pdf">pdf</a>)</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The score plot shows how the different data points (i.e. proteins) are positioned
+with respect to two principal components.
+In more detail, the scores are the original data values multiplied by the
+weights of each value for each principal component.
+Usually they will separate more in the direction of PC1 as this component
+explains the largest share of the data variance</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">scorePlot</span><span class="p">(</span><span class="n">pc1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pc2</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-10.py">Source code</a>, <a class="reference external" href=".//analysis-10.png">png</a>, <a class="reference external" href=".//analysis-10.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-10.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-10.png" class="plot-directive" src="_images/analysis-10.png" />
+</figure>
+<p>The loading plot is the 2D representation of the barLoading plots and shows
+the weights how each variable influences the two PCs.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">loadingPlot</span><span class="p">(</span><span class="n">pc1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pc2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">labeling</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-11.py">Source code</a>, <a class="reference external" href=".//analysis-11.png">png</a>, <a class="reference external" href=".//analysis-11.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-11.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-11.png" class="plot-directive" src="_images/analysis-11.png" />
+</figure>
+<p>The Biplot is a combination of loading plot and score plot as it shows the
+scores for each protein as point and the weights for each variable as
+vectors.
+&gt;&gt;&gt; autopca.biPlot(pc1=1, pc2=2)</p>
+<p>(<a class="reference external" href=".//analysis-12.py">Source code</a>, <a class="reference external" href=".//analysis-12.png">png</a>, <a class="reference external" href=".//analysis-12.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-12.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-12.png" class="plot-directive" src="_images/analysis-12.png" />
+</figure>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.barLoad">
+<span class="sig-name descname"><span class="pre">barLoad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.barLoad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.barLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the loadings of a given component in a barplot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pc</strong> (<em>int</em><em>, </em><em>optional</em>) – Component to draw. The default is 1.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Plot only the n first rows.
+The default is 25.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.biPlot">
+<span class="sig-name descname"><span class="pre">biPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numLoad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.biPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.biPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a biplot, a combined loadings and score plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pc1</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the first PC to plot. The default is 1.</p></li>
+<li><p><strong>pc2</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the second PC to plot. The default is 2.</p></li>
+<li><p><strong>numLoad</strong> (<em>int</em><em>, </em><em>optional</em>) – Plot only the n first rows.
+The default is “all”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (3,3).</p></li>
+<li><p><strong>**kwargs</strong> – Passed to plt.scatter.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In the biplot, scores are shown as points and loadings as
+vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.corrComp">
+<span class="sig-name descname"><span class="pre">corrComp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.corrComp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.corrComp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot heatmap of PCA weights vs. variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>annot</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, write the data value in each cell.
+If an array-like with the same shape as data, then use this
+to annotate the heatmap instead of the data.
+Note that DataFrames will match on position, not index.
+The default is False.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>2D representation how strong each observation (e.g. log protein ratio)
+weights for each principal component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.loadingPlot">
+<span class="sig-name descname"><span class="pre">loadingPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labeling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.loadingPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.loadingPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a PCA loading plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pc1</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the first PC to plot. The default is 1.</p></li>
+<li><p><strong>pc2</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the second PC to plot. The default is 2.</p></li>
+<li><p><strong>labeling</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, points are labelled with the corresponding
+column labels. The default is False.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – The size of the figure object.
+The default is (5,5).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This will return a scatterplot with as many points as there are
+components (i.e. conditions) in the dataset.
+For each component a load magnitude for two PCs will be printedd
+that describes how much each condition influences the magnitude
+of the respective PC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.pairPlot">
+<span class="sig-name descname"><span class="pre">pairPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.pairPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.pairPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a pair plot of for pca for the given number of dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Plot only the n first rows. The default is 0.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Be careful for large data this might crash you PC -&gt; better specify n!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.returnLoad">
+<span class="sig-name descname"><span class="pre">returnLoad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.returnLoad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.returnLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the load for a given principal component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pc</strong> (<em>int</em><em>, </em><em>optional</em>) – Component to draw. The default is 1.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Plot only the n first rows.
+The default is 25.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe containing load vs. condition.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.returnScore">
+<span class="sig-name descname"><span class="pre">returnScore</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.returnScore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.returnScore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe of all scorings for all principal components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>scores</strong> – Dataframe holding the principal components as colnames and
+the scores for each protein on that PC as values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.scorePlot">
+<span class="sig-name descname"><span class="pre">scorePlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pc2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labeling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.scorePlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.scorePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a PCA score plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pc1</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the first PC to plot. The default is 1.</p></li>
+<li><p><strong>pc2</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of the second PC to plot. The default is 2.</p></li>
+<li><p><strong>labeling</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, points are labelled with the corresponding
+column labels. The default is False.</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to save the plot. The default is None.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – Figure size. The default is (5,5).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This will return a scatterplot with as many points as there are
+entries (i.e. protein IDs).
+The scores for each PC are the original protein ratios multiplied with
+the loading weights.
+The score plot corresponds to the individual positions of of each protein
+on a hyperplane generated by the pc1 and pc2 vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.autoPCA.scree">
+<span class="sig-name descname"><span class="pre">scree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.scree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.scree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot Scree plot and Explained variance vs number of components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>figsize</strong> (<em>tuple of int</em><em>, </em><em>optional</em>) – The size of the figure object.
+The default is (15,5).</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – No PCA object was initialised in the class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.cohenD">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">cohenD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#cohenD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.cohenD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate Cohen’s d effect size for two groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – Input dataframe.</p></li>
+<li><p><strong>group1</strong> (<em>str</em>) – Colname for group1.</p></li>
+<li><p><strong>group2</strong> (<em>str</em>) – Colname for group2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – Input dataframe with a new column “cohenD”.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.Dataframe</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Cohen’s d is defined as the difference between two means divided by a standard deviation for the data.
+Note that the pooled standard deviation here is calculated differently than
+originally proposed by Cohen.</p>
+<p class="rubric">References</p>
+<p>[1] Cohen, Jacob (1988). Statistical Power Analysis for the Behavioral Sciences. Routledge.
+[2] <a class="reference external" href="https://www.doi.org/10.22237/jmasm/1257035100">https://www.doi.org/10.22237/jmasm/1257035100</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.edm">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">edm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#edm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.edm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate an euclidean distance matrix between two matrices.</p>
+<p>See:  <a class="reference external" href="https://medium.com/swlh/euclidean-distance-matrix-4c3e1378d87f">https://medium.com/swlh/euclidean-distance-matrix-4c3e1378d87f</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<em>np.ndarray</em>) – Matrix 1.</p></li>
+<li><p><strong>B</strong> (<em>np.ndarray</em>) – Matrix 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.getPubAbstracts">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">getPubAbstracts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ToA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phrase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customSearchTerm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">makeWordCloud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pub+date'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'print'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#getPubAbstracts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.getPubAbstracts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Pubmed abstracts.</p>
+<p class="rubric">Notes</p>
+<p>Provide the search terms and pubmed will be searched for paper matching those
+The exclusion list can be used to exclude certain words to be contained in a paper
+If you want to perform more complicated searches use the possibility of using
+a custom term.</p>
+<p>If you search for a not excact term you can use *
+For example opto* will also return optogenetic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of words which must occur in text.
+The default is [“”].</p></li>
+<li><p><strong>ToA</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of words which must occur in Titel or Abstract.
+The default is [“”].</p></li>
+<li><p><strong>author</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of authors which must occor in Author list.
+The default is [“”].</p></li>
+<li><p><strong>phrase</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of phrases which should occur in text.
+Seperate word in phrases with hyphen (e.g. akt-signaling).
+The default is [“”].</p></li>
+<li><p><strong>exclusion</strong> (<em>list of str</em><em>, </em><em>optional</em>) – List of words which must not occur in text.
+The default is [“”].</p></li>
+<li><p><strong>customSearchTerm</strong> (<em>str</em><em>, </em><em>optional</em>) – Enter a custom search term (make use of advanced pubmed search functionality).
+If this is supplied all other search terms will be ignored.
+The default is None.</p></li>
+<li><p><strong>makeWordCloud</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to draw a wordcloud of the words in retrieved abstrace.
+The default is False.</p></li>
+<li><p><strong>sort</strong> (<em>str</em><em>, </em><em>optional</em>) – How to sort the results.
+The default is ‘pub+date’.</p></li>
+<li><p><strong>retmax</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of found articles to return.
+The default is 20.</p></li>
+<li><p><strong>output</strong> (<em>str</em><em>, </em><em>optional</em>) – How to handle the output.
+Possible values are ‘SOMEPATH.txt’,
+‘SOMEPATH.html’ or ‘SOMEPATH’.
+If no extension is given, the output will be html.
+The default is “print”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>To generate a wordcloud and print the results of the found articles to the
+prompt use the following command</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">getPubAbstracts</span><span class="p">(</span><span class="n">ToA</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;p38&quot;</span><span class="p">,</span> <span class="s2">&quot;JNK&quot;</span><span class="p">,</span> <span class="s2">&quot;ERK&quot;</span><span class="p">],</span>
+<span class="go">                                      makeWordCloud=True)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-13.py">Source code</a>, <a class="reference external" href=".//analysis-13.png">png</a>, <a class="reference external" href=".//analysis-13.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-13.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-13.png" class="plot-directive" src="_images/analysis-13.png" />
+</figure>
+<p>Even more comfortably, you can also save the results incl. the wordcloud
+as html file</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">getPubAbstracts</span><span class="p">(</span><span class="n">ToA</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;p38&quot;</span><span class="p">,</span> <span class="s2">&quot;JNK&quot;</span><span class="p">,</span> <span class="s2">&quot;ERK&quot;</span><span class="p">],</span>
+<span class="go">                                      makeWordCloud=True,</span>
+<span class="go">                                      output=&#39;./MyPubmedSearch.html&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.goAnalysis">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">goAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geneList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hsapiens'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#goAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.goAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform go Enrichment analysis (also KEGG and REAC).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geneList</strong> (<em>list of str</em>) – list of gene names.</p></li>
+<li><p><strong>organism</strong> (<em>str</em><em>, </em><em>optional</em>) – identifier for the organism.
+See <a class="reference external" href="https://biit.cs.ut.ee/gprofiler/page/organism-list">https://biit.cs.ut.ee/gprofiler/page/organism-list</a> for details.
+The default is “hsapiens”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input could not be parsed as list of gene names.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dataframe-like object with the GO annotations.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>gp.profile</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">goAnalysis</span><span class="p">([</span><span class="s1">&#39;PEX14&#39;</span><span class="p">,</span> <span class="s1">&#39;PEX18&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3</span><span class="p">,:</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">... </span><span class="n">source</span>      <span class="n">native</span>                                    <span class="n">name</span>
+<span class="gp">... </span><span class="mi">0</span>  <span class="n">CORUM</span>  <span class="n">CORUM</span><span class="p">:</span><span class="mi">1984</span>                 <span class="n">PEX14</span> <span class="n">homodimer</span> <span class="nb">complex</span>
+<span class="gp">... </span><span class="mi">1</span>  <span class="n">GO</span><span class="p">:</span><span class="n">CC</span>  <span class="n">GO</span><span class="p">:</span><span class="mi">1990429</span>          <span class="n">peroxisomal</span> <span class="n">importomer</span> <span class="nb">complex</span>
+<span class="gp">... </span><span class="mi">2</span>  <span class="n">GO</span><span class="p">:</span><span class="n">BP</span>  <span class="n">GO</span><span class="p">:</span><span class="mi">0036250</span>  <span class="n">peroxisome</span> <span class="n">transport</span> <span class="n">along</span> <span class="n">microtubule</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.limma">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">limma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customDesign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#limma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.limma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform moderated ttest as implemented from R LIMMA.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>reps</strong> (<em>list of lists of str</em>) – Column names of the replicates.
+Common replicates are grouped together in a single list.</p></li>
+<li><p><strong>cond</strong> (<em>str</em><em>, </em><em>optional</em>) – Term to append to the newly generated colnames.
+The default is “”.</p></li>
+<li><p><strong>customDesign</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to custom design file.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – The input dataframe with additional columns.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>A custom design representing the design matrix of the microarray experiment,
+with rows corresponding to arrays and columns to coefficients to be estimated
+can be provided using customDesign.
+If customDesign is the unit vector meaning that the arrays are treated as replicates.
+See: <a class="reference external" href="https://www.rdocumentation.org/packages/limma/versions/3.28.14/topics/lmFit">https://www.rdocumentation.org/packages/limma/versions/3.28.14/topics/lmFit</a></p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a1&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;a2&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;a3&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b1&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b2&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b3&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testRes</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">limma</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;a1&quot;</span><span class="p">,</span><span class="s2">&quot;a2&quot;</span><span class="p">,</span> <span class="s2">&quot;a3&quot;</span><span class="p">],[</span><span class="s2">&quot;b1&quot;</span><span class="p">,</span><span class="s2">&quot;b2&quot;</span><span class="p">,</span> <span class="s2">&quot;b3&quot;</span><span class="p">]],</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;_test&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">testRes</span><span class="p">[</span><span class="s2">&quot;P.Value_test&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-14.py">Source code</a>, <a class="reference external" href=".//analysis-14.png">png</a>, <a class="reference external" href=".//analysis-14.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-14.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-14.png" class="plot-directive" src="_images/analysis-14.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.loess">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">loess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#loess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.loess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a LOcally-Weighted Scatterplot Smoothing Fit.</p>
+<p>See: <a class="reference external" href="https://medium.com/&#64;langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a">https://medium.com/&#64;langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pd.Dataframe</em>) – Input dataframe.</p></li>
+<li><p><strong>xvals</strong> (<em>str</em>) – Colname of x values.</p></li>
+<li><p><strong>yvals</strong> (<em>str</em>) – Colname of y values.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Sensitivity of the estimation.
+Controls how much of the total number of values is used during weighing.
+0 &lt;= alpha &lt;= 1.</p></li>
+<li><p><strong>poly_degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of the fitted polynomial. The default is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
+the data around every point using low-order functions and giving less weight to distant
+data points.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">110</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x_values</span><span class="p">)</span><span class="o">/</span><span class="mf">1.5</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">x_values</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Xvalue&quot;</span> <span class="p">:</span> <span class="n">x_values</span><span class="p">,</span>
+<span class="go">                       &quot;Yvalue&quot; : y_values</span>
+<span class="go">                       })</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">evalDF</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">loess</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;Xvalue&quot;</span><span class="p">,</span> <span class="s2">&quot;Yvalue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">poly_degree</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Xvalue&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Yvalue&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">evalDF</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">],</span> <span class="n">evalDF</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-15.py">Source code</a>, <a class="reference external" href=".//analysis-15.png">png</a>, <a class="reference external" href=".//analysis-15.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-15.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-15.png" class="plot-directive" src="_images/analysis-15.png" />
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.makePSM">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">makePSM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqLen</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#makePSM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.makePSM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a position score matrix for a set of sequences.</p>
+<p>Returns the percentage of each amino acid for each position that
+can be further normalized using a PSM of unrelated/background sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seq</strong> (<em>list of str</em>) – list of sequences.</p></li>
+<li><p><strong>seqLen</strong> (<em>int</em>) – Length of the peptide sequences.
+Must match to the list provided.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe holding the prevalence for every amino acid per position in
+the input sequences.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.Dataframe</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">makePSM</span><span class="p">([</span><span class="s1">&#39;PEPTIDE&#39;</span><span class="p">,</span> <span class="s1">&#39;PEGTIDE&#39;</span><span class="p">,</span> <span class="s1">&#39;GGGGGGG&#39;</span><span class="p">],</span> <span class="mi">7</span><span class="p">)</span>
+<span class="gp">... </span>          <span class="mi">0</span>         <span class="mi">1</span>         <span class="mi">2</span>         <span class="mi">3</span>         <span class="mi">4</span>         <span class="mi">5</span>         <span class="mi">6</span>
+<span class="gp">... </span><span class="n">G</span>  <span class="mf">0.333333</span>  <span class="mf">0.333333</span>  <span class="mf">0.666667</span>  <span class="mf">0.333333</span>  <span class="mf">0.333333</span>  <span class="mf">0.333333</span>  <span class="mf">0.333333</span>
+<span class="gp">... </span><span class="n">P</span>  <span class="mf">0.666667</span>  <span class="mf">0.000000</span>  <span class="mf">0.333333</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">A</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">V</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">L</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">I</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.666667</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">M</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">C</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">F</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">Y</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">W</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">H</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">K</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">R</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">Q</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">N</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">E</span>  <span class="mf">0.000000</span>  <span class="mf">0.666667</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.666667</span>
+<span class="gp">... </span><span class="n">D</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.666667</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">S</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+<span class="gp">... </span><span class="n">T</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.666667</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>  <span class="mf">0.000000</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.missAnalysis">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">missAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ascending'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extraVis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#missAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.missAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print missing statistics for a dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.Dataframe</em>) – Input dataframe with missing values.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Columns to perform missing values analysis on.</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – How many rows of the dataframe to displayed.
+The default is 999.</p></li>
+<li><p><strong>sort</strong> (<em>str</em><em>, </em><em>optional</em>) – “ascending” or “descending”.
+The default is ‘ascending’.</p></li>
+<li><p><strong>text</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to output text summaryMap.
+The default is True.</p></li>
+<li><p><strong>vis</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to return barplot showing missingness.
+The default is True.</p></li>
+<li><p><strong>extraVis</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return matrix plot showing missingness.
+The default is False.</p></li>
+<li><p><strong>saveDir</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to folder where the results should be saved.
+The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If n is incorrectly specified.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>miss_analysis gives a quick overview of the missingness of the provided
+dataframe. You can provide the complete or prefiltered dataframe as input.
+Providing n allows you to specify how many of the entries of the dataframe
+(sorted by missingness) are displayed (i.e. only display the n columns with
+most (or least) missing values) With the sort argument you can define
+whether the dataframe is sorted by least to most missing values or vice versa
+(using “descending” and “ascending”, respectively). The vis and extra_vis
+arguments can be used to toggle the graphical output.
+In case of large data (a lot of columns) those might be better turned off.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">missAnalysis</span><span class="p">(</span><span class="n">phos_expanded</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">twitchVsctrl</span><span class="o">+</span><span class="n">twitchVsmild</span><span class="o">+</span><span class="n">mildVsctrl</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;descending&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                               <span class="n">extraVis</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-16.py">Source code</a>)</p>
+<figure class="align-default" id="id11">
+<img alt="_images/analysis-16_00.png" class="plot-directive" src="_images/analysis-16_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-16_00.png">png</a>, <a class="reference external" href=".//analysis-16_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-16_00.pdf">pdf</a>)</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<img alt="_images/analysis-16_01.png" class="plot-directive" src="_images/analysis-16_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//analysis-16_01.png">png</a>, <a class="reference external" href=".//analysis-16_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-16_01.pdf">pdf</a>)</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.rankProd">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">rankProd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#rankProd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.rankProd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform RankProd test as in R RankProd package.</p>
+<p>At the moment one sample test only.
+Test for up and downregulated genes separatly therefore returns two p values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>reps</strong> (<em>list of lists of str</em>) – Column names of the replicates.
+Common replicates are grouped together in a single list.</p></li>
+<li><p><strong>cond</strong> (<em>str</em><em>, </em><em>optional</em>) – Term to append to the newly generated colnames.
+The default is “”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – Input dataframe with additional columns from RankProd.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.ttest">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">ttest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustPVals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#ttest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.ttest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform one or two sample ttest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>reps</strong> (<em>list of str</em><em> or </em><em>list of lists of str</em>) – The replicates to be included in the statistical test.
+Either a list of the replicates or a list containing two list with the
+respective replicates.</p></li>
+<li><p><strong>cond</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the condition.
+This is used for naming the returned results.
+The default is “”.</p></li>
+<li><p><strong>mean</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to calculate the logFC of the provided data.
+For the one sample ttest log2 transformed ratios are expected.
+For the two sample ttest log transformed intensities are expected.
+If mean=True for two sample ttest, the log2 ratio of the provided
+replicates will be calculated.
+The default is True.</p></li>
+<li><p><strong>adjustPVals</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to adjust P-values. The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – Input dataframe with additional cols.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">twitchVsmild</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC18_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC18_3&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="s1">&#39;log2_Ratio H/L normalized BC36_1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized BC36_2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized BC36_2&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protRatio</span> <span class="o">=</span> <span class="n">prot</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;Ratio .\/. normalized&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protLog</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">protRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot_tt</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">ttest</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">protLog</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="n">twitchVsmild</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;TvM&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">adjustPVals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prot_tt</span><span class="p">[</span><span class="s2">&quot;pValue_TvM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-17.py">Source code</a>, <a class="reference external" href=".//analysis-17.png">png</a>, <a class="reference external" href=".//analysis-17.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-17.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-17.png" class="plot-directive" src="_images/analysis-17.png" />
+</figure>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a1&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;a2&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;a3&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b1&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b2&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s2">&quot;b3&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">ttest</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+<span class="go">                            reps=[[&quot;a1&quot;,&quot;a2&quot;, &quot;a3&quot;],[&quot;b1&quot;,&quot;b2&quot;, &quot;b3&quot;]])[&quot;pValue_&quot;].hist(bins=50)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//analysis-18.py">Source code</a>, <a class="reference external" href=".//analysis-18.png">png</a>, <a class="reference external" href=".//analysis-18.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-18.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/analysis-18.png" class="plot-directive" src="_images/analysis-18.png" />
+</figure>
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="preprocessing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Data Preprocessing</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="visualization.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data Visualization</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022, The autoprot contributors.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
