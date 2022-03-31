@@ -538,10 +538,10 @@ def goAnnot(prots, gos, onlyProts=False, exact=True):
     3  11130      RRBP1    6238  GO:0005840  ribosome
     4  16112        SF1    7536  GO:0005840  ribosome
     """
-    with resources.open_text("autoprot.data","Homo_sapiens.gene_info") as d:
-        geneInfo = pd.read_csv(d, sep='\t')
-    with resources.open_text("autoprot.data","gene2go_alt") as d:
-        gene2go = pd.read_csv(d, sep='\t')
+    with resources.open_binary("autoprot.data","Homo_sapiens.gene_info.zip") as d:
+        geneInfo = pd.read_csv(d, sep='\t', compression='zip')
+    with resources.open_binary("autoprot.data","gene2go_alt.zip") as d:
+        gene2go = pd.read_csv(d, sep='\t', compression='zip')
     # generate dataframe with single columns corresponding to experimental gene names
     prots = pd.DataFrame(pd.Series([str(i).upper().split(';')[0] for i in prots]), columns=["Gene names"])
     # add the column GeneID by merging with the geneInfo table
@@ -1334,8 +1334,8 @@ def toCanonicalPS(series, organism="human"):
     ('O75381', 282)
     """
     # open the phosphosite plus phosphorylation dataset
-    with resources.open_text('autoprot.data',"phosphorylation_site_dataset") as d:
-                ps = pd.read_csv(d, sep='\t')
+    with resources.open_binary('autoprot.data',"phosphorylation_site_dataset.zip") as d:
+                ps = pd.read_csv(d, sep='\t', compression='zip')
 
     def getUPAcc(gene, organism):
         """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding organism."""
@@ -1478,8 +1478,8 @@ def getSubCellLoc(series, database="compartments", loca=None, colname="Gene name
     """
     gene = series[colname]
     if database == "compartments":
-        with resources.open_text("autoprot.data","human_compartment_integrated_full") as d:
-            compData = pd.read_csv(d, sep='\t', header=None)
+        with resources.open_binary("autoprot.data","human_compartment_integrated_full.zip") as d:
+            compData = pd.read_csv(d, sep='\t', compression='zip', header=None)
             compData.columns = ["ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"]
         if loca is None:
             # if loca is not provided, a table with all predicted localisations

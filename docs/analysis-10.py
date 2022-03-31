@@ -1,0 +1,1 @@
+autopca.scorePlot(pc1=1, pc2=2)

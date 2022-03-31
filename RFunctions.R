@@ -19,26 +19,26 @@ BCpkgTest <- function(x){
   }
 }
 
-
-
-args = commandArgs(trailingOnly=TRUE)
-func <- args[1]
-input <- args[2]
-output <- args[3]
-
-#specifically for lm
-#design <- args[5]
-
-# dfv <- read.table("D:\\data\\Wignand\\Notebooks\\Python\\HD\\LargeExperiment/test.csv",
-#                     sep='\t', header=TRUE)
 CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager")
 for (package in CRAN_packages){
   CRANpkgTest(package)
 }
+
 BC_packages <- c("limma", "vsn", "RankProd")
 for (package in BC_packages){
   BCpkgTest(package)
 }
+
+args = commandArgs(trailingOnly=TRUE)
+
+if (args[1] == 'functest') {
+  quit()
+}
+
+func <- args[1]
+input <- args[2]
+output <- args[3]
+
 df <- read.table(input, sep='\t', header=TRUE)
 rownames(df) <- df$UID
 dfv <- df[,-which(names(df) %in% c("UID"))]
