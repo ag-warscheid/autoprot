@@ -870,6 +870,7 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
 def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
             interactive=False, sig_col="green", bg_col="lightgray",
             title="Volcano Plot", figsize=(6,6), hover_name=None, highlight=None,
+            pointsize_name=None,
             highlight_col = "red", annotHighlight="all", custom_bg = {},
             custom_fg = {}, custom_hl = {}, retFig = False, ax=None, legend=True):
     r"""
@@ -917,6 +918,9 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
     highlight : pd.index, optional
         Rows to highlight in the plot.
         The default is None.
+    pointsize_name: str or float, optional
+        Name of a column to use as emasure for point size.
+        Alternatively the size of all points.
     highlight_col : str, optional
         Colour for the highlights. The default is "red".
     annotHighlight : str, optional
@@ -1227,21 +1231,25 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
             df.loc[highlight, "SigCat"] = "*"
             if hover_name is not None:
                 fig = px.scatter(data_frame=df,x=logFC, y=score, hover_name=hover_name,
-                          color="SigCat",color_discrete_sequence=colors,
+                                 size=pointsize_name,
+                                 color="SigCat",color_discrete_sequence=colors,
                                  opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
             else:
                 fig = px.scatter(data_frame=df,x=logFC, y=score,
-                          color="SigCat",color_discrete_sequence=colors,
+                                 size=pointsize_name,
+                                 color="SigCat",color_discrete_sequence=colors,
                                  opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
 
         else:
             if hover_name is not None:
                 fig = px.scatter(data_frame=df,x=logFC, y=score, hover_name=hover_name,
-                          color="SigCat",color_discrete_sequence=colors,
+                                 size=pointsize_name,
+                                 color="SigCat",color_discrete_sequence=colors,
                                  opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
             else:
                 fig = px.scatter(data_frame=df,x=logFC, y=score,
-                          color="SigCat",color_discrete_sequence=colors,
+                                 size=pointsize_name,
+                                 color="SigCat",color_discrete_sequence=colors,
                                  opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
 
         fig.update_yaxes(showgrid=False, zeroline=True)

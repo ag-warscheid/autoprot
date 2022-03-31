@@ -44,7 +44,7 @@ RSCRIPT, R = RHelper.returnRPath()
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def ttest(df, reps, cond="", mean=True, adjustPVals=True):
+def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided'):
     r"""
     Perform one or two sample ttest.
 
@@ -69,6 +69,16 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
         The default is True.
     adjustPVals : bool, optional
         Whether to adjust P-values. The default is True.
+    alternative : {'two-sided', 'less', 'greater'}, optional
+        Defines the alternative hypothesis.
+        The following options are available (default is 'two-sided'):
+
+        * 'two-sided': the mean of the underlying distribution of the sample
+          is different than the given population mean (`popmean`)
+        * 'less': the mean of the underlying distribution of the sample is
+          less than the given population mean (`popmean`)
+        * 'greater': the mean of the underlying distribution of the sample is
+          greater than the given population mean (`popmean`)
 
     Returns
     -------
@@ -127,14 +137,27 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True):
 
     """
     cond = '_' + cond
+    
+    def oneSamp_ttest(x):
+        return np.ma.filled(ttest_1samp(x,
+                                        nan_policy="omit",
+                                        alternative=alternative,
+                                        popmean=0)[1],np.nan)
+    
+    def twoSamp_ttest(x):
+        return np.ma.filled(ttest_ind(x[:len(reps[0])],
+                                      x[len(reps[0]):],
+                                      alternative=alternative,
+                                      nan_policy="omit")[1],np.nan)
+    
     if isinstance(reps[0], list) and len(reps) == 2:
-        df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: np.ma.filled(ttest_ind(x[:len(reps[0])], x[len(reps[0]):], nan_policy="omit")[1],np.nan),1).astype(float)
+        df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: twoSamp_ttest(x),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if mean == True:
             df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
 
     else:
-        df[f"pValue{cond}"] = df[reps].apply(lambda x: np.ma.filled(ttest_1samp(x, nan_policy="omit", popmean=0)[1],np.nan),1).astype(float)
+        df[f"pValue{cond}"] = df[reps].apply(lambda x: oneSamp_ttest(x),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if mean == True:
             df[f"logFC{cond}"] = df[reps].mean(1)
