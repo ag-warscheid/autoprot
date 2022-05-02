@@ -1,13 +1,11 @@
 import autoprot.analysis as ana
-import seaborn as sns
-
-x_values = np.random.randint(-50,110,size=(250))
-y_values = np.square(x_values)/1.5 + np.random.randint(-1000,1000, size=len(x_values))
-df = pd.DataFrame({"Xvalue" : x_values,
-                   "Yvalue" : y_values
-                   })
-evalDF = ana.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
-fig, ax = plt.subplots(1,1)
-sns.scatterplot(df["Xvalue"], df["Yvalue"], ax=ax)
-ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
+import pandas as pd
+df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+          "a2":np.random.normal(loc=0, size=4000),
+          "a3":np.random.normal(loc=0, size=4000),
+          "b1":np.random.normal(loc=0.5, size=4000),
+          "b2":np.random.normal(loc=0.5, size=4000),
+          "b3":np.random.normal(loc=0.5, size=4000),})
+ana.ttest(df=df,
+          reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
 plt.show()

@@ -88,6 +88,12 @@
 </li>
 
 <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../clustering.html">
+  Clustering
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../visualization.html">
   Data Visualization
  </a>
@@ -170,7 +176,7 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">ticker</span>
-<span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="nn">pl</span> 
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">from</span> <span class="nn">autoprot</span> <span class="kn">import</span> <span class="n">venn</span>
 <span class="kn">from</span> <span class="nn">matplotlib_venn</span> <span class="kn">import</span> <span class="n">venn2</span>
 <span class="kn">from</span> <span class="nn">matplotlib_venn</span> <span class="kn">import</span> <span class="n">venn3</span>
@@ -729,8 +735,9 @@
         <span class="k">return</span> <span class="n">fig</span></div>
 
 
-<div class="viewcode-block" id="intensityRank"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.intensityRank">[docs]</a><span class="k">def</span> <span class="nf">intensityRank</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rankCol</span><span class="o">=</span><span class="s2">&quot;log10_Intensity&quot;</span> <span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Rank Plot&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">hline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="intensityRank"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.intensityRank">[docs]</a><span class="k">def</span> <span class="nf">intensityRank</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rankCol</span><span class="o">=</span><span class="s2">&quot;log10_Intensity&quot;</span> <span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                  <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Rank Plot&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw a rank plot.</span>
 
@@ -742,7 +749,7 @@
 <span class="sd">        the column with the values to be ranked (e.g. Intensity values).</span>
 <span class="sd">        The default is &quot;log10_Intensity&quot;.</span>
 <span class="sd">    label : str, optional</span>
-<span class="sd">        Coname of the column with the labels.</span>
+<span class="sd">        Colname of the column with the labels.</span>
 <span class="sd">        The default is None.</span>
 <span class="sd">    n : int, optional</span>
 <span class="sd">        How many points to label on the top and bottom of the y-scale.</span>
@@ -758,6 +765,8 @@
 <span class="sd">    hline : numeric, optional</span>
 <span class="sd">        y value to place a horizontal line.</span>
 <span class="sd">        The default is None.</span>
+<span class="sd">    ax : matplotlib.axis</span>
+<span class="sd">        Axis to plot on</span>
 <span class="sd">    **kwargs :</span>
 <span class="sd">        Passed to seaborn.scatterplot.</span>
 
@@ -776,7 +785,6 @@
 <span class="sd">    ...                                      title=&quot;Rank Plot&quot;,</span>
 <span class="sd">    ...                                      hline=8, marker=&quot;d&quot;)</span>
 
-
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
 
@@ -789,6 +797,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># ToDo: add option to highlight a set of datapoints could be alternative to topN labeling</span>
+
+    <span class="c1"># remove NaNs</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">rankCol</span><span class="p">])</span>
+
+    <span class="c1"># if data has mroe columns than 1</span>
     <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">rankCol</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">rankCol</span><span class="p">]</span>
@@ -797,24 +810,34 @@
 
     <span class="n">x</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="c1"># new plot if no axis was given</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+    <span class="c1"># plot on the axis</span>
     <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-                   <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                   <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                   <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                   <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">hline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">hline</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;dashed&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">hline</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;dashed&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># high intensity labels labels</span>
         <span class="n">top_y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="n">top_yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">top_y</span><span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">top_y</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
         <span class="n">top_oy</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]</span>
         <span class="n">top_xx</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]</span>
         <span class="n">top_ss</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="p">:]</span>
 
         <span class="k">for</span> <span class="n">ys</span><span class="p">,</span><span class="n">xs</span><span class="p">,</span><span class="n">ss</span><span class="p">,</span><span class="n">oy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">top_yy</span><span class="p">,</span> <span class="n">top_xx</span><span class="p">,</span> <span class="n">top_ss</span><span class="p">,</span> <span class="n">top_oy</span><span class="p">):</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xs</span><span class="p">,</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">],</span> <span class="p">[</span><span class="n">oy</span><span class="p">,</span> <span class="n">ys</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ys</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xs</span><span class="p">,</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">],</span> <span class="p">[</span><span class="n">oy</span><span class="p">,</span> <span class="n">ys</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ys</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span>
 
+        <span class="c1"># low intensity labels</span>
         <span class="n">low_y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">low_yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low_y</span><span class="p">,</span> <span class="n">low_y</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
         <span class="n">low_oy</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
@@ -822,12 +845,13 @@
         <span class="n">low_ss</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">ys</span><span class="p">,</span><span class="n">xs</span><span class="p">,</span><span class="n">ss</span><span class="p">,</span><span class="n">oy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">low_yy</span><span class="p">,</span> <span class="n">low_xx</span><span class="p">,</span> <span class="n">low_ss</span><span class="p">,</span> <span class="n">low_oy</span><span class="p">):</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xs</span><span class="p">,</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">],</span> <span class="p">[</span><span class="n">oy</span><span class="p">,</span> <span class="n">ys</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ys</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xs</span><span class="p">,</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">],</span> <span class="p">[</span><span class="n">oy</span><span class="p">,</span> <span class="n">ys</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ys</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">ss</span><span class="p">)</span>
 
     <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;# rank&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;# rank&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">fr</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">/RankPlot.pdf&quot;</span><span class="p">)</span></div>
@@ -1008,6 +1032,7 @@
 <div class="viewcode-block" id="volcano"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.volcano">[docs]</a><span class="k">def</span> <span class="nf">volcano</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">logFC</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pt</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sig_col</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">bg_col</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Volcano Plot&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">hover_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">highlight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">pointsize_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">highlight_col</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">annotHighlight</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">custom_bg</span> <span class="o">=</span> <span class="p">{},</span>
             <span class="n">custom_fg</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">custom_hl</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">retFig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -1055,6 +1080,9 @@
 <span class="sd">    highlight : pd.index, optional</span>
 <span class="sd">        Rows to highlight in the plot.</span>
 <span class="sd">        The default is None.</span>
+<span class="sd">    pointsize_name: str or float, optional</span>
+<span class="sd">        Name of a column to use as emasure for point size.</span>
+<span class="sd">        Alternatively the size of all points.</span>
 <span class="sd">    highlight_col : str, optional</span>
 <span class="sd">        Colour for the highlights. The default is &quot;red&quot;.</span>
 <span class="sd">    annotHighlight : str, optional</span>
@@ -1365,21 +1393,25 @@
             <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">highlight</span><span class="p">,</span> <span class="s2">&quot;SigCat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
             <span class="k">if</span> <span class="n">hover_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">logFC</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">score</span><span class="p">,</span> <span class="n">hover_name</span><span class="o">=</span><span class="n">hover_name</span><span class="p">,</span>
-                          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+                                 <span class="n">size</span><span class="o">=</span><span class="n">pointsize_name</span><span class="p">,</span>
+                                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
                                  <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">category_orders</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;SigCat&quot;</span><span class="p">:[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="s2">&quot;*&quot;</span><span class="p">]},</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">logFC</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
-                          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+                                 <span class="n">size</span><span class="o">=</span><span class="n">pointsize_name</span><span class="p">,</span>
+                                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
                                  <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">category_orders</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;SigCat&quot;</span><span class="p">:[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="s2">&quot;*&quot;</span><span class="p">]},</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hover_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">logFC</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">score</span><span class="p">,</span> <span class="n">hover_name</span><span class="o">=</span><span class="n">hover_name</span><span class="p">,</span>
-                          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+                                 <span class="n">size</span><span class="o">=</span><span class="n">pointsize_name</span><span class="p">,</span>
+                                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
                                  <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">category_orders</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;SigCat&quot;</span><span class="p">:[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="s2">&quot;*&quot;</span><span class="p">]},</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">logFC</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
-                          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+                                 <span class="n">size</span><span class="o">=</span><span class="n">pointsize_name</span><span class="p">,</span>
+                                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;SigCat&quot;</span><span class="p">,</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
                                  <span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">category_orders</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;SigCat&quot;</span><span class="p">:[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="s2">&quot;*&quot;</span><span class="p">]},</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2169,7 +2201,8 @@
         <span class="n">generateSequenceLogo</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Sequence window&quot;</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">motif</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">8</span><span class="p">:</span><span class="mi">23</span><span class="p">]),</span>
                              <span class="n">motif</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">motif</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">motif</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="visPs"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.visPs">[docs]</a><span class="k">def</span> <span class="nf">visPs</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">domain_position</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">pl</span><span class="p">,</span><span class="n">plc</span><span class="p">,</span> <span class="n">pls</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<div class="viewcode-block" id="visPs"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.visPs">[docs]</a><span class="k">def</span> <span class="nf">visPs</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">domain_position</span><span class="o">=</span><span class="p">[],</span> <span class="n">ps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pls</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">domain_color</span><span class="o">=</span><span class="s1">&#39;tab10&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualize domains and phosphosites on a protein of interest.</span>
 
@@ -2180,8 +2213,8 @@
 <span class="sd">        Used for plot title.</span>
 <span class="sd">    length : int</span>
 <span class="sd">        Length of the protein.</span>
-<span class="sd">    domain_position : list of int</span>
-<span class="sd">        the amino acids at which domains begin and end (protein start and end have not to be included).</span>
+<span class="sd">    domain_position : list of tuples of int</span>
+<span class="sd">        Each element is a tuple of domain start and end postiions.</span>
 <span class="sd">    ps : list of int</span>
 <span class="sd">        position of phosphosites.</span>
 <span class="sd">    pl : list of str</span>
@@ -2190,6 +2223,11 @@
 <span class="sd">        optionally one can provide a list of colors for the phosphosite labels.</span>
 <span class="sd">    pls : int, optional</span>
 <span class="sd">        Fontsize for the phosphosite labels. The default is 4.</span>
+<span class="sd">    ax: matplotlib axis, optional</span>
+<span class="sd">        To draw on an existing axis</span>
+<span class="sd">    domain_color: str</span>
+<span class="sd">        Either a matplotlib colormap (see https://predictablynoisy.com/matplotlib/gallery/color/colormap_reference.html)</span>
+<span class="sd">        or a single color</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2219,8 +2257,8 @@
 
 <span class="sd">        name = &quot;AKT1S1&quot;</span>
 <span class="sd">        length = 256</span>
-<span class="sd">        domain_position = [35,43,</span>
-<span class="sd">             77,96]</span>
+<span class="sd">        domain_position = [(35,43),</span>
+<span class="sd">                           (77,96)]</span>
 <span class="sd">        ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]</span>
 <span class="sd">        pl = [&quot;pS88&quot;, &quot;pS92&quot;, &quot;pS116&quot;, &quot;pS183&quot;, &quot;pS202&quot;, &quot;pS203&quot;, &quot;pS211&quot;, &quot;pS212&quot;, &quot;pS246&quot;]</span>
 <span class="sd">        plc = [&#39;C&#39;, &#39;A&#39;, &#39;A&#39;, &#39;C&#39;, &#39;Cd&#39;, &#39;D&#39;, &#39;D&#39;, &#39;B&#39;, &#39;D&#39;]</span>
@@ -2228,12 +2266,22 @@
 <span class="sd">        plt.show()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">get_N_HexCol</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-
-        <span class="n">HSV_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="n">N</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-        <span class="n">RGB_tuples</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="n">HSV_tuples</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">RGB_tuples</span><span class="p">)</span>
-
+    <span class="c1"># check if domain_color is a cmap name</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">domain_color</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">cm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">domain_position</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="c1"># it is not, so is it a single colour?</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain_color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">domain_color</span><span class="p">,]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">domain_position</span><span class="p">)</span>
+        <span class="c1"># is it a list of colours</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain_color</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">domain_color</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">domain_position</span><span class="p">):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">domain_color</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Please provide one domain colour per domain&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;You must provide a colormap name, a colour name or a list of colour names&#39;</span><span class="p">)</span>
 
     <span class="n">textColor</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span>  <span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span>
                  <span class="s2">&quot;Ad&quot;</span> <span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span>
@@ -2244,33 +2292,34 @@
                  <span class="s2">&quot;D&quot;</span>  <span class="p">:</span> <span class="s2">&quot;#770087&quot;</span><span class="p">,</span>
                  <span class="s2">&quot;Dd&quot;</span> <span class="p">:</span> <span class="s2">&quot;#008080&quot;</span><span class="p">}</span>
 
-    <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#No color options yet</span>
-
     <span class="n">lims</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
     <span class="n">height</span> <span class="o">=</span> <span class="n">lims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">25</span>
 
+    <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig1</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">ax</span>
 
-    <span class="c1">#start and end positions of domains</span>
-    <span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">domain_position</span><span class="c1">#beginning</span>
-    <span class="n">c</span><span class="o">=</span> <span class="n">domain_position</span> <span class="o">+</span> <span class="p">[</span><span class="n">length</span><span class="p">]</span><span class="c1">#end</span>
+    <span class="c1"># background of the whole protein in grey</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+            <span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightgrey&#39;</span><span class="p">)</span> <span class="p">)</span>
 
-    <span class="c1">#colors for domains</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">color</span><span class="p">:</span>
-        <span class="c1">#color2 = get_N_HexCol(N=len(domain_position)+1)</span>
-        <span class="n">color2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#EEF1F4&quot;</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gray&quot;</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">domain_position</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(([(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">color</span><span class="p">,</span><span class="n">color2</span><span class="p">)])))</span>
-
-    <span class="n">fig1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig1</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)):</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">domain_position</span><span class="p">):</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
-            <span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">site</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">site</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">-</span><span class="p">(</span><span class="n">height</span><span class="o">+</span><span class="n">height</span><span class="o">*</span><span class="mf">0.15</span><span class="p">),</span><span class="n">pl</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">pls</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">textColor</span><span class="p">[</span><span class="n">plc</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+            <span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="p">)</span>
+
+    <span class="c1"># only plot phosphosite if there are any</span>
+    <span class="k">if</span> <span class="n">ps</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">site</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">site</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">height</span><span class="o">-</span><span class="p">(</span><span class="n">height</span><span class="o">+</span><span class="n">height</span><span class="o">*</span><span class="mf">0.15</span><span class="p">),</span>
+                     <span class="n">pl</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">pl</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                     <span class="n">fontsize</span><span class="o">=</span><span class="n">pls</span><span class="p">,</span>
+                     <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                     <span class="n">color</span><span class="o">=</span><span class="n">textColor</span><span class="p">[</span><span class="n">plc</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="k">if</span> <span class="n">plc</span> <span class="o">!=</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
@@ -2370,7 +2419,7 @@
         <span class="k">return</span> <span class="n">fig</span></div>
 
 
-<div class="viewcode-block" id="chargePlot"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.chargePlot">[docs]</a><span class="k">def</span> <span class="nf">chargePlot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">typ</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">retFig</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="chargePlot"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.chargePlot">[docs]</a><span class="k">def</span> <span class="nf">chargePlot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span> <span class="n">typ</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">retFig</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a pie chart of the peptide charges of a phospho(STY) dataframe.</span>
 
@@ -2387,6 +2436,8 @@
 <span class="sd">    retFig : bool, optional</span>
 <span class="sd">        Whether to return the figure.</span>
 <span class="sd">        The default is False.</span>
+<span class="sd">    ax : matplotlib axis</span>
+<span class="sd">        Axis to plot on</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2431,8 +2482,11 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">noOfPhos</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;charge&quot;</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">typ</span><span class="o">==</span><span class="s2">&quot;bar&quot;</span><span class="p">:</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
         <span class="n">ncount</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2459,9 +2513,11 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ncount</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">typ</span><span class="o">==</span><span class="s2">&quot;pie&quot;</span><span class="p">:</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pie</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">count</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">count</span><span class="p">]);</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">pie</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">count</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">count</span><span class="p">]);</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">retFig</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fig</span></div>
 
@@ -2645,17 +2701,17 @@
 <span class="sd">    and right with a zoom on the first 6 values (zoom=7).</span>
 <span class="sd">    The grey line indicates the provided alpha level. Values below it are considered</span>
 <span class="sd">    significantly different.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; autoprot.visualization.BHplot(phos,&#39;pValue_TvC&#39;, &#39;adj.pValue_TvC&#39;, alpha=0.05, zoom=7)</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
-<span class="sd">    </span>
+
 <span class="sd">        import autoprot.preprocessing as pp</span>
 <span class="sd">        import autoprot.analysis as ana</span>
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
-<span class="sd">    </span>
+
 <span class="sd">        phos = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_mod.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
 <span class="sd">        phos = pp.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
 <span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
@@ -2663,10 +2719,10 @@
 <span class="sd">        phos = pp.filterLocProb(phos, thresh=.75)</span>
 <span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/.( | normalized )R.___&quot;).columns</span>
 <span class="sd">        phos = pp.removeNonQuant(phos, phosRatio)</span>
-<span class="sd">    </span>
+
 <span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/. normalized R.___&quot;)</span>
 <span class="sd">        phos_expanded = pp.expandSiteTable(phos, phosRatio)</span>
-<span class="sd">    </span>
+
 <span class="sd">        mildVsctrl = [&quot;log2_Ratio M/L normalized R1&quot;,&quot;log2_Ratio H/L normalized R2&quot;,&quot;log2_Ratio M/L normalized R3&quot;,</span>
 <span class="sd">                      &quot;log2_Ratio H/M normalized R4&quot;,&quot;log2_Ratio M/L normalized R5&quot;,&quot;log2_Ratio H/L normalized R6&quot;]</span>
 

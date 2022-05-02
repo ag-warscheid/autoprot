@@ -12,6 +12,7 @@ autoprot documentation
    installation
    preprocessing
    analysis
+   clustering
    visualization
    workflows
 

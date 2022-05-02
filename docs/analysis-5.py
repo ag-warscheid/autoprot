@@ -1,1 +1,1 @@
-clusterRes.clusterMap(nCluster=5, makeTraces=True)
+autopca.corrComp(annot=False)

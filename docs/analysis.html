@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analysis &#8212; autoprot  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -37,7 +36,7 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Visualization" href="visualization.html" />
+    <link rel="next" title="Clustering" href="clustering.html" />
     <link rel="prev" title="Data Preprocessing" href="preprocessing.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
@@ -88,6 +87,12 @@
 <li class="toctree-l1 current active nav-item">
  <a class="current reference internal nav-link" href="#">
   Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="clustering.html">
+  Clustering
  </a>
 </li>
 
@@ -171,7 +176,7 @@
               
               <div>
                 
-  <section id="analysis">
+  <div class="section" id="analysis">
 <h1>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h1>
 <p>The analysis submodule contains handy functions for the further analysis of your data. Functions include basic statistical tests, clustering and dimension reduction algorithms.</p>
 <span class="target" id="module-autoprot.analysis"></span><p>Autoprot Analysis Functions.</p>
@@ -233,18 +238,14 @@ protein is a substrate of that kinase or not</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//analysis-1.py">Source code</a>)</p>
-<figure class="align-default" id="id1">
+<div class="figure align-default" id="id1">
 <img alt="_images/analysis-1_00.png" class="plot-directive" src="_images/analysis-1_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-1_00.png">png</a>, <a class="reference external" href=".//analysis-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_00.pdf">pdf</a>)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id2">
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-1_00.png">png</a>, <a class="reference external" href=".//analysis-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_00.pdf">pdf</a>)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-default" id="id2">
 <img alt="_images/analysis-1_01.png" class="plot-directive" src="_images/analysis-1_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-1_01.png">png</a>, <a class="reference external" href=".//analysis-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_01.pdf">pdf</a>)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-1_01.png">png</a>, <a class="reference external" href=".//analysis-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-1_01.pdf">pdf</a>)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
 <p>You can also highlight a list of kinases in volcano plots.
 This is based on the autoprot volcano function.
 You can pass all the common parameters to this function.</p>
@@ -253,18 +254,14 @@ You can pass all the common parameters to this function.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//analysis-2.py">Source code</a>)</p>
-<figure class="align-default" id="id3">
+<div class="figure align-default" id="id3">
 <img alt="_images/analysis-2_00.png" class="plot-directive" src="_images/analysis-2_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-2_00.png">png</a>, <a class="reference external" href=".//analysis-2_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_00.pdf">pdf</a>)</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id4">
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-2_00.png">png</a>, <a class="reference external" href=".//analysis-2_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_00.pdf">pdf</a>)</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-default" id="id4">
 <img alt="_images/analysis-2_01.png" class="plot-directive" src="_images/analysis-2_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-2_01.png">png</a>, <a class="reference external" href=".//analysis-2_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_01.pdf">pdf</a>)</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-2_01.png">png</a>, <a class="reference external" href=".//analysis-2_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-2_01.pdf">pdf</a>)</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
 <p>Sometimes the enrichment is crowded by various kinase isoforms.
 In such cases it makes sense to simplify the annotation by grouping those
 isoforms together.</p>
@@ -275,9 +272,9 @@ isoforms together.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//analysis-3.py">Source code</a>, <a class="reference external" href=".//analysis-3.png">png</a>, <a class="reference external" href=".//analysis-3.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-3.pdf">pdf</a>)</p>
-<figure class="align-default">
+<div class="figure align-default">
 <img alt="_images/analysis-3.png" class="plot-directive" src="_images/analysis-3.png" />
-</figure>
+</div>
 <p>Of course you can also get the ksea results as a dataframe to save or to further customize.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ksea</span><span class="o">.</span><span class="n">returnEnrichment</span><span class="p">()</span>
 </pre></div>
@@ -576,272 +573,6 @@ The default is [].</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">autoHCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zscore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Conduct hierarchical cluster analysis.</p>
-<p>Usesr provides dataframe and can afterwards
-use various metrics and methods to perfom and evaluate
-clustering.
-StandarWorkflow:
-makeLnkage() -&gt; evalClustering() -&gt; clusterMap() -&gt; writeClusterFiles()</p>
-<p class="rubric">Examples</p>
-<p>autoProt provides a class which allows the easy implementation and
-evaluation of a hierarchical cluster analysis.
-You need provide the data.
-You may also want to provide appropriate row and column labels.
-Depending on what the aim of your cluster analysis is you might want to
-perform a zscore transformation.</p>
-<p>This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.
-See source of generated images for details.</p>
-<p>The autoHCA class is first initialised.
-For this the fold-changes between two conditions are extracted from the dataframe
-and new unique row labels containing the gene names, the phosphorylated amino
-acid incl its position and the multiplicity e.g. ‘Auts2 S469-1’.
-The column labels are the conditions to compare.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[[</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="s2">&quot;logFC_TvC&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clabels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TvM&quot;</span><span class="p">,</span> <span class="s2">&quot;TvC&quot;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rlabels</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> \
-<span class="gp">... </span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Amino acid&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span>\
-<span class="gp">... </span><span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">autoHCA</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">clabels</span><span class="o">=</span><span class="n">clabels</span><span class="p">,</span> <span class="n">rlabels</span><span class="o">=</span><span class="n">rlabels</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>A hierarchical clustering is generated using the makeLinkage method</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">makeLinkage</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>To visualise the optimal number of clusters to match the data, the evalClustering
-function provides three different metrices. See documentation of the function for
-details on the metrices.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">evalClustering</span><span class="p">(</span><span class="n">upTo</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>(<a class="reference external" href=".//analysis-4.py">Source code</a>, <a class="reference external" href=".//analysis-4.png">png</a>, <a class="reference external" href=".//analysis-4.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-4.png" class="plot-directive" src="_images/analysis-4.png" />
-</figure>
-<p>After chosing a number of clusters, a cluster map together with several evaluation
-plots such as line traces that show the RMSD variation of the data under the
-different conditions for every cluster can be computed</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">clusterMap</span><span class="p">(</span><span class="n">nCluster</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">makeTraces</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>(<a class="reference external" href=".//analysis-5.py">Source code</a>)</p>
-<figure class="align-default" id="id5">
-<img alt="_images/analysis-5_00.png" class="plot-directive" src="_images/analysis-5_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-5_00.png">png</a>, <a class="reference external" href=".//analysis-5_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-5_00.pdf">pdf</a>)</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id6">
-<img alt="_images/analysis-5_01.png" class="plot-directive" src="_images/analysis-5_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-5_01.png">png</a>, <a class="reference external" href=".//analysis-5_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-5_01.pdf">pdf</a>)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<p>It is also possible to predefine the colours for the clusters and add an
-additional row with colours indicating additional features such as the
-phosphorylation multiplicity for a peptide.
-Note that row_color is a dict linking a col name to a list of colours.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;Multiplicity&quot;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="s2">&quot;salmon&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rc</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;multiplicity&quot;</span> <span class="p">:</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]}</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">clusterMap</span><span class="p">(</span><span class="n">nCluster</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">makeTraces</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rowColors</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>
-<span class="gp">... </span>                      <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;chartreuse&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;hotpink&quot;</span><span class="p">,</span> <span class="s2">&quot;gold&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
-<p>(<a class="reference external" href=".//analysis-6.py">Source code</a>)</p>
-<figure class="align-default" id="id7">
-<img alt="_images/analysis-6_00.png" class="plot-directive" src="_images/analysis-6_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-6_00.png">png</a>, <a class="reference external" href=".//analysis-6_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_00.pdf">pdf</a>)</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id8">
-<img alt="_images/analysis-6_01.png" class="plot-directive" src="_images/analysis-6_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-6_01.png">png</a>, <a class="reference external" href=".//analysis-6_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_01.pdf">pdf</a>)</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<p>Further you can also extract the clustering as dataframe or write them into files</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clusterDf</span> <span class="o">=</span> <span class="n">clusterRes</span><span class="o">.</span><span class="n">returnCluster</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clusterRes</span><span class="o">.</span><span class="n">writeClusterFiles</span><span class="p">(</span><span class="s2">&quot;thePathOfChoice&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.asDist">
-<span class="sig-name descname"><span class="pre">asDist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.asDist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.asDist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a matrix (i.e. correlation matrix) into a distance matrix for hierachical clustering.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>c</strong> (<em>np.ndarray</em>) – Input matrix.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List corresponsding to left off-diagonal elememnts of the
-correlation matrix.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">.32</span><span class="p">,</span> <span class="mf">.2</span><span class="p">,</span>  <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mf">.23</span><span class="p">,</span> <span class="mf">.18</span><span class="p">,</span> <span class="mf">.56</span><span class="p">,</span> <span class="mf">.61</span><span class="p">,</span> <span class="mf">.12</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mf">.9</span><span class="p">,</span>   <span class="mf">.3</span><span class="p">,</span>  <span class="mf">.6</span><span class="p">,</span>  <span class="mf">.5</span><span class="p">,</span>  <span class="mf">.3</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mf">.34</span><span class="p">,</span> <span class="mf">.75</span><span class="p">,</span> <span class="mf">.91</span><span class="p">,</span> <span class="mf">.19</span><span class="p">,</span> <span class="mf">.21</span><span class="p">]</span>
-<span class="gp">... </span>     <span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span>
-<span class="go">array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],</span>
-<span class="go">       [-0.35153114,  1.        ,  0.23810227,  0.15958285],</span>
-<span class="go">       [-0.74736506,  0.23810227,  1.        , -0.03960706],</span>
-<span class="go">       [-0.48917666,  0.15958285, -0.03960706,  1.        ]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">autoHCA</span><span class="o">.</span><span class="n">asDist</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-<span class="go">[-0.3515311393849671,</span>
-<span class="go"> -0.7473650573493561,</span>
-<span class="go"> -0.4891766567441463,</span>
-<span class="go"> 0.23810227412143423,</span>
-<span class="go"> 0.15958285448266604,</span>
-<span class="go"> -0.03960705975653923]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.clusterMap">
-<span class="sig-name descname"><span class="pre">clusterMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nCluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colCluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">makeTraces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rowColors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yticklabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.clusterMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.clusterMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Visualise the clustering.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>nCluster</strong> (<em>int</em><em>, </em><em>optional</em>) – How many clusters to annotate. The default is None.</p></li>
-<li><p><strong>colCluster</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to cluster the columns. The default is False.</p></li>
-<li><p><strong>makeTraces</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to generate traces of each cluster. The default is False.</p></li>
-<li><p><strong>summary</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to generate a summery.
-NOT IMPLEMENTED.
-The default is False.</p></li>
-<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to the output plot file. The default is None.</p></li>
-<li><p><strong>rowColors</strong> (<em>dict</em><em>, </em><em>optional</em>) – dictionary of title and colors for row coloring.
-Generates an additional column in the heatmeap showing
-the indicated columns values as colors.
-Has to be same length as provided data.
-The default is None.</p></li>
-<li><p><strong>colors</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Colors for the annotated clusters.
-Has to be the same size as nCluster.
-The default is None.</p></li>
-<li><p><strong>yticklabels</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Labels for the y ticks. The default is “”.</p></li>
-<li><p><strong>**kwargs</strong> – passed to seaborn.clustermap.
-See <a class="reference external" href="https://seaborn.pydata.org/generated/seaborn.clustermap.html">https://seaborn.pydata.org/generated/seaborn.clustermap.html</a>
-May also contain ‘z-score’ that is used during making of
-cluster traces.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.evalClustering">
-<span class="sig-name descname"><span class="pre">evalClustering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upTo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.evalClustering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.evalClustering" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate number of clusters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em><em>, </em><em>optional</em>) – The minimum number of clusters to plot. The default is 2.</p></li>
-<li><p><strong>upTo</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum nbumber of clusters to plot. The default is 20.</p></li>
-<li><p><strong>figsize</strong> (<em>tuple of float</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – The size of the plotted figure.
-The default is (15,5).</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<dl class="simple">
-<dt>Davies-Bouldin score:</dt><dd><p>The score is defined as the average similarity measure of each
-cluster with its most similar cluster, where similarity is the
-ratio of within-cluster distances to between-cluster distances.
-Thus, clusters which are farther apart and less dispersed will
-result in a better score.
-The minimum score is zero, with lower values indicating better
-clustering.</p>
-</dd>
-<dt>Silhouette score:</dt><dd><p>The Silhouette Coefficient is calculated using the mean
-intra-cluster distance (a) and the mean nearest-cluster
-distance (b) for each sample. The Silhouette Coefficient for a
-sample is (b - a) / max(a, b). To clarify, b is the distance
-between a sample and the nearest cluster that the sample is not a
-part of. Note that Silhouette Coefficient is only defined if
-number of labels is 2 &lt;= n_labels &lt;= n_samples - 1.
-The best value is 1 and the worst value is -1. Values near 0
-indicate overlapping clusters. Negative values generally indicate
-that a sample has been assigned to the wrong cluster, as a
-different cluster is more similar.</p>
-</dd>
-<dt>Harabasz score:</dt><dd><p>It is also known as the Variance Ratio Criterion.
-The score is defined as ratio between the within-cluster dispersion
-and the between-cluster dispersion.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.makeLinkage">
-<span class="sig-name descname"><span class="pre">makeLinkage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.makeLinkage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.makeLinkage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform hierarchical clustering on the data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>method</strong> (<em>str</em>) – Which method is used for the clustering.
-Possible are ‘single’, ‘average’ and ‘complete’ and all values
-for method of scipy.cluster.hierarchy.linkage
-See: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html</a></p></li>
-<li><p><strong>metric</strong> (<em>str</em>) – Which metric is used to calculate distance.
-Possible values are ‘pearson’, ‘spearman’ and all metrics
-implemented in scipy.spatial.distance.pdist
-See: <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html</a></p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.returnCluster">
-<span class="sig-name descname"><span class="pre">returnCluster</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.returnCluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.returnCluster" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dataframe with clustered data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.analysis.autoHCA.writeClusterFiles">
-<span class="sig-name descname"><span class="pre">writeClusterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoHCA.writeClusterFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoHCA.writeClusterFiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a folder with text files for each cluster.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>rootdir</strong> (<em>str</em>) – Path to target dir.
-If the folder is named clusterResults, text files will be saved
-within.
-Else a new folder clusterResults will be created.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="autoprot.analysis.autoPCA">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">autoPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conduct principal component analyses.</p>
@@ -884,10 +615,10 @@ directly right to the steep descend of the plot is usually a good idea.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">scree</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-7.py">Source code</a>, <a class="reference external" href=".//analysis-7.png">png</a>, <a class="reference external" href=".//analysis-7.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-7.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-7.png" class="plot-directive" src="_images/analysis-7.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-4.py">Source code</a>, <a class="reference external" href=".//analysis-4.png">png</a>, <a class="reference external" href=".//analysis-4.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-4.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-4.png" class="plot-directive" src="_images/analysis-4.png" />
+</div>
 <p>The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
 influenced by a change in that variable) relative to the variables (i.e. the
 experiment conditions). If a weight (colorbar) is close to zero, the corresponding
@@ -895,10 +626,10 @@ PC is barely influenced by it.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">corrComp</span><span class="p">(</span><span class="n">annot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-8.py">Source code</a>, <a class="reference external" href=".//analysis-8.png">png</a>, <a class="reference external" href=".//analysis-8.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-8.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-8.png" class="plot-directive" src="_images/analysis-8.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-5.py">Source code</a>, <a class="reference external" href=".//analysis-5.png">png</a>, <a class="reference external" href=".//analysis-5.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-5.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-5.png" class="plot-directive" src="_images/analysis-5.png" />
+</div>
 <p>The bar loading plot is a different way to represent the weights/loads for each
 condition and principle component. High values indicate a high influence of the
 variable/condition on the PC.</p>
@@ -906,19 +637,15 @@ variable/condition on the PC.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">barLoad</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-9.py">Source code</a>)</p>
-<figure class="align-default" id="id9">
-<img alt="_images/analysis-9_00.png" class="plot-directive" src="_images/analysis-9_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-9_00.png">png</a>, <a class="reference external" href=".//analysis-9_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-9_00.pdf">pdf</a>)</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id10">
-<img alt="_images/analysis-9_01.png" class="plot-directive" src="_images/analysis-9_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-9_01.png">png</a>, <a class="reference external" href=".//analysis-9_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-9_01.pdf">pdf</a>)</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p>(<a class="reference external" href=".//analysis-6.py">Source code</a>)</p>
+<div class="figure align-default" id="id5">
+<img alt="_images/analysis-6_00.png" class="plot-directive" src="_images/analysis-6_00.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-6_00.png">png</a>, <a class="reference external" href=".//analysis-6_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_00.pdf">pdf</a>)</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-default" id="id6">
+<img alt="_images/analysis-6_01.png" class="plot-directive" src="_images/analysis-6_01.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-6_01.png">png</a>, <a class="reference external" href=".//analysis-6_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-6_01.pdf">pdf</a>)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
 <p>The score plot shows how the different data points (i.e. proteins) are positioned
 with respect to two principal components.
 In more detail, the scores are the original data values multiplied by the
@@ -928,27 +655,27 @@ explains the largest share of the data variance</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">scorePlot</span><span class="p">(</span><span class="n">pc1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pc2</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-10.py">Source code</a>, <a class="reference external" href=".//analysis-10.png">png</a>, <a class="reference external" href=".//analysis-10.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-10.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-10.png" class="plot-directive" src="_images/analysis-10.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-7.py">Source code</a>, <a class="reference external" href=".//analysis-7.png">png</a>, <a class="reference external" href=".//analysis-7.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-7.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-7.png" class="plot-directive" src="_images/analysis-7.png" />
+</div>
 <p>The loading plot is the 2D representation of the barLoading plots and shows
 the weights how each variable influences the two PCs.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autopca</span><span class="o">.</span><span class="n">loadingPlot</span><span class="p">(</span><span class="n">pc1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pc2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">labeling</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-11.py">Source code</a>, <a class="reference external" href=".//analysis-11.png">png</a>, <a class="reference external" href=".//analysis-11.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-11.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-11.png" class="plot-directive" src="_images/analysis-11.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-8.py">Source code</a>, <a class="reference external" href=".//analysis-8.png">png</a>, <a class="reference external" href=".//analysis-8.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-8.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-8.png" class="plot-directive" src="_images/analysis-8.png" />
+</div>
 <p>The Biplot is a combination of loading plot and score plot as it shows the
 scores for each protein as point and the weights for each variable as
 vectors.
 &gt;&gt;&gt; autopca.biPlot(pc1=1, pc2=2)</p>
-<p>(<a class="reference external" href=".//analysis-12.py">Source code</a>, <a class="reference external" href=".//analysis-12.png">png</a>, <a class="reference external" href=".//analysis-12.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-12.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-12.png" class="plot-directive" src="_images/analysis-12.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-9.py">Source code</a>, <a class="reference external" href=".//analysis-9.png">png</a>, <a class="reference external" href=".//analysis-9.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-9.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-9.png" class="plot-directive" src="_images/analysis-9.png" />
+</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="autoprot.analysis.autoPCA.barLoad">
 <span class="sig-name descname"><span class="pre">barLoad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#autoPCA.barLoad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.autoPCA.barLoad" title="Permalink to this definition">¶</a></dt>
@@ -1250,10 +977,10 @@ prompt use the following command</p>
 <span class="go">                                      makeWordCloud=True)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-13.py">Source code</a>, <a class="reference external" href=".//analysis-13.png">png</a>, <a class="reference external" href=".//analysis-13.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-13.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-13.png" class="plot-directive" src="_images/analysis-13.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-10.py">Source code</a>, <a class="reference external" href=".//analysis-10.png">png</a>, <a class="reference external" href=".//analysis-10.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-10.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-10.png" class="plot-directive" src="_images/analysis-10.png" />
+</div>
 <p>Even more comfortably, you can also save the results incl. the wordcloud
 as html file</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">autoprot</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">getPubAbstracts</span><span class="p">(</span><span class="n">ToA</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;p38&quot;</span><span class="p">,</span> <span class="s2">&quot;JNK&quot;</span><span class="p">,</span> <span class="s2">&quot;ERK&quot;</span><span class="p">],</span>
@@ -1336,10 +1063,10 @@ See: <a class="reference external" href="https://www.rdocumentation.org/packages
 <span class="gp">&gt;&gt;&gt; </span><span class="n">testRes</span><span class="p">[</span><span class="s2">&quot;P.Value_test&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-14.py">Source code</a>, <a class="reference external" href=".//analysis-14.png">png</a>, <a class="reference external" href=".//analysis-14.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-14.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-14.png" class="plot-directive" src="_images/analysis-14.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-11.py">Source code</a>, <a class="reference external" href=".//analysis-11.png">png</a>, <a class="reference external" href=".//analysis-11.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-11.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-11.png" class="plot-directive" src="_images/analysis-11.png" />
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1382,10 +1109,10 @@ data points.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">evalDF</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">],</span> <span class="n">evalDF</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-15.py">Source code</a>, <a class="reference external" href=".//analysis-15.png">png</a>, <a class="reference external" href=".//analysis-15.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-15.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-15.png" class="plot-directive" src="_images/analysis-15.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-12.py">Source code</a>, <a class="reference external" href=".//analysis-12.png">png</a>, <a class="reference external" href=".//analysis-12.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-12.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-12.png" class="plot-directive" src="_images/analysis-12.png" />
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1483,19 +1210,15 @@ In case of large data (a lot of columns) those might be better turned off.</p>
 <span class="gp">... </span>                               <span class="n">extraVis</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-16.py">Source code</a>)</p>
-<figure class="align-default" id="id11">
-<img alt="_images/analysis-16_00.png" class="plot-directive" src="_images/analysis-16_00.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-16_00.png">png</a>, <a class="reference external" href=".//analysis-16_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-16_00.pdf">pdf</a>)</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id12">
-<img alt="_images/analysis-16_01.png" class="plot-directive" src="_images/analysis-16_01.png" />
-<figcaption>
-<p><span class="caption-text">(<a class="reference external" href=".//analysis-16_01.png">png</a>, <a class="reference external" href=".//analysis-16_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-16_01.pdf">pdf</a>)</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
-</figcaption>
-</figure>
+<p>(<a class="reference external" href=".//analysis-13.py">Source code</a>)</p>
+<div class="figure align-default" id="id7">
+<img alt="_images/analysis-13_00.png" class="plot-directive" src="_images/analysis-13_00.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-13_00.png">png</a>, <a class="reference external" href=".//analysis-13_00.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-13_00.pdf">pdf</a>)</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-default" id="id8">
+<img alt="_images/analysis-13_01.png" class="plot-directive" src="_images/analysis-13_01.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//analysis-13_01.png">png</a>, <a class="reference external" href=".//analysis-13_01.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-13_01.pdf">pdf</a>)</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1525,7 +1248,7 @@ The default is “”.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autoprot.analysis.ttest">
-<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">ttest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustPVals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#ttest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.ttest" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.</span></span><span class="sig-name descname"><span class="pre">ttest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustPVals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'two-sided'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/analysis.html#ttest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.ttest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform one or two sample ttest.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1544,6 +1267,17 @@ If mean=True for two sample ttest, the log2 ratio of the provided
 replicates will be calculated.
 The default is True.</p></li>
 <li><p><strong>adjustPVals</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to adjust P-values. The default is True.</p></li>
+<li><p><strong>alternative</strong> (<em>{'two-sided'</em><em>, </em><em>'less'</em><em>, </em><em>'greater'}</em><em>, </em><em>optional</em>) – <p>Defines the alternative hypothesis.
+The following options are available (default is ‘two-sided’):</p>
+<ul>
+<li><p>’two-sided’: the mean of the underlying distribution of the sample
+is different than the given population mean (<cite>popmean</cite>)</p></li>
+<li><p>’less’: the mean of the underlying distribution of the sample is
+less than the given population mean (<cite>popmean</cite>)</p></li>
+<li><p>’greater’: the mean of the underlying distribution of the sample is
+greater than the given population mean (<cite>popmean</cite>)</p></li>
+</ul>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1563,10 +1297,10 @@ The default is True.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-17.py">Source code</a>, <a class="reference external" href=".//analysis-17.png">png</a>, <a class="reference external" href=".//analysis-17.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-17.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-17.png" class="plot-directive" src="_images/analysis-17.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-14.py">Source code</a>, <a class="reference external" href=".//analysis-14.png">png</a>, <a class="reference external" href=".//analysis-14.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-14.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-14.png" class="plot-directive" src="_images/analysis-14.png" />
+</div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a1&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
 <span class="gp">... </span>                   <span class="s2">&quot;a2&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
 <span class="gp">... </span>                   <span class="s2">&quot;a3&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4000</span><span class="p">),</span>
@@ -1578,13 +1312,13 @@ The default is True.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//analysis-18.py">Source code</a>, <a class="reference external" href=".//analysis-18.png">png</a>, <a class="reference external" href=".//analysis-18.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-18.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/analysis-18.png" class="plot-directive" src="_images/analysis-18.png" />
-</figure>
+<p>(<a class="reference external" href=".//analysis-15.py">Source code</a>, <a class="reference external" href=".//analysis-15.png">png</a>, <a class="reference external" href=".//analysis-15.hires.png">hires.png</a>, <a class="reference external" href=".//analysis-15.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/analysis-15.png" class="plot-directive" src="_images/analysis-15.png" />
+</div>
 </dd></dl>
 
-</section>
+</div>
 
 
               </div>
@@ -1599,10 +1333,10 @@ The default is True.</p></li>
             <p class="prev-next-title">Data Preprocessing</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="visualization.html" title="next page">
+    <a class='right-next' id="next-link" href="clustering.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Data Visualization</p>
+        <p class="prev-next-title">Clustering</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

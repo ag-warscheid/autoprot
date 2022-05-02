@@ -69,9 +69,8 @@ doctest_global_setup = '''
 import sys
 import pandas as pd
 import numpy as np
-sys.path.append('../autoprot/')
-import autoprot
 import matplotlib.pyplot as plt
+sys.path.append('../../.')
 
 prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
 phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep='\t', low_memory=False)

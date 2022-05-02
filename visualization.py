@@ -637,7 +637,7 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
     # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
 
     # remove NaNs
-    data = data.copy().dropna(subset=rankCol)
+    data = data.copy().dropna(subset=[rankCol])
 
     # if data has mroe columns than 1
     if data.shape[1] > 1:

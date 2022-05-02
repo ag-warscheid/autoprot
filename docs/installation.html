@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Installation &#8212; autoprot  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -87,6 +86,12 @@
 <li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="analysis.html">
   Analysis
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="clustering.html">
+  Clustering
  </a>
 </li>
 
@@ -202,13 +207,13 @@
               
               <div>
                 
-  <section id="installation">
+  <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>The easiest way to install Python on Windows and Linux is the <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda Python Distribution</a>.
 Download the installer, follow the installation process and open an anaconda prompt.
 On Windows this should be possible by searching for “Anaconda Prompt” in the start menu.
 In Linux Anaconda usually comes with an install script that integrates anaconda into the standard shell (visible by the term “(base)” at the beginning of the shell prompt.</p>
-<section id="downloading-autoprot">
+<div class="section" id="downloading-autoprot">
 <h2>Downloading autoprot<a class="headerlink" href="#downloading-autoprot" title="Permalink to this headline">¶</a></h2>
 <p>Download the current version of autoprot from the <a class="reference external" href="https://salzgitter.biologie.uni-freiburg.de/FunctionalProteomics/autoprot">autoprot repository</a> and save locally.
 Alternatively you may download the files via git to easily maintain an updated version of autoprot.
@@ -221,8 +226,8 @@ For this, <a class="reference external" href="https://git-scm.com/downloads">ins
 </pre></div>
 </div>
 <p>in the autoprot folder.</p>
-</section>
-<section id="installing-r">
+</div>
+<div class="section" id="installing-r">
 <h2>Installing R<a class="headerlink" href="#installing-r" title="Permalink to this headline">¶</a></h2>
 <p>Autoprot relies on a few statistical analyses implemented and maintained in the R language.
 To execute these script, you need a local copy of R running that python can access.
@@ -237,8 +242,8 @@ If the automatic installation is not finished within 10 min, try increasing the 
 Moreover, automatic install using anaconda requires additional conda packages to be installed:</p>
 <p>conda install -c conda-forge r-gmp
 conda install -c conda-forge r-rmpfr</p>
-</section>
-<section id="the-autoprot-virtual-environment">
+</div>
+<div class="section" id="the-autoprot-virtual-environment">
 <h2>The autoprot virtual environment<a class="headerlink" href="#the-autoprot-virtual-environment" title="Permalink to this headline">¶</a></h2>
 <p>Autoprot comes with an “environment.yml” file containing the information which packages are required for autoprot.
 You can directly install these packages into a new environment using:</p>
@@ -255,7 +260,7 @@ In any case, you may proceed by activating the environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">notebook</span>
 </pre></div>
 </div>
-<section id="loading-autoprot-in-jupyter">
+<div class="section" id="loading-autoprot-in-jupyter">
 <h3>Loading autoprot in jupyter<a class="headerlink" href="#loading-autoprot-in-jupyter" title="Permalink to this headline">¶</a></h3>
 <p>To use autoprot in your jupyter notebooks, you have to add the autoprot folder to the path variable:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
@@ -264,9 +269,9 @@ In any case, you may proceed by activating the environment:</p>
 </pre></div>
 </div>
 <p>The path you add corresponds to the parent folder of your local autoprot installation.</p>
-</section>
-</section>
-<section id="troubleshooting">
+</div>
+</div>
+<div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p id="id1">If the installation using environment.yml did not work, usually incompatible package versions between Windows and Linux or between different Anaconda installations are the problem.
 Try locating which package did not install properly (e.g. by running autoprot and see where it breaks) and then install the missing packages using conda or pip:</p>
@@ -279,8 +284,8 @@ Try locating which package did not install properly (e.g. by running autoprot an
     <span class="n">pip</span> <span class="n">install</span> <span class="n">PACKAGENAME</span>
 </pre></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
               </div>

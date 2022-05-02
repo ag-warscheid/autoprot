@@ -88,6 +88,12 @@
 </li>
 
 <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../clustering.html">
+  Clustering
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../visualization.html">
   Data Visualization
  </a>
@@ -165,18 +171,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">PIPE</span>
 <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">ttest_1samp</span><span class="p">,</span> <span class="n">ttest_ind</span><span class="p">,</span> <span class="n">zscore</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">distance</span>
-<span class="kn">from</span> <span class="nn">scipy.cluster</span> <span class="kn">import</span> <span class="n">hierarchy</span>
-<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">fcluster</span>
 <span class="kn">from</span> <span class="nn">statsmodels.stats</span> <span class="kn">import</span> <span class="n">multitest</span> <span class="k">as</span> <span class="n">mt</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">ttest_1samp</span><span class="p">,</span> <span class="n">ttest_ind</span>
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">silhouette_score</span><span class="p">,</span><span class="n">calinski_harabasz_score</span><span class="p">,</span> <span class="n">davies_bouldin_score</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pylab</span> <span class="k">as</span> <span class="nn">pl</span>
-<span class="kn">import</span> <span class="nn">colorsys</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 <span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
 <span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">Entrez</span>
@@ -199,8 +200,7 @@
 <span class="c1">#check where this is actually used and make it local</span>
 <span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="ttest"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.ttest">[docs]</a><span class="k">def</span> <span class="nf">ttest</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">adjustPVals</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="ttest"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.ttest">[docs]</a><span class="k">def</span> <span class="nf">ttest</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">adjustPVals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform one or two sample ttest.</span>
 
@@ -225,6 +225,16 @@
 <span class="sd">        The default is True.</span>
 <span class="sd">    adjustPVals : bool, optional</span>
 <span class="sd">        Whether to adjust P-values. The default is True.</span>
+<span class="sd">    alternative : {&#39;two-sided&#39;, &#39;less&#39;, &#39;greater&#39;}, optional</span>
+<span class="sd">        Defines the alternative hypothesis.</span>
+<span class="sd">        The following options are available (default is &#39;two-sided&#39;):</span>
+
+<span class="sd">        * &#39;two-sided&#39;: the mean of the underlying distribution of the sample</span>
+<span class="sd">          is different than the given population mean (`popmean`)</span>
+<span class="sd">        * &#39;less&#39;: the mean of the underlying distribution of the sample is</span>
+<span class="sd">          less than the given population mean (`popmean`)</span>
+<span class="sd">        * &#39;greater&#39;: the mean of the underlying distribution of the sample is</span>
+<span class="sd">          greater than the given population mean (`popmean`)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -283,14 +293,27 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cond</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">cond</span>
+    
+    <span class="k">def</span> <span class="nf">oneSamp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">ttest_1samp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>
+                                        <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span>
+                                        <span class="n">alternative</span><span class="o">=</span><span class="n">alternative</span><span class="p">,</span>
+                                        <span class="n">popmean</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">twoSamp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span>
+                                      <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]):],</span>
+                                      <span class="n">alternative</span><span class="o">=</span><span class="n">alternative</span><span class="p">,</span>
+                                      <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]):],</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">twoSamp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;score</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">mean</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;logFC</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">ttest_1samp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span> <span class="n">popmean</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">oneSamp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;score</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">mean</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;logFC</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -928,713 +951,6 @@
             <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">forVis</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;batch&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">forVis</span><span class="p">)</span></div></div>
-
-<div class="viewcode-block" id="autoHCA"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA">[docs]</a><span class="k">class</span> <span class="nc">autoHCA</span><span class="p">:</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Conduct hierarchical cluster analysis.</span>
-
-<span class="sd">    Usesr provides dataframe and can afterwards</span>
-<span class="sd">    use various metrics and methods to perfom and evaluate</span>
-<span class="sd">    clustering.</span>
-<span class="sd">    StandarWorkflow:</span>
-<span class="sd">    makeLnkage() -&gt; evalClustering() -&gt; clusterMap() -&gt; writeClusterFiles()</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    autoProt provides a class which allows the easy implementation and</span>
-<span class="sd">    evaluation of a hierarchical cluster analysis.</span>
-<span class="sd">    You need provide the data.</span>
-<span class="sd">    You may also want to provide appropriate row and column labels.</span>
-<span class="sd">    Depending on what the aim of your cluster analysis is you might want to</span>
-<span class="sd">    perform a zscore transformation.</span>
-
-<span class="sd">    This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.</span>
-<span class="sd">    See source of generated images for details.</span>
-
-<span class="sd">    The autoHCA class is first initialised.</span>
-<span class="sd">    For this the fold-changes between two conditions are extracted from the dataframe</span>
-<span class="sd">    and new unique row labels containing the gene names, the phosphorylated amino</span>
-<span class="sd">    acid incl its position and the multiplicity e.g. &#39;Auts2 S469-1&#39;.</span>
-<span class="sd">    The column labels are the conditions to compare.</span>
-
-<span class="sd">    &gt;&gt;&gt; data = temp[[&quot;logFC_TvM&quot;, &quot;logFC_TvC&quot;]].values</span>
-<span class="sd">    &gt;&gt;&gt; clabels = [&quot;TvM&quot;, &quot;TvC&quot;]</span>
-<span class="sd">    &gt;&gt;&gt; rlabels = temp[&quot;Gene names&quot;].fillna(&quot;&quot;).apply(lambda x: str(x).split(&#39;;&#39;)[0]) \</span>
-<span class="sd">    ... + &quot; &quot; + temp[&quot;Amino acid&quot;] + temp[&quot;Position&quot;].fillna(-1).astype(int).astype(str) +\</span>
-<span class="sd">    ... &#39;-&#39; + temp[&quot;Multiplicity&quot;].astype(str)</span>
-<span class="sd">    &gt;&gt;&gt; clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)</span>
-
-<span class="sd">    A hierarchical clustering is generated using the makeLinkage method</span>
-
-<span class="sd">    &gt;&gt;&gt; clusterRes.makeLinkage(method=&quot;ward&quot;, metric=&quot;euclidean&quot;)</span>
-
-<span class="sd">    To visualise the optimal number of clusters to match the data, the evalClustering</span>
-<span class="sd">    function provides three different metrices. See documentation of the function for</span>
-<span class="sd">    details on the metrices.</span>
-
-<span class="sd">    &gt;&gt;&gt; clusterRes.evalClustering(upTo=20)</span>
-
-<span class="sd">    .. plot::</span>
-<span class="sd">        :context: close-figs</span>
-
-<span class="sd">        import autoprot.preprocessing as pp</span>
-<span class="sd">        import autoprot.analysis as ana</span>
-<span class="sd">        import pandas as pd</span>
-
-<span class="sd">        phos = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_mod.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
-<span class="sd">        phos = pp.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
-<span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
-<span class="sd">        phos = pp.log(phos, phosRatio, base=2)</span>
-<span class="sd">        phos = pp.filterLocProb(phos, thresh=.75)</span>
-<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/.( | normalized )R.___&quot;).columns</span>
-<span class="sd">        phos = pp.removeNonQuant(phos, phosRatio)</span>
-
-<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/. normalized R.___&quot;)</span>
-<span class="sd">        phos_expanded = pp.expandSiteTable(phos, phosRatio)</span>
-
-<span class="sd">        twitchVsmild = [&#39;log2_Ratio H/M normalized R1&#39;,&#39;log2_Ratio M/L normalized R2&#39;,&#39;log2_Ratio H/M normalized R3&#39;,</span>
-<span class="sd">                        &#39;log2_Ratio H/L normalized R4&#39;,&#39;log2_Ratio H/M normalized R5&#39;,&#39;log2_Ratio M/L normalized R6&#39;]</span>
-<span class="sd">        twitchVsctrl = [&quot;log2_Ratio H/L normalized R1&quot;,&quot;log2_Ratio H/M normalized R2&quot;,&quot;log2_Ratio H/L normalized R3&quot;,</span>
-<span class="sd">                        &quot;log2_Ratio M/L normalized R4&quot;, &quot;log2_Ratio H/L normalized R5&quot;,&quot;log2_Ratio H/M normalized R6&quot;]</span>
-
-<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond=&quot;TvM&quot;, mean=True)</span>
-<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond=&quot;TvC&quot;, mean=True)</span>
-
-<span class="sd">        temp = phos_expanded[(phos_expanded[[&quot;pValue_TvM&quot;, &quot;pValue_TvC&quot;]]&lt;0.05).any(1)]</span>
-
-<span class="sd">        data = temp[[&quot;logFC_TvM&quot;, &quot;logFC_TvC&quot;]].values</span>
-<span class="sd">        clabels = [&quot;TvM&quot;, &quot;TvC&quot;]</span>
-<span class="sd">        rlabels = temp[&quot;Gene names&quot;].fillna(&quot;&quot;).apply(lambda x: str(x).split(&#39;;&#39;)[0]) \</span>
-<span class="sd">        + &quot; &quot; + temp[&quot;Amino acid&quot;] + temp[&quot;Position&quot;].fillna(-1).astype(int).astype(str) +\</span>
-<span class="sd">        &#39;-&#39; + temp[&quot;Multiplicity&quot;].astype(str)</span>
-
-<span class="sd">        clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)</span>
-<span class="sd">        clusterRes.makeLinkage(method=&quot;ward&quot;, metric=&quot;euclidean&quot;)</span>
-<span class="sd">        clusterRes.evalClustering(upTo=20)</span>
-
-<span class="sd">        plt.show()</span>
-
-
-<span class="sd">    After chosing a number of clusters, a cluster map together with several evaluation</span>
-<span class="sd">    plots such as line traces that show the RMSD variation of the data under the</span>
-<span class="sd">    different conditions for every cluster can be computed</span>
-
-<span class="sd">    &gt;&gt;&gt; clusterRes.clusterMap(nCluster=5, makeTraces=True)</span>
-
-<span class="sd">    .. plot::</span>
-<span class="sd">        :context: close-figs</span>
-
-<span class="sd">        clusterRes.clusterMap(nCluster=5, makeTraces=True)</span>
-
-
-<span class="sd">    It is also possible to predefine the colours for the clusters and add an</span>
-<span class="sd">    additional row with colours indicating additional features such as the</span>
-<span class="sd">    phosphorylation multiplicity for a peptide.</span>
-<span class="sd">    Note that row_color is a dict linking a col name to a list of colours.</span>
-
-<span class="sd">    &gt;&gt;&gt; temp[&quot;color&quot;] = temp[&quot;Multiplicity&quot;]</span>
-<span class="sd">    &gt;&gt;&gt; temp[&quot;color&quot;].replace([1,2,3], [&quot;teal&quot;, &quot;purple&quot;, &quot;salmon&quot;], inplace=True)</span>
-<span class="sd">    &gt;&gt;&gt; rc = {&quot;multiplicity&quot; : temp[&quot;color&quot;]}</span>
-
-<span class="sd">    &gt;&gt;&gt; clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,</span>
-<span class="sd">    ...                       colors=[&quot;green&quot;, &quot;chartreuse&quot;, &quot;blue&quot;, &quot;hotpink&quot;, &quot;gold&quot;])</span>
-
-
-<span class="sd">    .. plot::</span>
-<span class="sd">        :context: close-figs</span>
-
-<span class="sd">        temp[&quot;color&quot;] = temp[&quot;Multiplicity&quot;]</span>
-<span class="sd">        temp[&quot;color&quot;].replace([1,2,3], [&quot;teal&quot;, &quot;purple&quot;, &quot;salmon&quot;], inplace=True)</span>
-<span class="sd">        rc = {&quot;multiplicity&quot; : temp[&quot;color&quot;]}</span>
-
-<span class="sd">        clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,</span>
-<span class="sd">                              colors=[&quot;green&quot;, &quot;chartreuse&quot;, &quot;blue&quot;, &quot;hotpink&quot;, &quot;gold&quot;])</span>
-
-<span class="sd">    Further you can also extract the clustering as dataframe or write them into files</span>
-
-<span class="sd">    &gt;&gt;&gt; clusterDf = clusterRes.returnCluster()</span>
-<span class="sd">    &gt;&gt;&gt; clusterRes.writeClusterFiles(&quot;thePathOfChoice&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">clabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zscore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialise the class.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : np.array</span>
-<span class="sd">            The data to be clustered.</span>
-<span class="sd">        clabels : np.array, optional</span>
-<span class="sd">            Column labels. The default is None.</span>
-<span class="sd">        rlabels : np.array, optional</span>
-<span class="sd">            Row labels. The default is None.</span>
-<span class="sd">        zscore : int or None, optional</span>
-<span class="sd">            Axis along which to calculate the zscore.</span>
-<span class="sd">            The default is None.</span>
-<span class="sd">        linkage : scipy.cluster.hierarchy.linkage object, optional</span>
-<span class="sd">            Precalculated linkage object.</span>
-<span class="sd">            The default is None.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">clabels</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">zscore</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rlabels</span> <span class="o">=</span> <span class="n">rlabels</span>
-        <span class="k">if</span> <span class="n">clabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">clabels</span> <span class="o">=</span> <span class="n">clabels</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">clabels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">linkage</span> <span class="o">=</span> <span class="n">linkage</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clusterCol</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_checkData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">clabels</span><span class="p">,</span> <span class="n">rlabels</span><span class="p">,</span> <span class="n">zs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check if data contains missing values and remove them.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : np.array</span>
-<span class="sd">            The data to be clustered.</span>
-<span class="sd">        clabels : np.array, optional</span>
-<span class="sd">            Column labels.</span>
-<span class="sd">        rlabels : np.array, optional</span>
-<span class="sd">            Row labels.</span>
-<span class="sd">        zs : int or None</span>
-<span class="sd">            Axis to calculate zscore on. If None, not zscore is calculated.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the length of the labels does not fit the data size.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        data : pd.DataFrame</span>
-<span class="sd">            Data transferred into Dataframe with colnames and rownames.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># drop all rows containing missing values</span>
-        <span class="k">if</span> <span class="n">rlabels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">clabels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-
-        <span class="c1"># drop rows with values and assign colnames</span>
-        <span class="k">elif</span> <span class="n">rlabels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clabels</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data and labels must be same size!&quot;</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">clabels</span>
-
-        <span class="c1"># find columns with missing values and drop these</span>
-        <span class="k">elif</span> <span class="n">clabels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlabels</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data and labels must be same size!&quot;</span><span class="p">)</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="c1"># column indices without missing data</span>
-            <span class="n">to_keep</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">to_keep</span><span class="p">]</span>
-            <span class="c1"># temp[&quot;labels&quot;] = rlabels</span>
-            <span class="c1">#rlabels = temp[&quot;labels&quot;]</span>
-            <span class="c1"># data = temp.drop(&quot;labels&quot;, axis=1)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">temp</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">rlabels</span>
-
-        <span class="c1"># clabels and rlabels are provided</span>
-        <span class="c1"># check if row and col dimensions match and drop columns with</span>
-        <span class="c1"># missing values</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlabels</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clabels</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data and labels must be same size!&quot;</span><span class="p">)</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="c1"># column indices without missing data</span>
-            <span class="n">to_keep</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span>
-            <span class="c1"># temp[&quot;labels&quot;] = rlabels</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">to_keep</span><span class="p">]</span>
-            <span class="c1"># rlabels = temp[&quot;labels&quot;]</span>
-            <span class="c1"># data = temp.drop(&quot;labels&quot;, axis=1)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">temp</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">rlabels</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">clabels</span>
-
-        <span class="c1"># if the zscore is calculate (i.e. if zs != None)</span>
-        <span class="c1"># a dataframe with zscores instead of values is calculated</span>
-        <span class="k">if</span> <span class="n">zs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-            <span class="n">tc</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
-            <span class="n">ti</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">X</span> <span class="o">=</span> <span class="n">zscore</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">zs</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">tc</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">ti</span>
-
-        <span class="k">return</span> <span class="n">data</span>
-
-    <span class="k">def</span> <span class="nf">_get_N_HexCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return RGB values for colouring a number n of values.&quot;&quot;&quot;</span>
-        <span class="n">HSV_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
-        <span class="n">RGB_tuples</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="n">HSV_tuples</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">RGB_tuples</span><span class="p">)</span>
-
-
-    <span class="k">def</span> <span class="nf">_makeCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Form flat clusters from the hierarchical clustering of linkage.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        n : int</span>
-<span class="sd">            Max number of clusters.</span>
-<span class="sd">        colors : None or list of RGB_tuples</span>
-<span class="sd">            Colors for the clusters.</span>
-<span class="sd">            If none, new colors are generated.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># self.cluster is an ndarray of length x</span>
-        <span class="c1"># with x = number of original data points</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="c1"># the hierarchical clustering</span>
-                                <span class="n">t</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="c1"># max number of clusters</span>
-                                <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;maxclust&quot;</span><span class="p">)</span> <span class="c1"># forms maximumum n=t clusters</span>
-
-        <span class="c1"># there should be as many colours as clusters</span>
-        <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
-            <span class="n">colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_N_HexCol</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-
-        <span class="c1"># indices of the colour list starting from 1</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">))]</span>
-        <span class="c1"># dict mapping cluster numbers to colours</span>
-        <span class="n">cluster2color</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">colors</span><span class="p">))</span>
-        <span class="c1"># map the colours to the cluster names</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clusterCol</span> <span class="o">=</span> <span class="p">[</span><span class="n">cluster2color</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="p">]</span>
-
-
-    <span class="k">def</span> <span class="nf">_makeClusterTraces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">file</span><span class="p">,</span><span class="n">colors</span><span class="p">,</span> <span class="n">z_score</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot RMSD vs colname line plots.</span>
-
-<span class="sd">        Shaded areas representing groups of RMSDs are plotted.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        n : int</span>
-<span class="sd">            Number of Clusters to visualise.</span>
-<span class="sd">        file : str</span>
-<span class="sd">            Filename with extension to save file to.</span>
-<span class="sd">            Will be extended by FNAME_traces.EXT.</span>
-<span class="sd">        colors : list of str or None.</span>
-<span class="sd">            Colours for the traces. If none, the same predefined colours will</span>
-<span class="sd">            be used for all n traces.</span>
-<span class="sd">        z_score : int or None, optional</span>
-<span class="sd">            Axis along which to standardise the data by z-score transformation.</span>
-<span class="sd">            The default is None.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">n</span><span class="p">))</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">z_score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># calculate the z-score using scipy using the other axis (i.e. axis=0 if</span>
-            <span class="c1"># 1 was provided and vice versa)</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">zscore</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="n">z_score</span><span class="p">))</span> <span class="c1">#seaborn and scipy work opposite</span>
-        <span class="c1"># ndarray containing the cluster numbers for each data point</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span>
-
-        <span class="c1"># iterate over the generated clusters</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-            <span class="c1"># slice data points belonging to a certain cluster number</span>
-            <span class="n">temp2</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;cluster&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-            <span class="c1"># compute the root mean square deviation of the z-scores or the protein log fold changes</span>
-            <span class="c1"># as a helper we take the -log of the rmsd in order to plot in the proper sequence</span>
-            <span class="c1"># i.e. low RMSDs take on large -log values and thereofore are plotted</span>
-            <span class="c1"># last and on the top</span>
-            <span class="n">temp2</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp2</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">temp2</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span><span class="p">))),</span><span class="mi">1</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">temp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># if cluster contains only 1 entry i.e. one condition</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Cluster </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="c1"># ax.plot(range(temp2.shape[1]-1),temp2.drop(&quot;distance&quot;, axis=1).values.reshape(3), color=color[idx], alpha=alpha[idx])</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">temp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-                        <span class="n">temp2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clabels</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">clabels</span><span class="p">)</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># bin the RMSDs into five groups</span>
-            <span class="n">temp2</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">temp2</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span><span class="mi">5</span><span class="p">)</span>
-
-            <span class="c1">#get aestethics for traces</span>
-            <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#C72119&quot;</span><span class="p">,</span><span class="s2">&quot;#D67155&quot;</span><span class="p">,</span><span class="s2">&quot;#FFC288&quot;</span><span class="p">,</span> <span class="s2">&quot;#FFE59E&quot;</span><span class="p">,</span><span class="s2">&quot;#FFFDBF&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="mi">5</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
-
-            <span class="c1"># group into the five RMSD bins</span>
-            <span class="n">grouped</span> <span class="o">=</span> <span class="n">temp2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
-
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Cluster </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">z_score</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;-ln RMSD(value)&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;-ln RMSD(z-score)&quot;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Condition&quot;</span><span class="p">)</span>
-
-            <span class="c1"># for every RMSD group</span>
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grouped</span><span class="p">):</span>
-                <span class="c1"># for every condition (i.e. colname)</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">temp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-                            <span class="n">group</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
-                            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
-                            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-            <span class="c1"># set the tick labels as the colnames</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clabels</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">clabels</span><span class="p">)</span>
-
-            <span class="c1"># save to file if asked</span>
-            <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-                <span class="n">filet</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_traces.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filet</span><span class="p">)</span>
-
-
-    <span class="k">def</span> <span class="nf">_makeSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Make summary of clustering.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        n : int</span>
-<span class="sd">            number of clusters.</span>
-<span class="sd">        file : str</span>
-<span class="sd">            Path to write summary.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO Maybe enable switch between heatmap and trace?</span>
-
-        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span>
-        <span class="n">grouped</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;cluster&quot;</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-        <span class="n">lim</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">grouped</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-
-        <span class="n">ylabel</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Cluster</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> member&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;cluster&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)]</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Summary Of Clustering&quot;</span><span class="p">)</span>
-        <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">grouped</span><span class="p">,</span>
-                    <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">lim</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=-</span><span class="n">lim</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ylabel</span><span class="p">))],</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-            <span class="n">filet</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_summary.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filet</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="autoHCA.asDist"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.asDist">[docs]</a>    <span class="k">def</span> <span class="nf">asDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert a matrix (i.e. correlation matrix) into a distance matrix for hierachical clustering.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        c : np.ndarray</span>
-<span class="sd">            Input matrix.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        list</span>
-<span class="sd">            List corresponsding to left off-diagonal elememnts of the</span>
-<span class="sd">            correlation matrix.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; a = [</span>
-<span class="sd">        ...     [0.1, .32, .2,  0.4, 0.8],</span>
-<span class="sd">        ...     [.23, .18, .56, .61, .12],</span>
-<span class="sd">        ...     [.9,   .3,  .6,  .5,  .3],</span>
-<span class="sd">        ...     [.34, .75, .91, .19, .21]</span>
-<span class="sd">        ...      ]</span>
-<span class="sd">        &gt;&gt;&gt; c = np.corrcoef(a)</span>
-<span class="sd">        &gt;&gt;&gt; c</span>
-<span class="sd">        array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],</span>
-<span class="sd">               [-0.35153114,  1.        ,  0.23810227,  0.15958285],</span>
-<span class="sd">               [-0.74736506,  0.23810227,  1.        , -0.03960706],</span>
-<span class="sd">               [-0.48917666,  0.15958285, -0.03960706,  1.        ]])</span>
-<span class="sd">        &gt;&gt;&gt; autoprot.autoHCA.asDist(c)</span>
-<span class="sd">        [-0.3515311393849671,</span>
-<span class="sd">         -0.7473650573493561,</span>
-<span class="sd">         -0.4891766567441463,</span>
-<span class="sd">         0.23810227412143423,</span>
-<span class="sd">         0.15958285448266604,</span>
-<span class="sd">         -0.03960705975653923]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">j</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="autoHCA.makeLinkage"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.makeLinkage">[docs]</a>    <span class="k">def</span> <span class="nf">makeLinkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Perform hierarchical clustering on the data.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        method : str</span>
-<span class="sd">            Which method is used for the clustering.</span>
-<span class="sd">            Possible are &#39;single&#39;, &#39;average&#39; and &#39;complete&#39; and all values</span>
-<span class="sd">            for method of scipy.cluster.hierarchy.linkage</span>
-<span class="sd">            See: https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html</span>
-<span class="sd">        metric : str</span>
-<span class="sd">            Which metric is used to calculate distance.</span>
-<span class="sd">            Possible values are &#39;pearson&#39;, &#39;spearman&#39; and all metrics</span>
-<span class="sd">            implemented in scipy.spatial.distance.pdist</span>
-<span class="sd">            See: https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># First calculate a distance metric between the points</span>
-        <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pearson&quot;</span><span class="p">,</span> <span class="s2">&quot;spearman&quot;</span><span class="p">]:</span>
-            <span class="n">corr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asDist</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">corr</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
-        <span class="c1"># perform hierarchical clustering using the distance metric</span>
-        <span class="c1"># the returned matrix self-linkage contains n-1 x 4 elements</span>
-        <span class="c1"># with each row representing</span>
-        <span class="c1"># cluster1, cluster2, distance_between_1_and_2,</span>
-        <span class="c1"># number_of_observations_in_the_cluster</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">linkage</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="autoHCA.evalClustering"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.evalClustering">[docs]</a>    <span class="k">def</span> <span class="nf">evalClustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">upTo</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">)):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate number of clusters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        start : int, optional</span>
-<span class="sd">            The minimum number of clusters to plot. The default is 2.</span>
-<span class="sd">        upTo : int, optional</span>
-<span class="sd">            The maximum nbumber of clusters to plot. The default is 20.</span>
-<span class="sd">        figsize : tuple of float or int, optional</span>
-<span class="sd">            The size of the plotted figure.</span>
-<span class="sd">            The default is (15,5).</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Davies-Bouldin score:</span>
-<span class="sd">            The score is defined as the average similarity measure of each</span>
-<span class="sd">            cluster with its most similar cluster, where similarity is the</span>
-<span class="sd">            ratio of within-cluster distances to between-cluster distances.</span>
-<span class="sd">            Thus, clusters which are farther apart and less dispersed will</span>
-<span class="sd">            result in a better score.</span>
-<span class="sd">            The minimum score is zero, with lower values indicating better</span>
-<span class="sd">            clustering.</span>
-<span class="sd">        Silhouette score:</span>
-<span class="sd">            The Silhouette Coefficient is calculated using the mean</span>
-<span class="sd">            intra-cluster distance (a) and the mean nearest-cluster</span>
-<span class="sd">            distance (b) for each sample. The Silhouette Coefficient for a</span>
-<span class="sd">            sample is (b - a) / max(a, b). To clarify, b is the distance</span>
-<span class="sd">            between a sample and the nearest cluster that the sample is not a</span>
-<span class="sd">            part of. Note that Silhouette Coefficient is only defined if</span>
-<span class="sd">            number of labels is 2 &lt;= n_labels &lt;= n_samples - 1.</span>
-<span class="sd">            The best value is 1 and the worst value is -1. Values near 0</span>
-<span class="sd">            indicate overlapping clusters. Negative values generally indicate</span>
-<span class="sd">            that a sample has been assigned to the wrong cluster, as a</span>
-<span class="sd">            different cluster is more similar.</span>
-<span class="sd">        Harabasz score:</span>
-<span class="sd">            It is also known as the Variance Ratio Criterion.</span>
-<span class="sd">            The score is defined as ratio between the within-cluster dispersion</span>
-<span class="sd">            and the between-cluster dispersion.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">upTo</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">pred</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">upTo</span><span class="p">):</span>
-            <span class="c1"># return the assigned cluster labels for each data point</span>
-            <span class="n">cluster</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span><span class="n">t</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s1">&#39;maxclust&#39;</span><span class="p">)</span>
-            <span class="c1"># calculate scores based on assigned cluster labels and</span>
-            <span class="c1"># the original data points</span>
-            <span class="n">pred</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">davies_bouldin_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cluster</span><span class="p">),</span>
-                       <span class="n">silhouette_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cluster</span><span class="p">),</span>
-                       <span class="n">calinski_harabasz_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cluster</span><span class="p">)))</span>
-
-        <span class="n">pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">131</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Davies_boulding_score&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">upTo</span><span class="o">-</span><span class="n">start</span><span class="p">),</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">upTo</span><span class="p">),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">);</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">132</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Silhouoette_score&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">upTo</span><span class="o">-</span><span class="n">start</span><span class="p">),</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">upTo</span><span class="p">),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">);</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Harabasz score&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">upTo</span><span class="o">-</span><span class="n">start</span><span class="p">),</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">upTo</span><span class="p">),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">);</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best Davies Boulding at </span><span class="si">{</span><span class="n">start</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">0</span><span class="p">]))</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best Silhouoette_score at </span><span class="si">{</span><span class="n">start</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">1</span><span class="p">]))</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best Harabasz/Calinski at </span><span class="si">{</span><span class="n">start</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">2</span><span class="p">]))</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">pred</span><span class="p">[::,</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="autoHCA.clusterMap"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.clusterMap">[docs]</a>    <span class="k">def</span> <span class="nf">clusterMap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nCluster</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colCluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">makeTraces</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">summary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rowColors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">yticklabels</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Visualise the clustering.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        nCluster : int, optional</span>
-<span class="sd">            How many clusters to annotate. The default is None.</span>
-<span class="sd">        colCluster : bool, optional</span>
-<span class="sd">            Whether to cluster the columns. The default is False.</span>
-<span class="sd">        makeTraces : bool, optional</span>
-<span class="sd">            Whether to generate traces of each cluster. The default is False.</span>
-<span class="sd">        summary : bool, optional</span>
-<span class="sd">            Whether to generate a summery.</span>
-<span class="sd">            NOT IMPLEMENTED.</span>
-<span class="sd">            The default is False.</span>
-<span class="sd">        file : str, optional</span>
-<span class="sd">            Path to the output plot file. The default is None.</span>
-<span class="sd">        rowColors : dict, optional</span>
-<span class="sd">            dictionary of title and colors for row coloring.</span>
-<span class="sd">            Generates an additional column in the heatmeap showing</span>
-<span class="sd">            the indicated columns values as colors.</span>
-<span class="sd">            Has to be same length as provided data.</span>
-<span class="sd">            The default is None.</span>
-<span class="sd">        colors : list of str, optional</span>
-<span class="sd">            Colors for the annotated clusters.</span>
-<span class="sd">            Has to be the same size as nCluster.</span>
-<span class="sd">            The default is None.</span>
-<span class="sd">        yticklabels : list of str, optional</span>
-<span class="sd">            Labels for the y ticks. The default is &quot;&quot;.</span>
-<span class="sd">        **kwargs :</span>
-<span class="sd">            passed to seaborn.clustermap.</span>
-<span class="sd">            See https://seaborn.pydata.org/generated/seaborn.clustermap.html</span>
-<span class="sd">            May also contain &#39;z-score&#39; that is used during making of</span>
-<span class="sd">            cluster traces.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># summaryMap: report heatmap with means of each cluster</span>
-        <span class="c1"># TODO -&gt; also provide summary for each cluster like number of entries?</span>
-        <span class="c1"># TODO savemode just preliminary have to be overworked here</span>
-
-        <span class="c1"># generates self.cluster with cluster labels and</span>
-        <span class="c1"># self.clusterCol with some matrix of colours</span>
-        <span class="k">if</span> <span class="n">nCluster</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_makeCluster</span><span class="p">(</span><span class="n">nCluster</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s2">&quot;cmap&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span>
-
-        <span class="k">if</span> <span class="n">rowColors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># add the cluster color information</span>
-            <span class="n">rowColors</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusterCol</span>
-            <span class="c1"># convert dict to dataframe to use as multi-index labeling col in sns</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rowColors</span><span class="p">)</span>
-            <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;cluster&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>
-            <span class="c1"># set the same index as the data to plot</span>
-            <span class="n">temp</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># if no extra labeling row is provided, use only the list of</span>
-            <span class="c1"># colours corresponding to cluster names</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusterCol</span>
-
-        <span class="c1"># We plot usually ratios or zscores</span>
-        <span class="n">value_type</span> <span class="o">=</span> <span class="s1">&#39;z-score&#39;</span> <span class="k">if</span> <span class="s2">&quot;z_score&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;value&#39;</span>
-
-        <span class="n">sns</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="c1"># Rectangular data for clustering. Cannot contain NAs.</span>
-                       <span class="n">row_linkage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="c1"># precalculated distance metric</span>
-                       <span class="n">row_colors</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="c1"># list of colours or pd.DataFrame with colours</span>
-                       <span class="n">col_cluster</span><span class="o">=</span><span class="n">colCluster</span><span class="p">,</span> <span class="c1"># cluster the columns</span>
-                       <span class="n">yticklabels</span><span class="o">=</span><span class="n">yticklabels</span><span class="p">,</span> <span class="c1"># set coname labels</span>
-                       <span class="n">cbar_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">value_type</span><span class="p">},</span>
-                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="c1"># save the file if necessary</span>
-        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-
-        <span class="c1"># compute RMSD traces for the deviations of values in each cluster</span>
-        <span class="c1"># separated by condition</span>
-        <span class="k">if</span> <span class="n">makeTraces</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;z_score&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_makeClusterTraces</span><span class="p">(</span><span class="n">nCluster</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">z_score</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;z_score&quot;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_makeClusterTraces</span><span class="p">(</span><span class="n">nCluster</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
-
-        <span class="c1"># generate a summary</span>
-        <span class="k">if</span> <span class="n">summary</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_makeSummary</span><span class="p">(</span><span class="n">nCluster</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="autoHCA.returnCluster"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.returnCluster">[docs]</a>    <span class="k">def</span> <span class="nf">returnCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return dataframe with clustered data.&quot;&quot;&quot;</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-        <span class="c1"># add the cluster information as col</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span>
-        <span class="k">return</span> <span class="n">temp</span></div>
-
-
-<div class="viewcode-block" id="autoHCA.writeClusterFiles"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.autoHCA.writeClusterFiles">[docs]</a>    <span class="k">def</span> <span class="nf">writeClusterFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rootdir</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate a folder with text files for each cluster.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        rootdir : str</span>
-<span class="sd">            Path to target dir.</span>
-<span class="sd">            If the folder is named clusterResults, text files will be saved</span>
-<span class="sd">            within.</span>
-<span class="sd">            Else a new folder clusterResults will be created.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="s2">&quot;clusterResults&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;clusterResults&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">rootdir</span><span class="p">):</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span>
-        <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;cluster&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">cluster</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/cluster_</span><span class="si">{</span><span class="n">cluster</span><span class="si">}</span><span class="s2">.tsv&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
-
 
 <div class="viewcode-block" id="KSEA"><a class="viewcode-back" href="../../analysis.html#autoprot.analysis.KSEA">[docs]</a><span class="k">class</span> <span class="nc">KSEA</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>

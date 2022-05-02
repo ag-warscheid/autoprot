@@ -88,6 +88,12 @@
 </li>
 
 <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="clustering.html">
+  Clustering
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="visualization.html">
   Data Visualization
  </a>
@@ -164,6 +170,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -193,12 +200,6 @@
 </li>
       <li><a href="analysis.html#autoprot.analysis.annotatePS">annotatePS() (in module autoprot.analysis)</a>
 </li>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.asDist">asDist() (autoprot.analysis.autoHCA method)</a>
-</li>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA">autoHCA (class in autoprot.analysis)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="analysis.html#autoprot.analysis.autoPCA">autoPCA (class in autoprot.analysis)</a>
 </li>
       <li>
@@ -206,6 +207,15 @@
 
       <ul>
         <li><a href="analysis.html#module-autoprot.analysis">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    autoprot.clustering
+
+      <ul>
+        <li><a href="clustering.html#module-autoprot.clustering">module</a>
 </li>
       </ul></li>
       <li>
@@ -227,6 +237,12 @@
 
       <ul>
         <li><a href="workflows.html#module-autoprot.workflows">module</a>
+</li>
+      </ul></li>
+      <li><a href="clustering.html#autoprot.clustering.HCA.autoRun">autoRun() (autoprot.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="clustering.html#autoprot.clustering.KMeans.autoRun">(autoprot.clustering.KMeans method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -255,7 +271,7 @@
 </li>
       <li><a href="preprocessing.html#autoprot.preprocessing.cleaning">cleaning() (in module autoprot.preprocessing)</a>
 </li>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.clusterMap">clusterMap() (autoprot.analysis.autoHCA method)</a>
+      <li><a href="clustering.html#autoprot.clustering.Cluster">Cluster (class in autoprot.clustering)</a>
 </li>
       <li><a href="analysis.html#autoprot.analysis.cohenD">cohenD() (in module autoprot.analysis)</a>
 </li>
@@ -280,14 +296,16 @@
       <li><a href="workflows.html#autoprot.workflows.proteomeLabeled.DEAna">DEAna() (autoprot.workflows.proteomeLabeled method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing.html#autoprot.preprocessing.downloadFromFTP">downloadFromFTP() (in module autoprot.preprocessing)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="analysis.html#autoprot.analysis.edm">edm() (in module autoprot.analysis)</a>
-</li>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.evalClustering">evalClustering() (autoprot.analysis.autoHCA method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -301,6 +319,8 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing.html#autoprot.preprocessing.fetchFromPRIDE">fetchFromPRIDE() (in module autoprot.preprocessing)</a>
+</li>
       <li><a href="preprocessing.html#autoprot.preprocessing.filterLocProb">filterLocProb() (in module autoprot.preprocessing)</a>
 </li>
       <li><a href="preprocessing.html#autoprot.preprocessing.filterSeqCov">filterSeqCov() (in module autoprot.preprocessing)</a>
@@ -311,6 +331,12 @@
 </li>
       <li><a href="preprocessing.html#autoprot.preprocessing.filterVv">filterVv() (in module autoprot.preprocessing)</a>
 </li>
+      <li><a href="clustering.html#autoprot.clustering.HCA.findNClusters">findNClusters() (autoprot.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="clustering.html#autoprot.clustering.KMeans.findNClusters">(autoprot.clustering.KMeans method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -338,6 +364,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="clustering.html#autoprot.clustering.HCA">HCA (class in autoprot.clustering)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -355,10 +389,12 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#autoprot.analysis.KSEA">KSEA (class in autoprot.analysis)</a>
+      <li><a href="clustering.html#autoprot.clustering.KMeans">KMeans (class in autoprot.clustering)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis.html#autoprot.analysis.KSEA">KSEA (class in autoprot.analysis)</a>
+</li>
       <li><a href="analysis.html#autoprot.analysis.KSEA.ksea">ksea() (autoprot.analysis.KSEA method)</a>
 </li>
   </ul></td>
@@ -385,7 +421,13 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.makeLinkage">makeLinkage() (autoprot.analysis.autoHCA method)</a>
+      <li><a href="clustering.html#autoprot.clustering.HCA.makeCluster">makeCluster() (autoprot.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="clustering.html#autoprot.clustering.KMeans.makeCluster">(autoprot.clustering.KMeans method)</a>
+</li>
+      </ul></li>
+      <li><a href="clustering.html#autoprot.clustering.HCA.makeLinkage">makeLinkage() (autoprot.clustering.HCA method)</a>
 </li>
       <li><a href="analysis.html#autoprot.analysis.makePSM">makePSM() (in module autoprot.analysis)</a>
 </li>
@@ -410,6 +452,8 @@
 
       <ul>
         <li><a href="analysis.html#module-autoprot.analysis">autoprot.analysis</a>
+</li>
+        <li><a href="clustering.html#module-autoprot.clustering">autoprot.clustering</a>
 </li>
         <li><a href="preprocessing.html#module-autoprot.preprocessing">autoprot.preprocessing</a>
 </li>
@@ -472,7 +516,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.returnCluster">returnCluster() (autoprot.analysis.autoHCA method)</a>
+      <li><a href="clustering.html#autoprot.clustering.Cluster.returnCluster">returnCluster() (autoprot.clustering.Cluster method)</a>
 </li>
       <li><a href="analysis.html#autoprot.analysis.KSEA.returnEnrichment">returnEnrichment() (autoprot.analysis.KSEA method)</a>
 </li>
@@ -524,6 +568,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="visualization.html#autoprot.visualization.vennDiagram">vennDiagram() (in module autoprot.visualization)</a>
 </li>
+      <li><a href="clustering.html#autoprot.clustering.Cluster.visCluster">visCluster() (autoprot.clustering.Cluster method)</a>
+</li>
       <li><a href="visualization.html#autoprot.visualization.visPs">visPs() (in module autoprot.visualization)</a>
 </li>
   </ul></td>
@@ -546,7 +592,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="workflows.html#autoprot.workflows.workflow">workflow (class in autoprot.workflows)</a>
 </li>
-      <li><a href="analysis.html#autoprot.analysis.autoHCA.writeClusterFiles">writeClusterFiles() (autoprot.analysis.autoHCA method)</a>
+      <li><a href="clustering.html#autoprot.clustering.Cluster.writeClusterFiles">writeClusterFiles() (autoprot.clustering.Cluster method)</a>
 </li>
   </ul></td>
 </tr></table>

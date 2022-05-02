@@ -88,6 +88,12 @@
 </li>
 
 <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../clustering.html">
+  Clustering
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../visualization.html">
   Data Visualization
  </a>
@@ -177,6 +183,8 @@
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">pearsonr</span><span class="p">,</span> <span class="n">spearmanr</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">auc</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">ftplib</span> <span class="kn">import</span> <span class="n">FTP</span>
 
 <span class="n">RSCRIPT</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">RHelper</span><span class="o">.</span><span class="n">returnRPath</span><span class="p">()</span>
 
@@ -300,7 +308,7 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">replace_inf</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform log transformation.</span>
 
@@ -317,7 +325,10 @@
 <span class="sd">        Columns are multiplied with corresponding number.</span>
 <span class="sd">        The default is None.</span>
 <span class="sd">    returnCols : bool, optional</span>
-<span class="sd">        Whether to return a list of names corresponding to the columns added to the dataframe. The default is False.</span>
+<span class="sd">        Whether to return a list of names corresponding to the columns added</span>
+<span class="sd">        to the dataframe. The default is False.</span>
+<span class="sd">    replace_inf : bool, optional</span>
+<span class="sd">        Whether to replace inf and -inf values by np.nan</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -357,13 +368,24 @@
     <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log2_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">replace_inf</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log2_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]),</span> <span class="n">neginf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log2_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">base</span><span class="o">==</span><span class="mi">10</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log10_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">replace_inf</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log10_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]),</span> <span class="n">neginf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log10_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">replace_inf</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">base</span><span class="p">),</span>
+                                                                      <span class="n">neginf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                                                      <span class="n">posinf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
     <span class="n">newCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;log</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">invert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1761,6 +1783,91 @@
         <span class="c1"># TODO Does this work? isnt poi[toNormalize] a df and entry a series?</span>
         <span class="n">corrected</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="n">toNormalize</span><span class="p">]</span> <span class="o">-</span> <span class="n">poi</span><span class="p">[</span><span class="n">toNormalize</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">corrected</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="fetchFromPRIDE"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.fetchFromPRIDE">[docs]</a><span class="k">def</span> <span class="nf">fetchFromPRIDE</span><span class="p">(</span><span class="n">accession</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">ignore_caps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get download links files belonging to a PRIDE identifier.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    accession : str</span>
+<span class="sd">        PRIDE identifier.</span>
+<span class="sd">    term : str</span>
+<span class="sd">        Part of the filename belonging to the project.</span>
+<span class="sd">        For example &#39;proteingroups&#39;</span>
+<span class="sd">    ignore_caps : bool, optional</span>
+<span class="sd">        Whether to ignore capitalisation during matching of terms.</span>
+<span class="sd">        The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    file_locs : dict</span>
+<span class="sd">        Dict mapping filenames to FTP download links.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Generate a dict mapping file names to ftp download links.</span>
+<span class="sd">    Not that only files containing the string proteingroups are retrieved.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; ftpDict = pp.fetchFromPRIDE(&quot;PXD031829&quot;, &#39;proteingroups&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">js_list</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession=</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                           <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    
+    <span class="n">file_locs</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">fdict</span> <span class="ow">in</span> <span class="n">js_list</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;fileName&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ignore_caps</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;publicFileLocations&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">protocol</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;FTP Protocol&#39;</span><span class="p">:</span>
+                    <span class="n">file_locs</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">protocol</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found file </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_locs</span></div>
+
+<div class="viewcode-block" id="downloadFromFTP"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.downloadFromFTP">[docs]</a><span class="k">def</span> <span class="nf">downloadFromFTP</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">saveDir</span><span class="p">,</span> <span class="n">loginname</span><span class="o">=</span><span class="s1">&#39;anonymous&#39;</span><span class="p">,</span> <span class="n">loginpw</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a file from FTP.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : TYPE</span>
+<span class="sd">        DESCRIPTION.</span>
+<span class="sd">    saveDir : TYPE</span>
+<span class="sd">        DESCRIPTION.</span>
+<span class="sd">    loginname : str</span>
+<span class="sd">        Login name for the FTP server.</span>
+<span class="sd">        Default is &#39;anonymous&#39; working for the PRIDE FTP server.</span>
+<span class="sd">    loginpw : str</span>
+<span class="sd">        Password for access to the FTP server.</span>
+<span class="sd">        Default is &#39;&#39;</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Path to the downloaded file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Download all files from a dictionary holding file names and ftp links and</span>
+<span class="sd">    save the paths to the downloaded files in a list.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; downloadedFiles = []</span>
+<span class="sd">    &gt;&gt;&gt; for file in ftpDict.keys():</span>
+<span class="sd">    ...     downloadedFiles.append(pp.downloadFromFTP(ftpDict[file], r&#39;C:\Users\jbender\Documents\python_playground&#39;))</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span>
+    <span class="n">ftp</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">loginname</span><span class="p">,</span> <span class="n">loginpw</span><span class="p">)</span>
+    <span class="n">ftp</span><span class="o">.</span><span class="n">cwd</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">ftp</span><span class="o">.</span><span class="n">retrbinary</span><span class="p">(</span><span class="s2">&quot;RETR &quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saveDir</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloaded </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">ftp</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">saveDir</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

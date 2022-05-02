@@ -1,2 +1,1 @@
-autopca.barLoad(1)
-autopca.barLoad(2)
+autopca.biPlot(pc1=1, pc2=2)

@@ -13,6 +13,7 @@ from scipy.stats import zscore
 from scipy.spatial import distance
 from scipy import cluster as clst
 from sklearn.metrics import silhouette_score,calinski_harabasz_score, davies_bouldin_score
+from sklearn import cluster as clstsklearn
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.colors as clrs
@@ -22,124 +23,8 @@ import os
 class Cluster:
     r"""
     Base class for clustering pipelines.
-
-    Examples
-    --------
-    autoProt provides a class which allows the easy implementation and
-    evaluation of a hierarchical cluster analysis.
-    You need provide the data.
-    You may also want to provide appropriate row and column labels.
-    Depending on what the aim of your cluster analysis is you might want to
-    perform a zscore transformation.
-
-    This example assumes you have an expanded phosphosite dataframe already analysed using a t-test.
-    See source of generated images for details.
-
-    The autoHCA class is first initialised.
-    For this the fold-changes between two conditions are extracted from the dataframe
-    and new unique row labels containing the gene names, the phosphorylated amino
-    acid incl its position and the multiplicity e.g. 'Auts2 S469-1'.
-    The column labels are the conditions to compare.
-
-    >>> data = temp[["logFC_TvM", "logFC_TvC"]].values
-    >>> clabels = ["TvM", "TvC"]
-    >>> rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
-    ... + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
-    ... '-' + temp["Multiplicity"].astype(str)
-    >>> clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
-
-    A hierarchical clustering is generated using the makeLinkage method
-
-    >>> clusterRes.makeLinkage(method="ward", metric="euclidean")
-
-    To visualise the optimal number of clusters to match the data, the findNClusters
-    function provides three different metrices. See documentation of the function for
-    details on the metrices.
-
-    >>> clusterRes.findNClusters(upTo=20)
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phos = pp.cleaning(phos, file = "Phospho (STY)")
-        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-        phos = pp.log(phos, phosRatio, base=2)
-        phos = pp.filterLocProb(phos, thresh=.75)
-        phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-        phos = pp.removeNonQuant(phos, phosRatio)
-
-        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
-        phos_expanded = pp.expandSiteTable(phos, phosRatio)
-
-        twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
-                        'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
-        twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
-                        "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
-
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
-
-        temp = phos_expanded[(phos_expanded[["pValue_TvM", "pValue_TvC"]]<0.05).any(1)]
-
-        data = temp[["logFC_TvM", "logFC_TvC"]].values
-        clabels = ["TvM", "TvC"]
-        rlabels = temp["Gene names"].fillna("").apply(lambda x: str(x).split(';')[0]) \
-        + " " + temp["Amino acid"] + temp["Position"].fillna(-1).astype(int).astype(str) +\
-        '-' + temp["Multiplicity"].astype(str)
-
-        clusterRes = ana.autoHCA(data=data, clabels=clabels, rlabels=rlabels.values)
-        clusterRes.makeLinkage(method="ward", metric="euclidean")
-        clusterRes.findNClusters(upTo=20)
-
-        plt.show()
-
-
-    After chosing a number of clusters, a cluster map together with several evaluation
-    plots such as line traces that show the RMSD variation of the data under the
-    different conditions for every cluster can be computed
-
-    >>> clusterRes.clusterMap(nCluster=5, makeTraces=True)
-
-    .. plot::
-        :context: close-figs
-
-        clusterRes.clusterMap(nCluster=5, makeTraces=True)
-
-
-    It is also possible to predefine the colours for the clusters and add an
-    additional row with colours indicating additional features such as the
-    phosphorylation multiplicity for a peptide.
-    Note that row_color is a dict linking a col name to a list of colours.
-
-    >>> temp["color"] = temp["Multiplicity"]
-    >>> temp["color"].replace([1,2,3], ["teal", "purple", "salmon"], inplace=True)
-    >>> rc = {"multiplicity" : temp["color"]}
-
-    >>> clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,
-    ...                       colors=["green", "chartreuse", "blue", "hotpink", "gold"])
-
-
-    .. plot::
-        :context: close-figs
-
-        temp["color"] = temp["Multiplicity"]
-        temp["color"].replace([1,2,3], ["teal", "purple", "salmon"], inplace=True)
-        rc = {"multiplicity" : temp["color"]}
-
-        clusterRes.clusterMap(nCluster=5, makeTraces=True, rowColors=rc,
-                              colors=["green", "chartreuse", "blue", "hotpink", "gold"])
-
-    Further you can also extract the clustering as dataframe or write them into files
-
-    >>> clusterDf = clusterRes.returnCluster()
-    >>> clusterRes.writeClusterFiles("thePathOfChoice")
     """
-    
+
     def __init__(self, data, clabels=None, rlabels=None, zscore=None,
                  linkage=None):
         """
@@ -230,22 +115,19 @@ class Cluster:
         self.cmap = matplotlib.cm.viridis
 
     def visCluster(self, colCluster=False, makeTraces=False,
-                   summary=False, file=None, rowColors=None,
-                   colors=None,yticklabels="", **kwargs):
+                   makeHeatmap=False, file=None, rowColors=None,
+                   colors=None, yticklabels="", **kwargs):
         """
         Visualise the clustering.
 
         Parameters
         ----------
-        nCluster : int, optional
-            How many clusters to annotate. The default is None.
         colCluster : bool, optional
             Whether to cluster the columns. The default is False.
         makeTraces : bool, optional
             Whether to generate traces of each cluster. The default is False.
-        summary : bool, optional
-            Whether to generate a summery.
-            NOT IMPLEMENTED.
+        makeHeatmap : bool, optional
+            Whether to generate a summery heatmap.
             The default is False.
         file : str, optional
             Path to the output plot file. The default is None.
@@ -273,7 +155,7 @@ class Cluster:
         None.
 
         """
-        def _makeClusterTraces(self,n,file,colors, z_score=None):
+        def makeClusterTraces(self, file, colors, z_score=None):
             """
             Plot RMSD vs colname line plots.
 
@@ -281,8 +163,6 @@ class Cluster:
 
             Parameters
             ----------
-            n : int
-                Number of Clusters to visualise.
             file : str
                 Filename with extension to save file to.
                 Will be extended by FNAME_traces.EXT.
@@ -298,21 +178,23 @@ class Cluster:
             None.
 
             """
-            plt.figure(figsize=(5,3*n))
-            temp = pd.DataFrame(self.data.copy(deep=True))
+            plt.figure(figsize=(5,3*self.nclusters))
+            temp = pd.DataFrame(self.data.copy())
             if z_score is not None:
                 # calculate the z-score using scipy using the other axis (i.e. axis=0 if
                 # 1 was provided and vice versa)
                 temp = pd.DataFrame(zscore(temp, axis=1-z_score)) #seaborn and scipy work opposite
             # ndarray containing the cluster numbers for each data point
-            temp["cluster"] = self.cluster
+            temp["cluster"] = self.clusterId
 
+            labels = list(set(self.clusterId))
+            
             # iterate over the generated clusters
-            for i in range(n):
+            for idx, i in enumerate(labels):
 
-                ax = plt.subplot(n, 1, i+1)
+                ax = plt.subplot(self.nclusters, 1, idx+1)
                 # slice data points belonging to a certain cluster number
-                temp2 = temp[temp["cluster"]==i+1].drop("cluster", axis=1)
+                temp2 = temp[temp["cluster"]==i].drop("cluster", axis=1)
 
                 # compute the root mean square deviation of the z-scores or the protein log fold changes
                 # as a helper we take the -log of the rmsd in order to plot in the proper sequence
@@ -362,6 +244,7 @@ class Cluster:
                                 alpha=alpha[idx])
                 # set the tick labels as the colnames
                 plt.xticks(range(len(self.clabels)), self.clabels)
+                plt.tight_layout()
 
                 # save to file if asked
                 if file is not None:
@@ -369,9 +252,37 @@ class Cluster:
                     filet = f"{name}_traces.{ext}"
                     plt.savefig(filet)
 
-        # summaryMap: report heatmap with means of each cluster
-        # TODO -> also provide summary for each cluster like number of entries?
-        # TODO savemode just preliminary have to be overworked here
+        def makeClusterHeatmap(self, file=None):
+            """
+            Make summary heatmap of clustering.
+    
+            Parameters
+            ----------
+            file : str
+                Path to write summary.
+    
+            Returns
+            -------
+            None.
+            """
+    
+            temp = pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels)
+            temp["cluster"] = self.clusterId
+            grouped = temp.groupby("cluster")[self.clabels].mean()
+    
+            ylabel = [f"Cluster{i+1} (n={j})" for i,j in enumerate(temp.groupby("cluster").count().iloc[:,0].values)]
+            plt.figure()
+            plt.title("Summary Of Clustering")
+            sns.heatmap(grouped,
+                        cmap=self.cmap)
+            plt.yticks([i+0.5 for i in range(len(ylabel))], ylabel, rotation=0)
+    
+            plt.tight_layout()
+    
+            if file is not None:
+                name, ext = file.split('.')
+                filet = f"{name}_summary.{ext}"
+                plt.savefig(filet)
 
         # there should be as many colours as clusters
         norm = clrs.Normalize(vmin=self.clusterId.min(),
@@ -426,47 +337,13 @@ class Cluster:
         # separated by condition
         if makeTraces == True:
             if "z_score" in kwargs.keys():
-                self._makeClusterTraces(self.ncluster, file, z_score=kwargs["z_score"], colors=colors)
+                makeClusterTraces(self, file, z_score=kwargs["z_score"], colors=colors)
             else:
-                self._makeClusterTraces(self.ncluster, file, colors=colors)
+                makeClusterTraces(self, file, colors=colors)
 
         # generate a summary
-        if summary == True:
-            self._makeSummary(self.ncluster, file)
-
-    def makeSummary(self, file=None):
-        """
-        Make summary of clustering.
-
-        Parameters
-        ----------
-        file : str
-            Path to write summary.
-
-        Returns
-        -------
-        None.
-        """
-        # TODO Maybe enable switch between heatmap and trace?
-
-        temp = pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels)
-        temp["cluster"] = self.clusterId
-        grouped = temp.groupby("cluster")[self.clabels].mean()
-        lim = abs(grouped).max().max()
-
-        ylabel = [f"Cluster{i+1} (n={j})" for i,j in enumerate(temp.groupby("cluster").count().iloc[:,0].values)]
-        plt.figure()
-        plt.title("Summary Of Clustering")
-        sns.heatmap(grouped,
-                    cmap=self.cmap, vmin=lim, vmax=-lim)
-        plt.yticks([i+0.5 for i in range(len(ylabel))], ylabel, rotation=0)
-        
-        plt.tight_layout()
-        
-        if file is not None:
-            name, ext = file.split('.')
-            filet = f"{name}_summary.{ext}"
-            plt.savefig(filet)
+        if makeHeatmap == True:
+            makeClusterHeatmap(self, file)
 
     def returnCluster(self):
         """Return dataframe with clustered data."""
@@ -514,11 +391,80 @@ class HCA(Cluster):
     stopProcessingAt : int
         Position in the autoHCA to stop so that the user can intervene
 
-    User provides dataframe and can afterwards
-    use various metrics and methods to perfom and evaluate
+    Notes
+    -----
+    User provides dataframe and can afterwards use various metrics and methods to perfom and evaluate
     clustering.
+    
     StandarWorkflow:
     makeLinkage() -> findNClusters() -> makeCluster()
+    
+    Examples
+    --------
+    First grab a dataset that will be used for clustering such as the iris dataset.
+    Extract the species labelling from the dataframe as it cannot be used for
+    clustering and will be used later to evaluate the result.
+    
+    >>> import seaborn as sns
+    >>> df = sns.load_dataset('iris')
+    >>> labels = df.pop('species')
+    
+    Initialise the clustering class with the data and find the optimum number of
+    clusters and generate the final clustering with the autoRun method.
+    
+    >>> import autoprot.clustering as clst
+    >>> c = clst.HCA(df)
+    Removed 0 NaN values from the dataframe to prepare for clustering.
+    
+    >>> c.autoRun()
+    Best Davies Boulding at 2 with 0.38275284210068616
+    Best Silhouoette_score at 2 with 0.6867350732769781
+    Best Harabasz/Calinski at 2 with 502.82156350235897
+    Using Davies Boulding Score for setting # clusters: 2
+    You may manually overwrite this by setting self.nclusters
+    
+    .. plot::
+        :context: close-figs
+    
+        import seaborn as sns
+        import autoprot.clustering as clst
+        
+        df = sns.load_dataset('iris')
+        labels = df.pop('species')
+        c = clst.HCA(df)
+        c.autoRun()
+    
+    Finally visualise the clustering using the visCluster method and include the
+    previously extracted labeling column from the original dataframe.
+    
+    >>> labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
+    >>> rc = {"species" : labels}
+    >>> c.visCluster(rowColors={'species': labels})
+    
+     .. plot::
+         :context: close-figs
+    
+         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
+         rc = {"species" : labels}
+         c.visCluster(rowColors={'species': labels})
+         
+    HCA separates the setosa quite well but virginica and versicolor are harder.
+    When we manually pick true the number of clusters, HCA performs only slightly
+    better von this dataset. Note that you can change the default cmap for the
+    class by changing the cmap attribute.
+    
+    >>> c.nclusters = 3
+    >>> c.makeCluster()
+    >>> c.cmap = 'coolwarm'
+    >>> c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, makeHeatmap=True)
+    
+     .. plot::
+         :context: close-figs
+    
+            c.nclusters = 3  
+            c.makeCluster()
+            c.cmap = 'coolwarm'
+            c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, makeHeatmap=True)
     """
 
     def makeLinkage(self, method='single', metric='euclidean'):
@@ -706,7 +652,7 @@ class HCA(Cluster):
             clst.hierarchy.fcluster(self.linkage, # the hierarchical clustering
                                     t=self.nclusters, # max number of clusters
                                     criterion="maxclust") # forms maximumum n=t clusters
-    
+
     def autoRun(self, startProcessingAt=1, stopProcessingAt=5):
         """
         Automatically run the clustering pipeline with standard settings.
@@ -757,9 +703,71 @@ class KMeans(Cluster):
     ----------
     D. Arthur and S. Vassilvitskii, “k-means++: the advantages of careful seeding”, Proceedings of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms, 2007.
 
+    Examples
+    --------
+
+    First grab a dataset that will be used for clustering such as the iris dataset.
+    Extract the species labelling from the dataframe as it cannot be used for
+    clustering and will be used later to evaluate the result.
+    
+    >>> import seaborn as sns
+    >>> df = sns.load_dataset('iris')
+    >>> labels = df.pop('species')
+
+    Initialise the clustering class with the data and find the optimum number of
+    clusters and generate the final clustering with the autoRun method.
+    
+    >>> import autoprot.clustering as clst
+    >>> c = clst.KMeans(df)
+    Removed 0 NaN values from the dataframe to prepare for clustering.
+    >>> c.autoRun()
+    Best Davies Boulding at 2 with 0.40429283717304343
+    Best Silhouette_score at 2 with 0.6810461692117465
+    Best Harabasz/Calinski at 3 with 561.5937320156642
+    Using Davies Boulding Score for setting # clusters: 2
+    You may manually overwrite this by setting self.nclusters
+    
+    .. plot::
+        :context: close-figs
+
+        import seaborn as sns
+        import autoprot.clustering as clst
+        
+        df = sns.load_dataset('iris')
+        labels = df.pop('species')
+        c = clst.KMeans(df)
+        c.autoRun()
+    
+    Finally visualise the clustering using the visCluster method and include the
+    previously extracted labeling column from the original dataframe.
+    
+    >>> labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
+    >>> rc = {"species" : labels}
+    >>> c.visCluster(rowColors={'species': labels})
+
+     .. plot::
+         :context: close-figs
+
+         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
+         rc = {"species" : labels}
+         c.visCluster(rowColors={'species': labels})
+         
+    As you can see can KMeans quite well separate setosa but virginica and versicolor are harder.
+    When we manually pick the number of clusters, it gets a bit better
+    
+    >>> c.nclusters = 3
+    >>> c.makeCluster()
+    >>> c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, makeHeatmap=True)
+    
+     .. plot::
+         :context: close-figs
+
+            c.nclusters = 3  
+            c.makeCluster()
+            c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, makeHeatmap=True)
     """
 
-    def findNClusters(self, start=2, upTo=20, figsize=(15,5), plot=True):
+    def findNClusters(self, start=2, upTo=20, figsize=(15,5), plot=True, algo='scipy'):
         """
         Evaluate number of clusters.
 
@@ -774,6 +782,8 @@ class KMeans(Cluster):
             The default is (15,5).
         plot : bool, optional
             Whether to plot the corresponding figures for the cluster scores
+        algo : str, optional
+            Algorith to use for KMeans Clustering. Either "scipy" or "sklearn"
 
         Notes
         -----
@@ -810,10 +820,19 @@ class KMeans(Cluster):
         upTo += 1
         pred = []
         for i in range(start, upTo):
-            # return the assigned cluster labels for each data point
-            _, cluster = clst.vq.kmeans2(data=self.data,
-                                         k=i,
-                                         minit='++')
+
+            if algo == 'scipy':
+                # return the assigned cluster labels for each data point
+                _, cluster = clst.vq.kmeans2(data=self.data,
+                                             k=i,
+                                             minit='++')
+            elif algo == 'sklearn':
+                model = clstsklearn.KMeans(n_clusters=i)
+                model.fit(self.data)
+                cluster = model.labels_
+            else:
+                raise ValueError('Provide either "sklearn" or "scipy" as parameter for the algo kwarg.')
+
             # calculate scores based on assigned cluster labels and
             # the original data points
             pred.append((davies_bouldin_score(self.data, cluster),
@@ -844,18 +863,31 @@ class KMeans(Cluster):
         print(f"Using Davies Boulding Score for setting # clusters: {self.nclusters}")
         print("You may manually overwrite this by setting self.nclusters")
 
-    def makeCluster(self):
+    def makeCluster(self, algo='scipy'):
         """
         Perform k-means clustering and store the resulting labels in self.clusterId.
+        
+        Parameters
+        ----------
+        algo : str, optional
+            Algorith to use for KMeans Clustering. Either "scipy" or "sklearn"
 
         Returns
         -------
         None.
 
         """
-        centroids, self.clusterId = clst.vq.kmeans2(data=self.data,
-                                                    k=self.nclusters,
-                                                    minit='++')
+        if algo == 'scipy':
+            centroids, self.clusterId = clst.vq.kmeans2(data=self.data,
+                                                        k=self.nclusters,
+                                                        minit='++')
+        elif algo == 'sklearn':
+            # initialise model
+            model = clstsklearn.KMeans(n_clusters=self.nclusters)
+            model.fit(self.data)
+            self.clusterId = model.labels_
+        else:
+            raise ValueError('Provide either "sklearn" or "scipy" as parameter for the algo kwarg.')
 
     def autoRun(self, startProcessingAt=1, stopProcessingAt=5):
         """

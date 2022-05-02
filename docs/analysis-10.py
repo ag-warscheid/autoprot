@@ -1,1 +1,3 @@
-autopca.scorePlot(pc1=1, pc2=2)
+import autoprot.analysis as ana
+ana.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+                    makeWordCloud=True)

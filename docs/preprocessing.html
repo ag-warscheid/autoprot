@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Preprocessing &#8212; autoprot  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -91,6 +90,12 @@
 </li>
 
 <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="clustering.html">
+  Clustering
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="visualization.html">
   Data Visualization
  </a>
@@ -170,7 +175,7 @@
               
               <div>
                 
-  <section id="data-preprocessing">
+  <div class="section" id="data-preprocessing">
 <h1>Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h1>
 <p>The preprocessing module contains several functions to preprocess data.</p>
 <span class="target" id="module-autoprot.preprocessing"></span><p>Autoprot Preprocessing Functions.</p>
@@ -259,9 +264,41 @@ is more robust to unbalanced differential expression.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-1.py">Source code</a>, <a class="reference external" href=".//preprocessing-1.png">png</a>, <a class="reference external" href=".//preprocessing-1.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-1.pdf">pdf</a>)</p>
-<figure class="align-default">
+<div class="figure align-default">
 <img alt="_images/preprocessing-1.png" class="plot-directive" src="_images/preprocessing-1.png" />
-</figure>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.downloadFromFTP">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">downloadFromFTP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveDir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loginname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'anonymous'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loginpw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#downloadFromFTP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.downloadFromFTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a file from FTP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>saveDir</strong> (<em>TYPE</em>) – DESCRIPTION.</p></li>
+<li><p><strong>loginname</strong> (<em>str</em>) – Login name for the FTP server.
+Default is ‘anonymous’ working for the PRIDE FTP server.</p></li>
+<li><p><strong>loginpw</strong> (<em>str</em>) – Password for access to the FTP server.
+Default is ‘’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to the downloaded file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Download all files from a dictionary holding file names and ftp links and
+save the paths to the downloaded files in a list.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">downloadedFiles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ftpDict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">downloadedFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">downloadFromFTP</span><span class="p">(</span><span class="n">ftpDict</span><span class="p">[</span><span class="n">file</span><span class="p">],</span> <span class="sa">r</span><span class="s1">&#39;C:\Users\jbender\Documents\python_playground&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -339,6 +376,35 @@ provided columns without __n extension.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">phos_expanded</span> <span class="o">=</span> <span class="n">autoprot</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">expandSiteTable</span><span class="p">(</span><span class="n">phosLog</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">)</span>
 <span class="go">47936 phosphosites in dataframe.</span>
 <span class="go">47903 phosphopeptides in dataframe after expansion.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.fetchFromPRIDE">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">fetchFromPRIDE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accession</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#fetchFromPRIDE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.fetchFromPRIDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get download links files belonging to a PRIDE identifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>accession</strong> (<em>str</em>) – PRIDE identifier.</p></li>
+<li><p><strong>term</strong> (<em>str</em>) – Part of the filename belonging to the project.
+For example ‘proteingroups’</p></li>
+<li><p><strong>ignore_caps</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to ignore capitalisation during matching of terms.
+The default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>file_locs</strong> – Dict mapping filenames to FTP download links.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Generate a dict mapping file names to ftp download links.
+Not that only files containing the string proteingroups are retrieved.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ftpDict</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">fetchFromPRIDE</span><span class="p">(</span><span class="s2">&quot;PXD031829&quot;</span><span class="p">,</span> <span class="s1">&#39;proteingroups&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -580,9 +646,9 @@ If None all values have to be missing. The default is None.</p></li>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-2.py">Source code</a>, <a class="reference external" href=".//preprocessing-2.png">png</a>, <a class="reference external" href=".//preprocessing-2.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-2.pdf">pdf</a>)</p>
-<figure class="align-default">
+<div class="figure align-default">
 <img alt="_images/preprocessing-2.png" class="plot-directive" src="_images/preprocessing-2.png" />
-</figure>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -612,7 +678,7 @@ Contains a col UID that was used for processing.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autoprot.preprocessing.log">
-<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.log" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnCols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_inf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform log transformation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -623,7 +689,9 @@ Contains a col UID that was used for processing.</p>
 <li><p><strong>invert</strong> (<em>list of int</em><em>, </em><em>optional</em>) – Vector corresponding in length to number of to columns.
 Columns are multiplied with corresponding number.
 The default is None.</p></li>
-<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return a list of names corresponding to the columns added to the dataframe. The default is False.</p></li>
+<li><p><strong>returnCols</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return a list of names corresponding to the columns added
+to the dataframe. The default is False.</p></li>
+<li><p><strong>replace_inf</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to replace inf and -inf values by np.nan</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -835,9 +903,9 @@ across groups to compare. See [2].</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-3.py">Source code</a>, <a class="reference external" href=".//preprocessing-3.png">png</a>, <a class="reference external" href=".//preprocessing-3.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-3.pdf">pdf</a>)</p>
-<figure class="align-default">
+<div class="figure align-default">
 <img alt="_images/preprocessing-3.png" class="plot-directive" src="_images/preprocessing-3.png" />
-</figure>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1018,12 +1086,12 @@ Note that we are treating LFQ pre-normalised values with VSN normalisation.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-4.py">Source code</a>, <a class="reference external" href=".//preprocessing-4.png">png</a>, <a class="reference external" href=".//preprocessing-4.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-4.pdf">pdf</a>)</p>
-<figure class="align-default">
+<div class="figure align-default">
 <img alt="_images/preprocessing-4.png" class="plot-directive" src="_images/preprocessing-4.png" />
-</figure>
+</div>
 </dd></dl>
 
-</section>
+</div>
 
 
               </div>
