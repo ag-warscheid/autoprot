@@ -260,16 +260,16 @@
 <span class="sd">    -------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        The cleaned dataframe.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Cleaning can target different MQ txt files such as proteinGroups and</span>
 <span class="sd">    phospho (STY) tables. The variables phos and prot are parsed MQ results tables.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; prot_clean = autoprot.preprocessing.cleaning(prot, &quot;proteinGroups&quot;)</span>
 <span class="sd">    4910 rows before filter operation.</span>
 <span class="sd">    4624 rows after filter operation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; phos_clean = autoprot.preprocessing.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
 <span class="sd">    47936 rows before filter operation.</span>
 <span class="sd">    47420 rows after filter operation.</span>
@@ -338,7 +338,7 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    First collect colnames holding the intensity ratios.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; protRatio = prot.filter(regex=&quot;^Ratio .\/.( | normalized )B&quot;).columns</span>
 <span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
 
@@ -352,9 +352,9 @@
 <span class="sd">    ...       1., -1.]</span>
 <span class="sd">    &gt;&gt;&gt; prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert*2)</span>
 <span class="sd">    &gt;&gt;&gt; phos2 = autoprot.preprocessing.log(phos, phosRatio, base=10)</span>
-<span class="sd">    </span>
+
 <span class="sd">    The resulting dataframe contains log ratios or NaN.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; prot2.filter(regex=&quot;log.+_Ratio M/L BC18_1$&quot;).head()</span>
 <span class="sd">       log2_Ratio M/L BC18_1</span>
 <span class="sd">    0                    NaN</span>
@@ -411,7 +411,7 @@
 <span class="sd">    --------</span>
 <span class="sd">    The .filterLocProb() function filters a Phospho (STY)Sites.txt file.</span>
 <span class="sd">    You can provide the desired threshold with the *thresh* parameter.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; phos_filter = autoprot.preprocessing.filterLocProb(phos, thresh=.75)</span>
 <span class="sd">    47936 rows before filter operation.</span>
 <span class="sd">    33311 rows after filter operation.</span>
@@ -483,9 +483,9 @@
 <span class="sd">    0  1.0  4.0  NaN</span>
 <span class="sd">    1  2.0  0.0  NaN</span>
 <span class="sd">    3  4.0  1.0  1.0</span>
-<span class="sd">    </span>
+
 <span class="sd">    Rows are only removed if the all values in the specified columns are NaN.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.removeNonQuant(df, cols=[&#39;b&#39;, &#39;c&#39;])</span>
 <span class="sd">    4 rows before filter operation.</span>
 <span class="sd">    4 rows after filter operation.</span>
@@ -494,7 +494,7 @@
 <span class="sd">    1  2.0  0.0  NaN</span>
 <span class="sd">    2  NaN  NaN  1.0</span>
 <span class="sd">    3  4.0  1.0  1.0</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example with real data.</span>
 
 <span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
@@ -809,6 +809,9 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
+<span class="c1"># =============================================================================</span>
+<span class="c1"># IMPUTATION ALGORITHMS</span>
+<span class="c1"># =============================================================================</span>
 <div class="viewcode-block" id="impMinProb"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.impMinProb">[docs]</a><span class="k">def</span> <span class="nf">impMinProb</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">colsToImpute</span><span class="p">,</span> <span class="n">maxMissing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">downshift</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">.3</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform an imputation by modeling a distribution on the far left site of the actual distribution.</span>
@@ -848,10 +851,10 @@
 <span class="sd">    &gt;&gt;&gt; impProt.filter(regex=&quot;Int.*R1&quot;)[impProt[&quot;Imputed&quot;]==True].mean(1).hist(density=True, bins=50,</span>
 <span class="sd">    ...                                                                        label=&quot;Imputed&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; plt.legend()</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
-<span class="sd">    </span>
+
 <span class="sd">        import autoprot.preprocessing as pp</span>
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
@@ -888,6 +891,198 @@
 
     <span class="k">return</span> <span class="n">df</span></div>
 
+<div class="viewcode-block" id="impSeq"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.impSeq">[docs]</a><span class="k">def</span> <span class="nf">impSeq</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform sequential imputation in R using impSeq from rrcovNA.</span>
+
+<span class="sd">    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the</span>
+<span class="sd">    algorithm.</span>
+<span class="sd">    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x&#39;]. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform imputation of.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Dataframe with imputed values.</span>
+<span class="sd">        Cols with imputed values are named _imputed.</span>
+<span class="sd">        Contains a col UID that was used for processing.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># UID is basically a row index starting at 1</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+    <span class="s2">&quot;impSeq&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+    <span class="n">outputLoc</span> <span class="c1">#output file</span>
+    <span class="p">]</span>
+    <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_imputed&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="DIMA"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.DIMA">[docs]</a><span class="k">def</span> <span class="nf">DIMA</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">selection_substr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttest_substr</span><span class="o">=</span><span class="s1">&#39;cluster&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="s1">&#39;fast&#39;</span><span class="p">,</span>
+         <span class="n">npat</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">performance_metric</span><span class="o">=</span><span class="s1">&#39;RMSE&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Data-Driven Selection of an Imputation Algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform imputation of.</span>
+<span class="sd">    selection_substr : str</span>
+<span class="sd">        pattern to extract columns for processing during DIMA run.</span>
+<span class="sd">    ttest_substr : 2-element list or str</span>
+<span class="sd">        If string, two elements need to be separated by &#39;;&#39;</span>
+<span class="sd">        If list, concatenation will be done automatically.</span>
+<span class="sd">        The two elements must be substrings of the columns to compare.</span>
+<span class="sd">        Make sure that for each substring at least two matching colnames</span>
+<span class="sd">        are present in the data.</span>
+<span class="sd">    methods : str or list of str, optional</span>
+<span class="sd">        Methods to evaluate. Default &#39;fast&#39; for the 9 most used imputation</span>
+<span class="sd">        methods. Possible values are &#39;impSeqRob&#39;,&#39;impSeq&#39;,&#39;missForest&#39;,</span>
+<span class="sd">        &#39;imputePCA&#39;,&#39;ppca&#39;,&#39;bpca&#39;, ...</span>
+<span class="sd">    npat : int, optional</span>
+<span class="sd">        Number of missing value patterns to evaluate</span>
+<span class="sd">    performance_metric : str, optional</span>
+<span class="sd">        Metric used to select the best algorithm. Possible values are</span>
+<span class="sd">        Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Input dataframe with imputed values.</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Overview of performance metrices of the different algorithms.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    We will use a standard sample dataframe and generate some missing values to</span>
+<span class="sd">    demonstrate the imputation.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; from autoprot import preprocessing as pp</span>
+<span class="sd">    &gt;&gt;&gt; import seaborn as sns</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; iris = sns.load_dataset(&#39;iris&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; _ = iris.pop(&#39;species&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; for col in iris.columns:</span>
+<span class="sd">    ...     iris.loc[iris.sample(frac=0.1).index, col] = pd.np.nan</span>
+
+<span class="sd">    &gt;&gt;&gt; imp, perf = pp.DIMA(</span>
+<span class="sd">    ...     iris, iris.columns, performance_metric=&quot;RMSEt&quot;, ttest_substr=[&quot;petal&quot;, &quot;sepal&quot;]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; imp.head()</span>
+<span class="sd">    sepal_length  sepal_width  petal_length  ...  petal_length_imputed  petal_width_imputed  UID.1_imputed</span>
+<span class="sd">    0           5.1          3.5           1.4  ...              0.485427            -2.321928       0.000000</span>
+<span class="sd">    1           4.9          3.0           1.4  ...              0.485427            -2.321928       1.000000</span>
+<span class="sd">    2           4.7          3.2           1.3  ...              0.378512            -2.321928       1.584963</span>
+<span class="sd">    3           4.6          3.1           1.5  ...              0.584963            -2.321928       2.000000</span>
+<span class="sd">    4           NaN          3.6           1.4  ...              0.485427            -2.321928       2.321928</span>
+<span class="sd">    </span>
+<span class="sd">    [5 rows x 10 columns]</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; perf.head()</span>
+<span class="sd">            Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest</span>
+<span class="sd">    impSeqRob    0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505</span>
+<span class="sd">    impSeq       0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+<span class="sd">    missForest   0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505</span>
+<span class="sd">    imputePCA    0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+<span class="sd">    ppca         0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+<span class="sd">    </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Egert, J., Brombacher, E., Warscheid, B. &amp; Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Your dataframe does not contain missing values. Will return as is.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
+    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
+
+    <span class="k">if</span> <span class="n">selection_substr</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">selection_substr</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># UID is basically a row index starting at 1</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ttest_substr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">ttest_substr</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ttest_substr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
+    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
+    <span class="s2">&quot;dima&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
+    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
+    <span class="n">outputLoc</span><span class="p">,</span> <span class="c1">#output file</span>
+    <span class="n">ttest_substr</span><span class="p">,</span> <span class="c1"># substring for ttesting</span>
+    <span class="n">methods</span><span class="p">,</span> <span class="c1"># method(s) aka algorithms to benchmark</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">npat</span><span class="p">),</span> <span class="c1"># number of patterns</span>
+    <span class="n">performance_metric</span> <span class="c1"># to select the best algorithm</span>
+    <span class="p">]</span>
+
+    <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span>
+        <span class="c1">#stdout=PIPE,</span>
+        <span class="c1">#stderr=PIPE,</span>
+        <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="c1"># keep only the columns added by DIMA and the UID for merging</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,(</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;Imputation&#39;</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;UID&#39;</span><span class="p">))]</span>
+    <span class="c1"># append a string to recognise the cols</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_imputed&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="c1"># remove the preceding string Imputation</span>
+    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Imputation.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">resCols</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
+
+    <span class="n">perf</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_performance.csv&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_performance.csv&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">perf</span></div>
 
 <div class="viewcode-block" id="expSemiCol"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.expSemiCol">[docs]</a><span class="k">def</span> <span class="nf">expSemiCol</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">scCol</span><span class="p">,</span> <span class="n">newCol</span><span class="p">,</span> <span class="n">castTo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -926,7 +1121,7 @@
 <span class="sd">    0    B1ARA5</span>
 <span class="sd">    1    Q6XZL8</span>
 <span class="sd">    1    F7CVL0</span>
-<span class="sd">    Name: SingleProts, dtype: object    </span>
+<span class="sd">    Name: SingleProts, dtype: object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1067,64 +1262,6 @@
 
     <span class="k">return</span> <span class="n">mergePairs</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;mergeID_m1&quot;</span><span class="p">,</span> <span class="s2">&quot;mergeID_m2&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="impSeq"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.impSeq">[docs]</a><span class="k">def</span> <span class="nf">impSeq</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform sequential imputation in R using impSeq from rrcovNA.</span>
-
-<span class="sd">    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the</span>
-<span class="sd">    algorithm.</span>
-<span class="sd">    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x&#39;]. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pd.dataframe</span>
-<span class="sd">        Input dataframe.</span>
-<span class="sd">    cols : list of str</span>
-<span class="sd">        Colnames to perform imputation of.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    df : pd.dataframe</span>
-<span class="sd">        Dataframe with imputed values.</span>
-<span class="sd">        Cols with imputed values are names _imputed.</span>
-<span class="sd">        Contains a col UID that was used for processing.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-    <span class="n">dataLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>
-    <span class="n">outputLoc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/output.csv&quot;</span>
-
-    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># UID is basically a row index starting at 1</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
-    <span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">dataLoc</span><span class="p">)</span>
-
-    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="s1">&#39;--vanilla&#39;</span><span class="p">,</span>
-    <span class="n">RSCRIPT</span><span class="p">,</span> <span class="c1">#script location</span>
-    <span class="s2">&quot;impSeq&quot;</span><span class="p">,</span> <span class="c1">#functionName</span>
-    <span class="n">dataLoc</span><span class="p">,</span> <span class="c1">#data location</span>
-    <span class="n">outputLoc</span> <span class="c1">#output file</span>
-    <span class="p">]</span>
-    <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">res</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
-    <span class="n">resCols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_imputed&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;UID&quot;</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">resCols</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;UID&quot;</span><span class="p">)</span>
-
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dataLoc</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outputLoc</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">df</span></div>
-
-
 <div class="viewcode-block" id="quantileNorm"><a class="viewcode-back" href="../../preprocessing.html#autoprot.preprocessing.quantileNorm">[docs]</a><span class="k">def</span> <span class="nf">quantileNorm</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">returnCols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform quantile normalization.</span>
@@ -1162,7 +1299,7 @@
 <span class="sd">    [1] https://doi.org/10.1093/bioinformatics/19.2.185</span>
 
 <span class="sd">    [2] https://www.biorxiv.org/content/10.1101/012203v1.full</span>
-<span class="sd">   </span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import autoprot.preprocessing as pp</span>
@@ -1170,16 +1307,16 @@
 <span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
 <span class="sd">    &gt;&gt;&gt; phosLog = pp.log(phos, phosRatio, base=2)</span>
 <span class="sd">    &gt;&gt;&gt; noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
-<span class="sd">    </span>
+
 <span class="sd">    Until now this was only preprocessing for the normalisation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend=&#39;r&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
 <span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
-<span class="sd">    </span>
+
 <span class="sd">        import autoprot.preprocessing as pp</span>
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
@@ -1295,17 +1432,17 @@
 <span class="sd">    &gt;&gt;&gt; phos_lfq = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_lfq.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
 <span class="sd">    &gt;&gt;&gt; noNorm = phos_lfq.filter(regex=&quot;Intensity .&quot;).columns</span>
 <span class="sd">    &gt;&gt;&gt; phos_lfq[noNorm] = phos_lfq.filter(regex=&quot;Intensity .&quot;).replace(0, np.nan)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Until now this was only preprocessing for the normalisation.</span>
 <span class="sd">    Note that we are treating LFQ pre-normalised values with VSN normalisation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; phos_lfq = pp.vsn(phos_lfq, noNorm)</span>
 <span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex=&quot;_norm&quot;).columns], data=&#39;Intensity&#39;, compare=True)</span>
 <span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
-<span class="sd">    </span>
+
 <span class="sd">        import autoprot.preprocessing as pp</span>
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
@@ -1401,16 +1538,16 @@
 <span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
 <span class="sd">    &gt;&gt;&gt; phosLog = pp.log(phos, phosRatio, base=2)</span>
 <span class="sd">    &gt;&gt;&gt; noNorm = phosLog.filter(regex=&quot;log2_Ratio ./. R.___&quot;).columns</span>
-<span class="sd">    </span>
+
 <span class="sd">    Until now this was only preprocessing for the normalisation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend=&#39;r&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex=&quot;_norm&quot;).columns], compare=True)</span>
 <span class="sd">    &gt;&gt;&gt; plt.show() #doctest: +SKIP</span>
-<span class="sd">    </span>
+
 <span class="sd">    .. plot::</span>
 <span class="sd">        :context: close-figs</span>
-<span class="sd">    </span>
+
 <span class="sd">        import autoprot.preprocessing as pp</span>
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
@@ -1487,7 +1624,7 @@
 <span class="sd">    --------</span>
 <span class="sd">    The correct position of the phosphorylation is returned independent of the</span>
 <span class="sd">    completeness of the sequence window.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; series=pd.Series([&#39;PEX14&#39;, &quot;VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE&quot;], index=[&#39;Gene names&#39;, &#39;Sequence window&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.toCanonicalPS(series, organism=&#39;human&#39;)</span>
 <span class="sd">    (&#39;O75381&#39;, 282)</span>
@@ -1611,30 +1748,30 @@
 <span class="sd">        for compartments database.</span>
 <span class="sd">    tuple of lists (mainLoc, altLoc)</span>
 <span class="sd">        Lists of main and alternative localisations if the hpa database was chosen.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; series = pd.Series([&#39;PEX14&#39;,], index=[&#39;Gene names&#39;])</span>
-<span class="sd">    </span>
+
 <span class="sd">    Find all subcellular localisations of PEX14.</span>
 <span class="sd">    The second line filters the returned dataframe so that only values with the</span>
 <span class="sd">    highest score are retained. The dataframe is converted to list for better</span>
 <span class="sd">    visualisation.</span>
-<span class="sd">    </span>
-<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.getSubCellLoc(series)    </span>
+
+<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.getSubCellLoc(series)</span>
 <span class="sd">    &gt;&gt;&gt; sorted(loc_df.loc[loc_df[loc_df[&#39;SCORE&#39;] == loc_df[&#39;SCORE&#39;].max()].index,</span>
 <span class="sd">    ...                   &#39;LOCNAME&#39;].tolist())</span>
 <span class="sd">    [&#39;Bounding membrane of organelle&#39;, &#39;Cellular anatomical entity&#39;, &#39;Cytoplasm&#39;, &#39;Intracellular&#39;, &#39;Intracellular membrane-bounded organelle&#39;, &#39;Intracellular organelle&#39;, &#39;Membrane&#39;, &#39;Microbody&#39;, &#39;Microbody membrane&#39;, &#39;Nucleus&#39;, &#39;Organelle&#39;, &#39;Organelle membrane&#39;, &#39;Peroxisomal membrane&#39;, &#39;Peroxisome&#39;, &#39;Whole membrane&#39;, &#39;cellular_component&#39;, &#39;membrane-bounded organelle&#39;, &#39;protein-containing complex&#39;]</span>
-<span class="sd">    </span>
+
 <span class="sd">    Get the score for PEX14 being peroxisomally localised</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.getSubCellLoc(series, loca=&#39;Peroxisome&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; loc_df[&#39;SCORE&#39;].tolist()[0]</span>
 <span class="sd">    5.0</span>
-<span class="sd">    </span>
+
 <span class="sd">    Using the Human Protein Atlas, a tuple of two lists containing the main and</span>
 <span class="sd">    alternative localisations is returned</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.getSubCellLoc(series, database=&#39;hpa&#39;)</span>
 <span class="sd">    ([&#39;Peroxisomes&#39;], [&#39;Nucleoli fibrillar center&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1686,19 +1823,19 @@
 <span class="sd">    float</span>
 <span class="sd">        S-score that describes both the resemblance of the patterns of</span>
 <span class="sd">        regulation and the resemblance between the degrees of regulation</span>
-<span class="sd">        in the range from zero to infinity. </span>
+<span class="sd">        in the range from zero to infinity.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Similar temporal profiles result in high S-scores</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; s1 = [1,1,1,2,3,4,4]</span>
 <span class="sd">    &gt;&gt;&gt; s2 = [1,1,1,2,3,3,4]</span>
 <span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.makeSimScore(s1, s2)</span>
 <span class="sd">    50.97173553835997</span>
 
 <span class="sd">    Low resemblance results in low scores</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; s2 = [1.1,1.1,1,1,1,1,1]</span>
 <span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.makeSimScore(s1, s2)</span>
 <span class="sd">    16.33374591446012</span>
@@ -1808,15 +1945,15 @@
 <span class="sd">    --------</span>
 <span class="sd">    Generate a dict mapping file names to ftp download links.</span>
 <span class="sd">    Not that only files containing the string proteingroups are retrieved.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; ftpDict = pp.fetchFromPRIDE(&quot;PXD031829&quot;, &#39;proteingroups&#39;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">js_list</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession=</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
                            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    
+
     <span class="n">file_locs</span> <span class="o">=</span> <span class="p">{}</span>
-    
+
     <span class="k">for</span> <span class="n">fdict</span> <span class="ow">in</span> <span class="n">js_list</span><span class="p">:</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">fdict</span><span class="p">[</span><span class="s1">&#39;fileName&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ignore_caps</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -1854,11 +1991,11 @@
 <span class="sd">    --------</span>
 <span class="sd">    Download all files from a dictionary holding file names and ftp links and</span>
 <span class="sd">    save the paths to the downloaded files in a list.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; downloadedFiles = []</span>
 <span class="sd">    &gt;&gt;&gt; for file in ftpDict.keys():</span>
 <span class="sd">    ...     downloadedFiles.append(pp.downloadFromFTP(ftpDict[file], r&#39;C:\Users\jbender\Documents\python_playground&#39;))</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="n">ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span>

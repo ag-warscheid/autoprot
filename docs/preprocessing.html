@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Data Preprocessing &#8212; autoprot  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -175,12 +176,83 @@
               
               <div>
                 
-  <div class="section" id="data-preprocessing">
+  <section id="data-preprocessing">
 <h1>Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h1>
 <p>The preprocessing module contains several functions to preprocess data.</p>
 <span class="target" id="module-autoprot.preprocessing"></span><p>Autoprot Preprocessing Functions.</p>
 <p>&#64;author: Wignand</p>
 <p>&#64;documentation: Julian</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.preprocessing.DIMA">
+<span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">DIMA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_substr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttest_substr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cluster'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">methods</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fast'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RMSE'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#DIMA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.DIMA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform Data-Driven Selection of an Imputation Algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
+<li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform imputation of.</p></li>
+<li><p><strong>selection_substr</strong> (<em>str</em>) – pattern to extract columns for processing during DIMA run.</p></li>
+<li><p><strong>ttest_substr</strong> (<em>2-element list</em><em> or </em><em>str</em>) – If string, two elements need to be separated by ‘;’
+If list, concatenation will be done automatically.
+The two elements must be substrings of the columns to compare.
+Make sure that for each substring at least two matching colnames
+are present in the data.</p></li>
+<li><p><strong>methods</strong> (<em>str</em><em> or </em><em>list of str</em><em>, </em><em>optional</em>) – Methods to evaluate. Default ‘fast’ for the 9 most used imputation
+methods. Possible values are ‘impSeqRob’,’impSeq’,’missForest’,
+‘imputePCA’,’ppca’,’bpca’, …</p></li>
+<li><p><strong>npat</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of missing value patterns to evaluate</p></li>
+<li><p><strong>performance_metric</strong> (<em>str</em><em>, </em><em>optional</em>) – Metric used to select the best algorithm. Possible values are
+Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>pd.DataFrame</em> – Input dataframe with imputed values.</p></li>
+<li><p><em>pd.DataFrame</em> – Overview of performance metrices of the different algorithms.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>We will use a standard sample dataframe and generate some missing values to
+demonstrate the imputation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">autoprot</span> <span class="kn">import</span> <span class="n">preprocessing</span> <span class="k">as</span> <span class="n">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iris</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;iris&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">iris</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;species&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">iris</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">iris</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">iris</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span><span class="p">,</span> <span class="n">perf</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DIMA</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">iris</span><span class="p">,</span> <span class="n">iris</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">performance_metric</span><span class="o">=</span><span class="s2">&quot;RMSEt&quot;</span><span class="p">,</span> <span class="n">ttest_substr</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;petal&quot;</span><span class="p">,</span> <span class="s2">&quot;sepal&quot;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imp</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">sepal_length  sepal_width  petal_length  ...  petal_length_imputed  petal_width_imputed  UID.1_imputed</span>
+<span class="go">0           5.1          3.5           1.4  ...              0.485427            -2.321928       0.000000</span>
+<span class="go">1           4.9          3.0           1.4  ...              0.485427            -2.321928       1.000000</span>
+<span class="go">2           4.7          3.2           1.3  ...              0.378512            -2.321928       1.584963</span>
+<span class="go">3           4.6          3.1           1.5  ...              0.584963            -2.321928       2.000000</span>
+<span class="go">4           NaN          3.6           1.4  ...              0.485427            -2.321928       2.321928</span>
+</pre></div>
+</div>
+<p>[5 rows x 10 columns]</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">perf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">        Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest</span>
+<span class="go">impSeqRob    0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505</span>
+<span class="go">impSeq       0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+<span class="go">missForest   0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505</span>
+<span class="go">imputePCA    0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+<span class="go">ppca         0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<p>Egert, J., Brombacher, E., Warscheid, B. &amp; Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autoprot.preprocessing.cleaning">
 <span class="sig-prename descclassname"><span class="pre">autoprot.preprocessing.</span></span><span class="sig-name descname"><span class="pre">cleaning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'proteinGroups'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/preprocessing.html#cleaning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.preprocessing.cleaning" title="Permalink to this definition">¶</a></dt>
@@ -264,9 +336,9 @@ is more robust to unbalanced differential expression.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-1.py">Source code</a>, <a class="reference external" href=".//preprocessing-1.png">png</a>, <a class="reference external" href=".//preprocessing-1.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-1.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/preprocessing-1.png" class="plot-directive" src="_images/preprocessing-1.png" />
-</div>
+</figure>
 </dd></dl>
 
 <dl class="py function">
@@ -646,9 +718,9 @@ If None all values have to be missing. The default is None.</p></li>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-2.py">Source code</a>, <a class="reference external" href=".//preprocessing-2.png">png</a>, <a class="reference external" href=".//preprocessing-2.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-2.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/preprocessing-2.png" class="plot-directive" src="_images/preprocessing-2.png" />
-</div>
+</figure>
 </dd></dl>
 
 <dl class="py function">
@@ -661,17 +733,17 @@ SEQimpute starts from a complete subset of the data set Xc and estimates sequent
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.dataframe</em>) – Input dataframe.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input dataframe.</p></li>
 <li><p><strong>cols</strong> (<em>list of str</em>) – Colnames to perform imputation of.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>df</strong> – Dataframe with imputed values.
-Cols with imputed values are names _imputed.
+<dd class="field-even"><p>Dataframe with imputed values.
+Cols with imputed values are named _imputed.
 Contains a col UID that was used for processing.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>pd.dataframe</p>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -903,9 +975,9 @@ across groups to compare. See [2].</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-3.py">Source code</a>, <a class="reference external" href=".//preprocessing-3.png">png</a>, <a class="reference external" href=".//preprocessing-3.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-3.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/preprocessing-3.png" class="plot-directive" src="_images/preprocessing-3.png" />
-</div>
+</figure>
 </dd></dl>
 
 <dl class="py function">
@@ -1086,12 +1158,12 @@ Note that we are treating LFQ pre-normalised values with VSN normalisation.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//preprocessing-4.py">Source code</a>, <a class="reference external" href=".//preprocessing-4.png">png</a>, <a class="reference external" href=".//preprocessing-4.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-4.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/preprocessing-4.png" class="plot-directive" src="_images/preprocessing-4.png" />
-</div>
+</figure>
 </dd></dl>
 
-</div>
+</section>
 
 
               </div>

@@ -2462,7 +2462,6 @@ def limma(df, reps, cond="", customDesign=None):
             design = pd.DataFrame({"Intercept":[1]*(len(reps[0])+len(reps[1])),
                                    "coef":[0]*len(reps[0]) + [1]*len(reps[1])})
 # =============================================================================
-#             TODO: What makes the Intercept here
 #             creates a design matrix such as
 #                 Intercept  coef
 #              0          1     0

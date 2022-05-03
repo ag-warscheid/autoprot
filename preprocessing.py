@@ -98,16 +98,16 @@ def cleaning(df, file="proteinGroups"):
     -------
     df : pd.DataFrame
         The cleaned dataframe.
-    
+
     Examples
     --------
     Cleaning can target different MQ txt files such as proteinGroups and
     phospho (STY) tables. The variables phos and prot are parsed MQ results tables.
-    
+
     >>> prot_clean = autoprot.preprocessing.cleaning(prot, "proteinGroups")
     4910 rows before filter operation.
     4624 rows after filter operation.
-    
+
     >>> phos_clean = autoprot.preprocessing.cleaning(phos, file = "Phospho (STY)")
     47936 rows before filter operation.
     47420 rows after filter operation.
@@ -176,7 +176,7 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
     Examples
     --------
     First collect colnames holding the intensity ratios.
-    
+
     >>> protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
 
@@ -190,9 +190,9 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
     ...       1., -1.]
     >>> prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert*2)
     >>> phos2 = autoprot.preprocessing.log(phos, phosRatio, base=10)
-    
+
     The resulting dataframe contains log ratios or NaN.
-    
+
     >>> prot2.filter(regex="log.+_Ratio M/L BC18_1$").head()
        log2_Ratio M/L BC18_1
     0                    NaN
@@ -249,7 +249,7 @@ def filterLocProb(df, thresh=.75):
     --------
     The .filterLocProb() function filters a Phospho (STY)Sites.txt file.
     You can provide the desired threshold with the *thresh* parameter.
-    
+
     >>> phos_filter = autoprot.preprocessing.filterLocProb(phos, thresh=.75)
     47936 rows before filter operation.
     33311 rows after filter operation.
@@ -321,9 +321,9 @@ def removeNonQuant(df, cols):
     0  1.0  4.0  NaN
     1  2.0  0.0  NaN
     3  4.0  1.0  1.0
-    
+
     Rows are only removed if the all values in the specified columns are NaN.
-    
+
     >>> autoprot.preprocessing.removeNonQuant(df, cols=['b', 'c'])
     4 rows before filter operation.
     4 rows after filter operation.
@@ -332,7 +332,7 @@ def removeNonQuant(df, cols):
     1  2.0  0.0  NaN
     2  NaN  NaN  1.0
     3  4.0  1.0  1.0
-    
+
     Example with real data.
 
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
@@ -647,6 +647,9 @@ def motifAnnot(df, motif, col="Sequence window"):
     return df
 
 
+# =============================================================================
+# IMPUTATION ALGORITHMS
+# =============================================================================
 def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
@@ -686,10 +689,10 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50,
     ...                                                                        label="Imputed")
     >>> plt.legend()
-    
+
     .. plot::
         :context: close-figs
-    
+
         import autoprot.preprocessing as pp
         import autoprot.visualization as vis
         import pandas as pd
@@ -726,6 +729,198 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
 
     return df
 
+def impSeq(df, cols):
+    """
+    Perform sequential imputation in R using impSeq from rrcovNA.
+
+    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the
+    algorithm.
+    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    cols : list of str
+        Colnames to perform imputation of.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with imputed values.
+        Cols with imputed values are named _imputed.
+        Contains a col UID that was used for processing.
+
+    """
+    d = os.getcwd()
+    dataLoc = d + "/input.csv"
+    outputLoc = d + "/output.csv"
+
+    if "UID" in df.columns:
+        pass
+    else:
+        # UID is basically a row index starting at 1
+        df["UID"] = range(1, df.shape[0]+1)
+
+    if not isinstance(cols, list):
+        cols = cols.to_list()
+    to_csv(df[["UID"] + cols], dataLoc)
+
+    command = [R, '--vanilla',
+    RSCRIPT, #script location
+    "impSeq", #functionName
+    dataLoc, #data location
+    outputLoc #output file
+    ]
+    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+    res = read_csv(outputLoc)
+    resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    res.columns = resCols
+
+    df = df.merge(res, on="UID")
+
+    os.remove(dataLoc)
+    os.remove(outputLoc)
+
+    return df
+
+def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
+         npat=20, performance_metric='RMSE'):
+    """
+    Perform Data-Driven Selection of an Imputation Algorithm.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    cols : list of str
+        Colnames to perform imputation of.
+    selection_substr : str
+        pattern to extract columns for processing during DIMA run.
+    ttest_substr : 2-element list or str
+        If string, two elements need to be separated by ';'
+        If list, concatenation will be done automatically.
+        The two elements must be substrings of the columns to compare.
+        Make sure that for each substring at least two matching colnames
+        are present in the data.
+    methods : str or list of str, optional
+        Methods to evaluate. Default 'fast' for the 9 most used imputation
+        methods. Possible values are 'impSeqRob','impSeq','missForest',
+        'imputePCA','ppca','bpca', ...
+    npat : int, optional
+        Number of missing value patterns to evaluate
+    performance_metric : str, optional
+        Metric used to select the best algorithm. Possible values are
+        Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.
+
+    Returns
+    -------
+    pd.DataFrame
+        Input dataframe with imputed values.
+    pd.DataFrame
+        Overview of performance metrices of the different algorithms.
+
+    Examples
+    --------
+    We will use a standard sample dataframe and generate some missing values to
+    demonstrate the imputation.
+    
+    >>> from autoprot import preprocessing as pp
+    >>> import seaborn as sns
+    >>> import pandas as pd
+    >>> iris = sns.load_dataset('iris')
+    >>> _ = iris.pop('species')
+    >>> for col in iris.columns:
+    ...     iris.loc[iris.sample(frac=0.1).index, col] = pd.np.nan
+
+    >>> imp, perf = pp.DIMA(
+    ...     iris, iris.columns, performance_metric="RMSEt", ttest_substr=["petal", "sepal"]
+    ... )
+    
+    >>> imp.head()
+    sepal_length  sepal_width  petal_length  ...  petal_length_imputed  petal_width_imputed  UID.1_imputed
+    0           5.1          3.5           1.4  ...              0.485427            -2.321928       0.000000
+    1           4.9          3.0           1.4  ...              0.485427            -2.321928       1.000000
+    2           4.7          3.2           1.3  ...              0.378512            -2.321928       1.584963
+    3           4.6          3.1           1.5  ...              0.584963            -2.321928       2.000000
+    4           NaN          3.6           1.4  ...              0.485427            -2.321928       2.321928
+    
+    [5 rows x 10 columns]
+    
+    >>> perf.head()
+            Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest
+    impSeqRob    0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505
+    impSeq       0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
+    missForest   0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505
+    imputePCA    0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
+    ppca         0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
+    
+    References
+    ----------
+    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).
+    """
+    if not df.isnull().values.any():
+        raise Exception("Your dataframe does not contain missing values. Will return as is.")
+        return
+
+    d = os.getcwd()
+    dataLoc = d + "/input.csv"
+    outputLoc = d + "/output.csv"
+
+    if selection_substr != None:
+        df = df.filter(regex=selection_substr).copy(deep=True)
+
+    if "UID" in df.columns:
+        pass
+    else:
+        # UID is basically a row index starting at 1
+        df["UID"] = range(1, df.shape[0]+1)
+
+    if not isinstance(cols, list):
+        cols = cols.to_list()
+    to_csv(df[["UID"] + cols], dataLoc)
+
+    if isinstance(ttest_substr, list):
+        ttest_substr = ','.join(ttest_substr)
+
+    if isinstance(methods, list):
+        methods = ','.join(methods)
+
+    command = [R, '--vanilla',
+    RSCRIPT, #script location
+    "dima", #functionName
+    dataLoc, #data location
+    outputLoc, #output file
+    ttest_substr, # substring for ttesting
+    methods, # method(s) aka algorithms to benchmark
+    str(npat), # number of patterns
+    performance_metric # to select the best algorithm
+    ]
+
+    run(command,
+        #stdout=PIPE,
+        #stderr=PIPE,
+        universal_newlines=True)
+
+    res = read_csv(outputLoc)
+    # keep only the columns added by DIMA and the UID for merging
+    res = res.loc[:,(res.columns.str.contains('Imputation')) | (res.columns.str.contains('UID'))]
+    # append a string to recognise the cols
+    resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    # remove the preceding string Imputation
+    resCols = [x.replace('Imputation.', '') for x in resCols]
+    res.columns = resCols
+
+    df = df.merge(res, on="UID")
+
+    perf = read_csv(outputLoc[:-4]+'_performance.csv')
+
+    os.remove(dataLoc)
+    os.remove(outputLoc)
+    os.remove(outputLoc[:-4]+'_performance.csv')
+
+    return df, perf
 
 def expSemiCol(df, scCol, newCol, castTo=None):
     r"""
@@ -764,7 +959,7 @@ def expSemiCol(df, scCol, newCol, castTo=None):
     0    B1ARA5
     1    Q6XZL8
     1    F7CVL0
-    Name: SingleProts, dtype: object    
+    Name: SingleProts, dtype: object
     """
     df = df.copy(deep=True)
     df = df.reset_index(drop=True)
@@ -905,64 +1100,6 @@ def mergeSemiCols(m1, m2, scCol1, scCol2=None):
 
     return mergePairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
-
-def impSeq(df, cols):
-    """
-    Perform sequential imputation in R using impSeq from rrcovNA.
-
-    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the
-    algorithm.
-    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.
-
-    Parameters
-    ----------
-    df : pd.dataframe
-        Input dataframe.
-    cols : list of str
-        Colnames to perform imputation of.
-
-    Returns
-    -------
-    df : pd.dataframe
-        Dataframe with imputed values.
-        Cols with imputed values are names _imputed.
-        Contains a col UID that was used for processing.
-
-    """
-    d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
-
-    if "UID" in df.columns:
-        pass
-    else:
-        # UID is basically a row index starting at 1
-        df["UID"] = range(1, df.shape[0]+1)
-
-    if not isinstance(cols, list):
-        cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
-
-    command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "impSeq", #functionName
-    dataLoc, #data location
-    outputLoc #output file
-    ]
-    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-
-    res = read_csv(outputLoc)
-    resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
-    res.columns = resCols
-
-    df = df.merge(res, on="UID")
-
-    os.remove(dataLoc)
-    os.remove(outputLoc)
-
-    return df
-
-
 def quantileNorm(df, cols, returnCols=False, backend="r"):
     r"""
     Perform quantile normalization.
@@ -1000,7 +1137,7 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
     [1] https://doi.org/10.1093/bioinformatics/19.2.185
 
     [2] https://www.biorxiv.org/content/10.1101/012203v1.full
-   
+
     Examples
     --------
     >>> import autoprot.preprocessing as pp
@@ -1008,16 +1145,16 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
     >>> phosLog = pp.log(phos, phosRatio, base=2)
     >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-    
+
     Until now this was only preprocessing for the normalisation.
-    
+
     >>> phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend='r')
     >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
     >>> plt.show() #doctest: +SKIP
-    
+
     .. plot::
         :context: close-figs
-    
+
         import autoprot.preprocessing as pp
         import autoprot.visualization as vis
         import pandas as pd
@@ -1133,17 +1270,17 @@ def vsn(df, cols, returnCols=False, backend='r'):
     >>> phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
     >>> noNorm = phos_lfq.filter(regex="Intensity .").columns
     >>> phos_lfq[noNorm] = phos_lfq.filter(regex="Intensity .").replace(0, np.nan)
-    
+
     Until now this was only preprocessing for the normalisation.
     Note that we are treating LFQ pre-normalised values with VSN normalisation.
-    
+
     >>> phos_lfq = pp.vsn(phos_lfq, noNorm)
     >>> vis.boxplot(phos_lfq, [noNorm, phos_lfq.filter(regex="_norm").columns], data='Intensity', compare=True)
     >>> plt.show() #doctest: +SKIP
-    
+
     .. plot::
         :context: close-figs
-    
+
         import autoprot.preprocessing as pp
         import autoprot.visualization as vis
         import pandas as pd
@@ -1239,16 +1376,16 @@ def cyclicLOESS(df, cols, backend='r'):
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
     >>> phosLog = pp.log(phos, phosRatio, base=2)
     >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-    
+
     Until now this was only preprocessing for the normalisation.
-    
+
     >>> phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
     >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
     >>> plt.show() #doctest: +SKIP
-    
+
     .. plot::
         :context: close-figs
-    
+
         import autoprot.preprocessing as pp
         import autoprot.visualization as vis
         import pandas as pd
@@ -1325,7 +1462,7 @@ def toCanonicalPS(series, organism="human"):
     --------
     The correct position of the phosphorylation is returned independent of the
     completeness of the sequence window.
-    
+
     >>> series=pd.Series(['PEX14', "VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE"], index=['Gene names', 'Sequence window'])
     >>> autoprot.preprocessing.toCanonicalPS(series, organism='human')
     ('O75381', 282)
@@ -1449,30 +1586,30 @@ def getSubCellLoc(series, database="compartments", loca=None, colname="Gene name
         for compartments database.
     tuple of lists (mainLoc, altLoc)
         Lists of main and alternative localisations if the hpa database was chosen.
-    
+
     Examples
     --------
     >>> series = pd.Series(['PEX14',], index=['Gene names'])
-    
+
     Find all subcellular localisations of PEX14.
     The second line filters the returned dataframe so that only values with the
     highest score are retained. The dataframe is converted to list for better
     visualisation.
-    
-    >>> loc_df = autoprot.preprocessing.getSubCellLoc(series)    
+
+    >>> loc_df = autoprot.preprocessing.getSubCellLoc(series)
     >>> sorted(loc_df.loc[loc_df[loc_df['SCORE'] == loc_df['SCORE'].max()].index,
     ...                   'LOCNAME'].tolist())
     ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular', 'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody', 'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome', 'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
-    
+
     Get the score for PEX14 being peroxisomally localised
-    
+
     >>> loc_df = autoprot.preprocessing.getSubCellLoc(series, loca='Peroxisome')
     >>> loc_df['SCORE'].tolist()[0]
     5.0
-    
+
     Using the Human Protein Atlas, a tuple of two lists containing the main and
     alternative localisations is returned
-    
+
     >>> autoprot.preprocessing.getSubCellLoc(series, database='hpa')
     (['Peroxisomes'], ['Nucleoli fibrillar center'])
     """
@@ -1524,19 +1661,19 @@ def makeSimScore(m1, m2, corr="pearson"):
     float
         S-score that describes both the resemblance of the patterns of
         regulation and the resemblance between the degrees of regulation
-        in the range from zero to infinity. 
+        in the range from zero to infinity.
 
     Examples
     --------
     Similar temporal profiles result in high S-scores
-    
+
     >>> s1 = [1,1,1,2,3,4,4]
     >>> s2 = [1,1,1,2,3,3,4]
     >>> autoprot.preprocessing.makeSimScore(s1, s2)
     50.97173553835997
 
     Low resemblance results in low scores
-    
+
     >>> s2 = [1.1,1.1,1,1,1,1,1]
     >>> autoprot.preprocessing.makeSimScore(s1, s2)
     16.33374591446012
@@ -1646,15 +1783,15 @@ def fetchFromPRIDE(accession, term, ignore_caps=True):
     --------
     Generate a dict mapping file names to ftp download links.
     Not that only files containing the string proteingroups are retrieved.
-    
+
     >>> ftpDict = pp.fetchFromPRIDE("PXD031829", 'proteingroups')
 
     """
     js_list = requests.get(f'https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession={accession}',
                            headers={'Accept': 'application/json'}).json()
-    
+
     file_locs = {}
-    
+
     for fdict in js_list:
         fname = fdict['fileName']
         if ignore_caps is True:
@@ -1692,11 +1829,11 @@ def downloadFromFTP(url, saveDir, loginname='anonymous', loginpw=''):
     --------
     Download all files from a dictionary holding file names and ftp links and
     save the paths to the downloaded files in a list.
-    
+
     >>> downloadedFiles = []
     >>> for file in ftpDict.keys():
     ...     downloadedFiles.append(pp.downloadFromFTP(ftpDict[file], r'C:\Users\jbender\Documents\python_playground'))
-    
+
     """
     path, file = os.path.split(parse.urlparse(url).path)
     ftp = FTP(parse.urlparse(url).netloc)

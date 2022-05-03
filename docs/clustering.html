@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Clustering &#8212; autoprot  documentation</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -175,7 +176,7 @@
               
               <div>
                 
-  <div class="section" id="clustering">
+  <section id="clustering">
 <h1>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h1>
 <p>The clustering submodule contains collections of functions for data clustering.
 All functions are organised in classes that store the required variables as objects of the class.
@@ -288,9 +289,9 @@ clusters and generate the final clustering with the autoRun method.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//clustering-1.py">Source code</a>, <a class="reference external" href=".//clustering-1.png">png</a>, <a class="reference external" href=".//clustering-1.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-1.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/clustering-1.png" class="plot-directive" src="_images/clustering-1.png" />
-</div>
+</figure>
 <p>Finally visualise the clustering using the visCluster method and include the
 previously extracted labeling column from the original dataframe.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;setosa&#39;</span><span class="p">,</span> <span class="s1">&#39;virginica&#39;</span><span class="p">,</span> <span class="s1">&#39;versicolor&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="s2">&quot;salmon&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -300,9 +301,9 @@ previously extracted labeling column from the original dataframe.</p>
 </div>
 <blockquote>
 <div><p>(<a class="reference external" href=".//clustering-2.py">Source code</a>, <a class="reference external" href=".//clustering-2.png">png</a>, <a class="reference external" href=".//clustering-2.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-2.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/clustering-2.png" class="plot-directive" src="_images/clustering-2.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>HCA separates the setosa quite well but virginica and versicolor are harder.
 When we manually pick true the number of clusters, HCA performs only slightly
@@ -316,18 +317,24 @@ class by changing the cmap attribute.</p>
 </div>
 <blockquote>
 <div><p>(<a class="reference external" href=".//clustering-3.py">Source code</a>)</p>
-<div class="figure align-default" id="id1">
+<figure class="align-default" id="id1">
 <img alt="_images/clustering-3_00.png" class="plot-directive" src="_images/clustering-3_00.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-3_00.png">png</a>, <a class="reference external" href=".//clustering-3_00.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_00.pdf">pdf</a>)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
-</div>
-<div class="figure align-default" id="id2">
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-3_00.png">png</a>, <a class="reference external" href=".//clustering-3_00.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_00.pdf">pdf</a>)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
 <img alt="_images/clustering-3_01.png" class="plot-directive" src="_images/clustering-3_01.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-3_01.png">png</a>, <a class="reference external" href=".//clustering-3_01.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_01.pdf">pdf</a>)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
-</div>
-<div class="figure align-default" id="id3">
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-3_01.png">png</a>, <a class="reference external" href=".//clustering-3_01.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_01.pdf">pdf</a>)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
 <img alt="_images/clustering-3_02.png" class="plot-directive" src="_images/clustering-3_02.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-3_02.png">png</a>, <a class="reference external" href=".//clustering-3_02.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_02.pdf">pdf</a>)</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-3_02.png">png</a>, <a class="reference external" href=".//clustering-3_02.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-3_02.pdf">pdf</a>)</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="autoprot.clustering.HCA.autoRun">
@@ -485,9 +492,9 @@ clusters and generate the final clustering with the autoRun method.</p>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//clustering-4.py">Source code</a>, <a class="reference external" href=".//clustering-4.png">png</a>, <a class="reference external" href=".//clustering-4.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-4.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/clustering-4.png" class="plot-directive" src="_images/clustering-4.png" />
-</div>
+</figure>
 <p>Finally visualise the clustering using the visCluster method and include the
 previously extracted labeling column from the original dataframe.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s1">&#39;setosa&#39;</span><span class="p">,</span> <span class="s1">&#39;virginica&#39;</span><span class="p">,</span> <span class="s1">&#39;versicolor&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;teal&quot;</span><span class="p">,</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="s2">&quot;salmon&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -497,9 +504,9 @@ previously extracted labeling column from the original dataframe.</p>
 </div>
 <blockquote>
 <div><p>(<a class="reference external" href=".//clustering-5.py">Source code</a>, <a class="reference external" href=".//clustering-5.png">png</a>, <a class="reference external" href=".//clustering-5.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-5.pdf">pdf</a>)</p>
-<div class="figure align-default">
+<figure class="align-default">
 <img alt="_images/clustering-5.png" class="plot-directive" src="_images/clustering-5.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>As you can see can KMeans quite well separate setosa but virginica and versicolor are harder.
 When we manually pick the number of clusters, it gets a bit better</p>
@@ -510,18 +517,24 @@ When we manually pick the number of clusters, it gets a bit better</p>
 </div>
 <blockquote>
 <div><p>(<a class="reference external" href=".//clustering-6.py">Source code</a>)</p>
-<div class="figure align-default" id="id4">
+<figure class="align-default" id="id4">
 <img alt="_images/clustering-6_00.png" class="plot-directive" src="_images/clustering-6_00.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-6_00.png">png</a>, <a class="reference external" href=".//clustering-6_00.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_00.pdf">pdf</a>)</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
-</div>
-<div class="figure align-default" id="id5">
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-6_00.png">png</a>, <a class="reference external" href=".//clustering-6_00.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_00.pdf">pdf</a>)</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
 <img alt="_images/clustering-6_01.png" class="plot-directive" src="_images/clustering-6_01.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-6_01.png">png</a>, <a class="reference external" href=".//clustering-6_01.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_01.pdf">pdf</a>)</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
-</div>
-<div class="figure align-default" id="id6">
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-6_01.png">png</a>, <a class="reference external" href=".//clustering-6_01.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_01.pdf">pdf</a>)</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
 <img alt="_images/clustering-6_02.png" class="plot-directive" src="_images/clustering-6_02.png" />
-<p class="caption"><span class="caption-text">(<a class="reference external" href=".//clustering-6_02.png">png</a>, <a class="reference external" href=".//clustering-6_02.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_02.pdf">pdf</a>)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">(<a class="reference external" href=".//clustering-6_02.png">png</a>, <a class="reference external" href=".//clustering-6_02.hires.png">hires.png</a>, <a class="reference external" href=".//clustering-6_02.pdf">pdf</a>)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
 </div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="autoprot.clustering.KMeans.autoRun">
@@ -611,7 +624,7 @@ and the between-cluster dispersion.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
               </div>

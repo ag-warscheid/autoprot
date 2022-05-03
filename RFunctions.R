@@ -1,3 +1,7 @@
+## R Functions for autoprot
+## @author: Wignand, Julian
+
+# Function to test installation status and install packages from CRAN
 CRANpkgTest <- function(x)
 {
   if (!require(x,character.only = TRUE))
@@ -7,9 +11,9 @@ CRANpkgTest <- function(x)
   }
 }
 
+# Function to test installation status and install packages from Bioconductor
 BCpkgTest <- function(x){
-  installedPackges <- installed.packages() %>%
-    rownames
+  installedPackges <- rownames(installed.packages())
   if (x %in% installedPackges){
     require(x,character.only = TRUE)
   }
@@ -19,41 +23,144 @@ BCpkgTest <- function(x){
   }
 }
 
-CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager")
+# Function to test installation status of the archived imputation package required
+# for DIMA
+ArchpkgTest <- function(){
+  installedPackges <- rownames(installed.packages())
+  if ("imputation" %in% installedPackges){
+    require("imputation",character.only = TRUE)
+  }
+  else {
+    install.packages("https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz",
+                     repos=NULL,
+                     type='source')
+  }
+}
+
+# Function to test installation status from github/devtools
+DTpkgTest <- function(x){
+  installedPackges <- rownames(installed.packages())
+  pkgName <- strsplit(x, "/")[[1]][[2]]
+  if (pkgName %in% installedPackges){
+    require(pkgName,character.only = TRUE)
+  }
+  else {
+    devtools::install_github(x)
+  }
+}
+
+## DEPENDENCIES ##
+# autoprot depends on these R packages and will test their installation on runtime
+CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager", "devtools")
 for (package in CRAN_packages){
   CRANpkgTest(package)
 }
 
-BC_packages <- c("limma", "vsn", "RankProd")
+BC_packages <- c("limma", "vsn", "RankProd", "pcaMethods", "impute", "SummarizedExperiment")
 for (package in BC_packages){
   BCpkgTest(package)
 }
 
+ArchpkgTest()
+
+devtool_packages <- c("cran/DMwR", "kreutz-lab/DIMAR")
+for (package in devtool_packages){
+  DTpkgTest(package)
+}
+
+## ARGS
+# read the args coming form Python
 args = commandArgs(trailingOnly=TRUE)
 
+# The functest argument only executes the installation tests and is
+# called e.g. during the checkRinstall routine in Python
 if (args[1] == 'functest') {
   quit()
 }
 
+# RFunctions is called with at least three arguments
 func <- args[1]
 input <- args[2]
 output <- args[3]
+# args[4]
+# limma:  design/kind of test for limma
+# DIMA:   list of column headers for comparison of t statistic (joined with ;)
+# args[5]
+# limma:  location of design file for limma
+# DIMA:   methods to use for imputations benchmark
+# args[6]
+# DIMA:   npat -> number of patterns to simulate
+# args[7]
+# DIMA:   Performance Metric to use for selection of best algorithm
 
+## READ DATA
+# Data for processing is written to file from Python and
+# read here for R processing
 df <- read.table(input, sep='\t', header=TRUE)
+# set the row names of the df to the UID columns
 rownames(df) <- df$UID
+# remove the column UID from the df and save as new var dfv
 dfv <- df[,-which(names(df) %in% c("UID"))]
 
-#----- functions
+## FUNCTIONS
+# Data driven imputation selection DIMA
+dimaFunction <- function(dfv) {
 
+  # default args
+  methods <- strsplit(x = args[5], split = ',')[[1]]
+  npat <- args[6]
+  group <- strsplit(x = args[4], split = ',')[[1]]
+  performanceMetric <- args[7]
+  
+  print(paste0('args: ', format(args)))
+  
+  mtx <- as.matrix(dfv)
+  
+  print(noquote('colnames:'))
+  print(format(colnames(mtx)))
+
+  print(noquote('group :'))
+  print(format(group))
+
+  # from here: copied from
+  # https://github.com/kreutz-lab/DIMAR/blob/b8e9497cd490a464bf46ebc177efd7e34f064723/R/dimar.R
+  
+  if (!group[1] == 'cluster') {
+    groupidx <- rep(0L,ncol(mtx))
+    groupidx[grepl(group[1],colnames(mtx))] <- 1
+    groupidx[grepl(group[2],colnames(mtx))] <- 2
+    group <- groupidx
+  }
+  
+  mtx <- DIMAR::dimarMatrixPreparation(mtx)
+  
+  coef <- DIMAR::dimarLearnPattern(mtx)
+  ref <- DIMAR::dimarConstructReferenceData(mtx)
+  sim <- DIMAR::dimarAssignPattern(ref, coef, mtx, npat)
+  
+  Imputations <- DIMAR::dimarDoImputations(sim, methods)
+  Performance <- DIMAR::dimarEvaluatePerformance(Imputations, ref, sim, performanceMetric, TRUE, group)
+  Imp <- DIMAR::dimarDoOptimalImputation(mtx, rownames(Performance))
+
+  dfv <- as.data.frame(Imp)
+  dfv$UID <- rownames(dfv)
+  write.table(dfv, output, sep='\t')
+  write.table(Performance, paste(str_sub(output, end=-5), '_performance.csv', sep=""), sep='\t')
+}
+
+# sequential imputation from rrcovNA
 impSeqFunction <- function(dfv) {
-  dfv <- as.data.frame(impSeq(dfv))
+    dfv <- as.data.frame(impSeq(dfv))
   dfv$UID <- rownames(dfv)
   write.table(dfv, output, sep='\t')
 }
 
+# Linear Models Analysis with limma
 limmaFunction <- function(dfv) {
   
+  # the design is supplied during call
   design <- args[4]
+  # two sample LIMMA
   if (design == "twoSample") {
     design <- read.table(args[5], sep='\t', header=TRUE)
   }
@@ -61,14 +168,23 @@ limmaFunction <- function(dfv) {
     design <- read.table(args[5], sep='\t', header=TRUE)
   }
   else{
+    # this is linear regression:
+    # Calculation of mean and STDERR of data points
     coef <- rep(1,ncol(dfv))
     design <- data.frame(coef)
   }
   
+  # Fit linear model for each protein
   fit <- lmFit(dfv, design)
+  # Compute moderated t-statistics, moderated F-statistic, and log-odds
+  # of differential expression by empirical Bayes moderation of the standard
+  # errors towards a global value.
   eb <- eBayes(fit)
+  # Extract a table of the top-ranked genes from a linear model fit.
   res <- topTable(eb, coef="coef", number=Inf, confint = TRUE)
+  # add back the UID column from the row index
   res$UID <- rownames(res)
+  # write out the table
   write.table(res, output, sep='\t')
 }
 
@@ -102,8 +218,6 @@ rankprod <- function(dfv) {
                        na.rm=TRUE, gene.names=df$`UID`, plot=FALSE, calculateProduct = FALSE,
                        rand=1337)
   
-  #plotRP(RP.out, cutoff=0.05)
-  
   RS <- RP.out$RSs[,2]
   logFC <- RP.out$AveFC
   pval <- RP.out$pval
@@ -117,10 +231,12 @@ rankprod <- function(dfv) {
   write.table(res, output, sep='\t')
 }
 
-#------ switchCase
-
+## SWITCH
+# this witch directs the programme flow to one of the target functions depending
+# on which statement is provided from within Python
 result = switch(
   func,
+  "dima"     = dimaFunction(dfv),
   "impSeq"   = impSeqFunction(dfv),
   "limma"    = limmaFunction(dfv),
   "quantile" = quantileNorm(dfv),
