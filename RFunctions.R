@@ -115,6 +115,8 @@ dimaFunction <- function(dfv) {
   print(paste0('args: ', format(args)))
   
   mtx <- as.matrix(dfv)
+  #print(noquote('mtx:'))
+  #print(format(mtx))
   
   print(noquote('colnames:'))
   print(format(colnames(mtx)))
@@ -132,7 +134,11 @@ dimaFunction <- function(dfv) {
     group <- groupidx
   }
   
-  mtx <- DIMAR::dimarMatrixPreparation(mtx)
+  # TODO: change nacut back to 2 once the error in the source code is fixed
+  mtx <- DIMAR::dimarMatrixPreparation(mtx, nacut = 2)
+  
+  #print(noquote('mtx:'))
+  #print(format(mtx))
   
   coef <- DIMAR::dimarLearnPattern(mtx)
   ref <- DIMAR::dimarConstructReferenceData(mtx)

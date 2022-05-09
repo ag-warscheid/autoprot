@@ -12,7 +12,7 @@ import pandas as pd
 from importlib import resources
 import re
 import os
-from subprocess import run, PIPE, CalledProcessError
+from subprocess import run, PIPE, STDOUT, CalledProcessError
 from autoprot.decorators import report
 from autoprot import RHelper
 import requests
@@ -795,7 +795,8 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     df : pd.DataFrame
         Input dataframe.
     cols : list of str
-        Colnames to perform imputation of.
+        Colnames to perform imputation on.
+        NOTE: if used on intensities, use log-transformed values.
     selection_substr : str
         pattern to extract columns for processing during DIMA run.
     ttest_substr : 2-element list or str
@@ -829,32 +830,33 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     >>> from autoprot import preprocessing as pp
     >>> import seaborn as sns
     >>> import pandas as pd
+    >>> import numpy as np
     >>> iris = sns.load_dataset('iris')
     >>> _ = iris.pop('species')
     >>> for col in iris.columns:
-    ...     iris.loc[iris.sample(frac=0.1).index, col] = pd.np.nan
+    ...     iris.loc[iris.sample(frac=0.1).index, col] = np.nan
 
     >>> imp, perf = pp.DIMA(
     ...     iris, iris.columns, performance_metric="RMSEt", ttest_substr=["petal", "sepal"]
     ... )
     
     >>> imp.head()
-    sepal_length  sepal_width  petal_length  ...  petal_length_imputed  petal_width_imputed  UID.1_imputed
-    0           5.1          3.5           1.4  ...              0.485427            -2.321928       0.000000
-    1           4.9          3.0           1.4  ...              0.485427            -2.321928       1.000000
-    2           4.7          3.2           1.3  ...              0.378512            -2.321928       1.584963
-    3           4.6          3.1           1.5  ...              0.584963            -2.321928       2.000000
-    4           NaN          3.6           1.4  ...              0.485427            -2.321928       2.321928
+       sepal_length  sepal_width  petal_length  ...  sepal_width_imputed  petal_length_imputed  petal_width_imputed
+    0           5.1          3.5           1.4  ...                  3.5                   1.4                  0.2
+    1           4.9          3.0           1.4  ...                  3.0                   1.4                  0.2
+    2           4.7          3.2           1.3  ...                  3.2                   1.3                  0.2
+    3           4.6          3.1           1.5  ...                  3.1                   1.5                  0.2
+    4           5.0          3.6           1.4  ...                  3.6                   1.4                  0.2
     
-    [5 rows x 10 columns]
+    [5 rows x 9 columns]
     
     >>> perf.head()
-            Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest
-    impSeqRob    0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505
-    impSeq       0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
-    missForest   0.218770  0.371442  0.159864        0.973839  95.120805  0.999018   0.095505
-    imputePCA    0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
-    ppca         0.295076  0.429169  0.184709        0.969001  94.127517  0.998698   0.123471
+                Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest
+    impSeqRob    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656
+    impSeq       0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783
+    missForest   0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783
+    imputePCA    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656
+    ppca         0.377638  0.500354  0.249424        0.933919  95.000000  0.997721   0.199830
     
     References
     ----------
@@ -864,12 +866,18 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
         raise Exception("Your dataframe does not contain missing values. Will return as is.")
         return
 
+    df = df.copy(deep=True)
+
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
+    
+    for col in cols:
+        mvs = df[col].isna().sum() / df[col].size
+        print(f"{mvs*100:.2f}% MVs in column {col}")
 
     if selection_substr != None:
-        df = df.filter(regex=selection_substr).copy(deep=True)
+        df = df.filter(regex=selection_substr)
 
     if "UID" in df.columns:
         pass
@@ -898,10 +906,12 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     performance_metric # to select the best algorithm
     ]
 
-    run(command,
-        #stdout=PIPE,
-        #stderr=PIPE,
-        universal_newlines=True)
+    p = run(command,
+            stdout=PIPE,
+            stderr=STDOUT,
+            universal_newlines=True)
+
+    print(p.stdout)
 
     res = read_csv(outputLoc)
     # keep only the columns added by DIMA and the UID for merging
@@ -912,7 +922,10 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     resCols = [x.replace('Imputation.', '') for x in resCols]
     res.columns = resCols
 
-    df = df.merge(res, on="UID")
+    # merge and retain the rows of the original df
+    df = df.merge(res, how='left', on="UID")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
 
     perf = read_csv(outputLoc[:-4]+'_performance.csv')
 
@@ -1240,6 +1253,7 @@ def vsn(df, cols, returnCols=False, backend='r'):
         Input dataframe.
     cols : list of str
         Colnames to perform normlisation on.
+        NOTE: if used on intensities, use log-transformed values.
     returnCols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
