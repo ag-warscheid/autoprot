@@ -66,7 +66,7 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
     df_missed_cleavage_summary = df_missed_cleavage_summary/df_missed_cleavage_summary.apply(np.sum, axis=0)*100
     df_missed_cleavage_summary = df_missed_cleavage_summary.round(2)
     
-    #### making the box plot figure missed cleavage
+    #### making the barchart figure missed cleavage
     x_ax=len(experiments)+1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
     fig.suptitle("% Missed cleavage per run", fontdict=None,
@@ -80,10 +80,91 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
                loc='upper right', borderaxespad=0.)
     
     #plt.tight_layout()
-    plt.savefig("{0}_BoxPlot_missed-cleavage.pdf".format(today), dpi=600)
+    plt.savefig("{0}_BarChart_missed-cleavage.pdf".format(today), dpi=600)
     
     #### save df missed cleavage summery as .csv
     df_missed_cleavage_summary.to_csv("{}_Missed-cleavage_result-table.csv".format(today), sep='\t', index=False)
     
     #### return results
-    return print(df_missed_cleavage_summary, ax1)
+    return print(df_missed_cleavage_summary, ax1)    
+
+def enrichmentSpecifity(df_evidence, typ="Phospho"):
+    '''
+
+    Parameters
+    ----------
+    df_evidence : cleaned pandas DataFrame from Maxquant analysis
+    typ : str, 
+          Give type of enrichment for analysis. The default is "Phospho".
+
+    Figure in Pdf format in given filepath,
+    Result table as csv
+    -------
+    None.
+
+    '''
+    ##set plot style
+    plt.style.use('seaborn-whitegrid')
+
+    ##set parameters
+    today = date.today().isoformat()
+
+    try:
+        experiments = list(set((df_evidence["Experiment"])))
+    except:
+        print("Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used")
+    rawfiles = list(set((df_evidence["Raw file"])))
+    if len(experiments) != len(rawfiles):
+        experiments = rawfiles
+        print("Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used")
+
+    if typ==False:
+        print("Error: Choose type of enrichment")
+
+    if typ=="Phospho":
+        colname = 'Phospho (STY)'
+    if typ=="AHA-Phosphonate":
+        colname ='Met--> Phosphonate'
+    if typ=="CPT":
+        colname ='Cys--> Phosphonate'
+
+    df=pd.DataFrame()
+    df_summary=pd.DataFrame()
+
+    for name,group in df_evidence.groupby("Experiment"):    
+
+        nonmod = round(((group[colname]==0).sum() / group.shape[0] *100),2)
+        mod = round(((group[colname]>0).sum() / group.shape[0] *100),2)
+
+        #print(name)
+        #print("% peptides without modification: ",nonmod)
+        #print("% peptides with modification: ",mod)
+
+        df.loc[name,"Modified peptides [%]"] = mod
+        df.loc[name,"Non-modified peptides [%]"] = nonmod
+
+    df_summary = pd.concat([df_summary, df], axis=0)
+
+    #make barchart
+    labels = experiments
+    width = 0.4
+    fig, ax = plt.subplots()
+    fig.suptitle('Enrichment specificty [%]', fontdict=None,
+                 horizontalalignment='center', size=14
+                 #,fontweight="bold"
+                 )
+
+    df_summary.plot(kind="bar", stacked=True, ax=ax)
+
+    ax.set_ylabel('peptides [%]')
+    ax.legend(bbox_to_anchor=(1.5, 1),
+               loc='upper right', borderaxespad=0.)
+
+    plt.savefig("{0}_BarPlot_enrichmentSpecifity.pdf".format(today), dpi=600)
+
+    #### save df missed cleavage summery as .csv
+    df_summary.T.to_csv("{}_enrichmentSpecifity_result-table.csv".format(today), sep='\t', index=False)
+    #### return results
+    return print(df.T, ax)
