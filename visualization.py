@@ -900,8 +900,8 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
     fct : float, optional
         fold change threshold at which an entry is deemed significant regulated.
         The default is None.
-    annot : bool, optional
-        whether or not to annotate the plot. The default is None.
+    annot : str, optional
+        Column name to annotate the plot. The default is None.
     interactive : bool, optional
          The default is False.
     sig_col : str, optional
