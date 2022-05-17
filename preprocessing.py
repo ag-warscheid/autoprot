@@ -207,19 +207,20 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
         if base == 2:
             for c in cols:
                 if replace_inf:
-                    df[f"log2_{c}"] = np.nan_to_num(np.log2(df[c]), neginf=np.nan, posinf=np.nan)
+                    df[f"log2_{c}"] = np.nan_to_num(np.log2(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
                 else:
                     df[f"log2_{c}"] = np.log2(df[c])
         elif base==10:
             for c in cols:
                 if replace_inf:
-                    df[f"log10_{c}"] = np.nan_to_num(np.log10(df[c]), neginf=np.nan, posinf=np.nan)
+                    df[f"log10_{c}"] = np.nan_to_num(np.log10(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
                 else:
                     df[f"log10_{c}"] = np.log10(df[c])
         else:
             for c in cols:
                 if replace_inf:
                     df[f"log{base}_{c}".format(base)] = np.nan_to_num(np.log(df[c]) / np.log(base),
+                                                                      nan=np.nan,
                                                                       neginf=np.nan,
                                                                       posinf=np.nan)
                 else:
