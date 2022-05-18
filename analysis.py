@@ -131,19 +131,19 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
 
     """
     cond = '_' + cond
-    
+
     def oneSamp_ttest(x):
         return np.ma.filled(ttest_1samp(x,
                                         nan_policy="omit",
                                         alternative=alternative,
                                         popmean=0)[1],np.nan)
-    
+
     def twoSamp_ttest(x):
         return np.ma.filled(ttest_ind(x[:len(reps[0])],
                                       x[len(reps[0]):],
                                       alternative=alternative,
                                       nan_policy="omit")[1],np.nan)
-    
+
     if isinstance(reps[0], list) and len(reps) == 2:
         df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: twoSamp_ttest(x),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
@@ -1510,7 +1510,7 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         Columns to perform missing values analysis on.
     n : int, optional
         How many rows of the dataframe to displayed.
-        The default is 999.
+        The default is None (uses all rows).
     sort : str, optional
         "ascending" or "descending".
         The default is 'ascending'.
@@ -1610,7 +1610,6 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
             col.append(idx)
         return data
 
-
     def describe(data, n,saveDir, sort='ascending'):
         """
         Print summary statistics as text based on data df.
@@ -1639,9 +1638,9 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
             True if successful.
 
         """
-        if n == 999:
+        if n == None:
             n = len(data)
-        elif n>len(data):
+        elif n > len(data):
             print("'n' is larger than dataframe!\nDisplaying complete dataframe.")
             n = len(data)
         if n<0:
@@ -1671,7 +1670,6 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         print(allines)
 
         return True
-
 
     def visualize(data, n, saveDir, sort='ascending'):
         """
@@ -1742,7 +1740,6 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
 
         return True
 
-
     def visualize_extra(df, saveDir):
         """
         Visualize the missingness in the dataset using missingno.
@@ -1770,6 +1767,7 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         if saveDir:
             plt.savefig(saveDir + "/missAnalysis_vis2.pdf")
         return True
+
 
     # only analyse subset of cols
     df = df[cols]
@@ -1847,12 +1845,12 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 
     Examples
     --------
-    To generate a wordcloud and print the results of the found articles to the 
+    To generate a wordcloud and print the results of the found articles to the
     prompt use the following command
-    
+
     >>> autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
                                           makeWordCloud=True)
-    
+
     .. plot::
         :context: close-figs
 
@@ -1862,7 +1860,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 
     Even more comfortably, you can also save the results incl. the wordcloud
     as html file
-    
+
     >>>  autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
                                           makeWordCloud=True,
                                           output='./MyPubmedSearch.html')
@@ -2245,9 +2243,9 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 def loess(data, xvals, yvals, alpha, poly_degree=2):
     r"""
     Calculate a LOcally-Weighted Scatterplot Smoothing Fit.
-    
+
     See: https://medium.com/@langen.mu/creating-powerfull-lowess-graphs-in-python-e0ea7a30b17a
-    
+
     Parameters
     ----------
     data : pd.Dataframe
@@ -2286,10 +2284,10 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     >>> fig, ax = plt.subplots(1,1)
     >>> sns.scatterplot(df["Xvalue"], df["Yvalue"], ax=ax)
     >>> ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
-    
+
     .. plot::
         :context: close-figs
-        
+
         import autoprot.analysis as ana
         import seaborn as sns
 
@@ -2308,14 +2306,14 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         loc_est = 0
         for i in enumerate(b): loc_est+=i[1]*(x**i[0])
         return(loc_est)
-    
+
     # generate x,y value pairs and sort them according to x
     all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
     # separate the values again into x and y cols
     xvals, yvals = zip(*all_data)
     # generate empty df for final fit
     evalDF = pd.DataFrame(columns=['v','g'])
-    
+
     n = len(xvals)
     m = n + 1
     # how many datapoints to include in the weighing
@@ -2330,7 +2328,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     v = enumerate(np.linspace(start=v_lb, stop=v_ub, num=m), start=1)
     # create an array of ones of the same length as xvals
     xcols = [np.ones_like(xvals)]
-    
+
     for j in range(1, (poly_degree + 1)):
         xcols.append([i ** j for i in xvals])
     X = np.vstack(xcols).T
@@ -2359,7 +2357,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
 def edm(A,B):
     """
     Calculate an euclidean distance matrix between two matrices.
-    
+
     See:  https://medium.com/swlh/euclidean-distance-matrix-4c3e1378d87f
 
     Parameters
@@ -2422,12 +2420,12 @@ def limma(df, reps, cond="", customDesign=None):
     ...                    "b3":np.random.normal(loc=0.5, size=4000),})
     >>> testRes = ana.limma(df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
     >>> testRes["P.Value_test"].hist()
-    
+
     .. plot::
         :context: close-figs
-        
+
         import autoprot.analysis as ana
-    
+
         df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
                            "a2":np.random.normal(loc=0, size=4000),
                            "a3":np.random.normal(loc=0, size=4000),
@@ -2437,7 +2435,7 @@ def limma(df, reps, cond="", customDesign=None):
         testRes = ana.limma(df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
         testRes["P.Value_test"].hist()
         plt.show()
-        
+
     """
     # TODO: better handle coefficient extraction in R
     d = os.getcwd()
@@ -2651,7 +2649,7 @@ def makePSM(seq, seqLen):
     """
     Generate a position score matrix for a set of sequences.
 
-    Returns the percentage of each amino acid for each position that 
+    Returns the percentage of each amino acid for each position that
     can be further normalized using a PSM of unrelated/background sequences.
 
     Parameters
@@ -2665,9 +2663,9 @@ def makePSM(seq, seqLen):
     Returns
     -------
     pd.Dataframe
-        Dataframe holding the prevalence for every amino acid per position in 
+        Dataframe holding the prevalence for every amino acid per position in
         the input sequences.
-        
+
     Examples
     --------
     >>> autoprot.analysis.makePSM(['PEPTIDE', 'PEGTIDE', 'GGGGGGG'], 7)

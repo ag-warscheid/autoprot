@@ -773,13 +773,25 @@ def impSeq(df, cols):
     dataLoc, #data location
     outputLoc #output file
     ]
-    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+    p = run(command,
+            stdout=PIPE,
+            stderr=STDOUT,
+            universal_newlines=True)
+
+    print(p.stdout)
 
     res = read_csv(outputLoc)
+    # append a string to recognise the cols
     resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    # change back the R colnames
+    resCols = [x.replace('.', ' ') for x in resCols]
     res.columns = resCols
 
-    df = df.merge(res, on="UID")
+    # merge and retain the rows of the original df
+    df = df.merge(res, how='left', on="UID")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
 
     os.remove(dataLoc)
     os.remove(outputLoc)
