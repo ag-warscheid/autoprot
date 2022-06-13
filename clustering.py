@@ -178,7 +178,7 @@ class Cluster:
             None.
 
             """
-            plt.figure(figsize=(5,3*self.nclusters))
+            plt.figure(figsize=(5,5*self.nclusters))
             temp = pd.DataFrame(self.data.copy())
             if z_score is not None:
                 # calculate the z-score using scipy using the other axis (i.e. axis=0 if
@@ -243,7 +243,7 @@ class Cluster:
                                 color=color[idx],
                                 alpha=alpha[idx])
                 # set the tick labels as the colnames
-                plt.xticks(range(len(self.clabels)), self.clabels)
+                plt.xticks(range(len(self.clabels)), self.clabels, rotation = 90)
                 plt.tight_layout()
 
                 # save to file if asked

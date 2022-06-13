@@ -36,7 +36,7 @@ def checkRinstall():
                   '', #kind of test
                   '' #design location
                   ], timeout=600)
-            
+
 def returnRPath():
     
     checkRinstall()

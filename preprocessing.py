@@ -712,10 +712,11 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
         maxMissing = len(colsToImpute)
     # idxs of all rows in which imputation will be performed
     idx_noCtrl = df[df[colsToImpute].isnull().sum(1) >= maxMissing].index
-    df["Imputed"] = False
-    df.loc[idx_noCtrl,"Imputed"] = True
+    #df["Imputed"] = False
+    #df.loc[idx_noCtrl,"Imputed"] = True
 
     for col in colsToImpute:
+        df[col+'_imputed'] = np.nan
         mean = df[col].mean()
         var  = df[col].std()
         mean_ = mean - downshift*var
@@ -724,13 +725,11 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
         #generate random numbers matching the target dist
         rnd = np.random.normal(mean_, var_, size=len(idx_noCtrl))
         for i, idx in enumerate(idx_noCtrl):
-            # ctrl so that really no data is overwritten
-            if np.isnan(df.loc[idx, col]):
-                df.loc[idx, col] = rnd[i]
+            df.loc[idx, col+'_imputed'] = rnd[i]
 
     return df
 
-def impSeq(df, cols):
+def impSeq(df, cols, print_r=True):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
@@ -744,6 +743,8 @@ def impSeq(df, cols):
         Input dataframe.
     cols : list of str
         Colnames to perform imputation of.
+    print_r : bool, optional
+        Whether to print the output of R, default is True.
 
     Returns
     -------
@@ -779,7 +780,8 @@ def impSeq(df, cols):
             stderr=STDOUT,
             universal_newlines=True)
 
-    print(p.stdout)
+    if print_r:
+        print(p.stdout)
 
     res = read_csv(outputLoc)
     # append a string to recognise the cols
@@ -793,13 +795,13 @@ def impSeq(df, cols):
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
-    os.remove(dataLoc)
-    os.remove(outputLoc)
+    #os.remove(dataLoc)
+    #os.remove(outputLoc)
 
     return df
 
 def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
-         npat=20, performance_metric='RMSE'):
+         npat=20, performance_metric='RMSE', print_r=True):
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
 
@@ -813,7 +815,7 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     selection_substr : str
         pattern to extract columns for processing during DIMA run.
     ttest_substr : 2-element list or str
-        If string, two elements need to be separated by ';'
+        If string, two elements need to be separated by ','
         If list, concatenation will be done automatically.
         The two elements must be substrings of the columns to compare.
         Make sure that for each substring at least two matching colnames
@@ -924,7 +926,8 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
             stderr=STDOUT,
             universal_newlines=True)
 
-    print(p.stdout)
+    if print_r:
+        print(p.stdout)
 
     res = read_csv(outputLoc)
     # keep only the columns added by DIMA and the UID for merging

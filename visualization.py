@@ -1293,7 +1293,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
 
 def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
     sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-    figsize=(6,6), hover_name=None):
+    figsize=(6,6), retFig=False):
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
@@ -1308,8 +1308,8 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
     fct : float, optional
         fold change threshold at which an entry is deemed significant regulated.
         The default is None.
-    annot : bool, optional
-        whether or not to annotate the plot. The default is None.
+    annot : str, optional
+        Which column to use for plot annotation. The default is False.
     interactive : bool, optional
          The default is False.
     sig_col : str, optional
@@ -1321,10 +1321,9 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
         The default is "Volcano Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    hover_name : str, optional
-        Colname to use for labels in interactive plot.
-        The default is None.
-
+    retFig : bool, optional
+        Whether or not to return the figure, can be used to further
+        customize it afterwards.. The default is False.
     Returns
     -------
     None.
@@ -1412,12 +1411,12 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
         #add legend
         plt.legend()
 
-        if annot==True:
+        if annot:
             #Annotation
             #get x and y coordinates as well as strings to plot
             xs = df[logFC].loc[sig]
             ys = df[Int].loc[sig]
-            ss = df["Gene names"].loc[sig]
+            ss = df[annot].loc[sig]
 
             #annotation
             for idx, (x,y,s) in enumerate(zip(xs,ys,ss)):
@@ -1437,8 +1436,8 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
                         plt.text(x+.2,y-.2,s)
 
     if interactive == True:
-        if hover_name is not None:
-            fig = px.scatter(data_frame=df,x=logFC, y=Int, hover_name=hover_name,
+        if annot:
+            fig = px.scatter(data_frame=df,x=logFC, y=Int, hover_name=annot,
                       color="SigCat",color_discrete_sequence=["cornflowerblue","mistyrose"],
                              opacity=0.5,category_orders={"SigCat":["*","-"]}, title="Volcano plot")
         else:
@@ -1480,7 +1479,11 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
             'plot_bgcolor': 'rgba(70,70,70,1)',
             'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
         })
-        fig.show()
+        
+        if retFig:
+            return fig
+        else:
+            fig.show()
 
 
 def MAPlot(df, x, y, interactive=False, fct=None,
