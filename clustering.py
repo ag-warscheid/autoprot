@@ -25,7 +25,7 @@ class Cluster:
     Base class for clustering pipelines.
     """
 
-    def __init__(self, data, clabels=None, rlabels=None, zscore=None,
+    def __init__(self, data, clabels=None, rlabels=None, zs=None,
                  linkage=None):
         """
         Initialise the class.
@@ -39,7 +39,7 @@ class Cluster:
             The default is None.
         rlabels : list-like, optional. Row labels.
             May not be present in the input df. The default is None.
-        zscore : int or None, optional
+        zs : int or None, optional
             Axis along which to calculate the zscore.
             The default is None.
         linkage : scipy.cluster.hierarchy.linkage object, optional
@@ -102,7 +102,7 @@ class Cluster:
             return data.values, data.index.tolist(), data.columns.tolist()
 
         self.data, self.rlabels, self.clabels =\
-            sanitizeData(data,clabels, rlabels, zscore)
+            sanitizeData(data,clabels, rlabels, zs)
 
         # the linkage object for hierarchical clustering
         self.linkage = linkage
@@ -155,7 +155,7 @@ class Cluster:
         None.
 
         """
-        def makeClusterTraces(self, file, colors, z_score=None):
+        def makeClusterTraces(self, file, colors, zs=None):
             """
             Plot RMSD vs colname line plots.
 
@@ -169,7 +169,7 @@ class Cluster:
             colors : list of str or None.
                 Colours for the traces. If none, the same predefined colours will
                 be used for all n traces.
-            z_score : int or None, optional
+            zs : int or None, optional
                 Axis along which to standardise the data by z-score transformation.
                 The default is None.
 
@@ -180,10 +180,10 @@ class Cluster:
             """
             plt.figure(figsize=(5,5*self.nclusters))
             temp = pd.DataFrame(self.data.copy())
-            if z_score is not None:
+            if zs is not None:
                 # calculate the z-score using scipy using the other axis (i.e. axis=0 if
                 # 1 was provided and vice versa)
-                temp = pd.DataFrame(zscore(temp, axis=1-z_score)) #seaborn and scipy work opposite
+                temp = pd.DataFrame(zscore(temp, axis=1-zs)) #seaborn and scipy work opposite
             # ndarray containing the cluster numbers for each data point
             temp["cluster"] = self.clusterId
 
@@ -228,10 +228,10 @@ class Cluster:
                 grouped = temp2.groupby("distance")
 
                 ax.set_title("Cluster {}".format(i+1))
-                if z_score == None:
-                    ax.set_ylabel("-ln RMSD(value)")
+                if zs == None:
+                    ax.set_ylabel("value")
                 else:
-                    ax.set_ylabel("-ln RMSD(z-score)")
+                    ax.set_ylabel("z-score")
                 ax.set_xlabel("Condition")
 
                 # for every RMSD group

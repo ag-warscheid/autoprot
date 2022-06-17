@@ -41,7 +41,7 @@ plt.rcParams['pdf.fonttype'] = 42
 
 # TODO: Add functionality of embedding all the plots as subplots in figures by providing ax parameter
 
-def correlogram(df, columns=None, file="proteinGroups",log=True,saveDir = None,
+def correlogram(df, columns=None, file="proteinGroups", log=True, saveDir=None,
                 saveType="pdf", saveName="pairPlot", lowerTriang="scatter",
                 sampleFrac=None, bins=100):
     r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
@@ -132,38 +132,36 @@ def correlogram(df, columns=None, file="proteinGroups",log=True,saveDir = None,
         vis.correlogram(prot,mildLogInt, file='proteinGroups', lowerTriang="hexBin")
 
     """
+
     def getColor(r):
         colors = {
-        0.8: "#d67677",
-        0.81: "#d7767c",
-        0.82: "#d87681",
-        0.83: "#da778c",
-        0.84: "#dd7796",
-        0.85: "#df78a1",
-        0.86: "#e179ad",
-        0.87: "#e379b8",
-        0.88: "#e57ac4",
-        0.89: "#e77ad0",
-        0.90: "#ea7bdd",
-        0.91 : "#ec7bea",
-        0.92 : "#e57cee",
-        0.93 : "#dc7cf0",
-        0.94 : "#d27df2",
-        0.95 : "#c87df4",
-        0.96 : "#be7df6",
-        0.97 : "#b47ef9",
-        0.98 : "#a97efb",
-        0.99 : "#9e7ffd",
-        1 : "#927fff"
-            }
-        if r <= 0.8:
-            return "#D63D40"
-        else:
-            return colors[np.round(r,2)]
+            0.8: "#d67677",
+            0.81: "#d7767c",
+            0.82: "#d87681",
+            0.83: "#da778c",
+            0.84: "#dd7796",
+            0.85: "#df78a1",
+            0.86: "#e179ad",
+            0.87: "#e379b8",
+            0.88: "#e57ac4",
+            0.89: "#e77ad0",
+            0.90: "#ea7bdd",
+            0.91: "#ec7bea",
+            0.92: "#e57cee",
+            0.93: "#dc7cf0",
+            0.94: "#d27df2",
+            0.95: "#c87df4",
+            0.96: "#be7df6",
+            0.97: "#b47ef9",
+            0.98: "#a97efb",
+            0.99: "#9e7ffd",
+            1: "#927fff"
+        }
+        return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
     def corrfunc(x, y, **kws):
         """Calculate correlation coefficient and add text to axis."""
-        df = pd.DataFrame({"x":x, "y":y})
+        df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
         y = df["y"].values
@@ -172,61 +170,58 @@ def correlogram(df, columns=None, file="proteinGroups",log=True,saveDir = None,
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
 
-    def heatmap(x,y,**kws):
+    def heatmap(x, y, **kws):
         """Calculate correlation coefficient and add coloured tile to axis."""
-        df = pd.DataFrame({"x":x, "y":y})
+        df = pd.DataFrame({"x": x, "y": y})
         df = df.replace(-np.inf, np.nan).dropna()
         x = df["x"].values
         y = df["y"].values
-        r, _ = stats.pearsonr(x,y)
+        r, _ = stats.pearsonr(x, y)
         ax = plt.gca()
-        ax.add_patch(mpl.patches.Rectangle((0,0),5,5,
+        ax.add_patch(mpl.patches.Rectangle((0, 0), 5, 5,
                                            color=getColor(r),
                                            transform=ax.transAxes))
-        ax.tick_params(axis = "both", which = "both", length=0)
+        ax.tick_params(axis="both", which="both", length=0)
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
 
-    def lowerScatter(x,y,**kws):
+    def lowerScatter(x, y, **kws):
         """Plot data points as scatter plot to axis."""
-        data = pd.DataFrame({"x":x, "y":y})
+        data = pd.DataFrame({"x": x, "y": y})
         if sampleFrac is not None:
-            data = data.sample(int(data.shape[0]*sampleFrac))
+            data = data.sample(int(data.shape[0] * sampleFrac))
         ax = plt.gca()
-        ax.scatter(data['x'],data['y'], linewidth=0)
+        ax.scatter(data['x'], data['y'], linewidth=0)
 
-    def lowerHexBin(x,y,**kws):
+    def lowerHexBin(x, y, **kws):
         """Plot data points as hexBin plot to axis."""
-        plt.hexbin(x,y, cmap="Blues", bins=bins,
-        gridsize=50)
+        plt.hexbin(x, y, cmap="Blues", bins=bins,
+                   gridsize=50)
 
-    def lowerhist2D(x,y,**kws):
+    def lowerhist2D(x, y, **kws):
         """Plot data points as hist2d plot to axis."""
-        df = pd.DataFrame({"x":x, "y":y})
+        df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
         y = df["y"].values
-        plt.hist2d(x,y, bins=bins, cmap="Blues", vmin=0, vmax=1)
+        plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1)
 
-    def proteins_found(x,y,**kws):
-        df = pd.DataFrame({"x":x, "y":y})
+    def proteins_found(x, y, **kws):
+        df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
         y = df["y"].values
-        r, _ = stats.pearsonr(x,y)
+        r, _ = stats.pearsonr(x, y)
         ax = plt.gca()
-        if file == "proteinGroups":
-            ax.annotate("{} proteins identified".format(str(len(y))),
-                    xy=(.1,.9), xycoords=ax.transAxes)
-            ax.annotate("R: {}".format(str(round(r,2))),
-                    xy=(.25,.5),size=18, xycoords=ax.transAxes)
-        elif file == "Phospho (STY)":
-            ax.annotate("{} peptides identified".format(str(len(y))),
-                    xy=(.1,.9), xycoords=ax.transAxes)
-            ax.annotate("R: {}".format(str(round(r,2))),
-                    xy=(.25,.5),size=18, xycoords=ax.transAxes)
+        if file == "Phospho (STY)":
+            ax.annotate(f"{len(y)} peptides identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
+            ax.annotate(f"R: {str(round(r, 2))}", xy=(0.25, 0.5), size=18, xycoords=ax.transAxes)
 
-    if len(columns)==0:
+        elif file == "proteinGroups":
+            ax.annotate(f"{len(y)} proteins identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
+            ax.annotate(f"R: {str(round(r, 2))}", xy=(0.25, 0.5), size=18, xycoords=ax.transAxes)
+
+    if len(columns) == 0:
         raise ValueError("No columns provided!")
     else:
         # select columns for plotting
@@ -263,8 +258,8 @@ def correlogram(df, columns=None, file="proteinGroups",log=True,saveDir = None,
             plt.savefig(f"{saveDir}/{saveName}.png")
 
 
-def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7,7),
-            saveDir = None, saveType="pdf", saveName="pairPlot", ax=None, **kwargs):
+def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
+            saveDir=None, saveType="pdf", saveName="pairPlot", ax=None, **kwargs):
     r"""
     Plot correlation heat- and clustermaps.
 
@@ -351,7 +346,7 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7,7),
             plt.savefig(f"{saveDir}/{saveName}.png")
 
 
-def probPlot(df, col, dist = "norm",figsize=(6,6)):
+def probPlot(df, col, dist="norm", figsize=(6, 6)):
     r"""
     Plot a QQ_plot of the provided column.
 
@@ -411,16 +406,16 @@ def probPlot(df, col, dist = "norm",figsize=(6,6)):
 
     """
     t = stats.probplot(df[col].replace([-np.inf, np.inf], [np.nan, np.nan]).dropna(), dist=dist)
-    label = f"R²: {round(t[1][2],4)}"
-    y=[]
-    x=[]
-    for i in np.linspace(min(t[0][0]),max(t[0][0]), 100):
+    label = f"R²: {round(t[1][2], 4)}"
+    y = []
+    x = []
+    for i in np.linspace(min(t[0][0]), max(t[0][0]), 100):
         y.append(t[1][0] * i + t[1][1])
         x.append(i)
     plt.figure(figsize=figsize)
     plt.scatter(t[0][0], t[0][1], alpha=.3, color="purple",
-    label=label)
-    plt.plot(x,y, color="teal")
+                label=label)
+    plt.plot(x, y, color="teal")
     sns.despine()
     plt.title(f"Probability Plot\n{col}")
     plt.xlabel("Theorectical Quantiles")
@@ -428,8 +423,8 @@ def probPlot(df, col, dist = "norm",figsize=(6,6)):
     plt.legend()
 
 
-def boxplot(df, reps, title=None, labels=[], compare=False,
-            data="logFC", file=None, retFig=False, figsize=(15,5),**kwargs):
+def boxplot(df, reps, title=None, labels=None, compare=False, data="logFC", file=None, retFig=False, figsize=(15, 5),
+            **kwargs):
     r"""
     Plot intensity boxplots.
 
@@ -512,42 +507,41 @@ def boxplot(df, reps, title=None, labels=[], compare=False,
         vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
                    data="logFC")
     """
+    if labels is None:
+        labels = []
     # check if inputs make sense
-    if compare==True:
-        if len(reps) != 2:
-            raise ValueError("You want to compare two sets, provide two sets.")
+    if compare == True and len(reps) != 2:
+        raise ValueError("You want to compare two sets, provide two sets.")
 
-    #set ylabel based on data
-    if data == "logFC":
-        ylabel="logFC"
-    elif data == "Intensity":
-        ylabel="Intensity"
+    # set ylabel based on data
+    if data == "Intensity":
+        ylabel = "Intensity"
 
+    elif data == "logFC":
+        ylabel = "logFC"
     if compare == True:
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
         if title:
             for idx, t in enumerate(title):
-                ax[idx].set_title("{}".format(t))
+                ax[idx].set_title(f"{t}")
 
         for idx, rep in enumerate(reps):
             df[rep].boxplot(ax=ax[idx], **kwargs)
             ax[idx].grid(False)
             if data == "logFC":
-                 ax[idx].axhline(0,0,1, color="gray", ls="dashed")
+                ax[idx].axhline(0, 0, 1, color="gray", ls="dashed")
 
-        if len(labels)>0:
-            for idx in [0,1]:
+        if len(labels) > 0:
+            for idx in [0, 1]:
                 temp = ax[idx].set_xticklabels(labels)
                 tlabel = ax[idx].get_xticklabels()
                 for i, label in enumerate(tlabel):
-                    label.set_y(label.get_position()[1]-(i%2)*.05)
+                    label.set_y(label.get_position()[1] - (i % 2) * .05)
         else:
-            ax[0].set_xticklabels([str(i+1) for i in range(len(reps[0]))])
-            ax[1].set_xticklabels([str(i+1) for i in range(len(reps[1]))])
-        sns.despine()
-
+            ax[0].set_xticklabels([str(i + 1) for i in range(len(reps[0]))])
+            ax[1].set_xticklabels([str(i + 1) for i in range(len(reps[1]))])
     else:
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
@@ -556,16 +550,16 @@ def boxplot(df, reps, title=None, labels=[], compare=False,
         plt.title(title)
         plt.ylabel(ylabel)
 
-        if len(labels)>0:
+        if len(labels) > 0:
             temp = ax.set_xticklabels(labels)
             ax.set_xticklabels(labels)
             for i, label in enumerate(temp):
-                    label.set_y(label.get_position()[1]-(i%2)*.05)
+                label.set_y(label.get_position()[1] - (i % 2) * .05)
         else:
-            ax.set_xticklabels(str(i+1) for i in range(len(reps)))
+            ax.set_xticklabels(str(i + 1) for i in range(len(reps)))
         if data == "logFC":
-            ax.axhline(0,0,1, color="gray", ls="dashed")
-        sns.despine()
+            ax.axhline(0, 0, 1, color="gray", ls="dashed")
+    sns.despine()
 
     if file is not None:
         plt.savefig(fr"{file}/BoxPlot.pdf")
@@ -573,8 +567,8 @@ def boxplot(df, reps, title=None, labels=[], compare=False,
         return fig
 
 
-def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
-                  title="Rank Plot", figsize=(15,7), file=None, hline=None,
+def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
+                  title="Rank Plot", figsize=(15, 7), file=None, hline=None,
                   ax=None, **kwargs):
     """
     Draw a rank plot.
@@ -654,37 +648,37 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
         ax = fig.gca()
 
     # plot on the axis
-    sns.scatterplot(x=x,y=y,
-                   linewidth=0,
-                   ax=ax,
-                   **kwargs)
+    sns.scatterplot(x=x, y=y,
+                    linewidth=0,
+                    ax=ax,
+                    **kwargs)
 
     if hline is not None:
-        ax.axhline(hline,0,1, ls="dashed", color="lightgray")
+        ax.axhline(hline, 0, 1, ls="dashed", color="lightgray")
 
     if label is not None:
         # high intensity labels labels
         top_y = y.iloc[-1]
 
-        top_yy = np.linspace(top_y-n*0.4, top_y, n)
+        top_yy = np.linspace(top_y - n * 0.4, top_y, n)
         top_oy = y[-n:]
         top_xx = x[-n:]
         top_ss = data[label].iloc[-n:]
 
-        for ys,xs,ss,oy in zip(top_yy, top_xx, top_ss, top_oy):
-            ax.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
-            ax.text(x=xs+len(x)*.1, y=ys, s=ss)
+        for ys, xs, ss, oy in zip(top_yy, top_xx, top_ss, top_oy):
+            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
+            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
 
         # low intensity labels
         low_y = y.iloc[0]
-        low_yy = np.linspace(low_y, low_y+n*0.4, n)
+        low_yy = np.linspace(low_y, low_y + n * 0.4, n)
         low_oy = y[:n]
         low_xx = x[:n]
         low_ss = data[label].iloc[:n]
 
-        for ys,xs,ss,oy in zip(low_yy, low_xx, low_ss, low_oy):
-            ax.plot([xs,xs+len(x)*.1], [oy, ys], color="gray")
-            ax.text(x=xs+len(x)*.1, y=ys, s=ss)
+        for ys, xs, ss, oy in zip(low_yy, low_xx, low_ss, low_oy):
+            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
+            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
 
     sns.despine()
     ax.set_xlabel("# rank")
@@ -695,7 +689,7 @@ def intensityRank(data, rankCol="log10_Intensity" ,label=None, n=5,
         plt.savefig(fr"{file}/RankPlot.pdf")
 
 
-def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
+def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
     r"""
     Draw vennDiagrams.
 
@@ -793,9 +787,9 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
     """
     data = df.copy(deep=True)
     n = data.shape[1]
-    if n>6:
+    if n > 6:
         raise ValueError("You cannot analyse more than 6 conditions in a venn diagram!")
-    elif n==1:
+    elif n == 1:
         raise ValueError("You should at least provide 2 conditions to compare in a venn diagram!")
     reps = data.columns.to_list()
     data["UID"] = range(data.shape[0])
@@ -805,10 +799,10 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
         g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
         g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         if proportional:
-            venn2([g1,g2], set_labels=reps)
+            venn2([g1, g2], set_labels=reps)
         else:
             labels = venn.get_labels([g1, g2], fill=["number", "logic"])
-            fig, ax = venn.venn2(labels, names=[reps[0], reps[1]],figsize=figsize)
+            fig, ax = venn.venn2(labels, names=[reps[0], reps[1]], figsize=figsize)
 
     elif n == 3:
         g1 = data[[reps[0]] + ["UID"]]
@@ -818,10 +812,10 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
         g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         if proportional:
-            venn3([g1,g2,g3], set_labels=reps)
+            venn3([g1, g2, g3], set_labels=reps)
         else:
             labels = venn.get_labels([g1, g2, g3], fill=["number", "logic"])
-            fig, ax = venn.venn3(labels, names=[reps[0], reps[1], reps[2]],figsize=figsize)
+            fig, ax = venn.venn3(labels, names=[reps[0], reps[1], reps[2]], figsize=figsize)
 
     elif n == 4:
         g1 = data[[reps[0]] + ["UID"]]
@@ -833,7 +827,7 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         g4 = set(g4["UID"][g4[reps[3]].notnull()].values)
         labels = venn.get_labels([g1, g2, g3, g4], fill=["number", "logic"])
-        fig, ax = venn.venn4(labels, names=[reps[0], reps[1], reps[2], reps[3]],figsize=figsize)
+        fig, ax = venn.venn4(labels, names=[reps[0], reps[1], reps[2], reps[3]], figsize=figsize)
     elif n == 5:
         g1 = data[[reps[0]] + ["UID"]]
         g2 = data[[reps[1]] + ["UID"]]
@@ -846,7 +840,7 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
         g4 = set(g4["UID"][g4[reps[3]].notnull()].values)
         g5 = set(g5["UID"][g5[reps[4]].notnull()].values)
         labels = venn.get_labels([g1, g2, g3, g4, g5], fill=["number", "logic"])
-        fig, ax = venn.venn5(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4]],figsize=figsize)
+        fig, ax = venn.venn5(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4]], figsize=figsize)
     elif n == 6:
         g1 = data[[reps[0]] + ["UID"]]
         g2 = data[[reps[1]] + ["UID"]]
@@ -861,7 +855,7 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
         g5 = set(g5["UID"][g5[reps[4]].notnull()].values)
         g6 = set(g6["UID"][g6[reps[5]].notnull()].values)
         labels = venn.get_labels([g1, g2, g3, g4, g5, g6], fill=["number", "logic"])
-        fig, ax = venn.venn6(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4], reps[5]],figsize=figsize)
+        fig, ax = venn.venn6(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4], reps[5]], figsize=figsize)
 
     if retFig == True:
         return fig
@@ -869,10 +863,10 @@ def vennDiagram(df, figsize=(10,10), retFig=False, proportional=True):
 
 def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
             interactive=False, sig_col="green", bg_col="lightgray",
-            title="Volcano Plot", figsize=(6,6), hover_name=None, highlight=None,
+            title="Volcano Plot", figsize=(6, 6), hover_name=None, highlight=None,
             pointsize_name=None,
-            highlight_col = "red", annotHighlight="all", custom_bg = {},
-            custom_fg = {}, custom_hl = {}, retFig = False, ax=None, legend=True):
+            highlight_col="red", annotHighlight="all", custom_bg={},
+            custom_fg={}, custom_hl={}, retFig=False, ax=None, legend=True):
     r"""
     Draw Volcano plot.
 
@@ -1074,6 +1068,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
                     fct=0.4)
 
     """
+
     def setAesthetic(d, typ, interactive):
         """
         Set standard aesthetics of volcano and integrate with user defined settings.
@@ -1094,56 +1089,52 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
 
         """
         if typ == "bg":
-            standard = {"alpha":0.33,
-                           "s":2,
-                           "label":"background",
-                           "linewidth":0} #this hugely improves performance in illustrator
+            standard = {"alpha": 0.33,
+                        "s": 2,
+                        "label": "background",
+                        "linewidth": 0}  # this hugely improves performance in illustrator
 
         elif typ == "fg":
-            standard = {"alpha":1,
-                           "s":6,
-                           "label":"sig",
-                           "linewidth":0}
+            standard = {"alpha": 1,
+                        "s": 6,
+                        "label": "sig",
+                        "linewidth": 0}
 
         elif typ == "hl":
-            standard = {"alpha":1,
-                           "s":20,
-                           "label":"POI",
-                           "linewidth":0}
+            standard = {"alpha": 1,
+                        "s": 20,
+                        "label": "POI",
+                        "linewidth": 0}
 
         if interactive == False:
             for k in standard.keys():
-                if k in d:
-                    pass
-                else:
+                if k not in d:
                     d[k] = standard[k]
 
         return d
 
-
-    def checkData(df,logFC, score, p, pt, fct):
+    def checkData(df, logFC, score, p, pt, fct):
         if score is None and p is None:
             raise ValueError("You have to provide either a score or a (adjusted) p value.")
         elif score is None:
             df["score"] = -np.log10(df[p])
             score = "score"
         else:
-            df.rename(columns={score:"score"}, inplace=True)
+            df.rename(columns={score: "score"}, inplace=True)
             score = "score"
             p = "p"
-            df["p"] = 10**(df["score"]*-1)
+            df["p"] = 10 ** (df["score"] * -1)
 
         # define the significant eintries in dataframe
         df["SigCat"] = "-"
         if fct is not None:
-            df.loc[(df[p] < pt) & (abs(df[logFC]) > fct),"SigCat"] = '*'
+            df.loc[(df[p] < pt) & (abs(df[logFC]) > fct), "SigCat"] = '*'
         else:
             df.loc[(df[p] < pt), "SigCat"] = '*'
-        sig = df[df["SigCat"]=='*'].index
-        unsig = df[df["SigCat"]=="-"].index
+        sig = df[df["SigCat"] == '*'].index
+        unsig = df[df["SigCat"] == "-"].index
 
         return df, score, sig, unsig
-
 
     df = df.copy(deep=True)
     # set up standard aesthetics
@@ -1153,41 +1144,41 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         custom_hl = setAesthetic(custom_hl, typ="hl", interactive=interactive)
 
     # check for input correctness and make sure score is present in df for plot
-    df, score, sig, unsig = checkData(df,logFC, score, p, pt, fct)
+    df, score, sig, unsig = checkData(df, logFC, score, p, pt, fct)
 
     if interactive == False:
-        #darw figure
+        # darw figure
         if ax is None:
             fig = plt.figure(figsize=figsize)
-            ax=plt.subplot() #for a bare minimum plot you do not need this line
-        #the following lines of code generate the scatter the rest is styling
+            ax = plt.subplot()  # for a bare minimum plot you do not need this line
+        # the following lines of code generate the scatter the rest is styling
 
         ax.scatter(df[logFC].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
         ax.scatter(df[logFC].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
         if highlight is not None:
             ax.scatter(df[logFC].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
 
-        #draw threshold lines
+        # draw threshold lines
         if fct:
-            ax.axvline(fct,0,1,ls="dashed", color="lightgray")
-            ax.axvline(-fct,0,1,ls="dashed", color="lightgray")
-        ax.axhline(-np.log10(pt), 0, 1,ls="dashed", color="lightgray")
+            ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+            ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+        ax.axhline(-np.log10(pt), 0, 1, ls="dashed", color="lightgray")
 
-        #remove of top and right plot boundary
+        # remove of top and right plot boundary
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        #seting x and y labels and title
+        # seting x and y labels and title
         ax.set_ylabel("score")
         ax.set_xlabel("logFC")
         ax.set_title(title, size=18)
 
-        #add legend
-        if legend==True:
+        # add legend
+        if legend == True:
             ax.legend()
 
-            #Annotation
+            # Annotation
         if annot is not None:
-            #get x and y coordinates as well as strings to plot
+            # get x and y coordinates as well as strings to plot
             if highlight is None:
                 xs = df[logFC].loc[sig]
                 ys = df["score"].loc[sig]
@@ -1198,59 +1189,59 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
                     ys = df["score"].loc[highlight]
                     ss = df[annot].loc[highlight]
                 elif annotHighlight == "sig":
-                    xs = df[logFC].loc[set(highlight)&set(sig)]
-                    ys = df["score"].loc[set(highlight)&set(sig)]
-                    ss = df[annot].loc[set(highlight)&set(sig)]
+                    xs = df[logFC].loc[set(highlight) & set(sig)]
+                    ys = df["score"].loc[set(highlight) & set(sig)]
+                    ss = df[annot].loc[set(highlight) & set(sig)]
 
-            #annotation
-            for idx, (x,y,s) in enumerate(zip(xs,ys,ss)):
-                if idx%2 != 0:
+            # annotation
+            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
+                if idx % 2 != 0:
                     if x < 0:
-                        ax.plot([x,x-.2],[y,y+.2],color="gray")
-                        ax.text(x-.3,y+.25,s)
+                        ax.plot([x, x - .2], [y, y + .2], color="gray")
+                        ax.text(x - .3, y + .25, s)
                     else:
-                        ax.plot([x,x+.2],[y,y+.2],color="gray")
-                        ax.text(x+.2,y+.2,s)
+                        ax.plot([x, x + .2], [y, y + .2], color="gray")
+                        ax.text(x + .2, y + .2, s)
                 else:
                     if x < 0:
-                        ax.plot([x,x-.2],[y,y-.2],color="gray")
-                        ax.text(x-.3,y-.25,s)
+                        ax.plot([x, x - .2], [y, y - .2], color="gray")
+                        ax.text(x - .3, y - .25, s)
                     else:
-                        ax.plot([x,x+.2],[y,y-.2],color="gray")
-                        ax.text(x+.2,y-.2,s)
+                        ax.plot([x, x + .2], [y, y - .2], color="gray")
+                        ax.text(x + .2, y - .2, s)
 
         if retFig == True:
             return fig
 
     if interactive == True:
 
-        colors = [bg_col,sig_col]
+        colors = [bg_col, sig_col]
         if highlight is not None:
 
             df["SigCat"] = "-"
             df.loc[highlight, "SigCat"] = "*"
             if hover_name is not None:
-                fig = px.scatter(data_frame=df,x=logFC, y=score, hover_name=hover_name,
+                fig = px.scatter(data_frame=df, x=logFC, y=score, hover_name=hover_name,
                                  size=pointsize_name,
-                                 color="SigCat",color_discrete_sequence=colors,
-                                 opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
+                                 color="SigCat", color_discrete_sequence=colors,
+                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
             else:
-                fig = px.scatter(data_frame=df,x=logFC, y=score,
+                fig = px.scatter(data_frame=df, x=logFC, y=score,
                                  size=pointsize_name,
-                                 color="SigCat",color_discrete_sequence=colors,
-                                 opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
+                                 color="SigCat", color_discrete_sequence=colors,
+                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
 
         else:
             if hover_name is not None:
-                fig = px.scatter(data_frame=df,x=logFC, y=score, hover_name=hover_name,
+                fig = px.scatter(data_frame=df, x=logFC, y=score, hover_name=hover_name,
                                  size=pointsize_name,
-                                 color="SigCat",color_discrete_sequence=colors,
-                                 opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
+                                 color="SigCat", color_discrete_sequence=colors,
+                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
             else:
-                fig = px.scatter(data_frame=df,x=logFC, y=score,
+                fig = px.scatter(data_frame=df, x=logFC, y=score,
                                  size=pointsize_name,
-                                 color="SigCat",color_discrete_sequence=colors,
-                                 opacity=0.5,category_orders={"SigCat":["-","*"]}, title=title)
+                                 color="SigCat", color_discrete_sequence=colors,
+                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
 
         fig.update_yaxes(showgrid=False, zeroline=True)
         fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1264,7 +1255,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
                 showlegend=False)
         )
         if fct is not None:
-        #add fold change visualization
+            # add fold change visualization
             fig.add_trace(
                 go.Scatter(
                     x=[-fct, -fct],
@@ -1285,15 +1276,15 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         fig.update_layout({
             'plot_bgcolor': 'rgba(70,70,70,1)',
             'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-            },
+        },
             showlegend=legend,
-            )
+        )
         return fig
 
 
 def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
-    sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-    figsize=(6,6), retFig=False):
+               sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
+               figsize=(6, 6), retFig=False):
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
@@ -1383,67 +1374,66 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
     df = df[~df[Int].isin([-np.inf, np.nan])]
     df["SigCat"] = "-"
     if fct is not None:
-        df.loc[abs(df[logFC])>fct,"SigCat"] = "*"
+        df.loc[abs(df[logFC]) > fct, "SigCat"] = "*"
     unsig = df[df["SigCat"] == "-"].index
     sig = df[df["SigCat"] == "*"].index
 
     if interactive == False:
-        #draw figure
+        # draw figure
         plt.figure(figsize=figsize)
-        ax=plt.subplot()
-        plt.scatter(df[logFC].loc[unsig], df[Int].loc[unsig], color=bg_col,alpha=.75, s=5, label="background")
+        ax = plt.subplot()
+        plt.scatter(df[logFC].loc[unsig], df[Int].loc[unsig], color=bg_col, alpha=.75, s=5, label="background")
         plt.scatter(df[logFC].loc[sig], df[Int].loc[sig], color=sig_col, label="POI")
 
-        #draw threshold lines
+        # draw threshold lines
         if fct:
-            plt.axvline(fct,0,1,ls="dashed", color="lightgray")
-            plt.axvline(-fct,0,1,ls="dashed", color="lightgray")
-        plt.axvline(0,0,1,ls="dashed", color="gray")
+            plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+            plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+        plt.axvline(0, 0, 1, ls="dashed", color="gray")
 
-        #remove of top and right plot boundary
+        # remove of top and right plot boundary
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        #seting x and y labels and title
+        # seting x and y labels and title
         plt.ylabel("log Intensity")
         plt.xlabel("logFC")
         plt.title(title, size=18)
 
-        #add legend
+        # add legend
         plt.legend()
 
         if annot:
-            #Annotation
-            #get x and y coordinates as well as strings to plot
+            # Annotation
+            # get x and y coordinates as well as strings to plot
             xs = df[logFC].loc[sig]
             ys = df[Int].loc[sig]
             ss = df[annot].loc[sig]
 
-            #annotation
-            for idx, (x,y,s) in enumerate(zip(xs,ys,ss)):
-                if idx%2 != 0:
+            # annotation
+            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
+                if idx % 2 == 0:
                     if x < 0:
-                        plt.plot([x,x-.2],[y,y+.2],color="gray")
-                        plt.text(x-.3,y+.25,s)
+                        plt.plot([x, x - .2], [y, y - .2], color="gray")
+                        plt.text(x - .3, y - .25, s)
                     else:
-                        plt.plot([x,x+.2],[y,y+.2],color="gray")
-                        plt.text(x+.2,y+.2,s)
-                else:
-                    if x < 0:
-                        plt.plot([x,x-.2],[y,y-.2],color="gray")
-                        plt.text(x-.3,y-.25,s)
-                    else:
-                        plt.plot([x,x+.2],[y,y-.2],color="gray")
-                        plt.text(x+.2,y-.2,s)
+                        plt.plot([x, x + .2], [y, y - .2], color="gray")
+                        plt.text(x + .2, y - .2, s)
 
+                elif x < 0:
+                    plt.plot([x, x - .2], [y, y + .2], color="gray")
+                    plt.text(x - .3, y + .25, s)
+                else:
+                    plt.plot([x, x + .2], [y, y + .2], color="gray")
+                    plt.text(x + .2, y + .2, s)
     if interactive == True:
         if annot:
-            fig = px.scatter(data_frame=df,x=logFC, y=Int, hover_name=annot,
-                      color="SigCat",color_discrete_sequence=["cornflowerblue","mistyrose"],
-                             opacity=0.5,category_orders={"SigCat":["*","-"]}, title="Volcano plot")
+            fig = px.scatter(data_frame=df, x=logFC, y=Int, hover_name=annot,
+                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
         else:
-            fig = px.scatter(data_frame=df,x=logFC, y=Int,
-                      color="SigCat",color_discrete_sequence=["cornflowerblue","mistyrose"],
-                             opacity=0.5,category_orders={"SigCat":["*","-"]}, title="Volcano plot")
+            fig = px.scatter(data_frame=df, x=logFC, y=Int,
+                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
 
         fig.update_yaxes(showgrid=False, zeroline=True)
         fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1479,7 +1469,7 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
             'plot_bgcolor': 'rgba(70,70,70,1)',
             'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
         })
-        
+
         if retFig:
             return fig
         else:
@@ -1487,7 +1477,7 @@ def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
 
 
 def MAPlot(df, x, y, interactive=False, fct=None,
-           title="MA Plot", figsize=(6,6), hover_name=None):
+           title="MA Plot", figsize=(6, 6), hover_name=None):
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
 
@@ -1568,34 +1558,34 @@ def MAPlot(df, x, y, interactive=False, fct=None,
     """
     df = df.copy(deep=True)
     df["M"] = df[x] - df[y]
-    df["A"] = 1/2 * (df[x]+df[y])
+    df["A"] = 1 / 2 * (df[x] + df[y])
     df["M"].replace(-np.inf, np.nan, inplace=True)
     df["A"].replace(-np.inf, np.nan, inplace=True)
     df["SigCat"] = False
     if fct is not None:
         df.loc[abs(df["M"]) > fct, "SigCat"] = True
     if interactive == False:
-        #draw figure
+        # draw figure
         plt.figure(figsize=figsize)
-        sns.scatterplot(data=df,x='A',y='M', linewidth=0, hue="SigCat")
-        plt.axhline(0,0,1, color="black", ls="dashed")
+        sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
+        plt.axhline(0, 0, 1, color="black", ls="dashed")
         plt.title(title)
         plt.ylabel("M")
         plt.xlabel("A")
 
         if fct is not None:
-            plt.axhline(fct,0,1,color="gray", ls="dashed")
-            plt.axhline(-fct,0,1,color="gray", ls="dashed")
+            plt.axhline(fct, 0, 1, color="gray", ls="dashed")
+            plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
 
     if interactive == True:
         if hover_name is not None:
-            fig = px.scatter(data_frame=df,x='A', y='M', hover_name=hover_name,
-                      color="SigCat",color_discrete_sequence=["cornflowerblue","mistyrose"],
-                             opacity=0.5,category_orders={"SigCat":["*","-"]}, title=title)
+            fig = px.scatter(data_frame=df, x='A', y='M', hover_name=hover_name,
+                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
         else:
-            fig = px.scatter(data_frame=df,x='A', y='M',
-                      color="SigCat",color_discrete_sequence=["cornflowerblue","mistyrose"],
-                             opacity=0.5,category_orders={"SigCat":["*","-"]}, title=title)
+            fig = px.scatter(data_frame=df, x='A', y='M',
+                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
 
         fig.update_yaxes(showgrid=False, zeroline=True)
         fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1666,10 +1656,11 @@ def meanSd(df, reps):
 
         vis.meanSd(prot, twitchInt)
     """
-    def hexa(x,y):
-        plt.hexbin(x,y, cmap="BuPu",
-                  gridsize=40)
-        plt.plot(x,y.rolling(window=200, min_periods=10).mean(), color="teal")
+
+    def hexa(x, y):
+        plt.hexbin(x, y, cmap="BuPu",
+                   gridsize=40)
+        plt.plot(x, y.rolling(window=200, min_periods=10).mean(), color="teal")
         plt.xlabel("rank (mean)")
 
     df = df.copy(deep=True)
@@ -1678,8 +1669,8 @@ def meanSd(df, reps):
     df = df.sort_values(by="mean")
 
     p = sns.JointGrid(
-    x = range(df.shape[0]),
-    y = df['sd']
+        x=range(df.shape[0]),
+        y=df['sd']
     )
 
     p = p.plot_joint(
@@ -1688,18 +1679,19 @@ def meanSd(df, reps):
 
     p.ax_marg_y.hist(
         df['sd'],
-        orientation = 'horizontal',
-        alpha = 0.5,
+        orientation='horizontal',
+        alpha=0.5,
         bins=50
     )
 
     p.ax_marg_x.get_xaxis().set_visible(False)
     p.ax_marg_x.set_title("Mean SD plot", fontsize=18)
 
+
 def plotTraces(df, cols, labels=None, colors=None, zScore=None,
-              xlabel="", ylabel="logFC", title="", ax=None,
-              plotSummary=False, plotSummaryOnly=False, summaryColor="red",
-              summaryType="Mean", summaryStyle="solid", **kwargs):
+               xlabel="", ylabel="logFC", title="", ax=None,
+               plotSummary=False, plotSummaryOnly=False, summaryColor="red",
+               summaryType="Mean", summaryStyle="solid", **kwargs):
     r"""
     Plot numerical data such as fold changes vs. columns (e.g. conditions).
 
@@ -1804,7 +1796,7 @@ def plotTraces(df, cols, labels=None, colors=None, zScore=None,
     # TODO xlabels from colnames
     x = range(len(cols))
     y = df[cols].T.values
-    if zScore is not None and zScore in [0,1]:
+    if zScore is not None and zScore in [0, 1]:
         y = zscore(y, axis=zScore)
 
     if ax is None:
@@ -1813,32 +1805,32 @@ def plotTraces(df, cols, labels=None, colors=None, zScore=None,
     ax.set_title(title)
     if plotSummaryOnly == False:
         if colors is None:
-            f = ax.plot(x,y, **kwargs)
+            f = ax.plot(x, y, **kwargs)
         else:
             f = []
             for i, yi in enumerate(y.T):
-                f += ax.plot(x,yi, color=colors[i],**kwargs)
+                f += ax.plot(x, yi, color=colors[i], **kwargs)
     if (plotSummary == True) or (plotSummaryOnly == True):
         if summaryType == "Mean":
-            f=ax.plot(x, np.mean(y,1), color=summaryColor,
-            lw=3, linestyle=summaryStyle, **kwargs)
+            f = ax.plot(x, np.mean(y, 1), color=summaryColor,
+                        lw=3, linestyle=summaryStyle, **kwargs)
         elif summaryType == "Median":
-            f=ax.plot(x, np.median(y,1), color=summaryColor,
-            lw=3, linestyle=summaryStyle, **kwargs)
+            f = ax.plot(x, np.median(y, 1), color=summaryColor,
+                        lw=3, linestyle=summaryStyle, **kwargs)
 
     if labels is not None:
-        for s,line in zip(labels,f):
-            #get last point for annotation
+        for s, line in zip(labels, f):
+            # get last point for annotation
             ly = line.get_data()[1][-1]
             lx = line.get_data()[0][-1] + 0.1
-            plt.text(lx,ly,s)
+            plt.text(lx, ly, s)
 
     sns.despine(ax=ax)
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
 
 
-def sequenceLogo(df, motif, file=None, ST=False):
+def sequenceLogo(df, motif, file=None, rename_to_ST=False):
     r"""
     Generate sequence logo plot based on experimentally observed phosphosites.
 
@@ -1847,14 +1839,14 @@ def sequenceLogo(df, motif, file=None, ST=False):
     df : pd.DataFrame
         The dataframe from which experimentally determined sequences are extracted.
     motif : tuple of str
-        A tuple of the motif and its name.
-        The phosphosite residue in the motif should be indicated by a
+        A tuple of the sequence_motif and its name.
+        The phosphosite residue in the sequence_motif should be indicated by a
         lowercase character.
         Example ("..R.R..s.......", "MK_down").
     file : str
-        Path to write the figure to file.
+        Path to write the figure to outfile_path.
         Default is None.
-    ST : bool, optional
+    rename_to_ST : bool, optional
         If true, the phoshoresidue will be considered to be
         either S or T. The default is False.
 
@@ -1869,114 +1861,92 @@ def sequenceLogo(df, motif, file=None, ST=False):
 
     Examples
     --------
-    First define the motif of interest. Note that the phosphorylated residue
+    First define the sequence_motif of interest. Note that the phosphorylated residue
     should be marked by a lowercase character.
 
-    >>> motif = ("..R.R..s.......", "MK_down")
-    >>> autoprot.visualization.sequenceLogo(phos, motif)
+    >>> sequence_motif = ("..R.R..s.......", "MK_down")
+    >>> autoprot.visualization.sequenceLogo(phos, sequence_motif)
 
     allow s and t as central residue
 
-    >>> autoprot.visualization.sequenceLogo(phos, motif, path, ST=True)
+    >>> autoprot.visualization.sequenceLogo(phos, sequence_motif, path, rename_to_ST=True)
 
     """
-    # TODO: motif and name should be provided in 2 parameter
 
-    def generateSequenceLogo(seq, file=None, motif=""):
+    # TODO: sequence_motif and name should be provided in 2 parameter
+
+    def generate_sequence_logo(seq: list, outfile_path: str = None, sequence_motif: str = ""):
         """
-        Draw a sequence logo plot for a motif.
+        Draw a sequence logo plot for a sequence_motif.
 
         Parameters
         ----------
         seq : list of str
-            List of experimentally determined sequences matching the motif.
-        file : str
+            List of experimentally determined sequences matching the sequence_motif.
+        outfile_path : str
             path to folder where the output file will be written.
             Default is None.
-        motif : str, optional
-            The motif used to find the sequences.
+        sequence_motif : str, optional
+            The sequence_motif used to find the sequences.
             The default is "".
 
         Returns
         -------
         None.
         """
-        aa_dic = {
-            'G':0,
-            'P':0,
-            'A':0,
-            'V':0,
-            'L':0,
-            'I':0,
-            'M':0,
-            'C':0,
-            'F':0,
-            'Y':0,
-            'W':0,
-            'H':0,
-            'K':0,
-            'R':0,
-            'Q':0,
-            'N':0,
-            'E':0,
-            'D':0,
-            'S':0,
-            'T':0,
-        }
+        aa_dic = dict(G=0, P=0, A=0, V=0, L=0, I=0, M=0, C=0, F=0, Y=0, W=0, H=0, K=0, R=0, Q=0, N=0, E=0, D=0, S=0,
+                      T=0)
 
-        seq = [i for i in seq if len(i)==15]
+        seq = [i for i in seq if len(i) == 15]
         seqT = [''.join(s) for s in zip(*seq)]
         scoreMatrix = []
         for pos in seqT:
             d = aa_dic.copy()
             for aa in pos:
                 aa = aa.upper()
-                if aa == '.' or aa == '-' or aa == '_' or aa == "X":
-                    pass
-                else:
-                    d[aa]+=1
+                if aa not in ['.', '-', '_', "X"]:
+                    d[aa] += 1
             scoreMatrix.append(d)
 
         for pos in scoreMatrix:
             for k in pos.keys():
                 pos[k] /= len(seq)
 
-        #empty array -> (sequenceWindow, aa)
-        m = np.empty((15,20))
+        # empty array -> (sequenceWindow, aa)
+        m = np.empty((15, 20))
         for i in range(m.shape[0]):
-            x = [j for j in scoreMatrix[i].values()]
+            x = list(scoreMatrix[i].values())
             m[i] = x
 
         # create Logo object
         kinase_motif_df = pd.DataFrame(m).fillna(0)
         kinase_motif_df.columns = aa_dic.keys()
         k_logo = logomaker.Logo(kinase_motif_df,
-                                 font_name='Arial',
-                                 color_scheme='dmslogo_funcgroup',
-                                 vpad=0,
-                                 width=.8)
+                                font_name="Arial",
+                                color_scheme="dmslogo_funcgroup",
+                                vpad=0,
+                                width=.8)
 
         k_logo.highlight_position(p=7, color='purple', alpha=.5)
-        plt.title("{} SequenceLogo".format(motif))
-        #labels=k_logo.ax.get_xticklabels()
-        k_logo.ax.set_xticklabels(labels=[-7,-7,-5,-3,-1,1,3,5,7]);
+        plt.title(f"{sequence_motif} SequenceLogo")
+        k_logo.ax.set_xticklabels(labels=[-7, -7, -5, -3, -1, 1, 3, 5, 7]);
         sns.despine()
-        if file != None:
-            plt.savefig(file)
+        if outfile_path is not None:
+            plt.savefig(outfile_path)
 
-    def find_motif(x, motif, typ, ST=False):
+    def find_motif(x: pd.DataFrame, sequence_motif: str, typ: str, rename_to_ST=False):
         """
-        Return the input motif if it fits to the value provided in "Sequence window" of a dataframe row.
+        Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
 
         Parameters
         ----------
         x : pd.DataFrame
             Dataframe containing the identified sequence windows.
-        motif : str
-            The kinase motif.
+        sequence_motif : str
+            The kinase sequence_motif.
         typ : str
-            The kinase motif.
-        ST : bool, optional
+            The kinase sequence_motif.
+        rename_to_ST : bool, optional
             Look for S and T at the phosphorylation position.
             The phoshorylated residue should be S or T, otherwise it is transformed
             to S/T.
@@ -1985,65 +1955,63 @@ def sequenceLogo(df, motif, file=None, ST=False):
         Raises
         ------
         ValueError
-            If not lowercase phosphoresidue is given.
+            If not lowercase phospho residue is given.
 
         Returns
         -------
         typ : str
-            The kinase motif.
+            The kinase sequence_motif.
 
         """
+        global pos1
         import re
         # identified sequence window
         d = x["Sequence window"]
-        #In Sequence window the aa of interest is always at pos 15
-        #This loop will check if the motif we are interested in is
-        #centered with its phospho residue at pos 15 of the sequence window
-        checkLower = False
-        for j,i in enumerate(motif):
-            # the phosphorsidue in the motif is indicated by lowercase character
-            if i.islower() == True:
-                # pos1 is position of the phosphosite in the motif
-                pos1 = len(motif)-j
-                checkLower = True
-        if checkLower == False:
+        # In Sequence window the aa of interest is always at pos 15
+        # This loop will check if the sequence_motif we are interested in is
+        # centered with its phospho residue at pos 15 of the sequence window
+        check_lower = False
+        for j, i in enumerate(sequence_motif):
+            # the phospho residue in the sequence_motif is indicated by lowercase character
+            if i.islower():
+                # pos1 is position of the phosphosite in the sequence_motif
+                pos1 = len(sequence_motif) - j
+                check_lower = True
+        if not check_lower:
             raise ValueError("Phosphoresidue has to be lower case!")
-        if ST == True:
+        if rename_to_ST:
             # insert the expression (S/T) on the position of the phosphosite
-            exp = motif[:pos1-1] + "(S|T)" + motif[pos1:]
+            exp = sequence_motif[:pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
         else:
-            # for finding pos2, the whole motif is uppercase
-            exp = motif.upper()
+            # for finding pos2, the whole sequence_motif is uppercase
+            exp = sequence_motif.upper()
 
-        pos2 = re.search(exp.upper(),d)
         # pos2 is the last position of the matched sequence
         # the MQ Sequence window is always 30 AAs long and centred on the modified
-        # amino acid. Hence for a true hit, pos2-pos1 should be 15
-        if pos2:
+        # amino acid. Hence, for a true hit, pos2-pos1 should be 15
+        if pos2 := re.search(exp.upper(), d):
             pos2 = pos2.end()
-            pos = pos2-pos1
+            pos = pos2 - pos1
             if pos == 15:
                 return typ
-        else:
-            pass
 
-    # init empty col corresponding to sequence motif
+    # init empty col corresponding to sequence sequence_motif
     df[motif[0]] = np.nan
-    # returns the input sequence motif for rows where the motif fits the sequence
+    # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
     # window
-    df[motif[0]] = df.apply(lambda x: find_motif(x, motif[0], motif[0], ST), 1)
+    df[motif[0]] = df.apply(lambda x: find_motif(x, motif[0], motif[0], rename_to_ST), 1)
 
-    if file != None:
+    if file is not None:
         # consider only the +- 7 amino acids around the modified residue (x[8:23])
-        generateSequenceLogo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                            file=file+"/{}_{}.svg".format(motif[0], motif[1]),
-                            motif="{} - {}".format(motif[0], motif[1]))
+        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+                               outfile_path=file + "/{}_{}.svg".format(motif[0], motif[1]),
+                               sequence_motif="{} - {}".format(motif[0], motif[1]))
     else:
-        generateSequenceLogo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                             motif="{} - {}".format(motif[0], motif[1]))
+        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+                               sequence_motif="{} - {}".format(motif[0], motif[1]))
 
-def visPs(name, length, domain_position=[], ps=None, pl=None, plc=None, pls=4, ax=None,
-          domain_color='tab10'):
+
+def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
     """
     Visualize domains and phosphosites on a protein of interest.
 
@@ -2107,56 +2075,57 @@ def visPs(name, length, domain_position=[], ps=None, pl=None, plc=None, pls=4, a
         plt.show()
 
     """
+    if domain_position is None:
+        domain_position = []
     # check if domain_color is a cmap name
     try:
         cm = plt.get_cmap(domain_color)
-        color = cm(np.linspace(0,1,len(domain_position)))
-    except ValueError:
+        color = cm(np.linspace(0, 1, len(domain_position)))
+    except ValueError as e:
         # it is not, so is it a single colour?
         if isinstance(domain_color, str):
-            color = [domain_color,]*len(domain_position)
-        # is it a list of colours
+            color = [domain_color, ] * len(domain_position)
         elif isinstance(domain_color, list):
-            if len(domain_color) == len(domain_position):
-                color = domain_color
+            if len(domain_color) != len(domain_position):
+                raise Exception("Please provide one domain colour per domain") from e
             else:
-                raise Exception('Please provide one domain colour per domain')
+                color = domain_color
         else:
-            raise Exception('You must provide a colormap name, a colour name or a list of colour names')
-
-    textColor = {"A"  : "gray",
-                 "Ad" : "gray",
-                 "B"  : "#dc86fa",
-                 "Bd" : "#6AC9BE",
-                 "C"  : "#aa00d7",
-                 "Cd" : "#239895",
-                 "D"  : "#770087",
-                 "Dd" : "#008080"}
+            raise Exception("You must provide a colormap name, a colour name or a list of colour names") from e
 
     lims = (1, length)
-    height = lims[1]/25
+    height = lims[1] / 25
 
-    if ax == None:
-        fig1 = plt.figure(figsize=(15,2))
+    if ax is None:
+        fig1 = plt.figure(figsize=(15, 2))
         ax1 = fig1.add_subplot(111, aspect='equal')
     else:
         ax1 = ax
 
     # background of the whole protein in grey
     ax1.add_patch(
-            patches.Rectangle((0, 0), length, height,color='lightgrey') )
+        patches.Rectangle((0, 0), length, height, color='lightgrey'))
 
     for idx, (start, end) in enumerate(domain_position):
         width = end - start
         ax1.add_patch(
-            patches.Rectangle((start, 0), width, height,color=color[idx]) )
+            patches.Rectangle((start, 0), width, height, color=color[idx]))
 
     # only plot phosphosite if there are any
     if ps != None:
+        textColor = {"A": "gray",
+                     "Ad": "gray",
+                     "B": "#dc86fa",
+                     "Bd": "#6AC9BE",
+                     "C": "#aa00d7",
+                     "Cd": "#239895",
+                     "D": "#770087",
+                     "Dd": "#008080"}
+
         for idx, site in enumerate(ps):
-            plt.axvline(site,0,1, color="red")
-            plt.text(site-1,
-                     height-(height+height*0.15),
+            plt.axvline(site, 0, 1, color="red")
+            plt.text(site - 1,
+                     height - (height + height * 0.15),
                      pl[idx] if pl != None else '',
                      fontsize=pls,
                      rotation=90,
@@ -2166,11 +2135,11 @@ def visPs(name, length, domain_position=[], ps=None, pl=None, plc=None, pls=4, a
     plt.ylim(height)
     plt.xlim(lims)
     ax1.axes.get_yaxis().set_visible(False)
-    plt.title(name+'\n', size=18)
+    plt.title(name + '\n', size=18)
     plt.tight_layout()
 
 
-def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
+def styCountPlot(df, figsize=(12, 8), typ="bar", retFig=False):
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
 
@@ -2215,8 +2184,8 @@ def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
 
     """
     noOfPhos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
-    count = [(noOfPhos.count(i),i) for i in set(noOfPhos)]
-    counts_perc = [(round(noOfPhos.count(i)/len(noOfPhos)*100,2), i) for i in set(noOfPhos)]
+    count = [(noOfPhos.count(i), i) for i in set(noOfPhos)]
+    counts_perc = [(round(noOfPhos.count(i) / len(noOfPhos) * 100, 2), i) for i in set(noOfPhos)]
 
     print("Number of phospho (STY) [total] - (count / # Phospho)")
     print(count)
@@ -2224,7 +2193,7 @@ def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
     print(counts_perc)
     df = pd.DataFrame(noOfPhos, columns=["Number of Phospho (STY)"])
 
-    if typ=="bar":
+    if typ == "bar":
         fig = plt.figure(figsize=figsize)
         ax = sns.countplot(x="Number of Phospho (STY)", data=df)
         plt.title('Number of Phospho (STY)')
@@ -2232,7 +2201,7 @@ def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
         ncount = df.shape[0]
 
         # Make twin axis
-        ax2=ax.twinx()
+        ax2 = ax.twinx()
 
         ax2.yaxis.tick_left()
         ax.yaxis.tick_right()
@@ -2243,24 +2212,24 @@ def styCountPlot(df, figsize=(12,8), typ="bar", retFig=False):
         ax2.set_ylabel('Frequency [%]')
 
         for p in ax.patches:
-            x=p.get_bbox().get_points()[:,0]
-            y=p.get_bbox().get_points()[1,1]
-            ax.annotate('{:.1f}%'.format(100.*y/ncount), (x.mean(), y),
-                    ha='center', va='bottom') # set the alignment of the text
+            x = p.get_bbox().get_points()[:, 0]
+            y = p.get_bbox().get_points()[1, 1]
+            ax.annotate('{:.1f}%'.format(100. * y / ncount), (x.mean(), y),
+                        ha='center', va='bottom')  # set the alignment of the text
 
         ax.yaxis.set_major_locator(ticker.LinearLocator(11))
-        ax2.set_ylim(0,100)
-        ax.set_ylim(0,ncount)
+        ax2.set_ylim(0, 100)
+        ax.set_ylim(0, ncount)
         ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
-    elif typ=="pie":
+    elif typ == "pie":
         fig = plt.figure(figsize=figsize)
         plt.pie([i[0] for i in count], labels=[i[1] for i in count]);
         plt.title("Number of Phosphosites")
-    if retFig==True:
+    if retFig == True:
         return fig
 
 
-def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
+def chargePlot(df, figsize=(12, 8), typ="bar", retFig=False, ax=None):
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
 
@@ -2313,8 +2282,8 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
     """
     df = df.copy(deep=True)
     noOfPhos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
-    count = [(noOfPhos.count(i),i) for i in set(noOfPhos)]
-    counts_perc = [(round(noOfPhos.count(i)/len(noOfPhos)*100,2), i) for i in set(noOfPhos)]
+    count = [(noOfPhos.count(i), i) for i in set(noOfPhos)]
+    counts_perc = [(round(noOfPhos.count(i) / len(noOfPhos) * 100, 2), i) for i in set(noOfPhos)]
 
     print("charge [total] - (count / # charge)")
     print(count)
@@ -2322,8 +2291,8 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
     print(counts_perc)
     df = pd.DataFrame(noOfPhos, columns=["charge"])
 
-    if typ=="bar":
-        if ax == None:
+    if typ == "bar":
+        if ax is None:
             fig = plt.figure(figsize=figsize)
             ax = fig.gca()
 
@@ -2333,7 +2302,7 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
         ncount = df.shape[0]
 
         # Make twin axis
-        ax2=ax.twinx()
+        ax2 = ax.twinx()
 
         ax2.yaxis.tick_left()
         ax.yaxis.tick_right()
@@ -2344,26 +2313,26 @@ def chargePlot(df, figsize=(12,8), typ="bar", retFig=False, ax=None):
         ax2.set_ylabel('Frequency [%]')
 
         for p in ax.patches:
-            x=p.get_bbox().get_points()[:,0]
-            y=p.get_bbox().get_points()[1,1]
-            ax.annotate('{:.1f}%'.format(100.*y/ncount), (x.mean(), y),
-                    ha='center', va='bottom') # set the alignment of the text
+            x = p.get_bbox().get_points()[:, 0]
+            y = p.get_bbox().get_points()[1, 1]
+            ax.annotate('{:.1f}%'.format(100. * y / ncount), (x.mean(), y),
+                        ha='center', va='bottom')  # set the alignment of the text
 
         ax.yaxis.set_major_locator(ticker.LinearLocator(11))
-        ax2.set_ylim(0,100)
-        ax.set_ylim(0,ncount)
+        ax2.set_ylim(0, 100)
+        ax.set_ylim(0, ncount)
         ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
-    elif typ=="pie":
-        if ax == None:
+    elif typ == "pie":
+        if ax is None:
             fig = plt.figure(figsize=figsize)
             ax = fig.gca()
         ax.pie([i[0] for i in count], labels=[i[1] for i in count]);
         ax.set_title("charge")
-    if retFig==True:
+    if retFig == True:
         return fig
 
 
-def modAa(df, figsize=(6,6), retFig=False):
+def modAa(df, figsize=(6, 6), retFig=False):
     r"""
     Count the number of modifications per amino acid.
 
@@ -2401,13 +2370,13 @@ def modAa(df, figsize=(6,6), retFig=False):
         plt.show()
 
     """
-    labels = [str(i)+'\n'+str(round(j/df.shape[0]*100,2))+'%'
-              for i,j in zip(df["Amino acid"].value_counts().index,
-                             df["Amino acid"].value_counts().values)]
+    labels = [str(i) + '\n' + str(round(j / df.shape[0] * 100, 2)) + '%'
+              for i, j in zip(df["Amino acid"].value_counts().index,
+                              df["Amino acid"].value_counts().values)]
 
     fig = plt.figure(figsize=figsize)
     plt.pie(df["Amino acid"].value_counts().values,
-           labels=(labels));
+            labels=(labels));
     plt.title("Modified AAs")
     if retFig == True:
         return fig
@@ -2462,6 +2431,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
     >>> text = autoprot.visualization.wordcloud.extractPDF('/path/to/pdf')
     >>> autoprot.visualization.wordcloud(text="hello world!", contour_width=5, mask='round')
     """
+
     def extractPDF(file):
         """
         Extract text from PDF file.
@@ -2478,7 +2448,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
         page_interpreter = PDFPageInterpreter(resource_manager, converter)
 
         with open(file, 'rb') as fh:
-        # 'rb' is opening the pdf file in binary mode
+            # 'rb' is opening the pdf file in binary mode
 
             for page in PDFPage.get_pages(fh,
                                           caching=True,
@@ -2504,7 +2474,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
         wc = WordCloud(background_color=background_color, mask=mask, contour_width=contour_width,
                        stopwords=exlusionwords, **kwargs).generate(text)
     else:
-        wc = WordCloud(background_color="white",stopwords=exlusionwords,width=1800, height=500).generate(text)
+        wc = WordCloud(background_color="white", stopwords=exlusionwords, width=1800, height=500).generate(text)
 
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
@@ -2513,7 +2483,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
     return wc
 
 
-def BHplot(df, ps, adj_ps,title=None, alpha=0.05, zoom=20):
+def BHplot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     r"""
     Visualize Benjamini Hochberg p-value correction.
 
@@ -2573,20 +2543,20 @@ def BHplot(df, ps, adj_ps,title=None, alpha=0.05, zoom=20):
     """
     n = len(df[ps][df[ps].notnull()])
     x = range(n)
-    y = [((i+1)*alpha)/n for i in x]
+    y = [((i + 1) * alpha) / n for i in x]
 
     idx = df[ps][df[ps].notnull()].sort_values().index
 
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15, 5))
     ax[0].set_title(title)
-    ax[0].plot(x,y,color='gray', label=r'$\frac{i * \alpha}{n}$')
-    ax[0].scatter(x, df[ps].loc[idx].sort_values(), label="p_values", color="teal",alpha=0.5)
-    ax[0].scatter(x, df[adj_ps].loc[idx],label="adj. p_values", color="purple",alpha=0.5)
+    ax[0].plot(x, y, color='gray', label=r'$\frac{i * \alpha}{n}$')
+    ax[0].scatter(x, df[ps].loc[idx].sort_values(), label="p_values", color="teal", alpha=0.5)
+    ax[0].scatter(x, df[adj_ps].loc[idx], label="adj. p_values", color="purple", alpha=0.5)
     ax[0].legend(fontsize=12)
 
-    ax[1].plot(x[:zoom],y[:zoom],color='gray')
+    ax[1].plot(x[:zoom], y[:zoom], color='gray')
     ax[1].scatter(x[:zoom], df[ps].loc[idx].sort_values().iloc[:zoom], label="p_values", color="teal")
-    ax[1].scatter(x[:zoom], df[adj_ps].loc[idx][:zoom],label="adj. p_values", color="purple")
+    ax[1].scatter(x[:zoom], df[adj_ps].loc[idx][:zoom], label="adj. p_values", color="purple")
 
     sns.despine(ax=ax[0])
     sns.despine(ax=ax[1])
