@@ -112,17 +112,17 @@ dimaFunction <- function(dfv) {
   group <- strsplit(x = args[4], split = ',')[[1]]
   performanceMetric <- args[7]
   
-  print(paste0('args: ', format(args)))
+  #(paste0('args: ', format(args)))
   
   mtx <- as.matrix(dfv)
-  print(noquote('mtx:'))
-  print(summary(mtx))
+  #print(noquote('mtx:'))
+  #print(summary(mtx))
   
-  print(noquote('colnames:'))
-  print(format(colnames(mtx)))
+  #print(noquote('colnames:'))
+  #print(format(colnames(mtx)))
 
-  print(noquote('group :'))
-  print(format(group))
+  #print(noquote('group :'))
+  #print(format(group))
 
   # from here: copied from
   # https://github.com/kreutz-lab/DIMAR/blob/b8e9497cd490a464bf46ebc177efd7e34f064723/R/dimar.R
@@ -137,58 +137,10 @@ dimaFunction <- function(dfv) {
   # TODO: change nacut back to 2 once the error in the source code is fixed
   mtx <- DIMAR::dimarMatrixPreparation(mtx, nacut = 2)
   
-  print(noquote('mtx:'))
-  print(format(mtx))
+  #print(noquote('mtx:'))
+  #print(format(mtx))
   
-  ## Bugfixes
-  dimarLearnPatternFixed <- function(mtx) {
-    # Subsample indices
-    if (nrow(mtx) > 1000) {
-      nsub <- ceiling(nrow(mtx) / 1000)
-      indrand <- sample(1:nrow(mtx), nrow(mtx))
-      npersub <- ceiling(nrow(mtx) / nsub)
-    } else {
-      nsub <- 1
-      ind <- 1:nrow(mtx)
-    }
-    
-    for (i in 1:nsub) {
-      if (nsub > 1) {
-        beginrange <- (npersub * (i - 1) + 1)
-        endrange <- (npersub * i)
-        
-        if (endrange > length(indrand)) {
-          endrange <- length(indrand)
-        }
-        
-        ind <- indrand[beginrange:endrange]
-      }
-      
-      design <- DIMAR::dimarConstructDesignMatrix(mtx[ind, ])
-      design <- DIMAR::dimarConstructRegularizationMatrix(design)
-      fit <- stats::glm.fit(design$X, design$y, family = stats::binomial())
-      
-      if (i == 1) {
-        coef <- stats::coefficients(fit)
-        firstdesign <- design
-      } else {
-        coef_tmp <- stats::coefficients(fit)
-        length(coef_tmp) <- max(length(coef_tmp), length(coef))
-        coef <- rbind(coef, coef_tmp)
-      }
-      
-    }
-    
-    if (nsub > 1) {
-      coef <- c(colMeans(coef[, firstdesign$Xtype != 3]), sort(coef[,firstdesign$Xtype == 3], na.last = NA))
-    }
-    
-    print("Pattern of MVs is learned by logistic regression.")
-    return(coef)
-  }
-  
-  coef <- dimarLearnPatternFixed(mtx)
-  #coef <- DIMAR::dimarLearnPattern(mtx)
+  coef <- DIMAR::dimarLearnPattern(mtx)
   ref <- DIMAR::dimarConstructReferenceData(mtx)
   sim <- DIMAR::dimarAssignPattern(ref, coef, mtx, npat)
   
