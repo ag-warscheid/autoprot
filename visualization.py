@@ -43,7 +43,7 @@ plt.rcParams['pdf.fonttype'] = 42
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, saveDir=None,
                 saveType="pdf", saveName="pairPlot", lowerTriang="scatter",
-                sampleFrac=None, bins=100):
+                sampleFrac=None, bins=100, retFig=False):
     r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
 
     Notes
@@ -83,6 +83,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, saveDir=None,
     bins : int, optional
         Number of bins for histograms.
         The default is 100.
+    retFig : bool, optional
+        Wether to return the seaborn figure object
 
     Raises
     ------
@@ -256,6 +258,9 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, saveDir=None,
             plt.savefig(f"{saveDir}/{saveName}.pdf")
         elif saveType == "png":
             plt.savefig(f"{saveDir}/{saveName}.png")
+    
+    if retFig:
+        return g
 
 
 def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),

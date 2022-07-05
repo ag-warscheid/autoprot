@@ -712,11 +712,11 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
         maxMissing = len(colsToImpute)
     # idxs of all rows in which imputation will be performed
     idx_noCtrl = df[df[colsToImpute].isnull().sum(1) >= maxMissing].index
-    #df["Imputed"] = False
-    #df.loc[idx_noCtrl,"Imputed"] = True
+    df["Imputed"] = False
+    df.loc[idx_noCtrl,"Imputed"] = True
 
     for col in colsToImpute:
-        df[col+'_imputed'] = np.nan
+        df[col +'_imputed'] = df[col]
         mean = df[col].mean()
         var  = df[col].std()
         mean_ = mean - downshift*var

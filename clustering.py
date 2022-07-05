@@ -863,7 +863,7 @@ class KMeans(Cluster):
         print(f"Using Davies Boulding Score for setting # clusters: {self.nclusters}")
         print("You may manually overwrite this by setting self.nclusters")
 
-    def makeCluster(self, algo='scipy'):
+    def makeCluster(self, algo='scipy', **kwargs):
         """
         Perform k-means clustering and store the resulting labels in self.clusterId.
         
@@ -871,6 +871,8 @@ class KMeans(Cluster):
         ----------
         algo : str, optional
             Algorith to use for KMeans Clustering. Either "scipy" or "sklearn"
+        **kwargs:
+            passed to either scipy or sklearn kmeans
 
         Returns
         -------
@@ -880,10 +882,12 @@ class KMeans(Cluster):
         if algo == 'scipy':
             centroids, self.clusterId = clst.vq.kmeans2(data=self.data,
                                                         k=self.nclusters,
-                                                        minit='++')
+                                                        minit='++',
+                                                        **kwargs)
         elif algo == 'sklearn':
             # initialise model
-            model = clstsklearn.KMeans(n_clusters=self.nclusters)
+            model = clstsklearn.KMeans(n_clusters=self.nclusters,
+                                       **kwargs)
             model.fit(self.data)
             self.clusterId = model.labels_
         else:
