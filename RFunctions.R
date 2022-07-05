@@ -89,6 +89,7 @@ output <- args[3]
 # limma:  location of design file for limma
 # DIMA:   methods to use for imputations benchmark
 # args[6]
+# limma: Comparison strings for contrast calculation
 # DIMA:   npat -> number of patterns to simulate
 # args[7]
 # DIMA:   Performance Metric to use for selection of best algorithm
@@ -182,12 +183,26 @@ limmaFunction <- function(dfv) {
   
   # Fit linear model for each protein
   fit <- lmFit(dfv, design)
-  # Compute moderated t-statistics, moderated F-statistic, and log-odds
-  # of differential expression by empirical Bayes moderation of the standard
-  # errors towards a global value.
-  eb <- eBayes(fit)
-  # Extract a table of the top-ranked genes from a linear model fit.
-  res <- topTable(eb, coef="coef", number=Inf, confint = TRUE)
+  
+  if (args[6] != "") {
+    print(args[6])
+    contrast <- limma::makeContrasts(contrasts=args[6],levels=design)
+    fit2 <- limma::contrasts.fit(fit, contrast)
+    eb <- eBayes(fit2)
+    
+    # Extract a table of the top-ranked genes from a linear model fit.
+    res <- topTable(eb, coef=args[6], number=Inf, confint = TRUE)
+  }
+  else {
+    # Compute moderated t-statistics, moderated F-statistic, and log-odds
+    # of differential expression by empirical Bayes moderation of the standard
+    # errors towards a global value.
+    eb <- eBayes(fit)
+    
+    # Extract a table of the top-ranked genes from a linear model fit.
+    res <- topTable(eb, coef="coef", number=Inf, confint = TRUE)
+  }
+
   # add back the UID column from the row index
   res$UID <- rownames(res)
   # write out the table
@@ -202,7 +217,7 @@ quantileNorm <- function(dfv) {
 }
 
 vsnNorm <- function(dfv) {
-  dfv <- normalizeVSN(dfv)
+  dfv <- limma::normalizeVSN(dfv)
   dfv <- as.data.frame(dfv)
   dfv$UID <- rownames(dfv)
   write.table(dfv, output, sep='\t')

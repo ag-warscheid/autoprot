@@ -7,7 +7,7 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 import os
-from subprocess import run, PIPE
+from subprocess import run, PIPE, STDOUT
 from importlib import resources
 from statsmodels.stats import multitest as mt
 import pandas as pd
@@ -130,8 +130,6 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
         plt.show()
 
     """
-    cond = '_' + cond
-
     def oneSamp_ttest(x):
         return np.ma.filled(ttest_1samp(x,
                                         nan_policy="omit",
@@ -2379,7 +2377,7 @@ def edm(A,B):
     return np.sqrt(p1+p2+p3)
 
 
-def limma(df, reps, cond="", customDesign=None):
+def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=False):
     r"""
     Perform moderated ttest as implemented from R LIMMA.
 
@@ -2396,6 +2394,15 @@ def limma(df, reps, cond="", customDesign=None):
     customDesign : str, optional
         Path to custom design file.
         The default is None.
+    calcContrasts : str, optional
+        The contrasts to be calculated by limma. Must refer to the column names
+        in the data file. Differences are indicated e.g. by "CondA-CondB".
+        The autoprot implementation only calculates contrasts based on the
+        column names specified in the design matrix.
+        The default is None.
+    print_r : bool, optional
+        Whether to print the R output.
+        The default is False.
 
     Returns
     -------
@@ -2456,6 +2463,9 @@ def limma(df, reps, cond="", customDesign=None):
     if customDesign is None:
         # if two lists are provided with reps, this likely is a twoSample test
         if isinstance(reps[0], list) and len(reps) == 2:
+            print("LIMMA: Assuming a two sample test with:")
+            print("Rep 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
+            print("Rep 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
             test = "twoSample"
             design = pd.DataFrame({"Intercept":[1]*(len(reps[0])+len(reps[1])),
                                    "coef":[0]*len(reps[0]) + [1]*len(reps[1])})
@@ -2469,14 +2479,28 @@ def limma(df, reps, cond="", customDesign=None):
 #              4          1     1
 #              5          1     1
 # =============================================================================
+            print("Using design matrix:\n")
+            print(design.to_markdown())
+
             # save the design for R to read
             pp.to_csv(design, designLoc)
         else:
             test = "oneSample"
+            print("LIMMA: Assuming a one sample test")
+            print("Instance: " + type(reps[0]))
+            print("Len: " + str(len(reps)))
             # The R function will generate a design matrix corresponding to
             # ones
     # if there is a custom design matrix, use it
     else:
+        print("LIMMA: Assuming a custom design test with:")
+        print(f"Design specified at {customDesign}")
+        print("Columns: {}".format('\n\t'.join(list(pl.flatten(reps)))))
+        
+        design = pd.read_csv(customDesign, sep='\t')
+        print("Using design matrix:\n")
+        print(design.to_markdown())   
+        
         test = "custom"
         designLoc = customDesign
 
@@ -2486,10 +2510,18 @@ def limma(df, reps, cond="", customDesign=None):
     dataLoc, #data location
     outputLoc, #output file,
     test, #kind of test
-    designLoc #design location
+    designLoc, #design location
+    calcContrasts if calcContrasts else "" # whether to calculate contrasts
     ]
-    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    
+    p = run(command,
+            stdout=PIPE,
+            stderr=STDOUT,
+            universal_newlines=True)
 
+    if print_r:
+        print(p.stdout)
+    
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]
     df = df.merge(res, on="UID")
