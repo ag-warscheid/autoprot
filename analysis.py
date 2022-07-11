@@ -38,7 +38,8 @@ RSCRIPT, R = RHelper.returnRPath()
 #check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
-def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided'):
+def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
+          alternative='two-sided', logged=True):
     r"""
     Perform one or two sample ttest.
 
@@ -54,12 +55,10 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
         The name of the condition.
         This is used for naming the returned results.
         The default is "".
-    mean : bool, optional
-        Whether to calculate the logFC of the provided data.
-        For the one sample ttest log2 transformed ratios are expected.
-        For the two sample ttest log transformed intensities are expected.
-        If mean=True for two sample ttest, the log2 ratio of the provided
-        replicates will be calculated.
+    returnFC : bool, optional
+        Whether to calculate the fold-change of the provided data.
+        The processing of the fold-change can be controlled by the returnLogFC
+        switch.
         The default is True.
     adjustPVals : bool, optional
         Whether to adjust P-values. The default is True.
@@ -73,6 +72,12 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
           less than the given population mean (`popmean`)
         * 'greater': the mean of the underlying distribution of the sample is
           greater than the given population mean (`popmean`)
+    logged: bool, optional
+        Set to True if input values are log-transformed (or VSN normalised).
+        This returns the difference between values as logFC, otherwise
+        values are log2 transformed to gain logFC.
+        Default is true.
+
 
     Returns
     -------
@@ -85,7 +90,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
     ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
+    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjustPVals=True)
     >>> prot_tt["pValue_TvM"].hist(bins=50)
     >>> plt.show()
 
@@ -100,7 +105,7 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
         prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
-        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=True)
+        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjustPVals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
 
@@ -143,17 +148,26 @@ def ttest(df, reps, cond="", mean=True, adjustPVals=True, alternative='two-sided
                                       nan_policy="omit")[1],np.nan)
 
     if isinstance(reps[0], list) and len(reps) == 2:
+        print("Performing two-sample t-Test")
         df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: twoSamp_ttest(x),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
-        if mean == True:
-            df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
+        if returnFC == True:
+            if logged:
+                df[f"logFC{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
+            else:
+                df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
 
     else:
+        print("Performing one-sample t-Test")
         df[f"pValue{cond}"] = df[reps].apply(lambda x: oneSamp_ttest(x),1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
-        if mean == True:
-            df[f"logFC{cond}"] = df[reps].mean(1)
-
+        if returnFC == True:
+            if logged:
+                df[f"logFC{cond}"] = df[reps].mean(1)
+            else:
+                df[f"logFC{cond}"] = np.log2(df[reps].mean(1))
+            
+            
     if adjustPVals == True:
         adjustP(df, f"pValue{cond}")
 
@@ -2464,8 +2478,8 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
         # if two lists are provided with reps, this likely is a twoSample test
         if isinstance(reps[0], list) and len(reps) == 2:
             print("LIMMA: Assuming a two sample test with:")
-            print("Rep 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
-            print("Rep 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
+            print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
+            print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
             test = "twoSample"
             design = pd.DataFrame({"Intercept":[1]*(len(reps[0])+len(reps[1])),
                                    "coef":[0]*len(reps[0]) + [1]*len(reps[1])})
@@ -2487,8 +2501,6 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
         else:
             test = "oneSample"
             print("LIMMA: Assuming a one sample test")
-            print("Instance: " + type(reps[0]))
-            print("Len: " + str(len(reps)))
             # The R function will generate a design matrix corresponding to
             # ones
     # if there is a custom design matrix, use it
@@ -2535,7 +2547,7 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
     return df
 
 
-def rankProd(df, reps, cond=""):
+def rankProd(df, reps, cond="", print_r=False):
     """
     Perform RankProd test as in R RankProd package.
 
@@ -2552,6 +2564,10 @@ def rankProd(df, reps, cond=""):
     cond : str, optional
         Term to append to the newly generated colnames.
         The default is "".
+    print_r : bool, optional
+        Whether to print the R output.
+        The default is False.
+
 
     Returns
     -------
@@ -2568,6 +2584,18 @@ def rankProd(df, reps, cond=""):
     else:
         df["UID"] = range(1, df.shape[0]+1)
 
+
+    if isinstance(reps[0], list) and len(reps) == 2:
+        class_labels = [0,]*len(reps[0]) + [1,]*len(reps[1])
+        print("rankProd: Assuming a two sample test with:")
+        print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
+        print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
+        print("Class labels: {}".format(', '.join([str(x) for x in class_labels])))
+
+    else:
+        print("rankProd: Assuming a one sample test")
+        class_labels = [1,]*len(reps)
+
     #if not isinstance(reps, list):
     #    cols = cols.to_list()
     #flatten in case of two sample
@@ -2579,8 +2607,13 @@ def rankProd(df, reps, cond=""):
     "rankProd", #functionName
     dataLoc, #data location
     outputLoc, #output file,
+    ','.join([str(x) for x in class_labels]),
     ]
-    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    
+    p = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+    if print_r:
+        print(p.stdout)
 
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]

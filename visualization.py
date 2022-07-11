@@ -258,7 +258,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, saveDir=None,
             plt.savefig(f"{saveDir}/{saveName}.pdf")
         elif saveType == "png":
             plt.savefig(f"{saveDir}/{saveName}.png")
-    
+
     if retFig:
         return g
 
@@ -1278,14 +1278,12 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
                     showlegend=False)
             )
 
-        fig.update_layout({
-            'plot_bgcolor': 'rgba(70,70,70,1)',
-            'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-        },
-            showlegend=legend,
-        )
-        return fig
+        fig.update_layout(template='simple_white',
+                          showlegend=legend,
+                          )
 
+        if retFig == True:
+            return fig
 
 def logIntPlot(df, logFC, Int, fct=None, annot=False, interactive=False,
                sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",

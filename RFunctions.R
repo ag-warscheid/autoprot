@@ -84,6 +84,7 @@ input <- args[2]
 output <- args[3]
 # args[4]
 # limma:  design/kind of test for limma
+# rankProd: class labels of the samples
 # DIMA:   list of column headers for comparison of t statistic (joined with ;)
 # args[5]
 # limma:  location of design file for limma
@@ -175,10 +176,10 @@ limmaFunction <- function(dfv) {
     design <- read.table(args[5], sep='\t', header=TRUE)
   }
   else{
-    # this is linear regression:
     # Calculation of mean and STDERR of data points
     coef <- rep(1,ncol(dfv))
     design <- data.frame(coef)
+    print(design)
   }
   
   # Fit linear model for each protein
@@ -231,7 +232,7 @@ cyclicLOESS <- function(dfv) {
 }
 
 rankprod <- function(dfv) {
-  data.cl.sub <- c(rep(c(1), NCOL(dfv)))
+  data.cl.sub <-  unlist(strsplit(x = args[4], split = ','))
   data.origin.sub <- rep(1,NCOL(dfv))
   data.sub <- as.matrix(dfv)
   

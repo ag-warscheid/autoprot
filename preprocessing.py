@@ -172,6 +172,8 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
     -------
     pd.Dataframe
         The log transformed dataframe.
+    list
+        A list of column names (if returnCols is True).
 
     Examples
     --------
