@@ -12,7 +12,7 @@ from importlib import resources
 from statsmodels.stats import multitest as mt
 import pandas as pd
 import numpy as np
-from scipy.stats import ttest_1samp, ttest_ind
+from scipy.stats import ttest_1samp, ttest_ind, wilcoxon
 from sklearn.decomposition import PCA
 import matplotlib.pylab as plt
 import pylab as pl
@@ -166,8 +166,8 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
                 df[f"logFC{cond}"] = df[reps].mean(1)
             else:
                 df[f"logFC{cond}"] = np.log2(df[reps].mean(1))
-            
-            
+
+
     if adjustPVals == True:
         adjustP(df, f"pValue{cond}")
 
@@ -2508,11 +2508,11 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
         print("LIMMA: Assuming a custom design test with:")
         print(f"Design specified at {customDesign}")
         print("Columns: {}".format('\n\t'.join(list(pl.flatten(reps)))))
-        
+
         design = pd.read_csv(customDesign, sep='\t')
         print("Using design matrix:\n")
-        print(design.to_markdown())   
-        
+        print(design.to_markdown())
+
         test = "custom"
         designLoc = customDesign
 
@@ -2525,7 +2525,7 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
     designLoc, #design location
     calcContrasts if calcContrasts else "" # whether to calculate contrasts
     ]
-    
+
     p = run(command,
             stdout=PIPE,
             stderr=STDOUT,
@@ -2533,10 +2533,11 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
 
     if print_r:
         print(p.stdout)
-    
+
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]
-    df = df.merge(res, on="UID")
+    # this keeps the index of the original df in the returned df
+    df = df.reset_index().merge(res, on="UID").set_index('index')
 
     os.remove(dataLoc)
     os.remove(outputLoc)
@@ -2547,7 +2548,7 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
     return df
 
 
-def rankProd(df, reps, cond="", print_r=False):
+def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
     """
     Perform RankProd test as in R RankProd package.
 
@@ -2567,14 +2568,26 @@ def rankProd(df, reps, cond="", print_r=False):
     print_r : bool, optional
         Whether to print the R output.
         The default is False.
-
+    correct_fc : bool, optional
+        The rankProd package does not calculate fold-changes for rows with
+        missing values (p Values are calculated). If correct_fc is False
+        the original fold changes from rankProd are return, else fold
+        changes are calculated for all values after ignoring NaNs.
 
     Returns
     -------
     df : pd.DataFrame
         Input dataframe with additional columns from RankProd.
 
+
+    Notes
+    -----
+    The adjusted p-values returned from the R backend are the percentage of
+    false postives calculated by the rankProd package. This is akin to corrected
+    p values, but care should be taken to name these values accordingly.
+
     """
+
     d = os.getcwd()
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
@@ -2596,8 +2609,6 @@ def rankProd(df, reps, cond="", print_r=False):
         print("rankProd: Assuming a one sample test")
         class_labels = [1,]*len(reps)
 
-    #if not isinstance(reps, list):
-    #    cols = cols.to_list()
     #flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
 
@@ -2609,7 +2620,7 @@ def rankProd(df, reps, cond="", print_r=False):
     outputLoc, #output file,
     ','.join([str(x) for x in class_labels]),
     ]
-    
+
     p = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
     if print_r:
@@ -2617,7 +2628,12 @@ def rankProd(df, reps, cond="", print_r=False):
 
     res = pp.read_csv(outputLoc)
     res.columns = [i+cond if i != "UID" else i for i in res.columns]
-    df = df.merge(res, on="UID")
+    df = df.reset_index().merge(res, on="UID").set_index('index')
+
+    if isinstance(reps[0], list) and len(reps) == 2:
+        df['logFC'+cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
+    else:
+        df['logFC'+cond] = df[reps].mean(axis=1)
 
     os.remove(dataLoc)
     os.remove(outputLoc)

@@ -443,7 +443,7 @@ def expandSiteTable(df, cols):
     return temp
 
 @report
-def filterVv(df, groups,n=2, vv=True):
+def filterVv(df, groups, n=2, vv=True):
     r"""
     Filter dataframe for minimum number of valid values.
 
@@ -463,6 +463,8 @@ def filterVv(df, groups,n=2, vv=True):
     -------
     pd.DataFrame
         Filtered dataframe.
+    set (optional)
+        Set of indices after filtering.
 
     Examples
     --------
@@ -487,18 +489,16 @@ def filterVv(df, groups,n=2, vv=True):
     df=df.copy() # make sure to keep the original dataframe unmodified
 
     if vv == True:
-        #TODO: Why not use notnull?
-        # idxs = [set(df[df[group].notnull().sum(1)) >= n].index) for\
+        idxs = [set(df[df[group].notnull().sum(1) >= n].index) for group in groups]
+        #idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
         #        group in groups]
-        idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
-                group in groups]
     else:
-        idxs = [set(df[df[group].isnull().sum(1) <= n].index) for\
-               group in groups]
+        idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
 
     # indices that are valid in all groups
     idx = set.intersection(*idxs)
     df = df.loc[idx]
+    
     return df
 
 
