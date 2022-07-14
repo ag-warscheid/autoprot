@@ -15,57 +15,54 @@ from autoprot import preprocessing as pp
 
 
 def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
-    '''
-
+    """
     Parameters
     ----------
     df_evidence : cleaned pandas DataFrame from Maxquant analysis
-    enzyme : str, 
+    enzyme : str,
         Give any chosen Protease from MQ. The default is "Trypsin/P".
 
     Figure in Pdf format in given filepath,
     Result table as csv
     -------
     None.
-
-    '''
-    ##set plot style
+    """
+    # set plot style
     plt.style.use('seaborn-whitegrid')
 
-    ##set parameters
+    # set parameters
     today = date.today().isoformat()
-    try:
-        experiments = list(set((df_evidence["Experiment"])))
-    except:
+
+    if "Experiment" not in df_evidence:
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
+        experiments = None
+    else:
+        experiments = list(set((df_evidence["Experiment"])))
+
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
         experiments = rawfiles
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
 
-    ####calculate miss cleavage for each raw file in df_evidence
-
+    # calculate miss cleavage for each raw file in df_evidence
     df_missed_cleavage_summary = pd.DataFrame()
     for raw, df_group in df_evidence.groupby("Raw file"):
         if enzyme == "Trypsin/P":
             df_missed_cleavage = df_group["Missed cleavages"].value_counts()
-        elif enzyme != "Trypsin/P":
-            df_missed_cleavage = df_group["Missed cleavages ({0})".format(enzyme)].value_counts()
         else:
-            print("unexpected column name or enzyme")
-
-        df_missed_cleavage_summary = pd.concat([df_missed_cleavage_summary, df_missed_cleavage], axis=1)
-
+            df_missed_cleavage = df_group["Missed cleavages ({0})".format(enzyme)].value_counts()
+        df_missed_cleavage_summary = pd.concat([df_missed_cleavage_summary, df_missed_cleavage],
+                                               axis=1)
     try:
         df_missed_cleavage_summary.columns = experiments
-    except:
-        print("unexpected error in col [Experiment]")
+    except Exception as e:
+        print(f"unexpected error in col [Experiment]: {e}")
     df_missed_cleavage_summary = df_missed_cleavage_summary / df_missed_cleavage_summary.apply(np.sum, axis=0) * 100
     df_missed_cleavage_summary = df_missed_cleavage_summary.round(2)
 
-    #### making the barchart figure missed cleavage
+    # making the barchart figure missed cleavage
     x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
     fig.suptitle("% Missed cleavage per run", fontdict=None,
@@ -81,14 +78,15 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
     # plt.tight_layout()
     plt.savefig("{0}_BarChart_missed-cleavage.pdf".format(today), dpi=600)
 
-    #### save df missed cleavage summery as .csv
-    df_missed_cleavage_summary.to_csv("{}_Missed-cleavage_result-table.csv".format(today), sep='\t', index=False)
+    # save df missed cleavage summery as .csv
+    df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
 
-    #### return results
+    # return results
     return print(df_missed_cleavage_summary, ax1)
 
 
 def enrichmentSpecifity(df_evidence, typ="Phospho"):
+    # sourcery skip: raise-specific-error
     """
 
     Parameters
@@ -109,18 +107,19 @@ def enrichmentSpecifity(df_evidence, typ="Phospho"):
     # set parameters
     today = date.today().isoformat()
 
-    try:
-        experiments = list(set((df_evidence["Experiment"])))
-    except Exception:
+    if "Experiment" not in df_evidence:
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
+        experiments = None
+    else:
+        experiments = list(set((df_evidence["Experiment"])))
+
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
-        experiments = rawfiles
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
 
-    if typ == False:
+    if not typ:
         print("Error: Choose type of enrichment")
 
     if typ == "AHA-Phosphonate":
@@ -129,6 +128,8 @@ def enrichmentSpecifity(df_evidence, typ="Phospho"):
         colname = 'Cys--> Phosphonate'
     elif typ == "Phospho":
         colname = 'Phospho (STY)'
+    else:
+        raise Exception("Invalid type specified. Must be 'AHA-Phosphonate', 'CPT', or 'Phospho'")
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
 
@@ -146,8 +147,6 @@ def enrichmentSpecifity(df_evidence, typ="Phospho"):
     df_summary = pd.concat([df_summary, df], axis=0)
 
     # make barchart
-    labels = experiments
-    width = 0.4
     fig, ax = plt.subplots()
     fig.suptitle('Enrichment specificty [%]', fontdict=None,
                  horizontalalignment='center', size=14
@@ -196,8 +195,9 @@ def TMT6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     df_efficiency = pd.DataFrame()
 
     # delete N-terminal acetylated arginines without lysine (can't be modified)
-    evidence_under = evidence_under[~(evidence_under["Modified sequence"].str.contains('\_\(Acetyl \(Protein N\-term\)\)') &
-                                     evidence_under["Modified sequence"].str.contains('K'))]
+    evidence_under = evidence_under[
+        ~(evidence_under["Modified sequence"].str.contains('\_\(Acetyl \(Protein N\-term\)\)') &
+          evidence_under["Modified sequence"].str.contains('K'))]
 
     # cal
     evidence_under["K count"] = evidence_under["Sequence"].str.count('K')
@@ -264,8 +264,8 @@ def TMT6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                          '\_\(Acetyl \(Protein N\-term\)\)')) &
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = (group["Modified sequence"].str.contains('\(TMT6plex')).sum() - \
-                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() -\
+            df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 
