@@ -25,18 +25,21 @@ from autoprot import RHelper
 import warnings
 import missingno as msn
 from gprofiler import GProfiler
+
 gp = GProfiler(
     user_agent="autoprot",
     return_dataframe=True)
 from autoprot import preprocessing as pp
-#might want to enable warnings for debugging
-#disabled them for copy vs view pandas warnings (pretty annoying)
+
+# might want to enable warnings for debugging
+# disabled them for copy vs view pandas warnings (pretty annoying)
 warnings.filterwarnings('ignore')
 
 RSCRIPT, R = RHelper.returnRPath()
 
-#check where this is actually used and make it local
+# check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
 
 def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
           alternative='two-sided', logged=True):
@@ -135,21 +138,22 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
         plt.show()
 
     """
+
     def oneSamp_ttest(x):
         return np.ma.filled(ttest_1samp(x,
                                         nan_policy="omit",
                                         alternative=alternative,
-                                        popmean=0)[1],np.nan)
+                                        popmean=0)[1], np.nan)
 
     def twoSamp_ttest(x):
         return np.ma.filled(ttest_ind(x[:len(reps[0])],
                                       x[len(reps[0]):],
                                       alternative=alternative,
-                                      nan_policy="omit")[1],np.nan)
+                                      nan_policy="omit")[1], np.nan)
 
     if isinstance(reps[0], list) and len(reps) == 2:
         print("Performing two-sample t-Test")
-        df[f"pValue{cond}"] = df[reps[0]+reps[1]].apply(lambda x: twoSamp_ttest(x),1).astype(float)
+        df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: twoSamp_ttest(x), 1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if returnFC == True:
             if logged:
@@ -159,7 +163,7 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
 
     else:
         print("Performing one-sample t-Test")
-        df[f"pValue{cond}"] = df[reps].apply(lambda x: oneSamp_ttest(x),1).astype(float)
+        df[f"pValue{cond}"] = df[reps].apply(lambda x: oneSamp_ttest(x), 1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if returnFC == True:
             if logged:
@@ -167,11 +171,11 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
             else:
                 df[f"logFC{cond}"] = np.log2(df[reps].mean(1))
 
-
     if adjustPVals == True:
         adjustP(df, f"pValue{cond}")
 
     return df
+
 
 def adjustP(df, pCol, method="fdr_bh"):
     r"""
@@ -230,6 +234,7 @@ def adjustP(df, pCol, method="fdr_bh"):
     df.loc[idx, f"adj.{pCol}"] = mt.multipletests(df[pCol].loc[idx], method=method)[1]
     return df
 
+
 def cohenD(df, group1, group2):
     """
     Calculate Cohen's d effect size for two groups.
@@ -263,13 +268,14 @@ def cohenD(df, group1, group2):
     mean1 = df[group1].mean(1).values
     std1 = df[group1].std(1).values
     mean2 = df[group2].mean(1).values
-    std2= df[group2].std(1).values
+    std2 = df[group2].std(1).values
     # TODO: the pooled sd here is calculated omitting the sample sizes n
     # This is not exactly what was proposed for cohens d: https://en.wikipedia.org/wiki/Effect_size
-    sd_pooled =  np.sqrt((std1**2 + std2**2) / 2)
+    sd_pooled = np.sqrt((std1 ** 2 + std2 ** 2) / 2)
     cohen_d = (abs(mean1 - mean2)) / sd_pooled
     df["cohenD"] = cohen_d
     return df
+
 
 class autoPCA:
     r"""
@@ -444,11 +450,11 @@ class autoPCA:
         # components_ is and ndarray of shape (n_components, n_features)
         # and contains the loadings/weights of each PCA eigenvector
         forVis = pd.DataFrame(pca.components_.T)
-        forVis.columns = [f"PC{i}" for i in range(1, min(X.shape[0], X.T.shape[0])+1)]
+        forVis.columns = [f"PC{i}" for i in range(1, min(X.shape[0], X.T.shape[0]) + 1)]
         forVis["label"] = label
         return pca, forVis
 
-    def scree(self, figsize=(15,5)):
+    def scree(self, figsize=(15, 5)):
         """
         Plot Scree plot and Explained variance vs number of components.
 
@@ -468,7 +474,7 @@ class autoPCA:
         None.
 
         """
-        if not isinstance(self.pca,PCA):
+        if not isinstance(self.pca, PCA):
             raise TypeError("This is a function to plot Scree plots. Provide fitted sklearn PCA object.")
 
         eigVal = self.pca.explained_variance_
@@ -476,16 +482,16 @@ class autoPCA:
 
         plt.figure(figsize=figsize)
         plt.subplot(121)
-        plt.plot(range(1,len(eigVal)+1), eigVal, marker="o", color="teal",
-                markerfacecolor='purple')
+        plt.plot(range(1, len(eigVal) + 1), eigVal, marker="o", color="teal",
+                 markerfacecolor='purple')
         plt.ylabel("Eigenvalues")
         plt.xlabel("# Component")
         plt.title("Scree plot")
         sns.despine()
 
         plt.subplot(122)
-        plt.plot(range(1, len(cumVar)+1), cumVar, ds="steps", color="teal")
-        plt.xticks(range(1,len(eigVal)+1))
+        plt.plot(range(1, len(cumVar) + 1), cumVar, ds="steps", color="teal")
+        plt.xticks(range(1, len(eigVal) + 1))
         plt.ylabel("explained cumulative variance")
         plt.xlabel("# Component")
         plt.title("Explained variance")
@@ -516,10 +522,9 @@ class autoPCA:
         """
         plt.figure()
         sns.heatmap(self.forVis.filter(regex="PC"), cmap=sns.color_palette("PuOr", 10), annot=annot)
-        yp = [i+0.5 for i in range(len(self.label))]
+        yp = [i + 0.5 for i in range(len(self.label))]
         plt.yticks(yp, self.forVis["label"], rotation=0);
         plt.title("")
-
 
     def barLoad(self, pc=1, n=25):
         """
@@ -538,11 +543,11 @@ class autoPCA:
         None.
 
         """
-        PC =  f"PC{pc}"
+        PC = f"PC{pc}"
         forVis = self.forVis.copy()
         forVis[f"{PC}_abs"] = abs(forVis[PC])
         forVis["color"] = "negative"
-        forVis.loc[forVis[PC]>0, "color"] = "positive"
+        forVis.loc[forVis[PC] > 0, "color"] = "positive"
         forVis = forVis.sort_values(by=f"{PC}_abs", ascending=False)[:n]
         plt.figure()
         ax = plt.subplot()
@@ -569,7 +574,7 @@ class autoPCA:
             Dataframe containing load vs. condition.
 
         """
-        PC =  f"PC{pc}"
+        PC = f"PC{pc}"
         forVis = self.forVis.copy()
         forVis[f"{PC}_abs"] = abs(forVis[PC])
         forVis = forVis.sort_values(by=f"{PC}_abs", ascending=False)[:n]
@@ -585,13 +590,13 @@ class autoPCA:
             Dataframe holding the principal components as colnames and
             the scores for each protein on that PC as values.
         """
-        columns = [f"PC{i+1}" for i in range(self.Xt.shape[1])]
+        columns = [f"PC{i + 1}" for i in range(self.Xt.shape[1])]
         scores = pd.DataFrame(self.Xt, columns=columns)
         if self.batch is not None:
             scores["batch"] = self.batch
         return scores
 
-    def scorePlot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5,5)):
+    def scorePlot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5, 5)):
         """
         Generate a PCA score plot.
 
@@ -623,33 +628,33 @@ class autoPCA:
         None.
 
         """
-        x = self.Xt[::,pc1-1]
-        y = self.Xt[::,pc2-1]
+        x = self.Xt[::, pc1 - 1]
+        y = self.Xt[::, pc2 - 1]
         plt.figure(figsize=figsize)
         if self.batch is None:
-            forVis = pd.DataFrame({"x":x,"y":y})
+            forVis = pd.DataFrame({"x": x, "y": y})
             sns.scatterplot(data=forVis, x="x", y="y")
         else:
-            forVis = pd.DataFrame({"x":x,"y":y, "batch":self.batch})
+            forVis = pd.DataFrame({"x": x, "y": y, "batch": self.batch})
             sns.scatterplot(data=forVis, x="x", y="y", hue=forVis["batch"])
         forVis["label"] = self.rlabel
 
         plt.title("Score plot")
-        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1-1]*100,2)} %")
-        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
+        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
+        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
 
         if labeling is True:
             ss = forVis["label"]
             xx = forVis["x"]
             yy = forVis["y"]
-            for x,y,s in zip(xx,yy,ss):
-                plt.text(x,y,s)
+            for x, y, s in zip(xx, yy, ss):
+                plt.text(x, y, s)
         sns.despine()
 
         if file is not None:
             plt.savefig(fr"{file}/ScorePlot.pdf")
 
-    def loadingPlot(self, pc1=1, pc2=2, labeling=False, figsize=(5,5)):
+    def loadingPlot(self, pc1=1, pc2=2, labeling=False, figsize=(5, 5)):
         """
         Generate a PCA loading plot.
 
@@ -682,25 +687,24 @@ class autoPCA:
         plt.figure(figsize=figsize)
         if self.batch is None or len(self.batch) != self.forVis.shape[0]:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
-            y=f"PC{pc2}",edgecolor=None)
+                            y=f"PC{pc2}", edgecolor=None)
         else:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
-            y=f"PC{pc2}",edgecolor=None, hue=self.batch)
+                            y=f"PC{pc2}", edgecolor=None, hue=self.batch)
         sns.despine()
 
         plt.title("Loadings plot")
-        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1-1]*100,2)} %")
-        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
+        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
+        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
 
         if labeling is True:
             ss = self.forVis["label"]
             xx = self.forVis[f"PC{pc1}"]
             yy = self.forVis[f"PC{pc2}"]
-            for x,y,s in zip(xx,yy,ss):
-                plt.text(x,y,s)
+            for x, y, s in zip(xx, yy, ss):
+                plt.text(x, y, s)
 
-
-    def biPlot(self, pc1=1, pc2=2, numLoad="all", figsize=(5,5), **kwargs):
+    def biPlot(self, pc1=1, pc2=2, numLoad="all", figsize=(5, 5), **kwargs):
         """
         Generate a biplot, a combined loadings and score plot.
 
@@ -728,10 +732,10 @@ class autoPCA:
         None.
 
         """
-        x = self.Xt[::,pc1-1]
-        y = self.Xt[::,pc2-1]
+        x = self.Xt[::, pc1 - 1]
+        y = self.Xt[::, pc2 - 1]
         plt.figure(figsize=figsize)
-        plt.scatter(x,y, color="lightgray", alpha=0.5, linewidth=0, **kwargs)
+        plt.scatter(x, y, color="lightgray", alpha=0.5, linewidth=0, **kwargs)
 
         temp = self.forVis[[f"PC{pc1}", f"PC{pc2}"]]
         temp["label"] = self.label
@@ -744,30 +748,30 @@ class autoPCA:
             loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].iloc[:numLoad].values
             labels = temp["label"].iloc[:numLoad].values
 
-        xscale = 1.0 / (self.Xt[::,pc1-1].max() - self.Xt[::,pc1-1].min())
-        yscale = 1.0 / (self.Xt[::,pc2-1].max() - self.Xt[::,pc2-1].min())
+        xscale = 1.0 / (self.Xt[::, pc1 - 1].max() - self.Xt[::, pc1 - 1].min())
+        yscale = 1.0 / (self.Xt[::, pc2 - 1].max() - self.Xt[::, pc2 - 1].min())
         xmina = 0
         xmaxa = 0
         ymina = 0
 
         for l, lab in zip(loadings, labels):
-            #plt.plot([0,l[0]/xscale], (0, l[1]/yscale), color="purple")
-            plt.arrow(x=0, y=0,dx=l[0]/xscale, dy= l[1]/yscale, color="purple",
-                     head_width=.2)
-            plt.text(x=l[0]/xscale, y=l[1]/yscale, s=lab)
+            # plt.plot([0,l[0]/xscale], (0, l[1]/yscale), color="purple")
+            plt.arrow(x=0, y=0, dx=l[0] / xscale, dy=l[1] / yscale, color="purple",
+                      head_width=.2)
+            plt.text(x=l[0] / xscale, y=l[1] / yscale, s=lab)
 
-            if l[0]/xscale < xmina:
-                xmina = l[0]/xscale
-            elif l[0]/xscale > xmaxa:
-                xmaxa = l[0]/xscale
+            if l[0] / xscale < xmina:
+                xmina = l[0] / xscale
+            elif l[0] / xscale > xmaxa:
+                xmaxa = l[0] / xscale
 
-            if l[1]/yscale < ymina:
-                ymina = l[1]/yscale
-            elif l[1]/yscale > ymina:
-                ymina = l[1]/yscale
+            if l[1] / yscale < ymina:
+                ymina = l[1] / yscale
+            elif l[1] / yscale > ymina:
+                ymina = l[1] / yscale
 
-        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1-1]*100,2)} %")
-        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2-1]*100,2)} %")
+        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
+        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
         sns.despine()
 
     def pairPlot(self, n=0):
@@ -792,15 +796,16 @@ class autoPCA:
         if n == 0:
             n = self.Xt.shape[0]
 
-        forVis = pd.DataFrame(self.Xt[:,:n])
+        forVis = pd.DataFrame(self.Xt[:, :n])
         i = np.argmin(self.Xt.shape)
         pcs = self.Xt.shape[i]
-        forVis.columns = [f"PC {i}" for i in range(1,pcs+1)]
+        forVis.columns = [f"PC {i}" for i in range(1, pcs + 1)]
         if self.batch is not None:
             forVis["batch"] = self.batch
             sns.pairplot(forVis, hue="batch")
         else:
             sns.pairplot(forVis)
+
 
 class KSEA:
     r"""
@@ -968,13 +973,13 @@ class KSEA:
         None.
 
         """
-        with resources.open_binary("autoprot.data","Kinase_Substrate_Dataset.zip") as d:
+        with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
             self.PSP_KS = pd.read_csv(d, sep='\t', compression='zip')
         # harmonize gene naming
         self.PSP_KS["SUB_GENE"] = self.PSP_KS["SUB_GENE"].fillna("NA").apply(lambda x: x.upper())
         # add source information
         self.PSP_KS["source"] = "PSP"
-        with resources.open_binary("autoprot.data","Regulatory_sites.zip") as d:
+        with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
             self.PSP_regSits = pd.read_csv(d, sep='\t', compression='zip')
         # Harmonize the input data and store them to the class
         self.data = self.__preprocess(data.copy(deep=True))
@@ -983,7 +988,6 @@ class KSEA:
         self.kseaResults = None
         self.koi = None
         self.simpleDf = None
-
 
     @staticmethod
     def __preprocess(data):
@@ -996,8 +1000,7 @@ class KSEA:
         data["mergeID"] = range(data.shape[0])
         return data
 
-
-    def __enrichment(self,df, col, kinase):
+    def __enrichment(self, df, col, kinase):
         """
         Calculate the enrichment score for a certain kinase.
 
@@ -1019,15 +1022,14 @@ class KSEA:
         """
         # get enrichment values for rows containing the kinase of interest
         KS = df[col][df["KINASE"].fillna('').apply(lambda x: kinase in x)]
-        s = KS.mean() #mean FC of kinase subs
-        p = df[col].mean() #mean FC of all substrates
-        m = KS.shape[0] #number of kinase substrates
-        sig = df[col].std() #standard dev of FC of all
-        score = ((s-p)*np.sqrt(m))/sig
-        return [kinase,score]
+        s = KS.mean()  # mean FC of kinase subs
+        p = df[col].mean()  # mean FC of all substrates
+        m = KS.shape[0]  # number of kinase substrates
+        sig = df[col].std()  # standard dev of FC of all
+        score = ((s - p) * np.sqrt(m)) / sig
+        return [kinase, score]
 
-
-    def __extractKois(self,df):
+    def __extractKois(self, df):
         """
         Count the number of substrates for each kinase in a merged df.
 
@@ -1047,16 +1049,15 @@ class KSEA:
         # Extract all strings present in the KINASE column as list of str
         # This is mainly out of caution as all entries in the kinase col should be
         # stirngs
-        koi = [i for i in list(df["KINASE"].values.flatten()) if isinstance(i,str) ]
+        koi = [i for i in list(df["KINASE"].values.flatten()) if isinstance(i, str)]
         # remove duplicates
         ks = set(koi)
         # empty list to take on sets of kinase:count pairs
         temp = []
         for k in ks:
             # count the number of appearances of each kinase name in the list of kinase names
-            temp.append((k,koi.count(k)))
+            temp.append((k, koi.count(k)))
         return pd.DataFrame(temp, columns=["Kinase", "#Subs"])
-
 
     def addSubstrate(self, kinase, substrate, subModRsd):
         """
@@ -1086,7 +1087,7 @@ class KSEA:
         it = iter([kinase, substrate, subModRsd])
         the_len = len(next(it))
         if not all(len(l) == the_len for l in it):
-             raise ValueError('not all lists have same length!')
+            raise ValueError('not all lists have same length!')
 
         # generate new empty df to fill in the new kinases
         temp = pd.DataFrame(columns=self.PSP_KS.columns)
@@ -1101,7 +1102,7 @@ class KSEA:
     # TODO find a better name
     def removeManualSubs(self):
         """Remove all manual entries from the PSP database."""
-        self.PSP_KS = self.PSP_KS[self.PSP_KS["source"]=="PSP"]
+        self.PSP_KS = self.PSP_KS[self.PSP_KS["source"] == "PSP"]
 
     def annotate(self, organism="human", onlyInVivo=False):
         """
@@ -1126,14 +1127,14 @@ class KSEA:
         """
         # return a kinase substrate dataframe including only entries of the
         # target organism that were validated in vitro
-        if onlyInVivo==True:
+        if onlyInVivo == True:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
-            (self.PSP_KS["SUB_ORGANISM"] == organism) &
-            (self.PSP_KS["IN_VIVO_RXN"]=="X")) | (self.PSP_KS["source"]=="manual")]
+                                (self.PSP_KS["SUB_ORGANISM"] == organism) &
+                                (self.PSP_KS["IN_VIVO_RXN"] == "X")) | (self.PSP_KS["source"] == "manual")]
         # only filter for the target organism
         else:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
-            (self.PSP_KS["SUB_ORGANISM"] == organism)) | (self.PSP_KS["source"]=="manual")]
+                                (self.PSP_KS["SUB_ORGANISM"] == organism)) | (self.PSP_KS["source"] == "manual")]
 
         # merge the kinase substrate data tables with the input dataframe
         # include the multiplicity column in the merge if present in the
@@ -1141,11 +1142,11 @@ class KSEA:
         # the substrate gene names and the modification position are used for
         # merging
         if "Multiplicity" in self.data.columns:
-            self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity","mergeID"]],
+            self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity", "mergeID"]],
                                     temp,
                                     left_on=["ucGene", "MOD_RSD"],
                                     right_on=["SUB_GENE", "SUB_MOD_RSD"],
-                                    how="left") # keep only entries that are present in the input dataframe
+                                    how="left")  # keep only entries that are present in the input dataframe
         else:
             self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "mergeID"]],
                                     temp,
@@ -1155,7 +1156,6 @@ class KSEA:
 
         # generate a df with kinase:number of substrate pairs for the dataset
         self.koi = self.__extractKois(self.annotDf)
-
 
     def getKinaseOverview(self, kois=None):
         """
@@ -1174,64 +1174,63 @@ class KSEA:
         """
         # ax[0] is a histogram of kinase substrate numbers and
         # ax[1] is a table of top10 kinases
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15, 5))
 
-        sns.histplot(self.koi["#Subs"], bins=50, ax= ax[0])
+        sns.histplot(self.koi["#Subs"], bins=50, ax=ax[0])
         sns.despine(ax=ax[0])
         ax[0].set_title("Overview of #Subs per kinase")
 
-        #get axis[1] ready - basically remove everthing
+        # get axis[1] ready - basically remove everthing
         ax[1].spines["left"].set_visible(False)
         ax[1].spines["top"].set_visible(False)
         ax[1].spines["bottom"].set_visible(False)
         ax[1].spines["right"].set_visible(False)
-        ax[1].tick_params(axis='both', # changes apply to the x-axis
-                          which='both', # both major and minor ticks are affected
-                          bottom=False, # ticks along the bottom edge are off
-                          top=False, # ticks along the top edge are off
+        ax[1].tick_params(axis='both',  # changes apply to the x-axis
+                          which='both',  # both major and minor ticks are affected
+                          bottom=False,  # ticks along the bottom edge are off
+                          top=False,  # ticks along the top edge are off
                           left=False,
                           labelbottom=False,
-                          labelleft=False) # labels along the bottom edge are off
-        ax[1].set_xlim(0,1)
-        ax[1].set_ylim(0,1)
+                          labelleft=False)  # labels along the bottom edge are off
+        ax[1].set_xlim(0, 1)
+        ax[1].set_ylim(0, 1)
 
-        #plot table
-        ax[1].text(x=0, y=1-0.01, s="Top10\nKinase")
-        ax[1].text(x=0.1, y=1-0.01, s="#Subs")
+        # plot table
+        ax[1].text(x=0, y=1 - 0.01, s="Top10\nKinase")
+        ax[1].text(x=0.1, y=1 - 0.01, s="#Subs")
 
-        ax[1].plot([0,0.2], [.975,.975], color="black")
-        ax[1].plot([0.1,0.1], [0,.975], color="black")
+        ax[1].plot([0, 0.2], [.975, .975], color="black")
+        ax[1].plot([0.1, 0.1], [0, .975], color="black")
 
-        #get top 10 kinases for annotation
+        # get top 10 kinases for annotation
         text = self.koi.sort_values(by="#Subs", ascending=False).iloc[:10].values
-        for j,i in enumerate(text):
-            j+=1
-            ax[1].text(x=0, y=1-j/10, s=i[0])
-            ax[1].text(x=0.125, y=1-j/10, s=i[1])
-        #plot some descriptive stats
+        for j, i in enumerate(text):
+            j += 1
+            ax[1].text(x=0, y=1 - j / 10, s=i[0])
+            ax[1].text(x=0.125, y=1 - j / 10, s=i[1])
+        # plot some descriptive stats
         tot = self.koi.shape[0]
         s = f"Substrates for {tot} kinases found in data."
         ax[1].text(0.3, 0.975, s)
         med = round(self.koi['#Subs'].median(), 2)
         s = f"Median #Sub: {med}"
-        ax[1].text(0.3,0.925, s)
+        ax[1].text(0.3, 0.925, s)
         mea = round(self.koi['#Subs'].mean(), 2)
         s = f"Mean #Sub: {mea}"
-        ax[1].text(0.3,0.875, s)
-        #if kois are provided plot those
+        ax[1].text(0.3, 0.875, s)
+        # if kois are provided plot those
         if kois is not None:
             pos = .8
-            for j,k in enumerate(kois):
+            for j, k in enumerate(kois):
                 try:
                     s = self.koi[self.koi["Kinase"].apply(lambda x: x.upper()) == k.upper()]["#Subs"].values[0]
                 except:
                     s = 0
                 ss = f"{k} has {s} substrates."
-                ax[1].text(0.3,pos, ss)
-                pos-=0.055
+                ax[1].text(0.3, pos, ss)
+                pos -= 0.055
 
-
-    def ksea(self, col, minSubs = 5, simplify=None):
+    def ksea(self, col, minSubs=5, simplify=None):
         r"""
         Calculate Kinase Enrichment Score.
 
@@ -1271,23 +1270,23 @@ class KSEA:
         copyAnnotDf = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
-                simplify = {"AKT" : ["Akt1", "Akt2", "Akt3"],
-                           "PKC" :  ["PKCA", "PKCD", "PKCE"],
-                           "ERK" :  ["ERK1", "ERK2"],
-                           "GSK3" : ["GSK3B", "GSK3A"],
-                           "JNK" :  ["JNK1", "JNK2", "JNK3"],
-                           "FAK" :  ["FAK iso2"],
-                           "p70S6K":["p70S6K", "p70SKB"],
-                           "RSK" : ["p90RSK", "RSK2"],
-                           "P38" : ["P38A","P38B","P38C","P338D"]}
+                simplify = {"AKT": ["Akt1", "Akt2", "Akt3"],
+                            "PKC": ["PKCA", "PKCD", "PKCE"],
+                            "ERK": ["ERK1", "ERK2"],
+                            "GSK3": ["GSK3B", "GSK3A"],
+                            "JNK": ["JNK1", "JNK2", "JNK3"],
+                            "FAK": ["FAK iso2"],
+                            "p70S6K": ["p70S6K", "p70SKB"],
+                            "RSK": ["p90RSK", "RSK2"],
+                            "P38": ["P38A", "P38B", "P38C", "P338D"]}
             for key in simplify:
-                copyAnnotDf["KINASE"].replace(simplify[key], [key]*len(simplify[key]), inplace=True)
+                copyAnnotDf["KINASE"].replace(simplify[key], [key] * len(simplify[key]), inplace=True)
 
-            #drop rows which are now duplicates
+            # drop rows which are now duplicates
             if "Multiplicity" in copyAnnotDf.columns:
-                idx = copyAnnotDf[["ucGene","MOD_RSD","Multiplicity", "KINASE"]].drop_duplicates().index
+                idx = copyAnnotDf[["ucGene", "MOD_RSD", "Multiplicity", "KINASE"]].drop_duplicates().index
             else:
-                idx = copyAnnotDf[["ucGene","MOD_RSD", "KINASE"]].drop_duplicates().index
+                idx = copyAnnotDf[["ucGene", "MOD_RSD", "KINASE"]].drop_duplicates().index
             copyAnnotDf = copyAnnotDf.loc[idx]
             self.simpleDf = copyAnnotDf
 
@@ -1295,36 +1294,34 @@ class KSEA:
             self.koi = self.__extractKois(self.simpleDf)
 
         # filter kinases with at least minSubs number of substrates
-        koi = self.koi[self.koi["#Subs"]>=minSubs]["Kinase"]
+        koi = self.koi[self.koi["#Subs"] >= minSubs]["Kinase"]
 
         # init empty df
-        self.kseaResults = pd.DataFrame(columns = ["kinase", "score"])
+        self.kseaResults = pd.DataFrame(columns=["kinase", "score"])
         # add the enrichment column back to the annotation df using the mergeID
-        copyAnnotDf = copyAnnotDf.merge(self.data[[col,"mergeID"]], on="mergeID", how="left")
+        copyAnnotDf = copyAnnotDf.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
         for kinase in koi:
             # calculate the enrichment score
             k, s = self.__enrichment(copyAnnotDf[copyAnnotDf[col].notnull()], col, kinase)
             # new dataframe containing kinase names and scores
-            temp = pd.DataFrame(data={"kinase":k, "score":s}, index=[0])
+            temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
             # add the new df to the pre-initialised df
             self.kseaResults = self.kseaResults.append(temp, ignore_index=True)
         # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
-
 
     def returnEnrichment(self):
         """Return a dataframe of kinase:score pairs."""
         if self.kseaResults is None:
             print("First perform the enrichment")
         else:
-        #dropna in case of multiple columns in data
-        #sometimes there are otherwise nan
-        #nans are dropped in ksea enrichment
+            # dropna in case of multiple columns in data
+            # sometimes there are otherwise nan
+            # nans are dropped in ksea enrichment
             return self.kseaResults.dropna()
 
-
-    def plotEnrichment(self, up_col="orange", down_col="blue", bg_col = "lightgray",
-                       plotBg = True, ret=False, title="", figsize=(5,10)):
+    def plotEnrichment(self, up_col="orange", down_col="blue", bg_col="lightgray",
+                       plotBg=True, ret=False, title="", figsize=(5, 10)):
         """
         Plot the KSEA results.
 
@@ -1362,25 +1359,25 @@ class KSEA:
             # set all proteins to bg_col
             self.kseaResults["color"] = bg_col
             # highlight up and downregulated
-            self.kseaResults.loc[self.kseaResults["score"]>2, "color"] = up_col
-            self.kseaResults.loc[self.kseaResults["score"]<-2, "color"] = down_col
+            self.kseaResults.loc[self.kseaResults["score"] > 2, "color"] = up_col
+            self.kseaResults.loc[self.kseaResults["score"] < -2, "color"] = down_col
             # init figure
             fig = plt.figure(figsize=figsize)
             plt.yticks(fontsize=10)
             plt.title(title)
             # only plot the unaffected substrates if plotBg is True
             if plotBg == True:
-                sns.barplot(data= self.kseaResults.dropna(), x="score",y="kinase",
-                palette=self.kseaResults.dropna()["color"])
+                sns.barplot(data=self.kseaResults.dropna(), x="score", y="kinase",
+                            palette=self.kseaResults.dropna()["color"])
             else:
                 # else remove the unaffected substrates from the plotting df
-                sns.barplot(data= self.kseaResults[self.kseaResults["color"]!=bg_col].dropna(), x="score",y="kinase",
-                palette=self.kseaResults[self.kseaResults["color"]!=bg_col].dropna()["color"])
+                sns.barplot(data=self.kseaResults[self.kseaResults["color"] != bg_col].dropna(), x="score", y="kinase",
+                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"])
 
             # remove top and right spines/plot lines
             sns.despine()
-            plt.legend([],[], frameon=False)
-            plt.axvline(0,0,1, ls="dashed", color="lightgray")
+            plt.legend([], [], frameon=False)
+            plt.axvline(0, 0, 1, ls="dashed", color="lightgray")
             # return the figure object only if demanded
             if ret == True:
                 plt.tight_layout()
@@ -1412,12 +1409,11 @@ class KSEA:
         df = self.annotateDf(kinases=kinases)
         for k in kinases:
             # index for highlighting the selected kinase substrates
-            idx = df[df[k]==1].index
+            idx = df[df[k] == 1].index
             vis.volcano(df, logFC, p=p, highlight=idx,
-                        custom_hl={"label":k},
-                        custom_fg={"alpha":.5},
+                        custom_hl={"label": k},
+                        custom_fg={"alpha": .5},
                         **kwargs)
-
 
     def returnKinaseSubstrate(self, kinase):
         """
@@ -1453,27 +1449,27 @@ class KSEA:
             idx = []
             # find the rows corresponding to each kinase
             for k in kinase:
-                idx.append(df[df["KINASE"].fillna("NA").apply(lambda x: x.upper())==k.upper()].index)
+                idx.append(df[df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == k.upper()].index)
             # merge all row indices and use them to create a sub-df containing
             # only the kinases of interest
             dfFilter = df.loc[pl.flatten(idx)]
         # if only a single kinase is provided, filter the input df directly
         elif isinstance(kinase, str):
-            dfFilter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper())==kinase.upper()]
+            dfFilter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == kinase.upper()]
         else:
             raise ValueError("Please provide either a string or a list of strings representing kinases of interest.")
 
         # data are merged implicitely on common colnames i.e. on SITE_GRP_ID
         # only entries present in the filtered annotDfare retained
-        dfFilter = pd.merge(dfFilter[['GENE', 'KINASE','KIN_ACC_ID','SUBSTRATE','SUB_ACC_ID',
-                                       'SUB_GENE','SUB_MOD_RSD', 'SITE_GRP_ID','SITE_+/-7_AA', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#',
-                                       'source', "mergeID"]],
-                            self.PSP_regSits[['SITE_GRP_ID','ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT',
+        dfFilter = pd.merge(dfFilter[['GENE', 'KINASE', 'KIN_ACC_ID', 'SUBSTRATE', 'SUB_ACC_ID',
+                                      'SUB_GENE', 'SUB_MOD_RSD', 'SITE_GRP_ID', 'SITE_+/-7_AA', 'DOMAIN', 'IN_VIVO_RXN',
+                                      'IN_VITRO_RXN', 'CST_CAT#',
+                                      'source', "mergeID"]],
+                            self.PSP_regSits[['SITE_GRP_ID', 'ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT',
                                               'ON_OTHER_INTERACT', 'PMIDs', 'LT_LIT', 'MS_LIT', 'MS_CST',
                                               'NOTES']],
-                                              how="left")
+                            how="left")
         return dfFilter
-
 
     def annotateDf(self, kinases=[]):
         """
@@ -1502,14 +1498,14 @@ class KSEA:
                 df[kinase] = 0
                 # check if the unique ID for each protein is present in the
                 # returnKinaseSubstrate df. If so set the column value to 1.
-                df.loc[df["mergeID"].isin(ids),kinase] = 1
+                df.loc[df["mergeID"].isin(ids), kinase] = 1
             # remnove also the mergeID column before returning the df
             return df.drop("mergeID", axis=1)
         else:
             print("Please provide kinase(s) for annotation.")
 
 
-def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
+def missAnalysis(df, cols, n=None, sort='ascending', text=True, vis=True,
                  extraVis=False, saveDir=None):
     r"""
     Print missing statistics for a dataframe.
@@ -1598,31 +1594,32 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
                          sort="descending",
                          extraVis = True)
     """
+
     def create_data(df):
         """Calculate summary missing statistics."""
         data = []
         # implicitly iterate over df cols
         for i in df:
-            #len df
+            # len df
             n = df.shape[0]
-            #how many are missing
+            # how many are missing
             m = df[i].isnull().sum()
-            #percentage
-            p = m/n*100
-            data.append([i,n,m,p])
+            # percentage
+            p = m / n * 100
+            data.append([i, n, m, p])
         data = add_ranking(data)
         return data
 
     def add_ranking(data):
         """Sort data by the percentage of missingness."""
-        data = sorted(data,key=itemgetter(3))
+        data = sorted(data, key=itemgetter(3))
         # add a number corresponding to the position in the ranking
         # to every condition aka column.
         for idx, col in enumerate(data):
             col.append(idx)
         return data
 
-    def describe(data, n,saveDir, sort='ascending'):
+    def describe(data, n, saveDir, sort='ascending'):
         """
         Print summary statistics as text based on data df.
 
@@ -1655,7 +1652,7 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         elif n > len(data):
             print("'n' is larger than dataframe!\nDisplaying complete dataframe.")
             n = len(data)
-        if n<0:
+        if n < 0:
             raise ValueError("'n' has to be a positive integer!")
 
         if sort == 'ascending':
@@ -1666,12 +1663,12 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         allines = ''
         for i in range(n):
             allines += "{} has {} of {} entries missing ({}%).".format(data[i][0],
-                                                                  data[i][2],
-                                                                  data[i][1],
-                                                                  round(data[i][3],2))
+                                                                       data[i][2],
+                                                                       data[i][1],
+                                                                       round(data[i][3], 2))
             allines += '\n'
             # line separator
-            allines += '-'*80
+            allines += '-' * 80
 
         if saveDir:
             with open(saveDir + "/missAnalysis_text.txt", 'w') as f:
@@ -1715,32 +1712,32 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
         """
         if n == None:
             n = len(data)
-        elif n>len(data):
+        elif n > len(data):
             print("'n' is larger than dataframe!\nDisplaying complete dataframe.")
             n = len(data)
-        if n<0:
+        if n < 0:
             raise ValueError("'n' has to be a positive integer!")
 
         if sort == 'ascending':
             pass
         elif sort == 'descending':
-            data=data[::-1]
+            data = data[::-1]
 
         data = pd.DataFrame(data=data,
-                            columns=["Name", "tot_values","tot_miss", "perc_miss", "rank"])
+                            columns=["Name", "tot_values", "tot_miss", "perc_miss", "rank"])
 
-        plt.figure(figsize=(7,7))
+        plt.figure(figsize=(7, 7))
         ax = plt.subplot()
         # plot colname against total missing values
         splot = sns.barplot(x=data["tot_miss"].iloc[:n],
                             y=data["Name"].iloc[:n])
 
         # add the percentage of missingness to every bar of the plot
-        for idx,p in enumerate(splot.patches):
-            s=str(round(data.iloc[idx,3],2))+'%'
-            x=p.get_width()+p.get_width()*.01
-            y=p.get_y()+p.get_height()/2
-            splot.annotate(s, (x,y))
+        for idx, p in enumerate(splot.patches):
+            s = str(round(data.iloc[idx, 3], 2)) + '%'
+            x = p.get_width() + p.get_width() * .01
+            y = p.get_y() + p.get_height() / 2
+            splot.annotate(s, (x, y))
 
         plt.title("Missing values of dataframe columns.")
         ax.spines["top"].set_visible(False)
@@ -1780,13 +1777,12 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
             plt.savefig(saveDir + "/missAnalysis_vis2.pdf")
         return True
 
-
     # only analyse subset of cols
     df = df[cols]
     # sorted list of lists with every sublist containing
     # [colname,total_n, n_missing, percentage, rank]
     data = create_data(df)
-    if text==True:
+    if text == True:
         # print summary statistics and saves them to file
         describe(data, n, saveDir, sort)
     if vis == True:
@@ -1798,8 +1794,8 @@ def missAnalysis(df,cols,n=None, sort='ascending',text=True, vis=True,
 
 
 def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
-                  exclusion=[""], customSearchTerm=None, makeWordCloud=False,
-                  sort='pub+date', retmax=20, output="print"):
+                    exclusion=[""], customSearchTerm=None, makeWordCloud=False,
+                    sort='pub+date', retmax=20, output="print"):
     """
     Get Pubmed abstracts.
 
@@ -1878,7 +1874,8 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                                           output='./MyPubmedSearch.html')
 
     """
-    def search(query,retmax, sort):
+
+    def search(query, retmax, sort):
         """
         Perform a PubMed search.
 
@@ -1955,10 +1952,10 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 
         """
         # Generate long list of concatenated search terms
-        term = [i+"[Title/Abstract]" if i != "" else "" for i in ToA] +\
-                [i+"[Text Word]" if i != "" else "" for i in text] +\
-                [i+"[Author]" if i != "" else "" for i in author] + \
-                [i if i != "" else "" for i in phrase]
+        term = [i + "[Title/Abstract]" if i != "" else "" for i in ToA] + \
+               [i + "[Text Word]" if i != "" else "" for i in text] + \
+               [i + "[Author]" if i != "" else "" for i in author] + \
+               [i if i != "" else "" for i in phrase]
         term = (" AND ").join([i for i in term if i != ""])
 
         # add exclusions joined by NOT
@@ -1995,7 +1992,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                     abstracts.append(abstract["AbstractText"][0])
         abstracts = (" ").join(abstracts)
 
-        #when exlusion list is added in wordcloud add those
+        # when exlusion list is added in wordcloud add those
         # TODO properly implement the inclusion of exclusions
         el = ["sup"]
 
@@ -2004,7 +2001,6 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             if output[:-4] == ".txt":
                 output = output[:-4]
             fig.to_file(output + "/WordCloud.png")
-
 
     def genOutput(final, output, makeWordCloud):
         """
@@ -2030,37 +2026,39 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
         """
         if output == "print":
             for i in final:
-                for title,author, abstract, doi, link, pid, date, journal in\
-                zip(final[i][0],final[i][1],final[i][2],final[i][3],final[i][4],final[i][5],final[i][6],final[i][7]):
+                for title, author, abstract, doi, link, pid, date, journal in \
+                        zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5], final[i][6],
+                            final[i][7]):
                     print(title)
-                    print('-'*100)
+                    print('-' * 100)
                     print(("; ").join(author))
-                    print('-'*100)
+                    print('-' * 100)
                     print(journal)
                     print(date)
                     print(f"doi: {doi}, PubMedID: {pid}")
                     print(link)
-                    print('-'*100)
+                    print('-' * 100)
                     if isinstance(abstract, str):
                         print(abstract)
                     else:
                         print(abstract["AbstractText"][0])
-                    print('-'*100)
-                    print('*'*100)
-                    print('-'*100)
+                    print('-' * 100)
+                    print('*' * 100)
+                    print('-' * 100)
 
         elif output[-4:] == ".txt":
             with open(output, 'w', encoding="utf-8") as f:
                 for i in final:
-                    for title,author, abstract, doi, link, pid, date, journal in\
-                    zip(final[i][0],final[i][1],final[i][2],final[i][3],final[i][4],final[i][5],final[i][6],final[i][7]):
+                    for title, author, abstract, doi, link, pid, date, journal in \
+                            zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5],
+                                final[i][6], final[i][7]):
                         f.write(title)
                         f.write('\n')
-                        f.write('-'*100)
+                        f.write('-' * 100)
                         f.write('\n')
                         f.write(("; ").join(author))
                         f.write('\n')
-                        f.write('-'*100)
+                        f.write('-' * 100)
                         f.write('\n')
                         f.write(journal)
                         f.write('\n')
@@ -2070,21 +2068,21 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                         f.write('\n')
                         f.write(link)
                         f.write('\n')
-                        f.write('-'*100)
+                        f.write('-' * 100)
                         f.write('\n')
                         writeAbstract(abstract, f, "txt")
                         f.write('\n')
-                        f.write('-'*100)
+                        f.write('-' * 100)
                         f.write('\n')
-                        f.write('*'*100)
+                        f.write('*' * 100)
                         f.write('\n')
-                        f.write('-'*100)
+                        f.write('-' * 100)
                         f.write('\n')
 
         # if the output is an html file or a folder, write html
         elif output[-5:] == ".html" or os.path.isdir(output):
             if os.path.isdir(output):
-               output = os.path.join(output, "PubCrawlerResults.html")
+                output = os.path.join(output, "PubCrawlerResults.html")
             with open(output, 'w', encoding="utf-8") as f:
                 f.write("<!DOC html>")
                 f.write("<html>")
@@ -2101,14 +2099,15 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 if makeWordCloud == True:
                     f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
                 for i in final:
-                    for title,author, abstract, doi, link, pid, date, journal in\
-                    zip(final[i][0],final[i][1],final[i][2],final[i][3],final[i][4],final[i][5],final[i][6],final[i][7]):
+                    for title, author, abstract, doi, link, pid, date, journal in \
+                            zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5],
+                                final[i][6], final[i][7]):
                         f.write(f"<h2>{title}</h2>")
                         f.write('<br>')
                         ta = ("; ").join(author)
                         f.write(f'<p style="color:gray; font-size:16px">{ta}</p>')
                         f.write('<br>')
-                        f.write('-'*200)
+                        f.write('-' * 200)
                         f.write('<br>')
                         f.write(f"<i>{journal}</i>")
                         f.write('<br>')
@@ -2118,15 +2117,15 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                         f.write('<br>')
                         f.write(f'<a href={link}><i>Link to journal</i></a>')
                         f.write('<br>')
-                        f.write('-'*200)
+                        f.write('-' * 200)
                         f.write('<br>')
                         writeAbstract(abstract, f, "html")
                         f.write('<br>')
-                        f.write('-'*200)
+                        f.write('-' * 200)
                         f.write('<br>')
-                        f.write('*'*150)
+                        f.write('*' * 150)
                         f.write('<br>')
-                        f.write('-'*200)
+                        f.write('-' * 200)
                         f.write('<br>')
                 f.write("</body>")
                 f.write("</html>")
@@ -2157,7 +2156,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             for idx, word in enumerate(abstract):
                 f.write(word)
                 f.write(' ')
-                if idx%20==0 and idx>0:
+                if idx % 20 == 0 and idx > 0:
                     f.write('\n')
 
         elif typ == "html":
@@ -2165,7 +2164,7 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             for idx, word in enumerate(abstract):
                 f.write(word)
                 f.write(' ')
-                if idx%20==0 and idx>0:
+                if idx % 20 == 0 and idx > 0:
                     f.write('</p>')
                     f.write('<p style="color:#202020">')
             f.write('</p>')
@@ -2200,14 +2199,14 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
 
         # iterate through the articles
         for paper in results2["PubmedArticle"]:
-            #get titles
+            # get titles
             titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
-            #get abstract
+            # get abstract
             if "Abstract" in paper["MedlineCitation"]["Article"].keys():
                 abstracts.append(paper["MedlineCitation"]["Article"]["Abstract"])
             else:
                 abstracts.append("No abstract")
-            #get authors
+            # get authors
             al = paper['MedlineCitation']['Article']["AuthorList"]
             tempAuthors = []
             for a in al:
@@ -2218,16 +2217,17 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
                 else:
                     tempAuthors.append(a)
             authors.append(list(pl.flatten(tempAuthors)))
-            #get dois and make link
-            doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"]=="doi"]
+            # get dois and make link
+            doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "doi"]
             if len(doi) > 0:
                 doi = str(doi[0])
-            else: doi = "NaN"
+            else:
+                doi = "NaN"
             dois.append(doi)
             links.append(f" https://doi.org/{doi}")
-            #get pids
-            pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"]=="pubmed"][0]))
-            #get dates
+            # get pids
+            pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "pubmed"][0]))
+            # get dates
 
             rawDate = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
             try:
@@ -2235,11 +2235,11 @@ def getPubAbstracts(text=[""], ToA=[""], author=[""], phrase=[""],
             except:
                 date = rawDate
             dates.append(date)
-            #get journal
+            # get journal
             journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
 
         # sum up the results in a dict containing the search term as key
-        final[term] = (titles,authors,abstracts,dois, links, pids, dates, journals)
+        final[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
 
         if makeWordCloud == True:
             # plot a picture of words in the found abstracts
@@ -2314,17 +2314,18 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
         plt.show()
     """
+
     def loc_eval(x, b):
         loc_est = 0
-        for i in enumerate(b): loc_est+=i[1]*(x**i[0])
-        return(loc_est)
+        for i in enumerate(b): loc_est += i[1] * (x ** i[0])
+        return (loc_est)
 
     # generate x,y value pairs and sort them according to x
     all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
     # separate the values again into x and y cols
     xvals, yvals = zip(*all_data)
     # generate empty df for final fit
-    evalDF = pd.DataFrame(columns=['v','g'])
+    evalDF = pd.DataFrame(columns=['v', 'g'])
 
     n = len(xvals)
     m = n + 1
@@ -2332,10 +2333,10 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     # alpha determines the relative proportion of values considered during weighing
     q = int(np.floor(n * alpha) if alpha <= 1.0 else n)
     # the average point to point distance in x direction
-    avg_interval = ((max(xvals)-min(xvals))/len(xvals))
+    avg_interval = ((max(xvals) - min(xvals)) / len(xvals))
     # calculate upper on lower boundaries
-    v_lb = min(xvals)-(.5*avg_interval)
-    v_ub = (max(xvals)+(.5*avg_interval))
+    v_lb = min(xvals) - (.5 * avg_interval)
+    v_ub = (max(xvals) + (.5 * avg_interval))
     # coordinates for the fitting points
     v = enumerate(np.linspace(start=v_lb, stop=v_ub, num=m), start=1)
     # create an array of ones of the same length as xvals
@@ -2346,27 +2347,27 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     X = np.vstack(xcols).T
     for i in v:
         iterval = i[1]
-        iterdists = sorted([(j, np.abs(j-iterval)) for j in xvals], key=lambda x: x[1])
+        iterdists = sorted([(j, np.abs(j - iterval)) for j in xvals], key=lambda x: x[1])
         _, raw_dists = zip(*iterdists)
-        scale_fact = raw_dists[q-1]
-        scaled_dists = [(j[0],(j[1]/scale_fact)) for j in iterdists]
-        weights = [(j[0],((1-np.abs(j[1]**3))**3 if j[1]<=1 else 0)) for j in scaled_dists]
-        _, weights      = zip(*sorted(weights,     key=lambda x: x[0]))
-        _, raw_dists    = zip(*sorted(iterdists,   key=lambda x: x[0]))
-        _, scaled_dists = zip(*sorted(scaled_dists,key=lambda x: x[0]))
-        W         = np.diag(weights)
-        b         = np.linalg.inv(X.T @ W @ X) @ (X.T @ W @ yvals)
+        scale_fact = raw_dists[q - 1]
+        scaled_dists = [(j[0], (j[1] / scale_fact)) for j in iterdists]
+        weights = [(j[0], ((1 - np.abs(j[1] ** 3)) ** 3 if j[1] <= 1 else 0)) for j in scaled_dists]
+        _, weights = zip(*sorted(weights, key=lambda x: x[0]))
+        _, raw_dists = zip(*sorted(iterdists, key=lambda x: x[0]))
+        _, scaled_dists = zip(*sorted(scaled_dists, key=lambda x: x[0]))
+        W = np.diag(weights)
+        b = np.linalg.inv(X.T @ W @ X) @ (X.T @ W @ yvals)
         local_est = loc_eval(iterval, b)
-        iterDF2   = pd.DataFrame({
-                       'v'  :[iterval],
-                       'g'  :[local_est]
-                       })
+        iterDF2 = pd.DataFrame({
+            'v': [iterval],
+            'g': [local_est]
+        })
         evalDF = pd.concat([evalDF, iterDF2])
-    evalDF = evalDF[['v','g']]
-    return(evalDF)
+    evalDF = evalDF[['v', 'g']]
+    return (evalDF)
 
 
-def edm(A,B):
+def edm(A, B):
     """
     Calculate an euclidean distance matrix between two matrices.
 
@@ -2385,10 +2386,10 @@ def edm(A,B):
         Distance matrix.
 
     """
-    p1 = np.sum(A**2, axis=1)[:, np.newaxis]
-    p2 = np.sum(B**2, axis=1)
-    p3 = -2 * np.dot(A,B.T)
-    return np.sqrt(p1+p2+p3)
+    p1 = np.sum(A ** 2, axis=1)[:, np.newaxis]
+    p2 = np.sum(B ** 2, axis=1)
+    p3 = -2 * np.dot(A, B.T)
+    return np.sqrt(p1 + p2 + p3)
 
 
 def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=False):
@@ -2468,9 +2469,9 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
     if "UID" in df.columns:
         pass
     else:
-        df["UID"] = range(1, df.shape[0]+1)
+        df["UID"] = range(1, df.shape[0] + 1)
 
-    #flatten in case of two sample
+    # flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
 
     # Normally no customDesign is provided
@@ -2481,18 +2482,18 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
             print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
             print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
             test = "twoSample"
-            design = pd.DataFrame({"Intercept":[1]*(len(reps[0])+len(reps[1])),
-                                   "coef":[0]*len(reps[0]) + [1]*len(reps[1])})
-# =============================================================================
-#             creates a design matrix such as
-#                 Intercept  coef
-#              0          1     0
-#              1          1     0
-#              2          1     0
-#              3          1     1
-#              4          1     1
-#              5          1     1
-# =============================================================================
+            design = pd.DataFrame({"Intercept": [1] * (len(reps[0]) + len(reps[1])),
+                                   "coef": [0] * len(reps[0]) + [1] * len(reps[1])})
+            # =============================================================================
+            #             creates a design matrix such as
+            #                 Intercept  coef
+            #              0          1     0
+            #              1          1     0
+            #              2          1     0
+            #              3          1     1
+            #              4          1     1
+            #              5          1     1
+            # =============================================================================
             print("Using design matrix:\n")
             print(design.to_markdown())
 
@@ -2517,14 +2518,14 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
         designLoc = customDesign
 
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "limma", #functionName
-    dataLoc, #data location
-    outputLoc, #output file,
-    test, #kind of test
-    designLoc, #design location
-    calcContrasts if calcContrasts else "" # whether to calculate contrasts
-    ]
+               RSCRIPT,  # script location
+               "limma",  # functionName
+               dataLoc,  # data location
+               outputLoc,  # output file,
+               test,  # kind of test
+               designLoc,  # design location
+               calcContrasts if calcContrasts else ""  # whether to calculate contrasts
+               ]
 
     p = run(command,
             stdout=PIPE,
@@ -2535,7 +2536,7 @@ def limma(df, reps, cond="", customDesign=None, calcContrasts=None, print_r=Fals
         print(p.stdout)
 
     res = pp.read_csv(outputLoc)
-    res.columns = [i+cond if i != "UID" else i for i in res.columns]
+    res.columns = [i + cond if i != "UID" else i for i in res.columns]
     # this keeps the index of the original df in the returned df
     df = df.reset_index().merge(res, on="UID").set_index('index')
 
@@ -2595,11 +2596,10 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
     if "UID" in df.columns:
         pass
     else:
-        df["UID"] = range(1, df.shape[0]+1)
-
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if isinstance(reps[0], list) and len(reps) == 2:
-        class_labels = [0,]*len(reps[0]) + [1,]*len(reps[1])
+        class_labels = [0, ] * len(reps[0]) + [1, ] * len(reps[1])
         print("rankProd: Assuming a two sample test with:")
         print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
         print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
@@ -2607,19 +2607,18 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
 
     else:
         print("rankProd: Assuming a one sample test")
-        class_labels = [1,]*len(reps)
+        class_labels = [1, ] * len(reps)
 
-    #flatten in case of two sample
+    # flatten in case of two sample
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], dataLoc)
 
-
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "rankProd", #functionName
-    dataLoc, #data location
-    outputLoc, #output file,
-    ','.join([str(x) for x in class_labels]),
-    ]
+               RSCRIPT,  # script location
+               "rankProd",  # functionName
+               dataLoc,  # data location
+               outputLoc,  # output file,
+               ','.join([str(x) for x in class_labels]),
+               ]
 
     p = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
@@ -2627,13 +2626,13 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
         print(p.stdout)
 
     res = pp.read_csv(outputLoc)
-    res.columns = [i+cond if i != "UID" else i for i in res.columns]
+    res.columns = [i + cond if i != "UID" else i for i in res.columns]
     df = df.reset_index().merge(res, on="UID").set_index('index')
 
     if isinstance(reps[0], list) and len(reps) == 2:
-        df['logFC'+cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
+        df['logFC' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
     else:
-        df['logFC'+cond] = df[reps].mean(axis=1)
+        df['logFC' + cond] = df[reps].mean(axis=1)
 
     os.remove(dataLoc)
     os.remove(outputLoc)
@@ -2662,30 +2661,33 @@ def annotatePS(df, ps, colsToKeep=[]):
         The input dataframe with the kept columns and additional phosphosite cols.
 
     """
+
     def makeMergeCol(df, file="regSites"):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
-            return df["GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["MOD_RSD"].fillna("").apply(lambda x: x.split('-')[0])
-        return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) +'_' + df["SUB_MOD_RSD"].fillna("")
+            return df["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + df["MOD_RSD"].fillna("").apply(
+                lambda x: x.split('-')[0])
+        return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + df["SUB_MOD_RSD"].fillna("")
 
-    with resources.open_binary("autoprot.data","Kinase_Substrate_Dataset.zip") as d:
-                KS = pd.read_csv(d, sep='\t', compression='zip')
-                KS["merge"] = makeMergeCol(KS, "KS")
-    with resources.open_binary("autoprot.data","Regulatory_sites.zip") as d:
-                regSites = pd.read_csv(d, sep='\t', compression='zip')
-                regSites["merge"] = makeMergeCol(regSites)
+    with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
+        KS = pd.read_csv(d, sep='\t', compression='zip')
+        KS["merge"] = makeMergeCol(KS, "KS")
+    with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
+        regSites = pd.read_csv(d, sep='\t', compression='zip')
+        regSites["merge"] = makeMergeCol(regSites)
 
     KS_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
     regSites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
-                   'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
+                    'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
 
     df = df.copy(deep=True)
-    df.rename(columns={ps:"merge"}, inplace=True)
+    df.rename(columns={ps: "merge"}, inplace=True)
     df = df[["merge"] + colsToKeep]
     df = df.merge(KS[KS_coi], on="merge", how="left")
     df = df.merge(regSites[regSites_coi], on="merge", how="left")
 
     return df
+
 
 def goAnalysis(geneList, organism="hsapiens"):
     """
@@ -2713,17 +2715,17 @@ def goAnalysis(geneList, organism="hsapiens"):
     Examples
     --------
     >>> autoprot.analysis.goAnalysis(['PEX14', 'PEX18']).iloc[:3,:3]
-    ... source      native                                    name
-    ... 0  CORUM  CORUM:1984                 PEX14 homodimer complex
-    ... 1  GO:CC  GO:1990429          peroxisomal importomer complex
-    ... 2  GO:BP  GO:0036250  peroxisome transport along microtubule
+    source      native                                   name
+    0  CORUM  CORUM:1984                 PEX14 homodimer complex
+    1  GO:CC  GO:1990429          peroxisomal importomer complex
+    2  GO:BP  GO:0036250  peroxisome transport along microtubule
     """
     if not isinstance(geneList, list):
         try:
             geneList = list(geneList)
         except:
             raise ValueError("Please provide a list of gene names")
-    return gp.profile(organism=organism, query=geneList,no_evidences=False)
+    return gp.profile(organism=organism, query=geneList, no_evidences=False)
 
 
 def makePSM(seq, seqLen):
@@ -2750,53 +2752,53 @@ def makePSM(seq, seqLen):
     Examples
     --------
     >>> autoprot.analysis.makePSM(['PEPTIDE', 'PEGTIDE', 'GGGGGGG'], 7)
-    ...           0         1         2         3         4         5         6
-    ... G  0.333333  0.333333  0.666667  0.333333  0.333333  0.333333  0.333333
-    ... P  0.666667  0.000000  0.333333  0.000000  0.000000  0.000000  0.000000
-    ... A  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... V  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... L  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... I  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000
-    ... M  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... C  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... F  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... Y  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... W  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... H  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... K  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... R  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... Q  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... N  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... E  0.000000  0.666667  0.000000  0.000000  0.000000  0.000000  0.666667
-    ... D  0.000000  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000
-    ... S  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
-    ... T  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000  0.000000
+              0         1         2         3         4         5         6
+    G  0.333333  0.333333  0.666667  0.333333  0.333333  0.333333  0.333333
+    P  0.666667  0.000000  0.333333  0.000000  0.000000  0.000000  0.000000
+    A  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    V  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    L  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    I  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000
+    M  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    C  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    F  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    Y  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    W  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    H  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    K  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    R  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    Q  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    N  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    E  0.000000  0.666667  0.000000  0.000000  0.000000  0.000000  0.666667
+    D  0.000000  0.000000  0.000000  0.000000  0.000000  0.666667  0.000000
+    S  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+    T  0.000000  0.000000  0.000000  0.666667  0.000000  0.000000  0.000000
 
     """
     aa_dic = {
-        'G':0,
-        'P':0,
-        'A':0,
-        'V':0,
-        'L':0,
-        'I':0,
-        'M':0,
-        'C':0,
-        'F':0,
-        'Y':0,
-        'W':0,
-        'H':0,
-        'K':0,
-        'R':0,
-        'Q':0,
-        'N':0,
-        'E':0,
-        'D':0,
-        'S':0,
-        'T':0,
+        'G': 0,
+        'P': 0,
+        'A': 0,
+        'V': 0,
+        'L': 0,
+        'I': 0,
+        'M': 0,
+        'C': 0,
+        'F': 0,
+        'Y': 0,
+        'W': 0,
+        'H': 0,
+        'K': 0,
+        'R': 0,
+        'Q': 0,
+        'N': 0,
+        'E': 0,
+        'D': 0,
+        'S': 0,
+        'T': 0,
     }
 
-    seq = [i for i in seq if len(i)==seqLen]
+    seq = [i for i in seq if len(i) == seqLen]
     seqT = [''.join(s) for s in zip(*seq)]
     scoreMatrix = []
     for pos in seqT:
@@ -2806,15 +2808,15 @@ def makePSM(seq, seqLen):
             if aa == '.' or aa == '-' or aa == '_' or aa == "X":
                 pass
             else:
-                d[aa]+=1
+                d[aa] += 1
         scoreMatrix.append(d)
 
     for pos in scoreMatrix:
         for k in pos.keys():
             pos[k] /= len(seq)
 
-    #empty array -> (sequenceWindow, aa)
-    m = np.empty((seqLen,20))
+    # empty array -> (sequenceWindow, aa)
+    m = np.empty((seqLen, 20))
     for i in range(m.shape[0]):
         x = [j for j in scoreMatrix[i].values()]
         m[i] = x
@@ -2822,3 +2824,177 @@ def makePSM(seq, seqLen):
     m = pd.DataFrame(m, columns=aa_dic.keys())
 
     return m.T
+
+
+def TMT6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
+    """
+    Calculate TMT6plex labeling efficiency from 3 dedicated MaxQuant searches as described in Zecha et al. 2019.
+    TMT6plex channels should be named in MQ experiments.
+    @author: Johannes Zimmermann
+
+    Parameters
+    ----------
+    evidence_under : evidence.txt as pd.DataFrame from under-labeling search,
+                     label-free search with TMT as variable modification on peptide n-term and lysine
+    evidence_sty_over : evidence.txt as pd.DataFrame from over-labeling search,
+                       MS2-TMT experiment with TMT as variable modification on serine, threonine, tyrosine
+    evidence_h_over : evidence.txt as pd.DataFrame from over-labeling search,
+                     MS2-TMT experiment with TMT as variable modification on histidine
+
+    Returns
+    -------
+    df : pd.DataFrame
+         Results from labeling efficiency calculations as absolute and relative numbers.
+    fig : Figure of labeling efficiency as stacked bars. Under/Over-labeling as separated axis.
+
+    """
+
+    # initiate DataFrame for results
+    df_efficiency = pd.DataFrame()
+
+    # delete N-terminal acetylated arginines without lysine (can't be modified)
+    evidence_under = df_under[(evidence_under["Modified sequence"].str.contains('\_\(Acetyl \(Protein N\-term\)\)') &
+                               evidence_under["Modified sequence"].str.contains('K')) is False]
+
+    # cal
+    evidence_under["K count"] = evidence_under["Sequence"].str.count('K')
+    evidence_sty_over["S count"] = evidence_sty_over["Sequence"].str.count('S')
+    evidence_sty_over["T count"] = evidence_sty_over["Sequence"].str.count('T')
+    evidence_sty_over["Y count"] = evidence_sty_over["Sequence"].str.count('Y')
+
+    for raw, group in evidence_under.groupby("Experiment"):
+        lysine, nterm, sty_over_experiment, under_experiment, sty_over, h_over_experiment, h_over = ('',)*7
+
+        if str(126) in raw:
+            nterm = '\_\(TMT6plex\-Nterm126\)'
+            lysine = 'TMT6plex-Lysine126'  # modifications have to be named after MQ mod.list
+            h_over = 'TMT6plex (H)126'
+            sty_over = 'TMT6plex (STY)126'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(126) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(126) in entry][0]
+        if str(127) in raw:
+            nterm = '\_\(TMT6plex\-Nterm127\)'
+            lysine = 'TMT6plex-Lysine127'
+            h_over = 'TMT6plex (H)127'
+            sty_over = 'TMT6plex (STY)127'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(127) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(127) in entry][0]
+        if str(128) in raw:
+            nterm = '\_\(TMT6plex\-Nterm128\)'
+            lysine = 'TMT6plex-Lysine128'
+            h_over = 'TMT6plex (H)128'
+            sty_over = 'TMT6plex (STY)128'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(128) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(128) in entry][0]
+        if str(129) in raw:
+            nterm = '\_\(TMT6plex\-Nterm129\)'
+            lysine = 'TMT6plex-Lysine129'
+            h_over = 'TMT6plex (H)129'
+            sty_over = 'TMT6plex (STY)129'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(129) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(129) in entry][0]
+        if str(130) in raw:
+            nterm = '\_\(TMT6plex\-Nterm130\)'
+            lysine = 'TMT6plex-Lysine130'
+            h_over = 'TMT6plex (H)130'
+            sty_over = 'TMT6plex (STY)130'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(130) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(130) in entry][0]
+        if str(131) in raw:
+            nterm = '\_\(TMT6plex\-Nterm131\)'
+            lysine = 'TMT6plex-Lysine131'
+            h_over = 'TMT6plex (H)131'
+            sty_over = 'TMT6plex (STY)131'
+            under_experiment = raw
+            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(131) in entry][0]
+            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(131) in entry][0]
+
+        df_efficiency.loc[raw, ["fully labeled"]] = ((group["K count"] == group[lysine]) &
+                                                     (~(group["Modified sequence"].str.contains(
+                                                         '\_\(Acetyl \(Protein N\-term\)\)')) &
+                                                      (group["Modified sequence"].str.contains(nterm)))).sum()
+
+        df_efficiency.loc[raw, ["partially labeled"]] = (group["Modified sequence"].str.contains('\(TMT6plex')).sum() - \
+                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+
+        df_efficiency.loc[raw, ["not labeled"]] = (group["Modified sequence"].str.contains('\(TMT6plex') is False).sum()
+
+        df_efficiency.loc[[under_experiment], "sum all labeled"] = df_efficiency["not labeled"] + df_efficiency[
+            "fully labeled"] + df_efficiency["partially labeled"]
+
+        df_efficiency.loc[[under_experiment], "PSM STY"] = \
+            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["S count"].sum() \
+            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["T count"].sum() \
+            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["Y count"].sum()
+        df_efficiency.loc[[under_experiment], "TMT (STY)"] = \
+            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][sty_over].sum()
+
+        df_efficiency.loc[[under_experiment], "PSM H"] = \
+            evidence_h_over[evidence_h_over["Experiment"] == h_over_experiment][
+                "H count"].sum()
+        df_efficiency.loc[[under_experiment], "TMT (H)"] = \
+            evidence_h_over[evidence_h_over["Experiment"] == h_over_experiment][h_over].sum()
+
+    df_efficiency["% fully labeled"] = df_efficiency["fully labeled"] / df_efficiency["sum all labeled"] * 100
+    df_efficiency["% partially labeled"] = df_efficiency["partially labeled"] / df_efficiency["sum all labeled"] * 100
+    df_efficiency["% not labeled"] = df_efficiency["not labeled"] / df_efficiency["sum all labeled"] * 100
+    df_efficiency["% overlabeled STY"] = (df_efficiency["TMT (STY)"]) / df_efficiency["PSM STY"] * 100
+    df_efficiency["% overlabeled H"] = (df_efficiency["TMT (H)"]) / df_efficiency["PSM H"] * 100
+    df_efficiency["% overlabeled STY+H"] = df_efficiency["% overlabeled H"] + df_efficiency["% overlabeled STY"]
+
+    # make figure TMT6plex labeling efficiency
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8),
+                                                 gridspec_kw={'height_ratios': [3, 1]})
+    fig.suptitle("Comparison of labeling efficiency in TMT6plex", fontdict=None, horizontalalignment='center')
+
+    sns.barplot(x=df_efficiency.index,
+                y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"] + df_efficiency[
+                    "% not labeled"],
+                ax=ax1, color="#dd4e26", **{"label": "% not labeled"})
+
+    sns.barplot(x=df_efficiency.index, y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"],
+                ax=ax1, color="#2596be", **{"label": "% partially labeled"})
+
+    sns.barplot(x=df_efficiency.index, y=df_efficiency["% fully labeled"],
+                ax=ax1, color="#063970", **{"label": "% fully labeled"})
+
+    plt.xticks(np.arange(len(df_efficiency.index)),
+               rotation=45,
+               horizontalalignment='right')
+
+    sns.barplot(x=df_efficiency.index,
+                y=df_efficiency["% not labeled"],
+                ax=ax3, color="#dd4e26")
+
+    ax1.set_ylabel("Peptides [%]")
+    ax3.set_ylabel("Peptides [%]")
+    ax1.legend(bbox_to_anchor=(-0.75, 1), loc='upper left', borderaxespad=0.)
+    ax3.set_xlabel("channel",
+                   horizontalalignment='center',
+                   fontsize=12)
+    ax1.set_xticklabels([])
+    ax3.set_xticklabels(df_efficiency.index,
+                        rotation=45,
+                        horizontalalignment='right')
+
+    sns.barplot(x=df_efficiency.index, y=df_efficiency["% overlabeled STY+H"],
+                ax=ax2, color="#cce7e8", **{"label": "% overlabeled STY+H"})
+
+    sns.barplot(x=df_efficiency.index, y=df_efficiency["% overlabeled STY"],
+                ax=ax2, color="#44bcd8", **{"label": "% overlabeled STY"})
+
+    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    ax2.set_ylabel("AA Residues [%]")
+
+    ax2.set_xticklabels(df_efficiency.index,
+                        rotation=90,
+                        horizontalalignment='center')
+
+    ax4.remove()
+
+    return df_efficiency, fig
