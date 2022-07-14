@@ -269,7 +269,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
 
 def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
-            saveDir=None, saveType="pdf", saveName="pairPlot", ax=None, **kwargs):
+            save_dir=None, save_type="pdf", save_name="pairPlot", ax=None, **kwargs):
     r"""
     Plot correlation heat- and clustermaps.
 
@@ -293,11 +293,11 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
         The default is "YlGn".
     figsize : tuple of int, optional
         Size of the figure. The default is (7,7).
-    saveDir : str, optional
+    save_dir : str, optional
         Where the plots are saved. The default is None.
-    saveType : str, optional
+    save_type : str, optional
         What format the saved plots have (pdf, png). The default is "pdf".
-    saveName : str, optional
+    save_name : str, optional
         The name of the saved file. The default is "pairPlot".
     ax : plt.axis, optional
         The axis to plot. The default is None.
@@ -348,11 +348,11 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
         sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, **kwargs)
     else:
         sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, ax=ax, **kwargs)
-    if saveDir is not None:
-        if saveType == "pdf":
-            plt.savefig(f"{saveDir}/{saveName}.pdf")
-        elif saveType == "png":
-            plt.savefig(f"{saveDir}/{saveName}.png")
+    if save_dir is not None:
+        if save_type == "pdf":
+            plt.savefig(f"{save_dir}/{save_name}.pdf")
+        elif save_type == "png":
+            plt.savefig(f"{save_dir}/{save_name}.png")
 
 
 def probPlot(df, col, dist="norm", figsize=(6, 6)):
@@ -875,7 +875,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
             return fig
 
 
-def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
+def volcano(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
             interactive=False, sig_col="green", bg_col="lightgray",
             title="Volcano Plot", figsize=(6, 6), hover_name=None, highlight=None,
             pointsize_name=None,
@@ -894,7 +894,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
     ----------
     df : pd.DataFrame
         dataframe which contains the data.
-    logFC : str
+    log_fc : str
         column of the dataframe with the log fold change.
     p : str, optional
         column of the dataframe containing p values (provide score or p).
@@ -1109,6 +1109,8 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
             The input dict plus standard settings if not specified.
 
         """
+        standard = {}
+
         if typ == "bg":
             standard = {"alpha": 0.33,
                         "s": 2,
@@ -1128,13 +1130,13 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
                         "linewidth": 0}
 
         if not interactive:
-            for k in standard.keys():
+            for k in standard:
                 if k not in d:
                     d[k] = standard[k]
 
         return d
 
-    def checkData(df, logFC, score, p, pt, fct):
+    def checkData(df, log_fc, score, p, pt, fct):
         if score is None and p is None:
             raise ValueError("You have to provide either a score or a (adjusted) p value.")
         elif score is None:
@@ -1149,7 +1151,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         # define the significant entries in dataframe
         df["SigCat"] = "-"
         if fct is not None:
-            df.loc[(df[p] < pt) & (abs(df[logFC]) > fct), "SigCat"] = '*'
+            df.loc[(df[p] < pt) & (abs(df[log_fc]) > fct), "SigCat"] = '*'
         else:
             df.loc[(df[p] < pt), "SigCat"] = '*'
         sig = df[df["SigCat"] == '*'].index
@@ -1165,7 +1167,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         custom_hl = setAesthetic(custom_hl, typ="hl", interactive=interactive)
 
     # check for input correctness and make sure score is present in df for plot
-    df, score, sig, unsig = checkData(df, logFC, score, p, pt, fct)
+    df, score, sig, unsig = checkData(df, log_fc, score, p, pt, fct)
 
     if interactive:
         colors = [bg_col, sig_col]
@@ -1174,24 +1176,24 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
             df["SigCat"] = "-"
             df.loc[highlight, "SigCat"] = "*"
             if hover_name is not None:
-                fig = px.scatter(data_frame=df, x=logFC, y=score, hover_name=hover_name,
+                fig = px.scatter(data_frame=df, x=log_fc, y=score, hover_name=hover_name,
                                  size=pointsize_name,
                                  color="SigCat", color_discrete_sequence=colors,
                                  opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
             else:
-                fig = px.scatter(data_frame=df, x=logFC, y=score,
+                fig = px.scatter(data_frame=df, x=log_fc, y=score,
                                  size=pointsize_name,
                                  color="SigCat", color_discrete_sequence=colors,
                                  opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
 
         else:
             if hover_name is not None:
-                fig = px.scatter(data_frame=df, x=logFC, y=score, hover_name=hover_name,
+                fig = px.scatter(data_frame=df, x=log_fc, y=score, hover_name=hover_name,
                                  size=pointsize_name,
                                  color="SigCat", color_discrete_sequence=colors,
                                  opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
             else:
-                fig = px.scatter(data_frame=df, x=logFC, y=score,
+                fig = px.scatter(data_frame=df, x=log_fc, y=score,
                                  size=pointsize_name,
                                  color="SigCat", color_discrete_sequence=colors,
                                  opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
@@ -1201,7 +1203,7 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
 
         fig.add_trace(
             go.Scatter(
-                x=[df[logFC].min(), df[logFC].max()],
+                x=[df[log_fc].min(), df[log_fc].max()],
                 y=[-np.log10(pt), -np.log10(pt)],
                 mode="lines",
                 line=go.scatter.Line(color="teal", dash="longdash"),
@@ -1233,17 +1235,20 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         if ret_fig:
             return fig
 
+    # not interactive
     else:
         # draw figure
         if ax is None:
             fig = plt.figure(figsize=figsize)
             ax = plt.subplot()  # for a bare minimum plot you do not need this line
-        # the following lines of code generate the scatter the rest is styling
-
-        ax.scatter(df[logFC].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
-        ax.scatter(df[logFC].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
+        else:
+            fig = ax.get_figure()
+            
+        # the following lines of code generates the scatter the rest is styling
+        ax.scatter(df[log_fc].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
+        ax.scatter(df[log_fc].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
         if highlight is not None:
-            ax.scatter(df[logFC].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
+            ax.scatter(df[log_fc].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
 
         # draw threshold lines
         if fct:
@@ -1263,22 +1268,24 @@ def volcano(df, logFC, p=None, score=None, pt=0.05, fct=None, annot=None,
         if legend:
             ax.legend()
 
-            # Annotation
+        # Annotation
         if annot is not None:
             # get x and y coordinates as well as strings to plot
             if highlight is None:
-                xs = df[logFC].loc[sig]
+                xs = df[log_fc].loc[sig]
                 ys = df["score"].loc[sig]
                 ss = df[annot].loc[sig]
             else:
                 if annot_highlight == "all":
-                    xs = df[logFC].loc[highlight]
+                    xs = df[log_fc].loc[highlight]
                     ys = df["score"].loc[highlight]
                     ss = df[annot].loc[highlight]
                 elif annot_highlight == "sig":
-                    xs = df[logFC].loc[set(highlight) & set(sig)]
+                    xs = df[log_fc].loc[set(highlight) & set(sig)]
                     ys = df["score"].loc[set(highlight) & set(sig)]
                     ss = df[annot].loc[set(highlight) & set(sig)]
+                else:
+                    raise Exception("annot_highlight must be either 'all' or 'sig'")
 
             # annotation
             for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
@@ -1415,7 +1422,7 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         ax.spines["right"].set_visible(False)
         # seting x and y labels and title
         plt.ylabel("log Intensity")
-        plt.xlabel("logFC")
+        plt.xlabel("log_fc")
         plt.title(title, size=18)
 
         # add legend
@@ -1497,6 +1504,7 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
 
 def MAPlot(df, x, y, interactive=False, fct=None,
            title="MA Plot", figsize=(6, 6), hover_name=None):
+    # sourcery skip: assign-if-exp, extract-method
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
 
@@ -1707,7 +1715,7 @@ def meanSd(df, reps):
     p.ax_marg_x.set_title("Mean SD plot", fontsize=18)
 
 
-def plotTraces(df, cols, labels=None, colors=None, z_score=None,
+def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
                xlabel="", ylabel="log_fc", title="", ax=None,
                plot_summary=False, plot_summary_only=False, summary_color="red",
                summary_type="Mean", summary_style="solid", **kwargs):
@@ -1718,7 +1726,7 @@ def plotTraces(df, cols, labels=None, colors=None, z_score=None,
     ----------
     df : pd.DataFame
         Input dataframe.
-    cols : list of str
+    cols : list
         The colnames from which the values are plotted.
     labels : list of str, optional
         Corresponds to data, used to label traces.
@@ -1822,11 +1830,11 @@ def plotTraces(df, cols, labels=None, colors=None, z_score=None,
         plt.figure()
         ax = plt.subplot()
     ax.set_title(title)
+    f = []
     if not plot_summary_only:
         if colors is None:
             f = ax.plot(x, y, **kwargs)
         else:
-            f = []
             for i, yi in enumerate(y.T):
                 f += ax.plot(x, yi, color=colors[i], **kwargs)
     if plot_summary or plot_summary_only:
@@ -2101,7 +2109,6 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
         cm = plt.get_cmap(domain_color)
         color = cm(np.linspace(0, 1, len(domain_position)))
     except ValueError as e:
-        # it is not, so is it a single colour?
         if isinstance(domain_color, str):
             color = [domain_color, ] * len(domain_position)
         elif isinstance(domain_color, list):
@@ -2132,7 +2139,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
 
     # only plot phosphosite if there are any
     if ps is not None:
-        textColor = {"A": "gray",
+        text_color = {"A": "gray",
                      "Ad": "gray",
                      "B": "#dc86fa",
                      "Bd": "#6AC9BE",
@@ -2148,7 +2155,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
                      pl[idx] if pl != None else '',
                      fontsize=pls,
                      rotation=90,
-                     color=textColor[plc[idx]] if plc != None else 'black')
+                     color=text_color[plc[idx]] if plc is not None else 'black')
 
     plt.subplots_adjust(left=0.25)
     plt.ylim(height)
@@ -2159,6 +2166,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
 
 
 def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
+    # sourcery skip: extract-method
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
 
@@ -2244,6 +2252,9 @@ def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         fig = plt.figure(figsize=figsize)
         plt.pie([i[0] for i in count], labels=[i[1] for i in count])
         plt.title("Number of Phosphosites")
+    else:
+        raise Exception("typ must be either 'bar' or 'pie")
+    
     if ret_fig is True:
         return fig
 
@@ -2302,15 +2313,15 @@ def chargePlot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     """
 
     df = df.copy(deep=True)
-    noOfPhos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
-    count = [(noOfPhos.count(i), i) for i in set(noOfPhos)]
-    counts_perc = [(round(noOfPhos.count(i) / len(noOfPhos) * 100, 2), i) for i in set(noOfPhos)]
+    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
+    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
+    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
 
     print("charge [total] - (count / # charge)")
     print(count)
     print("Percentage of charge [total] - (% / # charge)")
     print(counts_perc)
-    df = pd.DataFrame(noOfPhos, columns=["charge"])
+    df = pd.DataFrame(no_of_phos, columns=["charge"])
 
     if typ == "bar":
         if ax is None:
@@ -2404,7 +2415,7 @@ def modAa(df, figsize=(6, 6), ret_fig=False):
         return fig
 
 
-def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", mask=None, file="",
+def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", mask: str = None, file="",
               contour_width=0, **kwargs):
     """
     Generate Wordcloud from string.

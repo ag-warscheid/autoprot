@@ -910,7 +910,7 @@ class KSEA:
     .. plot::
         :context: close-figs
 
-        ksea.volcanos(logFC="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
+        ksea.volcanos(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
                       annot="Gene names", sig_col="gray")
 
     Sometimes the enrichment is crowded by various kinase isoforms.

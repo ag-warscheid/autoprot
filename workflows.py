@@ -362,7 +362,7 @@ class proteomeLabeled(workflow):
                 ratios="",
                 replicates=[], filetype="proteinGroups"):
                 
-        #super(proteomeLabeled, self).__init__(data, saveDir, intCols, replicates)
+        #super(proteomeLabeled, self).__init__(data, save_dir, intCols, replicates)
         super().__init__(data, saveDir, replicates, intCols,corrAnalysis, missAnalysis,
         minValid,test)
         self.filetype = filetype
@@ -384,7 +384,7 @@ class proteomeLabeled(workflow):
                     elif self.test == "standard":
                         self.data = ana.ttest(self.data, rep, cond=f"_{name}")
                     print("-"*50)
-                    vis.volcano(self.data, logFC=f"logFC_{name}", p=f"adj.P.Val_{name}",
+                    vis.volcano(self.data, log_fc=f"logFC_{name}", p=f"adj.P.Val_{name}",
                                 pt=self.pt, title=name)
                     if self.saveDir:
                         plt.savefig(self.saveDir + f"/figures/{name}_volcano.pdf")
