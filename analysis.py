@@ -410,7 +410,7 @@ class autoPCA:
     # - Allow further customization of plots (e.g. figsize)
     # - Implement pair plot for multiple dimensions
     # =========================================================================
-    def __init__(self, dataframe: pandas.DataFrame, rlabels: list, clabels: list, batch: list = None):
+    def __init__(self, dataframe: pd.DataFrame, rlabels: list, clabels: list, batch: list = None):
         """
         Initialise PCA class.
 

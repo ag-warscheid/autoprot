@@ -26,7 +26,7 @@ class Cluster:
     Base class for clustering pipelines.
     """
 
-    def __init__(self, data, clabels, rlabels, zs=None,
+    def __init__(self, data, clabels=None, rlabels=None, zs=None,
                  linkage=None):
         """
         Initialise the class.
@@ -37,8 +37,11 @@ class Cluster:
             The data to be clustered.
         clabels : list
             Column labels. Must be present in the in input df.
+            Defaulting to RangeIndex(0, 1, 2, …, n). 
         rlabels : list
             Row labels. Must be present in the in input df.
+            Will default to RangeIndex if no indexing information part of
+            input data and no index provided.
         zs : int or None, optional
             Axis along which to calculate the zscore.
             The default is None.
@@ -111,7 +114,6 @@ class Cluster:
         self.cmap = matplotlib.cm.viridis
 
     def visCluster(self, col_cluster=False, make_traces=False,
-                   make_heatmap=False, file=None, row_colors=None,
                    make_heatmap=False, file=None, row_colors=None,
                    colors: list = None, yticklabels="", **kwargs):
         """
