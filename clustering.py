@@ -204,12 +204,12 @@ class Cluster:
 
                 if temp2.shape[0] == 1:
                     # if cluster contains only 1 entry i.e. one condition
-                    ax.set_title(f"Cluster {i + 1}")
+                    ax.set_title(f"Cluster {i}")
                     ax.set_ylabel("")
                     ax.set_xlabel("")
                     # ax.plot(range(temp2.shape[1]-1),temp2.drop("distance", axis=1).values.reshape(3), color=color[idx], alpha=alpha[idx])
                     ax.plot(range(temp2.shape[1] - 1),
-                            temp2.drop("distance", axis=1).values.reshape(3))
+                            temp2.drop("distance", axis=1).values.reshape(-1))
                     plt.xticks(range(len(self.clabels)), self.clabels)
                     continue
 
@@ -227,7 +227,7 @@ class Cluster:
                 # group into the five RMSD bins
                 grouped = temp2.groupby("distance")
 
-                ax.set_title(f"Cluster {i + 1}")
+                ax.set_title(f"Cluster {i}")
                 if zs is None:
                     ax.set_ylabel("value")
                 else:
