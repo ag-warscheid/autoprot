@@ -275,16 +275,16 @@ class workflow():
             print("-"*50)
             print("Miss analysis:")
             if self.missAnalysis == 'text':
-                ana.missAnalysis(self.data, self.ratioCols, text=True, vis=False, extraVis=False,
-                                saveDir=self.saveDir+"/figures")
+                ana.miss_analysis(self.data, self.ratioCols, text=True, vis=False, extraVis=False,
+                                  saveDir=self.saveDir+"/figures")
                 plt.show()
             elif self.missAnalysis == 'vis':
-                ana.missAnalysis(self.data, self.ratioCols, text=False, vis=True, extraVis=True,
-                                saveDir=self.saveDir+"/figures")
+                ana.miss_analysis(self.data, self.ratioCols, text=False, vis=True, extraVis=True,
+                                  saveDir=self.saveDir+"/figures")
                 plt.show()
             elif self.missAnalysis == 'complete':
-                ana.missAnalysis(self.data, self.ratioCols, text=True, vis=True, extraVis=True,
-                                saveDir=self.saveDir+"/figures")
+                ana.miss_analysis(self.data, self.ratioCols, text=True, vis=True, extraVis=True,
+                                  saveDir=self.saveDir+"/figures")
                 plt.show()
             else:
                 print('This is not a valid paramter for missAnalysis.')
