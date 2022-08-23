@@ -22,8 +22,11 @@ import seaborn as sns
 from operator import itemgetter
 from Bio import Entrez
 import time
+
 from autoprot import visualization as vis
 from autoprot import RHelper
+from autoprot import preprocessing as pp
+
 import warnings
 import missingno as msn
 from gprofiler import GProfiler
@@ -31,19 +34,13 @@ from gprofiler import GProfiler
 gp = GProfiler(
     user_agent="autoprot",
     return_dataframe=True)
-from autoprot import preprocessing as pp
-
-# might want to enable warnings for debugging
-# disabled them for copy vs view pandas warnings (pretty annoying)
-warnings.filterwarnings('ignore')
-
 RSCRIPT, R = RHelper.returnRPath()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
+def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
           alternative='two-sided', logged=True):
     r"""
     Perform one or two sample ttest.
@@ -60,12 +57,12 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
         The name of the condition.
         This is used for naming the returned results.
         The default is "".
-    returnFC : bool, optional
+    return_fc : bool, optional
         Whether to calculate the fold-change of the provided data.
         The processing of the fold-change can be controlled by the returnLogFC
         switch.
         The default is True.
-    adjustPVals : bool, optional
+    adjust_p_vals : bool, optional
         Whether to adjust P-values. The default is True.
     alternative : {'two-sided', 'less', 'greater'}, optional
         Defines the alternative hypothesis.
@@ -91,11 +88,13 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
 
     Examples
     --------
-    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+    ...                 'log2_Ratio H/M normalized BC18_3',
+    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+    ...                 'log2_Ratio M/L normalized BC36_2']
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjustPVals=True)
+    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", return_fc=True, adjust_p_vals=True)
     >>> prot_tt["pValue_TvM"].hist(bins=50)
     >>> plt.show()
 
@@ -105,22 +104,24 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
         import autoprot.analysis as ana
         import autoprot.preprocessing as pp
         import pandas as pd
-        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-                        'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+                        'log2_Ratio H/M normalized BC18_3',
+                        'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+                        'log2_Ratio M/L normalized BC36_2']
         prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
-        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjustPVals=True)
+        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjust_p_vals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
 
-    >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
-    ...                    "a2":np.random.normal(loc=0, size=4000),
-    ...                    "a3":np.random.normal(loc=0, size=4000),
-    ...                    "b1":np.random.normal(loc=0.5, size=4000),
-    ...                    "b2":np.random.normal(loc=0.5, size=4000),
-    ...                    "b3":np.random.normal(loc=0.5, size=4000),})
-    >>> autoprot.analysis.ttest(df=df,
+    >>> datafrane = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+    ...                           "a2":np.random.normal(loc=0, size=4000),
+    ...                           "a3":np.random.normal(loc=0, size=4000),
+    ...                           "b1":np.random.normal(loc=0.5, size=4000),
+    ...                           "b2":np.random.normal(loc=0.5, size=4000),
+    ...                           "b3":np.random.normal(loc=0.5, size=4000),})
+    >>> autoprot.analysis.ttest(df=dataframe,
                                 reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
     >>> plt.show()
 
@@ -141,13 +142,13 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
 
     """
 
-    def oneSamp_ttest(x):
+    def one_samp_ttest(x):
         return np.ma.filled(ttest_1samp(x,
                                         nan_policy="omit",
                                         alternative=alternative,
                                         popmean=0)[1], np.nan)
 
-    def twoSamp_ttest(x):
+    def two_samp_ttest(x):
         return np.ma.filled(ttest_ind(x[:len(reps[0])],
                                       x[len(reps[0]):],
                                       alternative=alternative,
@@ -155,9 +156,9 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
 
     if isinstance(reps[0], list) and len(reps) == 2:
         print("Performing two-sample t-Test")
-        df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: twoSamp_ttest(x), 1).astype(float)
+        df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: two_samp_ttest(x), 1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
-        if returnFC == True:
+        if return_fc:
             if logged:
                 df[f"log_fc{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
             else:
@@ -165,21 +166,21 @@ def ttest(df, reps, cond="", returnFC=True, adjustPVals=True,
 
     else:
         print("Performing one-sample t-Test")
-        df[f"pValue{cond}"] = df[reps].apply(lambda x: oneSamp_ttest(x), 1).astype(float)
+        df[f"pValue{cond}"] = df[reps].apply(lambda x: one_samp_ttest(x), 1).astype(float)
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
-        if returnFC == True:
+        if return_fc:
             if logged:
                 df[f"log_fc{cond}"] = df[reps].mean(1)
             else:
                 df[f"log_fc{cond}"] = np.log2(df[reps].mean(1))
 
-    if adjustPVals == True:
-        adjustP(df, f"pValue{cond}")
+    if adjust_p_vals:
+        adjust_p(df, f"pValue{cond}")
 
     return df
 
 
-def adjustP(df, pCol, method="fdr_bh"):
+def adjust_p(df, p_col, method="fdr_bh"):
     r"""
     Use statsmodels.multitest on dataframes.
 
@@ -189,7 +190,7 @@ def adjustP(df, pCol, method="fdr_bh"):
     ----------
     df : pd.DataFrame
         Input dataframe.
-    pCol : str
+    p_col : str
         column containing p-values for correction.
     method : str, optional
         'b': 'Bonferroni',
@@ -213,13 +214,15 @@ def adjustP(df, pCol, method="fdr_bh"):
 
     Examples
     --------
-    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+    ...                 'log2_Ratio H/M normalized BC18_3',
+    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+    ...                 'log2_Ratio M/L normalized BC36_2']
     >>> prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = pp.log(prot, protRatio, base=2)
-    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjustPVals=False)
-    >>> prot_tt_adj = ana.adjustP(prot_tt, pCol="pValue_TvM")
+    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjust_p_vals=False)
+    >>> prot_tt_adj = ana.adjust_p(prot_tt, p_col="pValue_TvM")
     >>> prot_tt_adj.filter(regex='pValue').head()
        pValue_TvM  adj.pValue_TvM
     0         NaN             NaN
@@ -229,15 +232,15 @@ def adjustP(df, pCol, method="fdr_bh"):
     4    0.031292        0.206977
     """
     # indices of rows containing values
-    idx = df[df[pCol].notnull()].index
+    idx = df[df[p_col].notnull()].index
     # init new col with for adjusted p-values
-    df[f"adj.{pCol}"] = np.nan
+    df[f"adj.{p_col}"] = np.nan
     # apply correction for selected rows
-    df.loc[idx, f"adj.{pCol}"] = mt.multipletests(df[pCol].loc[idx], method=method)[1]
+    df.loc[idx, f"adj.{p_col}"] = mt.multipletests(df[p_col].loc[idx], method=method)[1]
     return df
 
 
-def cohenD(df, group1, group2):
+def cohen_d(df, group1, group2):
     """
     Calculate Cohen's d effect size for two groups.
 
@@ -274,12 +277,11 @@ def cohenD(df, group1, group2):
     # TODO: the pooled sd here is calculated omitting the sample sizes n
     # This is not exactly what was proposed for cohens d: https://en.wikipedia.org/wiki/Effect_size
     sd_pooled = np.sqrt((std1 ** 2 + std2 ** 2) / 2)
-    cohen_d = (abs(mean1 - mean2)) / sd_pooled
-    df["cohenD"] = cohen_d
+    df["cohenD"] = (abs(mean1 - mean2)) / sd_pooled
     return df
 
 
-class autoPCA:
+class AutoPCA:
     r"""
     Conduct principal component analyses.
 
@@ -317,7 +319,7 @@ class autoPCA:
 
     generate autopca object
 
-    >>> autopca = autoprot.analysis.autoPCA(dataframe, rlabels, clabels)
+    >>> autopca = autoprot.analysis.AutoPCA(dataframe, rlabels, clabels)
 
     The scree plots describe how much of the total variance of the dataset is
     explained ba the first n components. As you want to explain as variance as
@@ -348,7 +350,7 @@ class autoPCA:
     experiment conditions). If a weight (colorbar) is close to zero, the corresponding
     PC is barely influenced by it.
 
-    >>> autopca.corrComp(annot=False)
+    >>> autopca.corr_comp(annot=False)
 
     .. plot::
         :context: close-figs
@@ -359,8 +361,8 @@ class autoPCA:
     condition and principle component. High values indicate a high influence of the
     variable/condition on the PC.
 
-    >>> autopca.barLoad(1)
-    >>> autopca.barLoad(2)
+    >>> autopca.bar_load(1)
+    >>> autopca.bar_load(2)
 
     .. plot::
         :context: close-figs
@@ -375,7 +377,7 @@ class autoPCA:
     Usually they will separate more in the direction of PC1 as this component
     explains the largest share of the data variance
 
-    >>> autopca.scorePlot(pc1=1, pc2=2)
+    >>> autopca.score_plot(pc1=1, pc2=2)
 
     .. plot::
         :context: close-figs
@@ -385,7 +387,7 @@ class autoPCA:
     The loading plot is the 2D representation of the barLoading plots and shows
     the weights how each variable influences the two PCs.
 
-    >>> autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+    >>> autopca.loading_plot(pc1=1, pc2=2, labeling=True)
 
     .. plot::
         :context: close-figs
@@ -395,7 +397,7 @@ class autoPCA:
     The Biplot is a combination of loading plot and score plot as it shows the
     scores for each protein as point and the weights for each variable as
     vectors.
-    >>> autopca.biPlot(pc1=1, pc2=2)
+    >>> autopca.bi_plot(pc1=1, pc2=2)
 
     .. plot::
         :context: close-figs
@@ -440,13 +442,13 @@ class autoPCA:
         self.rlabel = rlabels
         self.batch = batch
         # PCA is performed with the df containing missing values
-        self.pca, self.forVis = self._performPCA(dataframe, clabels)
+        self.pca, self.forVis = self._perform_pca(dataframe, clabels)
         # generate scores from loadings
         self.Xt = self.pca.transform(self.X)
         self.expVar = self.pca.explained_variance_ratio_
 
     @staticmethod
-    def _performPCA(dataframe, label):
+    def _perform_pca(dataframe, label):
         """Perform pca and generate for_vis dataframe."""
         pca = PCA().fit(dataframe.dropna())
         # components_ is and ndarray of shape (n_components, n_features)
@@ -498,7 +500,7 @@ class autoPCA:
         plt.xticks(range(1, len(eig_val) + 1))
         _set_labels("explained cumulative variance", "Explained variance")
 
-    def corrComp(self, annot=False):
+    def corr_comp(self, annot=False):
         """
         Plot heatmap of PCA weights vs. variables.
 
@@ -527,7 +529,7 @@ class autoPCA:
         plt.yticks(yp, self.forVis["label"], rotation=0)
         plt.title("")
 
-    def barLoad(self, pc=1, n=25):
+    def bar_load(self, pc=1, n=25):
         """
         Plot the loadings of a given component in a barplot.
 
@@ -557,7 +559,7 @@ class autoPCA:
         ax.get_legend().remove()
         sns.despine()
 
-    def returnLoad(self, pc=1, n=25):
+    def return_load(self, pc=1, n=25):
         """
         Return the load for a given principal component.
 
@@ -575,13 +577,13 @@ class autoPCA:
             Dataframe containing load vs. condition.
 
         """
-        PC = f"PC{pc}"
-        forVis = self.forVis.copy()
-        forVis[f"{PC}_abs"] = abs(forVis[PC])
-        forVis = forVis.sort_values(by=f"{PC}_abs", ascending=False)[:n]
-        return forVis[[PC, "label"]]
+        pc = f"PC{pc}"
+        for_vis = self.forVis.copy()
+        for_vis[f"{pc}_abs"] = abs(for_vis[pc])
+        for_vis = for_vis.sort_values(by=f"{pc}_abs", ascending=False)[:n]
+        return for_vis[[pc, "label"]]
 
-    def returnScore(self):
+    def return_score(self):
         """
         Return a dataframe of all scorings for all principal components.
 
@@ -597,7 +599,7 @@ class autoPCA:
             scores["batch"] = self.batch
         return scores
 
-    def scorePlot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5, 5)):
+    def score_plot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5, 5)):
         """
         Generate a PCA score plot.
 
@@ -655,7 +657,7 @@ class autoPCA:
         if file is not None:
             plt.savefig(fr"{file}/ScorePlot.pdf")
 
-    def loadingPlot(self, pc1=1, pc2=2, labeling=False, figsize=(5, 5)):
+    def loading_plot(self, pc1=1, pc2=2, labeling=False, figsize=(5, 5)):
         """
         Generate a PCA loading plot.
 
@@ -705,7 +707,7 @@ class autoPCA:
             for x, y, s in zip(xx, yy, ss):
                 plt.text(x, y, s)
 
-    def biPlot(self, pc1=1, pc2=2, numLoad="all", figsize=(5, 5), **kwargs):
+    def bi_plot(self, pc1=1, pc2=2, num_load="all", figsize=(5, 5), **kwargs):
         """
         Generate a biplot, a combined loadings and score plot.
 
@@ -715,7 +717,7 @@ class autoPCA:
             Number of the first PC to plot. The default is 1.
         pc2 : int, optional
             Number of the second PC to plot. The default is 2.
-        numLoad : int, optional
+        num_load : 'all' or int, optional
             Plot only the n first rows.
             The default is "all".
         figsize : tuple of int, optional
@@ -742,12 +744,12 @@ class autoPCA:
         temp["label"] = self.label
         temp = temp.sort_values(by=f"PC{pc1}")
 
-        if numLoad == "all":
+        if num_load == "all":
             loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].values
             labels = temp["label"].values
         else:
-            loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].iloc[:numLoad].values
-            labels = temp["label"].iloc[:numLoad].values
+            loadings = temp[[f"PC{pc1}", f"PC{pc2}"]].iloc[:num_load].values
+            labels = temp["label"].iloc[:num_load].values
 
         xscale = 1.0 / (self.Xt[::, pc1 - 1].max() - self.Xt[::, pc1 - 1].min())
         yscale = 1.0 / (self.Xt[::, pc2 - 1].max() - self.Xt[::, pc2 - 1].min())
@@ -755,25 +757,25 @@ class autoPCA:
         xmaxa = 0
         ymina = 0
 
-        for l, lab in zip(loadings, labels):
-            # plt.plot([0,l[0]/xscale], (0, l[1]/yscale), color="purple")
-            plt.arrow(x=0, y=0, dx=l[0] / xscale, dy=l[1] / yscale, color="purple",
+        for load, lab in zip(loadings, labels):
+            # plt.plot([0,load[0]/xscale], (0, load[1]/yscale), color="purple")
+            plt.arrow(x=0, y=0, dx=load[0] / xscale, dy=load[1] / yscale, color="purple",
                       head_width=.2)
-            plt.text(x=l[0] / xscale, y=l[1] / yscale, s=lab)
+            plt.text(x=load[0] / xscale, y=load[1] / yscale, s=lab)
 
-            if l[0] / xscale < xmina:
-                xmina = l[0] / xscale
-            elif l[0] / xscale > xmaxa:
-                xmaxa = l[0] / xscale
+            if load[0] / xscale < xmina:
+                xmina = load[0] / xscale
+            elif load[0] / xscale > xmaxa:
+                xmaxa = load[0] / xscale
 
-            if l[1] / yscale < ymina or l[1] / yscale > ymina:
-                ymina = l[1] / yscale
+            if load[1] / yscale < ymina or load[1] / yscale > ymina:
+                ymina = load[1] / yscale
 
         plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
         plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
         sns.despine()
 
-    def pairPlot(self, n=0):
+    def pair_plot(self, n=0):
         """
         Draw a pair plot of for pca for the given number of dimensions.
 
@@ -795,15 +797,15 @@ class autoPCA:
         if n == 0:
             n = self.Xt.shape[0]
 
-        forVis = pd.DataFrame(self.Xt[:, :n])
+        for_vis = pd.DataFrame(self.Xt[:, :n])
         i = np.argmin(self.Xt.shape)
         pcs = self.Xt.shape[i]
-        forVis.columns = [f"PC {i}" for i in range(1, pcs + 1)]
+        for_vis.columns = [f"PC {i}" for i in range(1, pcs + 1)]
         if self.batch is not None:
-            forVis["batch"] = self.batch
-            sns.pairplot(forVis, hue="batch")
+            for_vis["batch"] = self.batch
+            sns.pairplot(for_vis, hue="batch")
         else:
-            sns.pairplot(forVis)
+            sns.pairplot(for_vis)
 
 
 class KSEA:
@@ -840,7 +842,7 @@ class KSEA:
     might want to adjust a cutoff specifying the minimum number of substrates
     per kinase.
 
-    >>> ksea.getKinaseOverview(kois=["Akt1","MKK4", "P38A", "Erk1"])
+    >>> ksea.get_kinase_overview(kois=["Akt1","MKK4", "P38A", "Erk1"])
 
     Next, you can perform the actual kinase substrate enrichment analysis.
     The analysis is based on the log fold change of your data.
@@ -852,16 +854,16 @@ class KSEA:
     After the ksea has finished, you can get information for further analysis
     such as the substrates of a specific kinase (or a list of kinases)
 
-    >>> ksea.returnKinaseSubstrate(kinase=["Akt1", "MKK4"]).sample() # doctest: +SKIP
+    >>> ksea.return_kinase_substrate(kinase=["Akt1", "MKK4"]).sample() # doctest: +SKIP
 
     or a new dataframe with additional columns for every kinase showing if the
     protein is a substrate of that kinase or not
 
-    >>> ksea.annotateDf(kinases=["Akt1", "MKK4"]).iloc[:2,-5:]
+    >>> ksea.annotate_df(kinases=["Akt1", "MKK4"]).iloc[:2,-5:]
 
     Eventually, you can also generate plots of the enrichment analysis.
 
-    >>> ksea.plotEnrichment(up_col="salmon",
+    >>> ksea.plot_enrichment(up_col="salmon",
     ...                     bg_col="pink",
     ...                     down_col="hotpink")
 
@@ -920,7 +922,7 @@ class KSEA:
     >>> simplify = {"ERK":["ERK1","ERK2"],
     ...             "GSK3":["GSK3A", "GSK3B"]}
     >>> ksea.ksea(col="logFC_TvC", min_subs=5, simplify=simplify)
-    >>> ksea.plotEnrichment()
+    >>> ksea.plot_enrichment()
 
     .. plot::
         :context: close-figs
@@ -932,7 +934,7 @@ class KSEA:
 
     Of course you can also get the ksea results as a dataframe to save or to further customize.
 
-    >>> ksea.returnEnrichment()
+    >>> ksea.return_enrichment()
 
     Of course is the database not exhaustive and you might want to add additional
     substrates manually. This can be done the following way.
@@ -943,16 +945,16 @@ class KSEA:
     >>> genes = ["RPGR"]
     >>> modRsds = ["S564"]
     >>> kinases = ["mTOR"]
-    >>> ksea.addSubstrate(kinase=kinases, substrate=genes, sub_mod_rsd=modRsds)
+    >>> ksea.add_substrate(kinase=kinases, substrate=genes, sub_mod_rsd=modRsds)
 
     >>> ksea.annotate(organism="mouse", only_in_vivo=True)
     >>> ksea.ksea(col="logFC_TvC", min_subs=5)
-    >>> ksea.plotEnrichment(plotBg=False)
+    >>> ksea.plot_enrichment(plot_bg=False)
 
-    >>> ksea.removeManualSubs()
+    >>> ksea.clear_manual_substrates()
     >>> ksea.annotate(organism="mouse", only_in_vivo=True)
     >>> ksea.ksea(col="logFC_TvC", min_subs=5)
-    >>> ksea.plotEnrichment(plotBg=False)
+    >>> ksea.plot_enrichment(plot_bg=False)
     """
 
     def __init__(self, data):
@@ -999,7 +1001,8 @@ class KSEA:
         data["mergeID"] = range(data.shape[0])
         return data
 
-    def __enrichment(self, df, col, kinase):
+    @staticmethod
+    def __enrichment(df, col, kinase):
         """
         Calculate the enrichment score for a certain kinase.
 
@@ -1020,15 +1023,16 @@ class KSEA:
 
         """
         # get enrichment values for rows containing the kinase of interest
-        KS = df[col][df["KINASE"].fillna('').apply(lambda x: kinase in x)]
-        s = KS.mean()  # mean FC of kinase subs
+        ks = df[col][df["KINASE"].fillna('').apply(lambda x: kinase in x)]
+        s = ks.mean()  # mean FC of kinase subs
         p = df[col].mean()  # mean FC of all substrates
-        m = KS.shape[0]  # number of kinase substrates
+        m = ks.shape[0]  # number of kinase substrates
         sig = df[col].std()  # standard dev of FC of all
         score = ((s - p) * np.sqrt(m)) / sig
         return [kinase, score]
 
-    def __extractKois(self, df):
+    @staticmethod
+    def __extract_kois(df):
         """
         Count the number of substrates for each kinase in a merged df.
 
@@ -1055,7 +1059,7 @@ class KSEA:
         temp = [(k, koi.count(k)) for k in ks]
         return pd.DataFrame(temp, columns=["Kinase", "#Subs"])
 
-    def addSubstrate(self, kinase: list, substrate: list, sub_mod_rsd: list):
+    def add_substrate(self, kinase: list, substrate: list, sub_mod_rsd: list):
         """
         Manually add a substrate to the database.
 
@@ -1095,8 +1099,7 @@ class KSEA:
         # append to the original database from PSP
         self.PSP_KS = self.PSP_KS.append(temp, ignore_index=True)
 
-    # TODO find a better name
-    def removeManualSubs(self):
+    def clear_manual_substrates(self):
         """Remove all manual entries from the PSP database."""
         self.PSP_KS = self.PSP_KS[self.PSP_KS["source"] == "PSP"]
 
@@ -1151,9 +1154,10 @@ class KSEA:
                                     how="left")
 
         # generate a df with kinase:number of substrate pairs for the dataset
-        self.koi = self.__extractKois(self.annotDf)
+        self.koi = self.__extract_kois(self.annotDf)
 
-    def getKinaseOverview(self, kois=None):
+    # noinspection PyBroadException
+    def get_kinase_overview(self, kois=None):
         """
         Plot a graphical overview of the kinases acting on the proteins in the dataset.
 
@@ -1263,7 +1267,7 @@ class KSEA:
         """
         # TODO wouldnt it make more sense to perform simplification in the
         # Annotate function?
-        copyAnnotDf = self.annotDf.copy(deep=True)
+        copy_annot_df = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
                 simplify = {"AKT": ["Akt1", "Akt2", "Akt3"],
@@ -1276,18 +1280,18 @@ class KSEA:
                             "RSK": ["p90RSK", "RSK2"],
                             "P38": ["P38A", "P38B", "P38C", "P338D"]}
             for key in simplify:
-                copyAnnotDf["KINASE"].replace(simplify[key], [key] * len(simplify[key]), inplace=True)
+                copy_annot_df["KINASE"].replace(simplify[key], [key] * len(simplify[key]), inplace=True)
 
             # drop rows which are now duplicates
-            if "Multiplicity" in copyAnnotDf.columns:
-                idx = copyAnnotDf[["ucGene", "MOD_RSD", "Multiplicity", "KINASE"]].drop_duplicates().index
+            if "Multiplicity" in copy_annot_df.columns:
+                idx = copy_annot_df[["ucGene", "MOD_RSD", "Multiplicity", "KINASE"]].drop_duplicates().index
             else:
-                idx = copyAnnotDf[["ucGene", "MOD_RSD", "KINASE"]].drop_duplicates().index
-            copyAnnotDf = copyAnnotDf.loc[idx]
-            self.simpleDf = copyAnnotDf
+                idx = copy_annot_df[["ucGene", "MOD_RSD", "KINASE"]].drop_duplicates().index
+            copy_annot_df = copy_annot_df.loc[idx]
+            self.simpleDf = copy_annot_df
 
             # repeat annotation with the simplified dataset
-            self.koi = self.__extractKois(self.simpleDf)
+            self.koi = self.__extract_kois(self.simpleDf)
 
         # filter kinases with at least min_subs number of substrates
         koi = self.koi[self.koi["#Subs"] >= min_subs]["Kinase"]
@@ -1295,10 +1299,10 @@ class KSEA:
         # init empty df
         self.kseaResults = pd.DataFrame(columns=["kinase", "score"])
         # add the enrichment column back to the annotation df using the mergeID
-        copyAnnotDf = copyAnnotDf.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
+        copy_annot_df = copy_annot_df.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
         for kinase in koi:
             # calculate the enrichment score
-            k, s = self.__enrichment(copyAnnotDf[copyAnnotDf[col].notnull()], col, kinase)
+            k, s = self.__enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
             # new dataframe containing kinase names and scores
             temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
             # add the new df to the pre-initialised df
@@ -1306,7 +1310,7 @@ class KSEA:
         # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
 
-    def returnEnrichment(self):
+    def return_enrichment(self):
         """Return a dataframe of kinase:score pairs."""
         if self.kseaResults is None:
             print("First perform the enrichment")
@@ -1316,8 +1320,8 @@ class KSEA:
             # nans are dropped in ksea enrichment
             return self.kseaResults.dropna()
 
-    def plotEnrichment(self, up_col="orange", down_col="blue", bg_col="lightgray",
-                       plotBg=True, ret=False, title="", figsize=(5, 10)):
+    def plot_enrichment(self, up_col="orange", down_col="blue", bg_col="lightgray",
+                        plot_bg=True, ret=False, title="", figsize=(5, 10)):
         """
         Plot the KSEA results.
 
@@ -1332,7 +1336,7 @@ class KSEA:
         bg_col : str, optional
             Colour for not kinases that did not change significantly.
             The default is "lightgray".
-        plotBg : bool, optional
+        plot_bg : bool, optional
             Whether to plot the unaffected kinases.
             The default is True.
         ret : bool, optional
@@ -1361,8 +1365,8 @@ class KSEA:
             fig = plt.figure(figsize=figsize)
             plt.yticks(fontsize=10)
             plt.title(title)
-            # only plot the unaffected substrates if plotBg is True
-            if plotBg:
+            # only plot the unaffected substrates if plot_bg is True
+            if plot_bg:
                 sns.barplot(data=self.kseaResults.dropna(), x="score", y="kinase",
                             palette=self.kseaResults.dropna()["color"])
             else:
@@ -1404,7 +1408,7 @@ class KSEA:
         # generate a df containing only the kinases of interest
         if kinases is None:
             kinases = []
-        df = self.annotateDf(kinases=kinases)
+        df = self.annotate_df(kinases=kinases)
         for k in kinases:
             # index for highlighting the selected kinase substrates
             idx = df[df[k] == 1].index
@@ -1413,7 +1417,7 @@ class KSEA:
                         custom_fg={"alpha": .5},
                         **kwargs)
 
-    def returnKinaseSubstrate(self, kinase):
+    def return_kinase_substrate(self, kinase):
         """
         Return new dataframe with substrates of one or multiple kinase(s).
 
@@ -1465,7 +1469,7 @@ class KSEA:
                              how="left")
         return df_filter
 
-    def annotateDf(self, kinases=None):
+    def annotate_df(self, kinases=None):
         """
         Annotate the provided dataframe with boolean columns for given kinases.
 
@@ -1489,7 +1493,7 @@ class KSEA:
             df = self.data.drop(["MOD_RSD", "ucGene"], axis=1)
             for kinase in kinases:
                 # find substrates for the given kinase in the dataset
-                ids = self.returnKinaseSubstrate(kinase)["mergeID"]
+                ids = self.return_kinase_substrate(kinase)["mergeID"]
                 # init the boolean column with zeros
                 df[kinase] = 0
                 # check if the unique ID for each protein is present in the
@@ -1501,8 +1505,8 @@ class KSEA:
             print("Please provide kinase(s) for annotation.")
 
 
-def missAnalysis(df, cols, n=None, sort='ascending', text=True, vis=True,
-                 extra_vis=False, save_dir=None):
+def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
+                  extra_vis=False, save_dir=None):
     r"""
     Print missing statistics for a dataframe.
 
@@ -1550,9 +1554,9 @@ def missAnalysis(df, cols, n=None, sort='ascending', text=True, vis=True,
     whether the dataframe is sorted by least to most missing values or vice versa
     (using "descending" and "ascending", respectively). The vis and extra_vis
     arguments can be used to toggle the graphical output.
-    In case of large out_data (a lot of columns) those might be better turned off.
+    In case of large data (a lot of columns) those might be better turned off.
 
-    >>> autoprot.analysis.missAnalysis(phos_expanded,
+    >>> autoprot.analysis.miss_analysis(phos_expanded,
     ...                                twitchVsctrl+twitchVsmild+mildVsctrl,
     ...                                sort="descending",
     ...                                extra_vis = True)
@@ -1590,137 +1594,68 @@ def missAnalysis(df, cols, n=None, sort='ascending', text=True, vis=True,
                          sort="descending",
                          extraVis = True)
     """
+    # only analyse subset of cols
+    df = df[cols]
+    # sorted list of lists with every sublist containing
+    # [colname,total_n, n_missing, percentage, rank]
 
-    def create_data(dataframe):
-        """Calculate summary missing statistics."""
-        out_data: list = []
-        # implicitly iterate over dataframe cols
-        for i in dataframe:
-            # len dataframe
-            n = dataframe.shape[0]
-            # how many are missing
-            m = dataframe[i].isnull().sum()
-            # percentage
-            p = m / n * 100
-            out_data.append([i, n, m, p])
-        out_data = add_ranking(out_data)
-        return out_data
+    # calculate summary missing statistics
+    data = []
+    # implicitly iterate over dataframe cols
+    for i in df:
+        # len dataframe
+        n_entries = df.shape[0]
+        # how many are missing
+        m = df[i].isnull().sum()
+        # percentage
+        p = m / n_entries * 100
+        data.append([i, n_entries, m, p])
 
-    def add_ranking(data):
-        """Sort out_data by the percentage of missingness."""
-        data = sorted(data, key=itemgetter(3))
-        # add a number corresponding to the position in the ranking
-        # to every condition aka column.
-        for idx, col in enumerate(data):
-            col.append(idx)
-        return data
+    # Sort data by the percentage of missingness
+    data = sorted(data, key=itemgetter(3))
+    # inverse dataframe if required
+    if sort == 'descending':
+        data = data[::-1]
 
-    def describe(data: list, n_entries: int, save_dir: str, sort: str = 'ascending'):
-        """
-        Print summary statistics as text based on out_data dataframe.
+    # add a number corresponding to the position in the ranking
+    # to every condition aka column.
+    for idx, col in enumerate(data):
+        col.append(idx)
 
-        Parameters
-        ----------
-        data : list
-            List of lists with elements [colname,total_n, n_missing, percentage, rank]
-        n_entries : int
-            How many entries are displayed.
-        save_dir : str
-            Path to dump txt output.
-        sort : str, optional
-            How to sort out_data.
-            Possible values are 'ascending' and 'descending'.
-            The default is 'ascending'.
+    # determine number of entries to show
+    if n is None:
+        n = len(data)
+    elif n > len(data):
+        print("'n_entries' is larger than dataframe!\nDisplaying complete dataframe.")
+        n = len(data)
+    if n < 0:
+        raise ValueError("'n_entries' has to be a positive integer!")
 
-        Raises
-        ------
-        ValueError
-            If n_entries is not properly chosen.
-
-        Returns
-        -------
-        bool
-            True if successful.
-
-        """
-        if n_entries is None:
-            n_entries = len(data)
-        elif n_entries > len(data):
-            print("'n_entries' is larger than dataframe!\nDisplaying complete dataframe.")
-            n_entries = len(data)
-        if n_entries < 0:
-            raise ValueError("'n_entries' has to be a positive integer!")
-
-        if sort == 'descending':
-            data = data[::-1]
-
+    if text:  # print summary statistics and saves them to file
         allines = ''
-        for i in range(n_entries):
+        for i in range(n):
             allines += f"{data[i][0]} has {data[i][2]} of {data[i][1]} entries missing ({round(data[i][3], 2)}%)."
-
             allines += '\n'
             # line separator
             allines += '-' * 80
 
         if save_dir:
             with open(f"{save_dir}/missAnalysis_text.txt", 'w') as f:
-                for _ in range(n_entries):
+                for _ in range(n):
                     f.write(allines)
 
         # write all lines at once
         print(allines)
 
-        return True
-
-    def visualize(data: list, n_entries: int, save_dir: str, sort: str = 'ascending'):
-        """
-        Visualize the % missingness of first n_entries entries of dataframe as a bar plot.
-
-        Parameters
-        ----------
-        data : list
-            List of lists with elements [colname,total_n, n_missing, percentage, rank]
-        n_entries : int
-            How many entries are displayed.
-            If None, all entries are displayed.
-            Default is None.
-        save_dir : str
-            Path to dump txt output.
-        sort : str, optional
-            How to sort out_data.
-            Possible values are 'ascending' and 'descending'.
-            The default is 'ascending'.
-
-        Raises
-        ------
-        ValueError
-            If the n_entries is incorrect.
-
-        Returns
-        -------
-        bool
-            True if function successful.
-
-        """
-        if n_entries is None:
-            n_entries = len(data)
-        elif n_entries > len(data):
-            print("'n_entries' is larger than dataframe!\nDisplaying complete dataframe.")
-            n_entries = len(data)
-        if n_entries < 0:
-            raise ValueError("'n_entries' has to be a positive integer!")
-
-        if sort == 'descending':
-            data = data[::-1]
-
+    if vis:  # Visualize the % missingness of first n entries of dataframe as a bar plot.
         data = pd.DataFrame(data=data,
                             columns=["Name", "tot_values", "tot_miss", "perc_miss", "rank"])
 
         plt.figure(figsize=(7, 7))
         ax = plt.subplot()
         # plot colname against total missing values
-        splot = sns.barplot(x=data["tot_miss"].iloc[:n_entries],
-                            y=data["Name"].iloc[:n_entries])
+        splot = sns.barplot(x=data["tot_miss"].iloc[:n],
+                            y=data["Name"].iloc[:n])
 
         # add the percentage of missingness to every bar of the plot
         for idx, p in enumerate(splot.patches):
@@ -1737,55 +1672,20 @@ def missAnalysis(df, cols, n=None, sort='ascending', text=True, vis=True,
         if save_dir:
             plt.savefig(f"{save_dir}/missAnalysis_vis1.pdf")
 
-        return True
+    if extra_vis:  # Visualize the missingness in the dataset using missingno.
+        # plots are generated with missingno.matrix.
+        # See https://github.com/ResidentMario/missingno
 
-    def visualize_extra(df, save_dir):
-        """
-        Visualize the missingness in the dataset using missingno.
-
-        Notes
-        -----
-        Plots are generated with missingno.matrix.
-        See https://github.com/ResidentMario/missingno
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            The dataframe to check for missing values.
-        save_dir : str
-            Path to save the figures.
-
-        Returns
-        -------
-        bool
-            True if successful.
-
-        """
         fig, ax = plt.subplots(1)
         msn.matrix(df, sort="ascending", ax=ax)
         if save_dir:
             plt.savefig(save_dir + "/missAnalysis_vis2.pdf")
         return True
 
-    # only analyse subset of cols
-    df = df[cols]
-    # sorted list of lists with every sublist containing
-    # [colname,total_n, n_missing, percentage, rank]
-    data = create_data(df)
-    if text:
-        # print summary statistics and saves them to file
-        describe(data, n, save_dir, sort)
-    if vis:
-        # generate a bar plot of percent missingness vs colname
-        visualize(data, n, save_dir, sort)
-    if extra_vis:
-        # plot a fancy missingness matrix for the original dataframe
-        visualize_extra(df, save_dir)
 
-
-def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
-                    exclusion=None, custom_search_term=None, make_word_cloud=False,
-                    sort='pub+date', retmax=20, output="print"):
+def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=None,
+                      exclusion=None, custom_search_term=None, make_word_cloud=False,
+                      sort='pub+date', retmax=20, output="print"):
     """
     Get Pubmed abstracts.
 
@@ -1804,7 +1704,7 @@ def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
     text : list of str, optional
         List of words which must occur in text.
         The default is None.
-    ToA : list of str, optional
+    title_or_abstract : list of str, optional
         List of words which must occur in Titel or Abstract.
         The default is None.
     author : list of str, optional
@@ -1846,20 +1746,20 @@ def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
     To generate a wordcloud and print the results of the found articles to the
     prompt use the following command
 
-    >>> autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+    >>> autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
                                           make_word_cloud=True)
 
     .. plot::
         :context: close-figs
 
         import autoprot.analysis as ana
-        ana.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+        ana.getPubAbstracts(title_or_abstract=["p38", "JNK", "ERK"],
                             make_word_cloud=True)
 
     Even more comfortably, you can also save the results incl. the wordcloud
     as html file
 
-    >>>  autoprot.analysis.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
+    >>>  autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
                                           make_word_cloud=True,
                                           output='./MyPubmedSearch.html')
 
@@ -1871,87 +1771,15 @@ def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
         phrase = [""]
     if author is None:
         author = [""]
-    if ToA is None:
-        ToA = [""]
+    if title_or_abstract is None:
+        title_or_abstract = [""]
     if text is None:
         text = [""]
 
-    def search(query, retmax, sort):
-        """
-        Perform a PubMed search.
-
-        Parameters
-        ----------
-        query : str
-            PubMed search term.
-        retmax : int
-            Maximum number of items to return.
-        sort : str
-            By which to sort the results.
-
-        Returns
-        -------
-        results : Bio.Entrez.Parser.DictionaryElement
-            matrix_a dictionary holding a summary of the search results.
-
-        """
-        # seemingly no true mail address is required.
-        Entrez.email = 'your.email@example.com'
-        handle = Entrez.esearch(db='pubmed',
-                                sort=sort,
-                                retmax=str(retmax),
-                                retmode='xml',
-                                term=query)
-        return Entrez.read(handle)
-
-    def fetchDetails(id_list):
-        """
-        Get detailed information on articles from their PubMed IDs.
-
-        Parameters
-        ----------
-        id_list : list of str
-            List of PubMed IDs.
-
-        Returns
-        -------
-        results : Bio.Entrez.Parser.DictionaryElement
-            matrix_a dictionary holding detailed infos on the articles.
-
-        """
-        ids = ','.join(id_list)
-        Entrez.email = 'your.email@example.com'
-        handle = Entrez.efetch(db='pubmed',
-                               retmode='xml',
-                               id=ids)
-        return Entrez.read(handle)
-
-    def makeSearchTerm(text, ToA, author, phrase, exclusion):
-        """
-        Generate PubMed search term.
-
-        Parameters
-        ----------
-        text : list of str, optional
-            List of words which must occur in text.
-        ToA : list of str, optional
-            List of words which must occur in Titel or Abstract.
-        author : list of str, optional
-            List of authors which must occor in Author list.
-        phrase : list of str, optional
-            List of phrases which should occur in text.
-            Seperate word in phrases with hyphen (e.g. akt-signaling).
-        exclusion : list of str, optional
-            List of words which must not occur in text.
-
-        Returns
-        -------
-        term : str
-            matrix_a PubMed search term.
-
-        """
+    # STEP 1: Generate the search term
+    if custom_search_term is None:  # generate a pubmed search term from user input
         # Generate long list of concatenated search terms
-        term = [i + "[Title/Abstract]" if i != "" else "" for i in ToA] + \
+        term = [i + "[Title/Abstract]" if i != "" else "" for i in title_or_abstract] + \
                [i + "[Text Word]" if i != "" else "" for i in text] + \
                [i + "[Author]" if i != "" else "" for i in author] + \
                [i if i != "" else "" for i in phrase]
@@ -1961,30 +1789,93 @@ def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
         if exclusion != [""]:
             exclusion = " NOT ".join(exclusion)
             term = " NOT ".join([term] + [exclusion])
-        return term
+    else:  # if the user provides a custom search term, ignore all remaining input
+        term = custom_search_term
 
-    def makewc(final, output):
-        """
-        Make a word cloud picture from Pubmed search abstracts.
+    # STEP 2: Perform the PubMed search and return the PubMed IDs of the found articles
+    Entrez.email = 'your.email@example.com'  # seemingly no true mail address is required.
+    handle = Entrez.esearch(db='pubmed',
+                            sort=sort,
+                            retmax=str(retmax),
+                            retmode='xml',
+                            term=term)
+    time.sleep(0.5)  # if function is executed in a loop: a small delay to ensure pubmed is responding
+    results = Entrez.read(handle)["IdList"]
 
-        Parameters
-        ----------
-        final : dict
-            Dictionary mapping a search term to detailed results.
-        output : str
-            Path to the dir for saving the images.
+    # if the search was not successful, leave the function
+    if len(results) == 0:
+        print("No results for " + term)
+        return
 
-        Returns
-        -------
-        None.
+    # STEP 3: get more detailed results including abstracts, authors etc
+    handle = Entrez.efetch(db='pubmed',
+                           retmode='xml',
+                           id=','.join(set(results)))
+    papers = Entrez.read(handle)["PubmedArticle"]
 
-        """
+    titles = []
+    abstracts = []
+    authors = []
+    dois = []
+    links = []
+    pids = []
+    dates = []
+    journals = []
+    final = dict()
+
+    # iterate through the papers
+    for paper in papers:
+        # get titles
+        titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
+        # get abstract
+        if "Abstract" in paper["MedlineCitation"]["Article"].keys():
+            abstracts.append(paper["MedlineCitation"]["Article"]["Abstract"])
+        else:
+            abstracts.append("No abstract")
+        # get authors
+        al = paper['MedlineCitation']['Article']["AuthorList"]
+        temp_authors = []
+        for a in al:
+            if "ForeName" in a and "LastName" in a:
+                temp_authors.append([f"{a['ForeName']} {a['LastName']}"])
+            elif "LastName" in a:
+                temp_authors.append([a['LastName']])
+            else:
+                temp_authors.append(a)
+        authors.append(list(pl.flatten(temp_authors)))
+        # get dois and make link
+        doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "doi"]
+        if len(doi) > 0:
+            doi = str(doi[0])
+        else:
+            doi = "NaN"
+        dois.append(doi)
+        links.append(f" https://doi.org/{doi}")
+        # get pids
+        pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "pubmed"][0]))
+        # get dates
+
+        raw_date = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
+        try:
+            date = f"{raw_date['Year']}-{raw_date['Month']}-{raw_date['Day']}"
+        except KeyError:
+            date = raw_date
+        dates.append(date)
+        # get journal
+        journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
+
+    # sum up the results in a dict containing the search term as key
+    final[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
+
+    # STEP 4: Make a word cloud picture from Pubmed search abstracts.
+    if make_word_cloud:  # plot a picture of words in the found abstracts
         abstracts = []
         # for every search term (there usually is only one)
         for i in final:
             # the abstract is the third element in the list
-            abstracts.extend(abstract["AbstractText"][0] for abstract in final[i][2] if not isinstance(abstract, str))
-
+            abstracts.extend(
+                abstract["AbstractText"][0] for abstract in final[i][2] if not isinstance(abstract, str))
+        # create a long string of abstract words
         abstracts = " ".join(abstracts)
 
         # when exlusion list is added in wordcloud add those
@@ -1997,255 +1888,139 @@ def getPubAbstracts(text=None, ToA=None, author=None, phrase=None,
                 output = output[:-4]
             fig.to_file(output + "/WordCloud.png")
 
-    def genOutput(final, output, makeWordCloud):
-        # sourcery skip: extract-duplicate-method
-        """
-        Return results summary.
+    # STEP 5: generate a txt or html output or print to the prompt
+    if output == "print":
+        for i in final:
+            for title, author, abstract, doi, link, pid, date, journal in \
+                    zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4],
+                        final[i][5], final[i][6],
+                        final[i][7]):
+                print(title)
+                print('-' * 100)
+                print("; ".join(author))
+                print('-' * 100)
+                print(journal)
+                print(date)
+                print(f"doi: {doi}, PubMedID: {pid}")
+                print(link)
+                print('-' * 100)
+                if isinstance(abstract, str):
+                    print(abstract)
+                else:
+                    print(abstract["AbstractText"][0])
+                print('-' * 100)
+                print('*' * 100)
+                print('-' * 100)
 
-        Parameters
-        ----------
-        final : dict
-            Dictionary mapping a search term to detailed results.
-        output : str
-            If 'print' returns the results on the prompt.
-            If path to txt-file: saves as txt file
-            If path to html-files: saves as html file.
-            If path is a folder: save as html inside that folder.
-        makeWordCloud : bool
-            Include wordcloud in HTML output.
-            Note this only works for html output paths.
-
-        Returns
-        -------
-        None.
-
-        """
-        if output == "print":
+    elif output[-4:] == ".txt":
+        with open(output, 'w', encoding="utf-8") as f:
             for i in final:
                 for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5], final[i][6],
-                            final[i][7]):
-                    print(title)
-                    print('-' * 100)
-                    print("; ".join(author))
-                    print('-' * 100)
-                    print(journal)
-                    print(date)
-                    print(f"doi: {doi}, PubMedID: {pid}")
-                    print(link)
-                    print('-' * 100)
-                    if isinstance(abstract, str):
-                        print(abstract)
-                    else:
-                        print(abstract["AbstractText"][0])
-                    print('-' * 100)
-                    print('*' * 100)
-                    print('-' * 100)
-
-        elif output[-4:] == ".txt":
-            with open(output, 'w', encoding="utf-8") as f:
-                for i in final:
-                    for title, author, abstract, doi, link, pid, date, journal in \
-                            zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5],
-                                final[i][6], final[i][7]):
-                        f.write(title)
-                        f.write('\n')
-                        f.write('-' * 100)
-                        f.write('\n')
-                        f.write("; ".join(author))
-                        f.write('\n')
-                        f.write('-' * 100)
-                        f.write('\n')
-                        f.write(journal)
-                        f.write('\n')
-                        f.write(str(date))
-                        f.write('\n')
-                        f.write(f"doi: {doi}, PubMedID: {pid}")
-                        f.write('\n')
-                        f.write(link)
-                        f.write('\n')
-                        f.write('-' * 100)
-                        f.write('\n')
-                        writeAbstract(abstract, f, "txt")
-                        f.write('\n')
-                        f.write('-' * 100)
-                        f.write('\n')
-                        f.write('*' * 100)
-                        f.write('\n')
-                        f.write('-' * 100)
-                        f.write('\n')
-
-        # if the output is an html file or a folder, write html
-        elif output[-5:] == ".html" or os.path.isdir(output):
-            if os.path.isdir(output):
-                output = os.path.join(output, "PubCrawlerResults.html")
-            with open(output, 'w', encoding="utf-8") as f:
-                f.write("<!DOC html>")
-                f.write("<html>")
-                f.write("<head>")
-                f.write("<style>")
-                f.write(".center {")
-                f.write("display: block;")
-                f.write("margin-left: auto;")
-                f.write("margin-right: auto;")
-                f.write("width: 80%;}")
-                f.write("</style>")
-                f.write("</head>")
-                f.write('<body style="background-color:#FFE5B4">')
-                if makeWordCloud == True:
-                    f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
-                for i in final:
-                    for title, author, abstract, doi, link, pid, date, journal in \
-                            zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4], final[i][5],
-                                final[i][6], final[i][7]):
-                        f.write(f"<h2>{title}</h2>")
-                        f.write('<br>')
-                        ta = ("; ").join(author)
-                        f.write(f'<p style="color:gray; font-size:16px">{ta}</p>')
-                        f.write('<br>')
-                        f.write('-' * 200)
-                        f.write('<br>')
-                        f.write(f"<i>{journal}</i>")
-                        f.write('<br>')
-                        f.write(str(date))
-                        f.write('<br>')
-                        f.write(f"<i>doi:</i> {doi}, <i>PubMedID:</i> {pid}")
-                        f.write('<br>')
-                        f.write(f'<a href={link}><i>Link to journal</i></a>')
-                        f.write('<br>')
-                        f.write('-' * 200)
-                        f.write('<br>')
-                        writeAbstract(abstract, f, "html")
-                        f.write('<br>')
-                        f.write('-' * 200)
-                        f.write('<br>')
-                        f.write('*' * 150)
-                        f.write('<br>')
-                        f.write('-' * 200)
-                        f.write('<br>')
-                f.write("</body>")
-                f.write("</html>")
-
-    def writeAbstract(abstract, f, typ):
-        """
-        Write abstracts in blocks to avoid long lines.
-
-        Parameters
-        ----------
-        abstract : list of str
-            matrix_a list containing the abstract on position 0.
-        f : filehandler
-            filehandler holding the output file.
-        typ : str
-            'html' or 'txt.
-
-        Returns
-        -------
-        None.
-
-        """
-        if not isinstance(abstract, str):
-            abstract = abstract["AbstractText"][0]
-        abstract = abstract.split(" ")
-
-        if typ == "txt":
-            for idx, word in enumerate(abstract):
-                f.write(word)
-                f.write(' ')
-                if idx % 20 == 0 and idx > 0:
+                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
+                            final[i][4], final[i][5],
+                            final[i][6], final[i][7]):
+                    f.write(title)
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write("; ".join(author))
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write(journal)
+                    f.write('\n')
+                    f.write(str(date))
+                    f.write('\n')
+                    f.write(f"doi: {doi}, PubMedID: {pid}")
+                    f.write('\n')
+                    f.write(link)
+                    f.write('\n')
+                    f.write('-' * 100)
                     f.write('\n')
 
-        elif typ == "html":
-            f.write('<p style="color:#202020">')
-            for idx, word in enumerate(abstract):
-                f.write(word)
-                f.write(' ')
-                if idx % 20 == 0 and idx > 0:
-                    f.write('</p>')
+                    # write the abstract in a structured manner with defined line breaks
+                    if not isinstance(abstract, str):
+                        abstract = abstract["AbstractText"][0]
+                    abstract = abstract.split(" ")
+                    for idx, word in enumerate(abstract):
+                        f.write(word)
+                        f.write(' ')
+                        if idx % 20 == 0 and idx > 0:
+                            f.write('\n')
+
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write('*' * 100)
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+
+    # if the output is a html file or a folder, write html
+    elif output[-5:] == ".html" or os.path.isdir(output):
+        if os.path.isdir(output):
+            output = os.path.join(output, "PubCrawlerResults.html")
+        with open(output, 'w', encoding="utf-8") as f:
+            f.write("<!DOC html>")
+            f.write("<html>")
+            f.write("<head>")
+            f.write("<style>")
+            f.write(".center {")
+            f.write("display: block;")
+            f.write("margin-left: auto;")
+            f.write("margin-right: auto;")
+            f.write("width: 80%;}")
+            f.write("</style>")
+            f.write("</head>")
+            f.write('<body style="background-color:#FFE5B4">')
+            if make_word_cloud:
+                f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
+            for i in final:
+                for title, author, abstract, doi, link, pid, date, journal in \
+                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
+                            final[i][4], final[i][5],
+                            final[i][6], final[i][7]):
+                    f.write(f"<h2>{title}</h2>")
+                    f.write('<br>')
+                    ta = "; ".join(author)
+                    f.write(f'<p style="color:gray; font-size:16px">{ta}</p>')
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+                    f.write(f"<i>{journal}</i>")
+                    f.write('<br>')
+                    f.write(str(date))
+                    f.write('<br>')
+                    f.write(f"<i>doi:</i> {doi}, <i>PubMedID:</i> {pid}")
+                    f.write('<br>')
+                    f.write(f'<a href={link}><i>Link to journal</i></a>')
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+
+                    # write the abstract in a structured manner with defined line breaks
+                    if not isinstance(abstract, str):
+                        abstract = abstract["AbstractText"][0]
+                    abstract = abstract.split(" ")
+
                     f.write('<p style="color:#202020">')
-            f.write('</p>')
+                    for idx, word in enumerate(abstract):
+                        f.write(word)
+                        f.write(' ')
+                        if idx % 20 == 0 and idx > 0:
+                            f.write('</p>')
+                            f.write('<p style="color:#202020">')
+                    f.write('</p>')
 
-    # if function is executed in a loop a small deleay to ensure pubmed is responding
-    time.sleep(0.5)
-
-    if custom_search_term is None:
-        # generate a pubmed search term from user input
-        term = makeSearchTerm(text, ToA, author, phrase, exclusion)
-    else:
-        # if the user provides a custom searhc term, ignore all other input
-        term = custom_search_term
-
-    # Perform the PubMed search and return the PubMed IDs of the found articles
-    results = search(term, retmax, sort)["IdList"]
-
-    # if the search was successful
-    if len(results) > 0:
-        # get more detailed results including abstracts, authors etc
-        results2 = fetchDetails(set(results))
-
-        titles = []
-        abstracts = []
-        authors = []
-        dois = []
-        links = []
-        pids = []
-        dates = []
-        journals = []
-        final = dict()
-
-        # iterate through the articles
-        for paper in results2["PubmedArticle"]:
-            # get titles
-            titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
-            # get abstract
-            if "Abstract" in paper["MedlineCitation"]["Article"].keys():
-                abstracts.append(paper["MedlineCitation"]["Article"]["Abstract"])
-            else:
-                abstracts.append("No abstract")
-            # get authors
-            al = paper['MedlineCitation']['Article']["AuthorList"]
-            temp_authors = []
-            for a in al:
-                if "ForeName" in a and "LastName" in a:
-                    temp_authors.append([f"{a['ForeName']} {a['LastName']}"])
-                elif "LastName" in a:
-                    temp_authors.append([a['LastName']])
-                else:
-                    temp_authors.append(a)
-            authors.append(list(pl.flatten(temp_authors)))
-            # get dois and make link
-            doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "doi"]
-            if len(doi) > 0:
-                doi = str(doi[0])
-            else:
-                doi = "NaN"
-            dois.append(doi)
-            links.append(f" https://doi.org/{doi}")
-            # get pids
-            pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "pubmed"][0]))
-            # get dates
-
-            raw_date = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
-            try:
-                date = f"{raw_date['Year']}-{raw_date['Month']}-{raw_date['Day']}"
-            except:
-                date = raw_date
-            dates.append(date)
-            # get journal
-            journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
-
-        # sum up the results in a dict containing the search term as key
-        final[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
-
-        if make_word_cloud:
-            # plot a picture of words in the found abstracts
-            makewc(final, output)
-
-        # generate a txt or html output or print to the prompt
-        genOutput(final, output, make_word_cloud)
-
-    else:
-        print("No results for " + term)
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+                    f.write('*' * 150)
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+            f.write("</body>")
+            f.write("</html>")
 
 
 def loess(data, xvals, yvals, alpha, poly_degree=2):
@@ -2282,7 +2057,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     Examples
     --------
     >>> np.random.seed(10)
-    >>> x_values = np.random.randint(-50,110,size=(250))
+    >>> x_values = np.random.randint(-50,110,size=250)
     >>> y_values = np.square(x_values)/1.5 + np.random.randint(-1000,1000, size=len(x_values))
     >>> df = pd.DataFrame({"Xvalue" : x_values,
                            "Yvalue" : y_values
@@ -2310,10 +2085,6 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
         plt.show()
     """
-
-    def loc_eval(x, b):
-        return sum(i[1] * (x ** i[0]) for i in enumerate(b))
-
     # generate x,y value pairs and sort them according to x
     all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
     # separate the values again into x and y cols
@@ -2338,7 +2109,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
 
     for j in range(1, (poly_degree + 1)):
         xcols.append([i ** j for i in xvals])
-    X = np.vstack(xcols).T
+    x_mtx = np.vstack(xcols).T
     for i in v:
         iterval = i[1]
         iterdists = sorted([(j, np.abs(j - iterval)) for j in xvals], key=lambda x: x[1])
@@ -2350,8 +2121,9 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         _, raw_dists = zip(*sorted(iterdists, key=lambda x: x[0]))
         _, scaled_dists = zip(*sorted(scaled_dists, key=lambda x: x[0]))
         w = np.diag(weights)
-        b = np.linalg.inv(X.T @ w @ X) @ (X.T @ w @ yvals)
-        local_est = loc_eval(iterval, b)
+        b = np.linalg.inv(x_mtx.T @ w @ x_mtx) @ (x_mtx.T @ w @ yvals)
+        # loc_eval
+        local_est = sum(i[1] * (iterval ** i[0]) for i in enumerate(b))
         iter_df2 = pd.DataFrame({
             'v': [iterval],
             'g': [local_est]
@@ -2429,13 +2201,13 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
 
     Examples
     --------
-    >>> df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
-    ...                    "a2":np.random.normal(loc=0, size=4000),
-    ...                    "a3":np.random.normal(loc=0, size=4000),
-    ...                    "b1":np.random.normal(loc=0.5, size=4000),
-    ...                    "b2":np.random.normal(loc=0.5, size=4000),
-    ...                    "b3":np.random.normal(loc=0.5, size=4000),})
-    >>> testRes = ana.limma(df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
+    >>> data = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+    ...                      "a2":np.random.normal(loc=0, size=4000),
+    ...                      "a3":np.random.normal(loc=0, size=4000),
+    ...                      "b1":np.random.normal(loc=0.5, size=4000),
+    ...                      "b2":np.random.normal(loc=0.5, size=4000),
+    ...                      "b3":np.random.normal(loc=0.5, size=4000),})
+    >>> testRes = ana.limma(df=data, reps=[["a1","a2", "a3"],["b1","b2", "b3"]], cond="_test")
     >>> testRes["P.Value_test"].hist()
 
     .. plot::
@@ -2512,7 +2284,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
 
     p = run(command,
             stdout=PIPE,
-            stderr=STDOUT,
+            stderr=PIPE,
             universal_newlines=True)
 
     if print_r:
@@ -2531,7 +2303,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
     return df
 
 
-def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
+def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     """
     Perform RankProd test as in R RankProd package.
 
@@ -2600,7 +2372,10 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
                ','.join([str(x) for x in class_labels]),
                ]
 
-    p = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    p = run(command,
+            stdout=PIPE,
+            stderr=PIPE,
+            universal_newlines=True)
 
     if print_r:
         print(p.stdout)
@@ -2609,10 +2384,11 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
     res.columns = [i + cond if i != "UID" else i for i in res.columns]
     df = df.reset_index().merge(res, on="UID").set_index('index')
 
-    if isinstance(reps[0], list) and len(reps) == 2:
-        df['log_fc' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
-    else:
-        df['log_fc' + cond] = df[reps].mean(axis=1)
+    if correct_fc:
+        if isinstance(reps[0], list) and len(reps) == 2:
+            df['log_fc' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
+        else:
+            df['log_fc' + cond] = df[reps].mean(axis=1)
 
     os.remove(data_loc)
     os.remove(output_loc)
@@ -2620,7 +2396,7 @@ def rankProd(df, reps, cond="", print_r=False, correct_fc=True):
     return df
 
 
-def annotatePS(df, ps, cols_to_keep=None):
+def annotate_phosphosite(df, ps, cols_to_keep=None):
     """
     Annotate phosphosites with information derived from PhosphositePlus.
 
@@ -2645,34 +2421,36 @@ def annotatePS(df, ps, cols_to_keep=None):
     if cols_to_keep is None:
         cols_to_keep = []
 
-    def makeMergeCol(df, file="regSites"):
+    def make_merge_col(df_to_merge, file="regSites"):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
-            return df["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + df["MOD_RSD"].fillna("").apply(
+            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' +\
+                   df_to_merge["MOD_RSD"].fillna("").apply(
                 lambda x: x.split('-')[0])
-        return df["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + df["SUB_MOD_RSD"].fillna("")
+        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' +\
+            df_to_merge["SUB_MOD_RSD"].fillna("")
 
     with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
-        KS = pd.read_csv(d, sep='\t', compression='zip')
-        KS["merge"] = makeMergeCol(KS, "KS")
+        ks = pd.read_csv(d, sep='\t', compression='zip')
+        ks["merge"] = make_merge_col(ks, "KS")
     with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
-        regSites = pd.read_csv(d, sep='\t', compression='zip')
-        regSites["merge"] = makeMergeCol(regSites)
+        reg_sites = pd.read_csv(d, sep='\t', compression='zip')
+        reg_sites["merge"] = make_merge_col(reg_sites)
 
-    KS_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
-    regSites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
-                    'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
+    ks_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
+    reg_sites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
+                     'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
 
     df = df.copy(deep=True)
     df.rename(columns={ps: "merge"}, inplace=True)
     df = df[["merge"] + cols_to_keep]
-    df = df.merge(KS[KS_coi], on="merge", how="left")
-    df = df.merge(regSites[regSites_coi], on="merge", how="left")
+    df = df.merge(ks[ks_coi], on="merge", how="left")
+    df = df.merge(reg_sites[reg_sites_coi], on="merge", how="left")
 
     return df
 
 
-def goAnalysis(gene_list, organism="hsapiens"):
+def go_analysis(gene_list, organism="hsapiens"):
     """
     Perform go Enrichment analysis (also KEGG and REAC).
 
@@ -2697,7 +2475,7 @@ def goAnalysis(gene_list, organism="hsapiens"):
 
     Examples
     --------
-    >>> autoprot.analysis.goAnalysis(['PEX14', 'PEX18']).iloc[:3,:3]
+    >>> autoprot.analysis.go_analysis(['PEX14', 'PEX18']).iloc[:3,:3]
     source      native                                   name
     0  CORUM  CORUM:1984                 PEX14 homodimer complex
     1  GO:CC  GO:1990429          peroxisomal importomer complex
@@ -2706,12 +2484,12 @@ def goAnalysis(gene_list, organism="hsapiens"):
     if not isinstance(gene_list, list):
         try:
             gene_list = list(gene_list)
-        except:
+        except Exception:
             raise ValueError("Please provide a list of gene names")
     return gp.profile(organism=organism, query=gene_list, no_evidences=False)
 
 
-def makePSM(seq, seq_len):
+def make_psm(seq, seq_len):
     """
     Generate a position score matrix for a set of sequences.
 
@@ -2734,7 +2512,7 @@ def makePSM(seq, seq_len):
 
     Examples
     --------
-    >>> autoprot.analysis.makePSM(['PEPTIDE', 'PEGTIDE', 'GGGGGGG'], 7)
+    >>> autoprot.analysis.make_psm(['PEPTIDE', 'PEGTIDE', 'GGGGGGG'], 7)
               0         1         2         3         4         5         6
     G  0.333333  0.333333  0.666667  0.333333  0.333333  0.333333  0.333333
     P  0.666667  0.000000  0.333333  0.000000  0.000000  0.000000  0.000000
