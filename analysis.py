@@ -1604,9 +1604,9 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
     # implicitly iterate over dataframe cols
     for i in df:
         # len dataframe
-        n_entries = dataframe.shape[0]
+        n_entries = df.shape[0]
         # how many are missing
-        m = dataframe[i].isnull().sum()
+        m = df[i].isnull().sum()
         # percentage
         p = m / n_entries * 100
         data.append([i, n_entries, m, p])
@@ -1639,8 +1639,8 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
             # line separator
             allines += '-' * 80
 
-        if out_dir:
-            with open(f"{out_dir}/missAnalysis_text.txt", 'w') as f:
+        if save_dir:
+            with open(f"{save_dir}/missAnalysis_text.txt", 'w') as f:
                 for _ in range(n):
                     f.write(allines)
 
@@ -1871,10 +1871,10 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
     if make_word_cloud:  # plot a picture of words in the found abstracts
         abstracts = []
         # for every search term (there usually is only one)
-        for i in final_dict:
+        for i in final:
             # the abstract is the third element in the list
             abstracts.extend(
-                abstract["AbstractText"][0] for abstract in final_dict[i][2] if not isinstance(abstract, str))
+                abstract["AbstractText"][0] for abstract in final[i][2] if not isinstance(abstract, str))
         # create a long string of abstract words
         abstracts = " ".join(abstracts)
 
@@ -1890,11 +1890,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
     # STEP 5: generate a txt or html output or print to the prompt
     if output == "print":
-        for i in final_dict:
+        for i in final:
             for title, author, abstract, doi, link, pid, date, journal in \
-                    zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3], final_dict[i][4],
-                        final_dict[i][5], final_dict[i][6],
-                        final_dict[i][7]):
+                    zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4],
+                        final[i][5], final[i][6],
+                        final[i][7]):
                 print(title)
                 print('-' * 100)
                 print("; ".join(author))
@@ -1914,11 +1914,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
     elif output[-4:] == ".txt":
         with open(output, 'w', encoding="utf-8") as f:
-            for i in final_dict:
+            for i in final:
                 for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
-                            final_dict[i][4], final_dict[i][5],
-                            final_dict[i][6], final_dict[i][7]):
+                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
+                            final[i][4], final[i][5],
+                            final[i][6], final[i][7]):
                     f.write(title)
                     f.write('\n')
                     f.write('-' * 100)
@@ -1975,11 +1975,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
             f.write('<body style="background-color:#FFE5B4">')
             if make_word_cloud:
                 f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
-            for i in final_dict:
+            for i in final:
                 for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
-                            final_dict[i][4], final_dict[i][5],
-                            final_dict[i][6], final_dict[i][7]):
+                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
+                            final[i][4], final[i][5],
+                            final[i][6], final[i][7]):
                     f.write(f"<h2>{title}</h2>")
                     f.write('<br>')
                     ta = "; ".join(author)
