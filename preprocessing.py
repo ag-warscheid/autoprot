@@ -398,6 +398,9 @@ def expandSiteTable(df, cols):
     if True in check and False in check:
         raise ValueError("The columns you provided or the dataframe are not suitable!")
 
+    if df[melt].eq(0).any().any():
+    	print("WARNING: the dataframe contains 0 values that will not be filtered out eventually.\nHave you replaced MaxQuant 0 values with np.nan?")
+
     # generate a separated melted df for every entry in the melt_set
     for i in melt_set:
         cs = list(df.filter(regex=i+'___').columns) + ["id"] # reconstruct the ___n cols for each melt_set entry
@@ -438,6 +441,7 @@ def expandSiteTable(df, cols):
         print("The expansion of site table is probably not correct!!! Check it! Maybe you provided wrong columns?")
 
     # remove rows that contain no modified peptides
+    # this requires that unidentified modifications are set to np.nan! See warning above that checks just this.
     temp = temp[~(temp[melt_set].isnull().all(1))]
     print(f"{temp.shape[0]} phosphopeptides in dataframe after expansion.")
     return temp
