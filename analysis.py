@@ -94,7 +94,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
     ...                 'log2_Ratio M/L normalized BC36_2']
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="TvM", return_fc=True, adjust_p_vals=True)
+    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
     >>> prot_tt["pValue_TvM"].hist(bins=50)
     >>> plt.show()
 
@@ -111,7 +111,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
         prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
-        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", returnFC=True, adjust_p_vals=True)
+        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
 
@@ -122,7 +122,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
     ...                           "b2":np.random.normal(loc=0.5, size=4000),
     ...                           "b3":np.random.normal(loc=0.5, size=4000),})
     >>> autoprot.analysis.ttest(df=dataframe,
-                                reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
+                                reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["adj.pValue"].hist(bins=50)
     >>> plt.show()
 
     .. plot::
@@ -137,7 +137,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
                   "b2":np.random.normal(loc=0.5, size=4000),
                   "b3":np.random.normal(loc=0.5, size=4000),})
         ana.ttest(df=df,
-                  reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue_"].hist(bins=50)
+                  reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["adj.pValue"].hist(bins=50)
         plt.show()
 
     """
@@ -160,9 +160,9 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if return_fc:
             if logged:
-                df[f"log_fc{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
+                df[f"logFC{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
             else:
-                df[f"log_fc{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
+                df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
 
     else:
         print("Performing one-sample t-Test")
@@ -170,9 +170,9 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if return_fc:
             if logged:
-                df[f"log_fc{cond}"] = df[reps].mean(1)
+                df[f"logFC{cond}"] = df[reps].mean(1)
             else:
-                df[f"log_fc{cond}"] = np.log2(df[reps].mean(1))
+                df[f"logFC{cond}"] = np.log2(df[reps].mean(1))
 
     if adjust_p_vals:
         adjust_p(df, f"pValue{cond}")
@@ -221,7 +221,7 @@ def adjust_p(df, p_col, method="fdr_bh"):
     >>> prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = pp.log(prot, protRatio, base=2)
-    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjust_p_vals=False)
+    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=False)
     >>> prot_tt_adj = ana.adjust_p(prot_tt, p_col="pValue_TvM")
     >>> prot_tt_adj.filter(regex='pValue').head()
        pValue_TvM  adj.pValue_TvM
@@ -342,7 +342,7 @@ class AutoPCA:
         dataframe = temp.filter(regex="log2.*norm.*_1$")
         clabels = dataframe.columns
         rlabels = np.nan
-        autopca = ana.autoPCA(dataframe, rlabels, clabels)
+        autopca = ana.AutoPCA(dataframe, rlabels, clabels)
         autopca.scree()
 
     The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
@@ -355,7 +355,7 @@ class AutoPCA:
     .. plot::
         :context: close-figs
 
-        autopca.corrComp(annot=False)
+        autopca.corr_comp(annot=False)
 
     The bar loading plot is a different way to represent the weights/loads for each
     condition and principle component. High values indicate a high influence of the
@@ -367,8 +367,8 @@ class AutoPCA:
     .. plot::
         :context: close-figs
 
-        autopca.barLoad(1)
-        autopca.barLoad(2)
+        autopca.bar_load(1)
+        autopca.bar_load(2)
 
     The score plot shows how the different data points (i.e. proteins) are positioned
     with respect to two principal components.
@@ -382,7 +382,7 @@ class AutoPCA:
     .. plot::
         :context: close-figs
 
-        autopca.scorePlot(pc1=1, pc2=2)
+        autopca.score_plot(pc1=1, pc2=2)
 
     The loading plot is the 2D representation of the barLoading plots and shows
     the weights how each variable influences the two PCs.
@@ -392,7 +392,7 @@ class AutoPCA:
     .. plot::
         :context: close-figs
 
-        autopca.loadingPlot(pc1=1, pc2=2, labeling=True)
+        autopca.loading_plot(pc1=1, pc2=2, labeling=True)
 
     The Biplot is a combination of loading plot and score plot as it shows the
     scores for each protein as point and the weights for each variable as
@@ -402,7 +402,7 @@ class AutoPCA:
     .. plot::
         :context: close-figs
 
-        autopca.biPlot(pc1=1, pc2=2)
+        autopca.bi_plot(pc1=1, pc2=2)
     """
 
     # =========================================================================
@@ -546,7 +546,7 @@ class AutoPCA:
         None.
 
         """
-        pc = f"pc{pc}"
+        pc = f"PC{pc}"
         for_vis = self.forVis.copy()
         for_vis[f"{pc}_abs"] = abs(for_vis[pc])
         for_vis["color"] = "negative"
@@ -870,11 +870,10 @@ class KSEA:
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import pandas as pd
+	import autoprot.preprocessing as pp
+	import autoprot.analysis as ana
 
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+	phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep='\t', low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
@@ -882,7 +881,7 @@ class KSEA:
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
 
-        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
         phos_expanded = pp.expandSiteTable(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
@@ -890,15 +889,15 @@ class KSEA:
         twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
 
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC", return_fc=True)
 
         ksea = ana.KSEA(phos)
-        ksea.annotate(organism="mouse", onlyInVivo=True)
-        ksea.getKinaseOverview(kois=["Akt1","MKK4", "P38A", "Erk1"])
-        ksea.ksea(col="logFC_TvC", minSubs=5)
+        ksea.annotate(organism="mouse", only_in_vivo=True)
+        ksea.get_kinase_overview(kois=["Akt1","MKK4", "P38A", "Erk1"])
+        ksea.ksea(col="logFC_TvC", min_subs=5)
 
-        ksea.plotEnrichment(up_col="salmon",
+        ksea.plot_enrichment(up_col="salmon",
                             bg_col="pink",
                             down_col="hotpink")
 
@@ -910,7 +909,7 @@ class KSEA:
     ...               annot="Gene names", sig_col="gray")
 
     .. plot::
-        :context: close-figs
+        :context:
 
         ksea.volcanos(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
                       annot="Gene names", sig_col="gray")
@@ -925,12 +924,12 @@ class KSEA:
     >>> ksea.plot_enrichment()
 
     .. plot::
-        :context: close-figs
+        :context:
 
         simplify = {"ERK":["ERK1","ERK2"],
                     "GSK3":["GSK3A", "GSK3B"]}
-        ksea.ksea(col="logFC_TvC", minSubs=5, simplify=simplify)
-        ksea.plotEnrichment()
+        ksea.ksea(col="logFC_TvC", min_subs=5, simplify=simplify)
+        ksea.plot_enrichment()
 
     Of course you can also get the ksea results as a dataframe to save or to further customize.
 
@@ -983,7 +982,7 @@ class KSEA:
         with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
             self.PSP_regSits = pd.read_csv(d, sep='\t', compression='zip')
         # Harmonize the input data and store them to the class
-        self.data = self.__preprocess(data.copy(deep=True))
+        self.data = self._preprocess(data.copy(deep=True))
         # init other class objects
         self.annotDf = None
         self.kseaResults = None
@@ -991,7 +990,7 @@ class KSEA:
         self.simpleDf = None
 
     @staticmethod
-    def __preprocess(data):
+    def _preprocess(data):
         """Define MOD_RSD, ucGene and mergeID cols in the input dataset."""
         # New column containing the modified residue as Ser201
         data["MOD_RSD"] = data["Amino acid"] + data["Position"].fillna(0).astype(int).astype(str)
@@ -1002,7 +1001,7 @@ class KSEA:
         return data
 
     @staticmethod
-    def __enrichment(df, col, kinase):
+    def _enrichment(df, col, kinase):
         """
         Calculate the enrichment score for a certain kinase.
 
@@ -1032,7 +1031,7 @@ class KSEA:
         return [kinase, score]
 
     @staticmethod
-    def __extract_kois(df):
+    def _extract_kois(df):
         """
         Count the number of substrates for each kinase in a merged df.
 
@@ -1129,7 +1128,7 @@ class KSEA:
         if only_in_vivo:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
                                 (self.PSP_KS["SUB_ORGANISM"] == organism) &
-                                (self.PSP_KS["IN_VIVO_RXN"] == "dataframe")) | (self.PSP_KS["source"] == "manual")]
+                                (self.PSP_KS["IN_VIVO_RXN"] == "X")) | (self.PSP_KS["source"] == "manual")]
         # only filter for the target organism
         else:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
@@ -1154,7 +1153,7 @@ class KSEA:
                                     how="left")
 
         # generate a df with kinase:number of substrate pairs for the dataset
-        self.koi = self.__extract_kois(self.annotDf)
+        self.koi = self._extract_kois(self.annotDf)
 
     # noinspection PyBroadException
     def get_kinase_overview(self, kois=None):
@@ -1291,22 +1290,23 @@ class KSEA:
             self.simpleDf = copy_annot_df
 
             # repeat annotation with the simplified dataset
-            self.koi = self.__extract_kois(self.simpleDf)
+            self.koi = self._extract_kois(self.simpleDf)
 
         # filter kinases with at least min_subs number of substrates
         koi = self.koi[self.koi["#Subs"] >= min_subs]["Kinase"]
 
-        # init empty df
-        self.kseaResults = pd.DataFrame(columns=["kinase", "score"])
         # add the enrichment column back to the annotation df using the mergeID
         copy_annot_df = copy_annot_df.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
+        
+        # init bucket to collect dataframes with one empty df
+        bucket = [] 
         for kinase in koi:
             # calculate the enrichment score
-            k, s = self.__enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
-            # new dataframe containing kinase names and scores
-            temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
-            # add the new df to the pre-initialised df
-            self.kseaResults = self.kseaResults.append(temp, ignore_index=True)
+            k, s = self._enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
+            # new dataframe containing kinase names and scores is appended to bucket
+            bucket.append(pd.DataFrame(data={"kinase": k, "score": s}, index=[0]))
+        # add the new df to the pre-initialised df
+        self.kseaResults = pd.concat(bucket)
         # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
 
@@ -1576,7 +1576,7 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
 
-        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
         phos_expanded = pp.expandSiteTable(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
@@ -1585,14 +1585,14 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
-        phos = ana.ttest(dataframe=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
-        phos = ana.ttest(dataframe=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC", return_fc=True)
 
-        ana.missAnalysis(phos_expanded,
-                         twitchVsctrl+twitchVsmild+mildVsctrl,
-                         text=False,
-                         sort="descending",
-                         extraVis = True)
+        ana.miss_analysis(phos_expanded,
+                          twitchVsctrl+twitchVsmild+mildVsctrl,
+                          text=False,
+                          sort="descending",
+                          extra_vis = True)
     """
     # only analyse subset of cols
     df = df[cols]
@@ -1753,7 +1753,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
         :context: close-figs
 
         import autoprot.analysis as ana
-        ana.getPubAbstracts(title_or_abstract=["p38", "JNK", "ERK"],
+        ana.get_pub_abstracts(title_or_abstract=["p38", "JNK", "ERK"],
                             make_word_cloud=True)
 
     Even more comfortably, you can also save the results incl. the wordcloud

@@ -1379,13 +1379,13 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
     selected and labelled.
 
     >>> autoprot.visualization.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                   fct=2, annot=True, interactive=False, hover_name="Gene names")
+                   fct=2, annot=True, interactive=False, annot="Gene names")
 
     .. plot::
         :context: close-figs
 
         vis.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                       fct=2, annot=True, interactive=False, hover_name="Gene names")
+                       fct=2, interactive=False, annot="Gene names")
 
     And the plots can also be investigated interactively
 
@@ -1503,7 +1503,7 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
 
 
 def MAPlot(df, x, y, interactive=False, fct=None,
-           title="MA Plot", figsize=(6, 6), hover_name=None):
+           title="MA Plot", figsize=(6, 6), annot=None):
     # sourcery skip: assign-if-exp, extract-method
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
@@ -1533,7 +1533,7 @@ def MAPlot(df, x, y, interactive=False, fct=None,
         Title of the figure. The default is "MA Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    hover_name : str, optional
+    annot : str, optional
         Colname to use for labels in interactive plot.
         The default is None.
 
@@ -1605,8 +1605,8 @@ def MAPlot(df, x, y, interactive=False, fct=None,
             plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
 
     else:
-        if hover_name is not None:
-            fig = px.scatter(data_frame=df, x='A', y='M', hover_name=hover_name,
+        if annot:
+            fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
                              color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
                              opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
         else:
@@ -1798,7 +1798,7 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
 
-        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
         phos_expanded = pp.expandSiteTable(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
@@ -1807,9 +1807,9 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="MvC", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_MvC", return_fc=True)
 
         idx = phos.sample(10).index
         test = phos.filter(regex="logFC_").loc[idx]
@@ -2564,13 +2564,13 @@ def BHplot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
         phos = pp.removeNonQuant(phos, phosRatio)
 
-        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
+        phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
         phos_expanded = pp.expandSiteTable(phos, phosRatio)
 
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
 
-        phos = ana.ttest(df=phos_expanded, reps=mildVsctrl, cond="MvC", mean=True)
+        phos = ana.ttest(df=phos_expanded, reps=mildVsctrl, cond="_MvC", return_fc=True)
 
         vis.BHplot(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
     """

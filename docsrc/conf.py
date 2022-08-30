@@ -72,6 +72,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append('../../.')
 
+import autoprot.preprocessing as pp
+import autoprot.analysis as ana
+import autoprot.visualization as vis
+import autoprot.clustering as clust
+
 prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
 phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep='\t', low_memory=False)
 '''

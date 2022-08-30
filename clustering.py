@@ -446,7 +446,7 @@ class HCA(Cluster):
     
          labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
          rc = {"species" : labels}
-         c.visCluster(rowColors={'species': labels})
+         c.visCluster(row_colors={'species': labels})
          
     HCA separates the setosa quite well but virginica and versicolor are harder.
     When we manually pick true the number of clusters, HCA performs only slightly
@@ -464,7 +464,7 @@ class HCA(Cluster):
             c.nclusters = 3  
             c.makeCluster()
             c.cmap = 'coolwarm'
-            c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, make_heatmap=True)
+            c.visCluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
     """
 
     def makeLinkage(self, method='single', metric: str = 'euclidean'):
@@ -751,7 +751,7 @@ class KMeans(Cluster):
 
          labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
          rc = {"species" : labels}
-         c.visCluster(rowColors={'species': labels})
+         c.visCluster(row_colors={'species': labels})
          
     As you can see can KMeans quite well separate setosa but virginica and versicolor are harder.
     When we manually pick the number of clusters, it gets a bit better
@@ -765,7 +765,7 @@ class KMeans(Cluster):
 
             c.nclusters = 3  
             c.makeCluster()
-            c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, make_heatmap=True)
+            c.visCluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
     """
 
     def findNClusters(self, start=2, upTo=20, figsize=(15, 5), plot=True, algo='scipy'):

@@ -38,8 +38,8 @@ However, a manual timeout is set to 10 min to prevent the script being caught in
 If the automatic installation is not finished within 10 min, try increasing the timeout (in sec) in RHelper.py.
 Moreover, automatic install using anaconda requires additional conda packages to be installed:
 
-conda install -c conda-forge r-gmp
-conda install -c conda-forge r-rmpfr
+    conda install -c conda-forge r-gmp
+    conda install -c conda-forge r-rmpfr
 
 The autoprot virtual environment
 ================================
