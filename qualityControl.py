@@ -14,16 +14,15 @@ from datetime import date
 from autoprot import preprocessing as pp
 
 
-def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
+def MissedCleavage(df_evidence, enzyme="Trypsin/P", save=True):
     """
     Parameters
     ----------
     df_evidence : cleaned pandas DataFrame from Maxquant analysis
     enzyme : str,
         Give any chosen Protease from MQ. The default is "Trypsin/P".
-
-    Figure in Pdf format in given filepath,
-    Result table as csv
+    save : bool,
+        While True table and fig will be saved in active filepath.
     -------
     None.
     """
@@ -74,18 +73,19 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P"):
     ax1.set_ylabel("Missed cleavage [%]", size=12)
     ax1.legend(bbox_to_anchor=(1.5, 1),
                loc='upper right', borderaxespad=0.)
+    
+    while save == True:
+        # save fig in cwd with date
+        plt.savefig("{0}_BarChart_missed-cleavage.pdf".format(today), dpi=600)
 
-    # plt.tight_layout()
-    plt.savefig("{0}_BarChart_missed-cleavage.pdf".format(today), dpi=600)
-
-    # save df missed cleavage summery as .csv
-    df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
+        # save df missed cleavage summery as .csv
+        df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
 
     # return results
     return print(df_missed_cleavage_summary, ax1)
 
 
-def enrichmentSpecifity(df_evidence, typ="Phospho"):
+def enrichmentSpecifity(df_evidence, typ="Phospho", save=True):
     # sourcery skip: raise-specific-error
     """
 
@@ -94,9 +94,8 @@ def enrichmentSpecifity(df_evidence, typ="Phospho"):
     df_evidence : cleaned pandas DataFrame from Maxquant analysis
     typ : str,
           Give type of enrichment for analysis. The default is "Phospho".
-
-    Figure in Pdf format in given filepath,
-    Result table as csv
+    save : bool,
+        While True table and fig will be saved in active filepath.
     -------
     None.
 
@@ -158,11 +157,13 @@ def enrichmentSpecifity(df_evidence, typ="Phospho"):
     ax.set_ylabel('peptides [%]')
     ax.legend(bbox_to_anchor=(1.5, 1),
               loc='upper right', borderaxespad=0.)
+    
+    while save == True:
+        # save fig in cwd with date
+        plt.savefig("{0}_BarPlot_enrichmentSpecifity.pdf".format(today), dpi=600)
 
-    plt.savefig("{0}_BarPlot_enrichmentSpecifity.pdf".format(today), dpi=600)
-
-    # save df missed cleavage summery as .csv
-    df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
+        # save df missed cleavage summery as .csv
+        df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
 
     # return results
     return print(df.T, ax)
