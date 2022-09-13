@@ -14,7 +14,7 @@ import re
 import os
 from subprocess import run, PIPE, STDOUT, CalledProcessError
 from autoprot.decorators import report
-from autoprot import RHelper
+from autoprot import r_helper
 import requests
 from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
@@ -24,11 +24,13 @@ from sklearn.metrics import auc
 from urllib import parse
 from ftplib import FTP
 import warnings
+from typing import Union
 
-RSCRIPT, R = RHelper.returnRPath()
+RFUNCTIONS, R = r_helper.return_r_path()
+
 
 # =============================================================================
-# Note: When using R functions provided column names might get changes
+# Note: When using R functions provided column names might get changed
 # Especially, do not use +,- or spaces in your column names. Maybe write decorator to
 # validate proper column formatting and handle exceptions
 # =============================================================================
@@ -81,6 +83,7 @@ def to_csv(df, file, sep='\t', index=False, **kwargs):
     """
     df.to_csv(file, sep=sep, index=index, **kwargs)
 
+
 @report
 def cleaning(df, file="proteinGroups"):
     """
@@ -113,42 +116,33 @@ def cleaning(df, file="proteinGroups"):
     47936 rows before filter operation.
     47420 rows after filter operation.
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
+    df = df.copy()
     columns = df.columns
     if file == "proteinGroups":
-        if ("Potential contaminant" not in columns) or\
-        ("Reverse" not in columns) or\
-        ("Only identified by site" not in columns):
+        if "Potential contaminant" not in columns or "Reverse" not in columns or \
+                "Only identified by site" not in columns:
             print("Is this data already cleaned?\nMandatory columns for cleaning not present in data!")
             print("Returning provided dataframe!")
             return df
-        df = df[(df['Potential contaminant'].isnull()) &
-               (df['Reverse'].isnull()) &
-               (df['Only identified by site'].isnull())]
-        df.drop(['Potential contaminant',"Reverse", 'Only identified by site'], axis=1, inplace=True)
-    elif (file == "Phospho (STY)") or (file == "evidence") or (file == "modificationSpecificPeptides"):
-        if ("Potential contaminant" not in columns) or\
-        ("Reverse" not in columns):
+        df = df[(df['Potential contaminant'].isnull() & df['Reverse'].isnull()) &
+                df['Only identified by site'].isnull()]
+
+        df.drop(['Potential contaminant', "Reverse", 'Only identified by site'], axis=1, inplace=True)
+
+    elif file in ["Phospho (STY)", "evidence", "modificationSpecificPeptides", "peptides"]:
+        if "Potential contaminant" not in columns or "Reverse" not in columns:
             print("Is this data already cleaned?\nMandatory columns for cleaning not present in data!")
+
             print("Returning provided dataframe!")
             return df
-        df = df[(df['Potential contaminant'].isnull()) &
-               (df['Reverse'].isnull())]
-        df.drop(['Potential contaminant',"Reverse"], axis=1, inplace=True)
-    elif file == "peptides":
-        if ("Potential contaminant" not in columns) or\
-        ("Reverse" not in columns):
-            print("Is this data already cleaned?\nMandatory columns for cleaning not present in data!")
-            print("Returning provided dataframe!")
-            return df
-        df = df[(df['Potential contaminant'].isnull()) &
-               (df['Reverse'].isnull())]
-        df.drop(['Potential contaminant',"Reverse"], axis=1, inplace=True)
+        df = df[(df['Potential contaminant'].isnull() & df['Reverse'].isnull())]
+        df.drop(['Potential contaminant', "Reverse"], axis=1, inplace=True)
+
     return df
 
 
-def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
-    r"""
+def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
+    """
     Perform log transformation.
 
     Parameters
@@ -163,7 +157,7 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
         Vector corresponding in length to number of to columns.
         Columns are multiplied with corresponding number.
         The default is None.
-    returnCols : bool, optional
+    return_cols : bool, optional
         Whether to return a list of names corresponding to the columns added
         to the dataframe. The default is False.
     replace_inf : bool, optional
@@ -204,8 +198,7 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
     3                    NaN
     4               1.236503
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
-    # ignore divide by 0 errors
+    df = df.copy()
     with np.errstate(divide='ignore'):
         if base == 2:
             for c in cols:
@@ -213,7 +206,7 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
                     df[f"log2_{c}"] = np.nan_to_num(np.log2(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
                 else:
                     df[f"log2_{c}"] = np.log2(df[c])
-        elif base==10:
+        elif base == 10:
             for c in cols:
                 if replace_inf:
                     df[f"log10_{c}"] = np.nan_to_num(np.log10(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
@@ -222,23 +215,19 @@ def log(df, cols, base=2, invert=None, returnCols=False, replace_inf=True):
         else:
             for c in cols:
                 if replace_inf:
-                    df[f"log{base}_{c}".format(base)] = np.nan_to_num(np.log(df[c]) / np.log(base),
-                                                                      nan=np.nan,
-                                                                      neginf=np.nan,
-                                                                      posinf=np.nan)
+                    df[f"log{base}_{c}"] = np.nan_to_num(np.log(df[c]) / np.log(base), nan=np.nan, neginf=np.nan,
+                                                         posinf=np.nan)
                 else:
-                    df[f"log{base}_{c}".format(base)] = np.log(df[c]) / np.log(base)
-    newCols = [f"log{base}_{c}" for c in cols]
+                    df[f"log{base}_{c}"] = np.log(df[c]) / np.log(base)
 
+    new_cols = [f"log{base}_{c}" for c in cols]
     if invert is not None:
-        df[newCols] = df[newCols] * invert
-    if returnCols == True:
-        return df, newCols
-    else:
-        return df
+        df[new_cols] = df[new_cols] * invert
+    return (df, new_cols) if return_cols == True else df
+
 
 @report
-def filterLocProb(df, thresh=.75):
+def filter_loc_prob(df, thresh=.75):
     """
     Filter by localization probability.
 
@@ -251,10 +240,10 @@ def filterLocProb(df, thresh=.75):
 
     Examples
     --------
-    The .filterLocProb() function filters a Phospho (STY)Sites.txt file.
+    The .filter_loc_prob() function filters a Phospho (STY)Sites.txt file.
     You can provide the desired threshold with the *thresh* parameter.
 
-    >>> phos_filter = autoprot.preprocessing.filterLocProb(phos, thresh=.75)
+    >>> phos_filter = autoprot.preprocessing.filter_loc_prob(phos, thresh=.75)
     47936 rows before filter operation.
     33311 rows after filter operation.
 
@@ -264,15 +253,16 @@ def filterLocProb(df, thresh=.75):
         Filtered dataframe.
 
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
+    df = df.copy()  # make sure to keep the original dataframe unmodified
     if "Localization prob" not in df.columns:
         print("This dataframe has no 'Localization prob' column!")
         return True
-    df = df[df["Localization prob"]>=thresh]
+    df = df[df["Localization prob"] >= thresh]
     return df
 
+
 @report
-def filterSeqCov(df, thresh, cols=None):
+def filter_seq_cov(df, thresh, cols=None):
     """
     Filter by sequence coverage.
 
@@ -293,13 +283,14 @@ def filterSeqCov(df, thresh, cols=None):
         Filtered dataframe.
 
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
+    df = df.copy()  # make sure to keep the original dataframe unmodified
     if cols is not None:
         return df[(df[cols] >= thresh).all(1)]
     return df[df["Sequence coverage [%]"] >= thresh]
 
+
 @report
-def removeNonQuant(df, cols):
+def remove_non_quant(df, cols):
     r"""
     Remove entries without quantitative data.
 
@@ -318,7 +309,7 @@ def removeNonQuant(df, cols):
     Examples
     --------
     >>> df = pd.DataFrame({'a':[1,2,np.nan,4], 'b':[4,0,np.nan,1], 'c':[None, None, 1, 1]})
-    >>> autoprot.preprocessing.removeNonQuant(df, cols=['a', 'b'])
+    >>> autoprot.preprocessing.remove_non_quant(df, cols=['a', 'b'])
     4 rows before filter operation.
     3 rows after filter operation.
          a    b    c
@@ -328,7 +319,7 @@ def removeNonQuant(df, cols):
 
     Rows are only removed if the all values in the specified columns are NaN.
 
-    >>> autoprot.preprocessing.removeNonQuant(df, cols=['b', 'c'])
+    >>> autoprot.preprocessing.remove_non_quant(df, cols=['b', 'c'])
     4 rows before filter operation.
     4 rows after filter operation.
          a    b    c
@@ -340,7 +331,7 @@ def removeNonQuant(df, cols):
     Example with real data.
 
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-    >>> phosQuant = autoprot.preprocessing.removeNonQuant(phosLog, phosRatio)
+    >>> phosQuant = autoprot.preprocessing.remove_non_quant(phosLog, phosRatio)
     47936 rows before filter operation.
     39398 rows after filter operation.
     """
@@ -348,7 +339,7 @@ def removeNonQuant(df, cols):
     return df
 
 
-def expandSiteTable(df, cols, replace_zero=True):
+def expand_site_table(df, cols, replace_zero=True):
     r"""
     Convert a phosphosite table into a phosphopeptide table.
 
@@ -365,8 +356,8 @@ def expandSiteTable(df, cols, replace_zero=True):
     cols : list of str
         Cols which are going to be expanded (format: Ratio.*___.).
     replace_zero : bool
-    	If true 0 values in the provided columns are replaced by np.nan (default).
-    	Set to False if you want explicitely to keep the 0 values after expansion.
+        If true 0 values in the provided columns are replaced by np.nan (default).
+        Set to False if you want explicitely to keep the 0 values after expansion.
 
     Raises
     ------
@@ -384,31 +375,33 @@ def expandSiteTable(df, cols, replace_zero=True):
     >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
     >>> phosLog = autoprot.preprocessing.log(phos, phosRatio, base=2)
     >>> phosRatio = phosLog.filter(regex="log2_Ratio .\/. normalized R.___").columns
-    >>> phos_expanded = autoprot.preprocessing.expandSiteTable(phosLog, phosRatio)
+    >>> phos_expanded = autoprot.preprocessing.expand_site_table(phosLog, phosRatio)
     47936 phosphosites in dataframe.
     47903 phosphopeptides in dataframe after expansion.
     """
     df = df.copy(deep=True)
     print(f"{df.shape[0]} phosphosites in dataframe.")
     dfs = []
-    expected = df.shape[0]*3
-    #columns to melt
-    melt = cols # e.g. "Ratio M/L normalized R2___1"
-    melt_set = list(set([i[:-4] for i in melt])) # e.g. "Ratio M/L normalized R2"
-    #Due to MaxQuant column names we might have to drop some columns
-    check = [i in df.columns for i in melt_set] # check if the colnames are present in the df
+    expected = df.shape[0] * 3
+    # columns to melt
+    melt = cols  # e.g. "Ratio M/L normalized R2___1"
+    melt_set = list({i[:-4] for i in melt})  # e.g. "Ratio M/L normalized R2"
+    # Due to MaxQuant column names we might have to drop some columns
+    check = [i in df.columns for i in melt_set]  # check if the colnames are present in the df
     if False not in check:
-        df.drop(melt_set, axis=1, inplace=True) # remove cols w/o ___n
+        df.drop(melt_set, axis=1, inplace=True)  # remove cols w/o ___n
     if True in check and False in check:
         raise ValueError("The columns you provided or the dataframe are not suitable!")
 
     if df[melt].eq(0).any().any() and replace_zero:
-    	warnings.warn("The dataframe contains 0 values that will not be filtered out eventually. Will replace by np.nan. If this is not intended set replace_zero to False.")
-    	df[melt].replace(0, np.nan)
+        warnings.warn(
+            "The dataframe contains 0 values that will not be filtered out eventually. Will replace by np.nan. If "
+            "this is not intended set replace_zero to False.")
+        df[melt].replace(0, np.nan)
 
     # generate a separated melted df for every entry in the melt_set
     for i in melt_set:
-        cs = list(df.filter(regex=i+'___').columns) + ["id"] # reconstruct the ___n cols for each melt_set entry
+        cs = list(df.filter(regex=i + '___').columns) + ["id"]  # reconstruct the ___n cols for each melt_set entry
         # melt the dataframe generating an 'id' column,
         # a 'variable' col with the previous colnames
         # and a 'value' col with the previous values
@@ -426,21 +419,23 @@ def expandSiteTable(df, cols, replace_zero=True):
 
     # the large first df is now called temp
     temp = df.copy(deep=True)
-    temp = temp.drop(melt, axis=1) # drop the ___n entries from the original df
+    temp = temp.drop(melt, axis=1)  # drop the ___n entries from the original df
 
-    for idx,df in enumerate(dfs):
-        x = df["variable"].iloc[0].split('___')[0] # reconstructs the colname without ___n, e.g. Ratio M/L normalized R2
-        if idx==0: # the first df contains all peptides and all multiplicities as rows
+    t = pd.DataFrame()
+    for idx, df in enumerate(dfs):
+        x = df["variable"].iloc[0].split('___')[0]  # reconstructs the colname w/o ___n, e.g. Ratio M/L normalized R2
+        if idx == 0:  # the first df contains all peptides and all multiplicities as rows
             t = df.copy(deep=True)
-            t.columns = ["id", "Multiplicity", x] # e.g. 0, Ratio M/L normalized R2___1, 0.67391
-            t["Multiplicity"] = t["Multiplicity"].apply(lambda x: x.split('___')[1]) # e.g. 0, 1, 0.67391
-        else: # in the subsquent dfs id and multplicities can be dropped as only the ratio is new information compared to the first df
+            t.columns = ["id", "Multiplicity", x]  # e.g. 0, Ratio M/L normalized R2___1, 0.67391
+            t["Multiplicity"] = t["Multiplicity"].apply(lambda col_header: col_header.split('___')[1])  # 0, 1, 0.673
+        else:  # in the subsequent dfs id and multiplicities can be dropped as only the ratio is new information
+            # compared to the first df
             df.columns = ["id", "Multiplicity", x]
-            df = df.drop(["id", "Multiplicity"], axis=1) # keep only the x col
-            t = t.join(df,rsuffix=idx) # horizontally joins the new col with the previous df
+            df = df.drop(["id", "Multiplicity"], axis=1)  # keep only the x col
+            t = t.join(df, rsuffix=f'_{idx}')  # horizontally joins the new col with the previous df
     # merging on ids gives the melted peptides their names back´
-    temp = temp.merge(t,on='id', how='left')
-    temp["Multiplicity"] = temp["Multiplicity"].astype(int) # is previously str
+    temp = temp.merge(t, on='id', how='left')
+    temp["Multiplicity"] = temp["Multiplicity"].astype(int)  # is previously str
 
     if temp.shape[0] != expected:
         print("The expansion of site table is probably not correct!!! Check it! Maybe you provided wrong columns?")
@@ -448,11 +443,12 @@ def expandSiteTable(df, cols, replace_zero=True):
     # remove rows that contain no modified peptides
     # this requires that unidentified modifications are set to np.nan! See warning above that checks just this.
     temp = temp[~(temp[melt_set].isnull().all(1))]
-    print(f"{temp.shape[0]} phosphopeptides in dataframe after expansion.")
+    print(f"{temp.shape[0]} phospho peptides in dataframe after expansion.")
     return temp
 
+
 @report
-def filterVv(df, groups, n=2, vv=True):
+def filter_vv(df, groups, n=2, valid_values=True):
     r"""
     Filter dataframe for minimum number of valid values.
 
@@ -465,7 +461,7 @@ def filterVv(df, groups, n=2, vv=True):
         Each group is filtered for at least n vv.
     n : int, optional
         Minimum amount of valid values. The default is 2.
-    vv : bool, optional
+    valid_values : bool, optional
         True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
 
     Returns
@@ -491,15 +487,15 @@ def filterVv(df, groups, n=2, vv=True):
     ...                 "log2_Ratio M/L normalized BC36_1", "log2_Ratio H/L normalized BC36_2","log2_Ratio H/M normalized BC36_2"]
     >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2","log2_Ratio M/L normalized BC18_3",
     ...               "log2_Ratio H/M normalized BC36_1","log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
-    >>> protFilter = autoprot.preprocessing.filterVv(protLog, groups=[a,b,c], n=3)
+    >>> protFilter = autoprot.preprocessing.filter_vv(protLog, groups=[a,b,c], n=3)
     4910 rows before filter operation.
     2674 rows after filter operation.
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
+    df = df.copy()  # make sure to keep the original dataframe unmodified
 
-    if vv == True:
+    if valid_values:
         idxs = [set(df[df[group].notnull().sum(1) >= n].index) for group in groups]
-        #idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
+        # idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
         #        group in groups]
     else:
         idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
@@ -507,11 +503,12 @@ def filterVv(df, groups, n=2, vv=True):
     # indices that are valid in all groups
     idx = set.intersection(*idxs)
     df = df.loc[idx]
-    
+
     return df
 
 
-def goAnnot(prots, gos, onlyProts=False, exact=True):
+def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bool = True) \
+        -> Union[pd.DataFrame, pd.Series]:
     """
     Filter a list of experimentally determined gene names by GO annotation.
 
@@ -526,7 +523,7 @@ def goAnnot(prots, gos, onlyProts=False, exact=True):
         List of Gene names.
     gos : list of str
         List of go terms.
-    onlyProts : bool, optional
+    only_prots : bool, optional
         Whether to return dataframe or only list of gene names annotated with terms. The default is False.
     exact : bool, optional
         whether go term must match exactly. i.e. MAPK activity <-> regulation of MAPK acitivity etc. The default is True.
@@ -541,7 +538,7 @@ def goAnnot(prots, gos, onlyProts=False, exact=True):
     Examples
     --------
     >>> gos = ["ribosome"]
-    >>> go = autoprot.preprocessing.goAnnot(prot["Gene names"],gos, onlyProts=False)
+    >>> go = autoprot.preprocessing.go_annot(prot["Gene names"],gos, only_prots=False)
     >>> go.head()
        index Gene names  GeneID       GO_ID   GO_term
     0   1944      RPS27    6232  GO:0005840  ribosome
@@ -550,49 +547,33 @@ def goAnnot(prots, gos, onlyProts=False, exact=True):
     3  11130      RRBP1    6238  GO:0005840  ribosome
     4  16112        SF1    7536  GO:0005840  ribosome
     """
-    with resources.open_binary("autoprot.data","Homo_sapiens.gene_info.zip") as d:
-        geneInfo = pd.read_csv(d, sep='\t', compression='zip')
-    with resources.open_binary("autoprot.data","gene2go_alt.zip") as d:
+    with resources.open_binary("autoprot.data", "Homo_sapiens.gene_info.zip") as d:
+        gene_info = pd.read_csv(d, sep='\t', compression='zip')
+    with resources.open_binary("autoprot.data", "gene2go_alt.zip") as d:
         gene2go = pd.read_csv(d, sep='\t', compression='zip')
     # generate dataframe with single columns corresponding to experimental gene names
     prots = pd.DataFrame(pd.Series([str(i).upper().split(';')[0] for i in prots]), columns=["Gene names"])
-    # add the column GeneID by merging with the geneInfo table
-    prots = prots.merge(geneInfo[["Symbol", "GeneID"]], left_on="Gene names", right_on="Symbol", how='inner')
+    # add the column GeneID by merging with the gene_info table
+    prots = prots.merge(gene_info[["Symbol", "GeneID"]], left_on="Gene names", right_on="Symbol", how='inner')
     # add the columns GO_ID and GO_term by merging on GeneID
     prots = prots.merge(gene2go[["GeneID", "GO_ID", "GO_term"]], on="GeneID", how='inner')
-    if onlyProts == True:
-        if exact == True:
-            for idx, go in enumerate(gos):
-                if idx == 0:
-                    redProts = prots["Symbol"][prots["GO_term"]==go]
-                else:
-                    redProts = redProts.append(prots["Symbol"][prots["GO_term"]==go])
-            return redProts.drop_duplicates().reset_index(drop=True)
-        else:
-            for idx, go in enumerate(gos):
-                if idx == 0:
-                    redProts = prots["Symbol"][prots["GO_term"].str.contains(go)]
-                else:
-                    redProts = redProts.append(prots["Symbol"][prots["GO_term"].str.contains(go)])
-            return redProts.drop_duplicates().reset_index(drop=True)
+
+    # if the go terms must match exactly, pandas' isin is used
+    if exact:
+        red_prots = prots[prots["GO_term"].isin(gos)]
+    # if they should only contain the go term, the str contains method with the OR separator is used
     else:
-        if exact == True:
-            for idx, go in enumerate(gos):
-                if idx == 0:
-                    redProts = prots[prots["GO_term"]==go]
-                else:
-                    redProts = redProts.append(prots[prots["GO_term"]==go])
-            return redProts.drop_duplicates().drop("Symbol", axis=1).reset_index()
-        else:
-            for idx, go in enumerate(gos):
-                if idx == 0:
-                    redProts = prots[prots["GO_term"].str.contains(go)]
-                else:
-                    redProts = redProts.append(prots[prots["GO_term"].str.contains(go)])
-            return redProts.drop_duplicates().drop("Symbol", axis=1).reset_index(drop=True)
+        red_prots = prots[prots["GO_term"].str.contains('|'.join(gos), regex=True)]
+
+    # if only the proteins should be returned, the Symbol column from the GO annotation is returned
+    if only_prots:
+        return red_prots['Symbol'].drop_duplicates().reset_index(drop=True)
+    # else the complete dataframe without the Symabol column is returned
+    else:
+        return red_prots.drop_duplicates().drop("Symbol", axis=1).reset_index(drop=True)
 
 
-def motifAnnot(df, motif, col="Sequence window"):
+def motif_annot(df, motif, col="Sequence window"):
     """
     Search for phosphorylation motif in the provided dataframe.
 
@@ -616,20 +597,18 @@ def motifAnnot(df, motif, col="Sequence window"):
         Dataframe with additional boolean column with True/False for whether the motif is found in this .
 
     """
-    df=df.copy() # make sure to keep the original dataframe unmodified
+    df = df.copy()  # make sure to keep the original dataframe unmodified
 
     # TODO
     # make some assertions that the column is indeed the proper MQ output
-    # (might want to customize the possibilites later)
+    # (might want to customize the possibilities later)
 
-    def findMotif(x,col, motif, motlen):
+    def find_motif(x, col, motif, motlen):
         seq = x[col]
-        if ";" in seq:
-            seqs = seq.split(';')
-        else: seqs = [seq]
+        seqs = seq.split(';') if ";" in seq else [seq]
         for seq in seqs:
             pos = 0
-            pos2 = re.finditer(motif,seq)
+            pos2 = re.finditer(motif, seq)
             if pos2:
                 # iterate over re match objects
                 for p in pos2:
@@ -637,24 +616,24 @@ def motifAnnot(df, motif, col="Sequence window"):
                     pos = p.end()
                     # only return a match if the motif in centred in the sequence window
                     # i.e. if the corresponding peptide was identified
-                    if pos == np.floor(motlen/2+1):
+                    if pos == np.floor(motlen / 2 + 1):
                         return 1
         return 0
 
-    assert(col in df.columns)
-    assert(len(df[col].iloc[0]) % 2 == 1)
+    assert (col in df.columns)
+    assert (len(df[col].iloc[0]) % 2 == 1)
 
     # generate a regex string out of the input motif
     search = motif.replace('x', '.').replace('S/T', '(S|T)').upper()
     i = search.index("(S|T)")
     before = search[:i]
-    after  = search[i+5:]
+    after = search[i + 5:]
     # the regex contains a lookbehind (?<=SEQUENCEBEFORE), the actual modified residues (S/T)
     # and a lookahead with the following seqeunce for this motif (?=SEQUENCEAFTER)
     search = f"(?<={before})(S|T)(?={after})"
     # the lengths of the sequences in the sequence window column are all the same, take it from the first row
     motlen = len(df[col].iloc[0])
-    df[motif] = df.apply(findMotif, col=col, motif=search, motlen=motlen, axis=1)
+    df[motif] = df.apply(find_motif, col=col, motif=search, motlen=motlen, axis=1)
 
     return df
 
@@ -662,7 +641,7 @@ def motifAnnot(df, motif, col="Sequence window"):
 # =============================================================================
 # IMPUTATION ALGORITHMS
 # =============================================================================
-def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
+def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
@@ -676,9 +655,9 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     ----------
     df : pd.dataframe
         Dataframe on which imputation is performed.
-    colsToImpute : list
+    cols_to_impute : list
         Columns to impute. Should correspond to a single condition (i.e. control).
-    maxMissing : int, optional
+    max_missing : int, optional
         How many missing values have to be missing across all columns to perfom imputation
         If None all values have to be missing. The default is None.
     downshift : float, optional
@@ -694,7 +673,7 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     Examples
     --------
     >>> forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
-    >>> impProt = pp.impMinProb(forImp, phos.filter(regex="Int.*R1").columns,
+    >>> impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns,
     ...                         width=.4, downshift=2.5)
     >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50,
     ...                                                                         label="not Imputed")
@@ -710,7 +689,7 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
         import pandas as pd
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
-        impProt = pp.impMinProb(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
+        impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
         fig, ax1 = plt.subplots(1)
         impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50, label="not Imputed", ax=ax1)
         impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50, label="Imputed", ax=ax1)
@@ -719,28 +698,29 @@ def impMinProb(df, colsToImpute, maxMissing=None, downshift=1.8, width=.3):
     """
     df = df.copy(deep=True)
 
-    if maxMissing is None:
-        maxMissing = len(colsToImpute)
+    if max_missing is None:
+        max_missing = len(cols_to_impute)
     # idxs of all rows in which imputation will be performed
-    idx_noCtrl = df[df[colsToImpute].isnull().sum(1) >= maxMissing].index
+    idx_no_ctrl = df[df[cols_to_impute].isnull().sum(1) >= max_missing].index
     df["Imputed"] = False
-    df.loc[idx_noCtrl,"Imputed"] = True
+    df.loc[idx_no_ctrl, "Imputed"] = True
 
-    for col in colsToImpute:
-        df[col +'_imputed'] = df[col]
+    for col in cols_to_impute:
+        df[col + '_imputed'] = df[col]
         mean = df[col].mean()
-        var  = df[col].std()
-        mean_ = mean - downshift*var
-        var_ = var*width
+        var = df[col].std()
+        mean_ = mean - downshift * var
+        var_ = var * width
 
-        #generate random numbers matching the target dist
-        rnd = np.random.normal(mean_, var_, size=len(idx_noCtrl))
-        for i, idx in enumerate(idx_noCtrl):
-            df.loc[idx, col+'_imputed'] = rnd[i]
+        # generate random numbers matching the target dist
+        rnd = np.random.normal(mean_, var_, size=len(idx_no_ctrl))
+        for i, idx in enumerate(idx_no_ctrl):
+            df.loc[idx, col + '_imputed'] = rnd[i]
 
     return df
 
-def impSeq(df, cols, print_r=True):
+
+def imp_seq(df, cols, print_r=True):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
@@ -769,22 +749,20 @@ def impSeq(df, cols, print_r=True):
     dataLoc = d + "/input.csv"
     outputLoc = d + "/output.csv"
 
-    if "UID" in df.columns:
-        pass
-    else:
+    if "UID" not in df.columns:
         # UID is basically a row index starting at 1
-        df["UID"] = range(1, df.shape[0]+1)
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if not isinstance(cols, list):
         cols = cols.to_list()
     to_csv(df[["UID"] + cols], dataLoc)
 
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "impSeq", #functionName
-    dataLoc, #data location
-    outputLoc #output file
-    ]
+               RFUNCTIONS,  # script location
+               "impSeq",  # functionName
+               dataLoc,  # data location
+               outputLoc  # output file
+               ]
 
     p = run(command,
             stdout=PIPE,
@@ -796,22 +774,23 @@ def impSeq(df, cols, print_r=True):
 
     res = read_csv(outputLoc)
     # append a string to recognise the cols
-    resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
     # change back the R colnames
-    resCols = [x.replace('.', ' ') for x in resCols]
-    res.columns = resCols
+    res_cols = [x.replace('.', ' ') for x in res_cols]
+    res.columns = res_cols
 
     # merge and retain the rows of the original df
     df = df.merge(res, how='left', on="UID")
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
-    #os.remove(dataLoc)
-    #os.remove(outputLoc)
+    # os.remove(dataLoc)
+    # os.remove(outputLoc)
 
     return df
 
-def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
+
+def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
          npat=20, performance_metric='RMSE', print_r=True):
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
@@ -840,6 +819,8 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     performance_metric : str, optional
         Metric used to select the best algorithm. Possible values are
         Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.
+    print_r : bool
+        Whether to print the R output to the Python console.
 
     Returns
     -------
@@ -862,7 +843,7 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     >>> for col in iris.columns:
     ...     iris.loc[iris.sample(frac=0.1).index, col] = np.nan
 
-    >>> imp, perf = pp.DIMA(
+    >>> imp, perf = pp.dima(
     ...     iris, iris.columns, performance_metric="RMSEt", ttest_substr=["petal", "sepal"]
     ... )
     
@@ -889,31 +870,27 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).
     """
     if not df.isnull().values.any():
-        raise Exception("Your dataframe does not contain missing values. Will return as is.")
-        return
-
+        raise ValueError('Your dataframe does not contain missing values. Will return as is.')
     df = df.copy(deep=True)
 
     d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
-    
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
+
     for col in cols:
         mvs = df[col].isna().sum() / df[col].size
-        print(f"{mvs*100:.2f}% MVs in column {col}")
+        print(f"{mvs * 100:.2f}% MVs in column {col}")
 
-    if selection_substr != None:
+    if selection_substr is not None:
         df = df.filter(regex=selection_substr)
 
-    if "UID" in df.columns:
-        pass
-    else:
+    if "UID" not in df.columns:
         # UID is basically a row index starting at 1
-        df["UID"] = range(1, df.shape[0]+1)
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
+    to_csv(df[["UID"] + cols], data_loc)
 
     if isinstance(ttest_substr, list):
         ttest_substr = ','.join(ttest_substr)
@@ -922,15 +899,15 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
         methods = ','.join(methods)
 
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "dima", #functionName
-    dataLoc, #data location
-    outputLoc, #output file
-    ttest_substr, # substring for ttesting
-    methods, # method(s) aka algorithms to benchmark
-    str(npat), # number of patterns
-    performance_metric # to select the best algorithm
-    ]
+               RFUNCTIONS,  # script location
+               "dima",  # functionName
+               data_loc,  # data location
+               output_loc,  # output file
+               ttest_substr,  # substring for ttesting
+               methods,  # method(s) aka algorithms to benchmark
+               str(npat),  # number of patterns
+               performance_metric  # to select the best algorithm
+               ]
 
     p = run(command,
             stdout=PIPE,
@@ -940,27 +917,28 @@ def DIMA(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     if print_r:
         print(p.stdout)
 
-    res = read_csv(outputLoc)
+    res = read_csv(output_loc)
     # keep only the columns added by DIMA and the UID for merging
-    res = res.loc[:,(res.columns.str.contains('Imputation')) | (res.columns.str.contains('UID'))]
+    res = res.loc[:, (res.columns.str.contains('Imputation')) | (res.columns.str.contains('UID'))]
     # append a string to recognise the cols
-    resCols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
     # remove the preceding string Imputation
-    resCols = [x.replace('Imputation.', '') for x in resCols]
-    res.columns = resCols
+    res_cols = [x.replace('Imputation.', '') for x in res_cols]
+    res.columns = res_cols
 
     # merge and retain the rows of the original df
     df = df.merge(res, how='left', on="UID")
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
-    perf = read_csv(outputLoc[:-4]+'_performance.csv')
+    perf = read_csv(output_loc[:-4] + '_performance.csv')
 
-    os.remove(dataLoc)
-    os.remove(outputLoc)
-    os.remove(outputLoc[:-4]+'_performance.csv')
+    os.remove(data_loc)
+    os.remove(output_loc)
+    os.remove(output_loc[:-4] + '_performance.csv')
 
     return df, perf
+
 
 def expSemiCol(df, scCol, newCol, castTo=None):
     r"""
@@ -1004,13 +982,13 @@ def expSemiCol(df, scCol, newCol, castTo=None):
     df = df.copy(deep=True)
     df = df.reset_index(drop=True)
 
-    #make temp df with expanded columns
+    # make temp df with expanded columns
     temp = df[scCol].str.split(";", expand=True)
-    #use stack to bring it into long format series and directly convert back to df
+    # use stack to bring it into long format series and directly convert back to df
     temp = pd.DataFrame(temp.stack(), columns=[newCol])
-    #get first level of multiindex (corresponds to original index)
+    # get first level of multiindex (corresponds to original index)
     temp.index = temp.index.get_level_values(0)
-    #join on idex
+    # join on idex
     df = df.join(temp)
 
     if castTo is not None:
@@ -1019,7 +997,7 @@ def expSemiCol(df, scCol, newCol, castTo=None):
     return df
 
 
-def mergeSemiCols(m1, m2, scCol1, scCol2=None):
+def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, semicolon_col2: str = None):
     """
     Merge two dataframes on a semicolon separated column.
 
@@ -1032,9 +1010,9 @@ def mergeSemiCols(m1, m2, scCol1, scCol2=None):
         First dataframe to merge.
     m2 : pd.Dataframe
         Second dataframe to merge with first.
-    scCol1 : str
+    semicolon_col1 : str
         Colname of a column containing semicolon-separated values in m1.
-    scCol2 : str, optional
+    semicolon_col2 : str, optional
         Colname of a column containing semicolon-separated values in m2.
         If sCol2 is None it is assumed to be the same as sCol1.
         The default is None.
@@ -1045,30 +1023,31 @@ def mergeSemiCols(m1, m2, scCol1, scCol2=None):
         Merged dataframe with expanded columns.
 
     """
-# =============================================================================
-#     Example
-#
-#     df1
-#       col1  num1
-#     0  A;B     0
-#     1  C;D     1
-#     2  E;F     2
-#
-#     df2
-#       col2  num2
-#     0  A;B    10
-#     1  C;D    11
-#     2    E    12
-#
-#     mergeSemiCols(df1, df2, 'col1', 'col2')
-#       col1_x  num2 col1_y  num1
-#     0    A;B    10    A;B     0
-#     1    C;D    11    C;D     1
-#     2      E    12    E;F     2
-# =============================================================================
 
-    #helper functions
-    def _formMergePairs(s):
+    # =============================================================================
+    #     Example
+    #
+    #     df1
+    #       col1  num1
+    #     0  A;B     0
+    #     1  C;D     1
+    #     2  E;F     2
+    #
+    #     df2
+    #       col2  num2
+    #     0  A;B    10
+    #     1  C;D    11
+    #     2    E    12
+    #
+    #     mergeSemiCols(df1, df2, 'col1', 'col2')
+    #       col1_x  num2 col1_y  num1
+    #     0    A;B    10    A;B     0
+    #     1    C;D    11    C;D     1
+    #     2      E    12    E;F     2
+    # =============================================================================
+
+    # helper functions
+    def _form_merge_pairs(s):
         """
         Group the data back on the main data identifier and create the appropiate matching entries of the other data.
 
@@ -1080,16 +1059,14 @@ def mergeSemiCols(m1, m2, scCol1, scCol2=None):
         Returns
         -------
         pd.Series
-            A Series with the idcs corresponding to m1 and the entries to the matching idcs in m2.
+            A Series with the ids corresponding to m1 and the entries to the matching idcs in m2.
 
         """
-        ids = list(set([i for i in s if not np.isnan(i)]))
-        if len(ids) == 0:
-            return [np.nan]
-        return ids
+        ids = list({i for i in s if not np.isnan(i)})
+        return ids or [np.nan]
 
-    def _aggreagateDuplicates(s):
-        # this might be a oversimplicfication but there should only be
+    def _aggregate_duplicates(s):
+        # this might be a oversimplification but there should only be
         # object columns and numerical columns in the data
 
         if s.name == "mergeID_m1":
@@ -1097,50 +1074,50 @@ def mergeSemiCols(m1, m2, scCol1, scCol2=None):
 
         if s.dtype != "O":
             return s.median()
-        else:
-            try:
-                return s.mode()[0]
-            except:
-                return s.mode()
+        try:
+            return s.mode()[0]
+        except Exception:
+            return s.mode()
 
     m1, m2 = m1.copy(), m2.copy()
 
-    #make IDs to reduce data after expansion
+    # make IDs to reduce data after expansion
     m1["mergeID_m1"] = range(m1.shape[0])
     m2["mergeID_m2"] = range(m2.shape[0])
 
-    # renome ssCol2 if it is not the same as ssCol1
-    if scCol1 != scCol2:
-        m2.rename(columns={scCol2:scCol1}, inplace=True)
+    # rename ssCol2 if it is not the same as ssCol1
+    if semicolon_col1 != semicolon_col2:
+        m2.rename(columns={semicolon_col2: semicolon_col1}, inplace=True)
 
-    #expand the semicol columns and name the new col sUID
-    m1Exp = expSemiCol(m1, scCol1,"sUID")
-    m2Exp = expSemiCol(m2, scCol1, "sUID")
+    # expand the semicol columns and name the new col sUID
+    m1_exp = expSemiCol(m1, semicolon_col1, "sUID")
+    m2_exp = expSemiCol(m2, semicolon_col1, "sUID")
 
     # add the appropriate original row indices of m2 to the corresponding rows
-    # of m1Exp
+    # of m1_exp
     # here one might want to consider other kind of merges
-    merge = pd.merge(m1Exp, m2Exp[["mergeID_m2", "sUID"]], on="sUID", how='left')
+    merge = pd.merge(m1_exp, m2_exp[["mergeID_m2", "sUID"]], on="sUID", how='left')
 
-    mergePairs = merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_formMergePairs)
-    #This is neccessary if there are more than one matching columns
-    mergePairs = mergePairs.explode("mergeID_m2")
+    merge_pairs = merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_form_merge_pairs)
+    # This is neccessary if there are more than one matching columns
+    merge_pairs = merge_pairs.explode("mergeID_m2")
 
     # merge of m2 columns
-    mergePairs = (mergePairs
-         .reset_index()
-         .merge(m2, on="mergeID_m2", how="left")
-         .groupby("mergeID_m1")
-         .agg(_aggreagateDuplicates)
-         .reset_index())
+    merge_pairs = (merge_pairs
+                   .reset_index()
+                   .merge(m2, on="mergeID_m2", how="left")
+                   .groupby("mergeID_m1")
+                   .agg(_aggregate_duplicates)
+                   .reset_index())
 
     # merge of m1 columns (those should all be unique)
-    mergePairs = (mergePairs
-                 .merge(m1, on="mergeID_m1", how="outer"))
+    merge_pairs = (merge_pairs
+                   .merge(m1, on="mergeID_m1", how="outer"))
 
-    return mergePairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
+    return merge_pairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
-def quantileNorm(df, cols, returnCols=False, backend="r"):
+
+def quantile_norm(df, cols, return_cols=False, backend="r"):
     r"""
     Perform quantile normalization.
 
@@ -1150,7 +1127,7 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
         Input dataframe.
     cols : list of str
         Colnames to perform normlisation on.
-    returnCols : bool, optional
+    return_cols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
     backend : str, optional
@@ -1188,7 +1165,7 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
 
     Until now this was only preprocessing for the normalisation.
 
-    >>> phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend='r')
+    >>> phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
     >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
     >>> plt.show() #doctest: +SKIP
 
@@ -1202,75 +1179,71 @@ def quantileNorm(df, cols, returnCols=False, backend="r"):
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phosLog = pp.log(phos, phosRatio, base=2)
         noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-        phos_norm_r = pp.quantileNorm(phosLog, noNorm, backend='r')
+        phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
         vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
         plt.show()
 
     """
-    if "UID" in df.columns:
-        pass
-    else:
-        df["UID"] = range(1, df.shape[0]+1)
+    if "UID" not in df.columns:
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if not isinstance(cols, list):
         cols = cols.to_list()
 
-    #TODO: Check why python backend fails so poorly
+    # TODO: Check why python backend fails so poorly
     # See https://github.com/bmbolstad/preprocessCore/blob/master/R/normalize.quantiles.R
     if backend == "py":
-        subDf = df[cols+["UID"]].copy()
-        idx = subDf["UID"].values
-        subDf = subDf.drop("UID", axis=1)
-        subDf.index = idx
-        #use numpy sort to sort columns independently
-        subDf_sorted = pd.DataFrame(np.sort(subDf.values, axis=0), index=subDf.index, columns = subDf.columns)
-        subDf_mean = subDf_sorted.mean(axis=1)
-        subDf_mean.index = np.arange(1, len(subDf_mean)+1)
+        sub_df = df[cols + ["UID"]].copy()
+        idx = sub_df["UID"].values
+        sub_df = sub_df.drop("UID", axis=1)
+        sub_df.index = idx
+        # use numpy sort to sort columns independently
+        sub_df_sorted = pd.DataFrame(np.sort(sub_df.values, axis=0), index=sub_df.index, columns=sub_df.columns)
+        sub_df_mean = sub_df_sorted.mean(axis=1)
+        sub_df_mean.index = np.arange(1, len(sub_df_mean) + 1)
         # Assign ranks across the cols, stack the cols so that a multiIndex series
-        # is created, map the subDf_mean series on the series and unstack again
-        df_norm = subDf.rank(axis=0, method="min").stack().astype(int).map(subDf_mean).unstack()
-        resCols = [f"{i}_normalized" for i in df_norm.columns]
-        df_norm.columns = resCols
+        # is created, map the sub_df_mean series on the series and unstack again
+        df_norm = sub_df.rank(axis=0, method="min").stack().astype(int).map(sub_df_mean).unstack()
+        res_cols = [f"{i}_normalized" for i in df_norm.columns]
+        df_norm.columns = res_cols
         df_norm["UID"] = df_norm.index
         print(df_norm)
         df = df.merge(df_norm, on="UID", how="left")
 
     elif backend == "r":
         d = os.getcwd()
-        dataLoc = d + "/input.csv"
-        outputLoc = d + "/output.csv"
+        data_loc = d + "/input.csv"
+        output_loc = d + "/output.csv"
 
-        to_csv(df[["UID"] + cols], dataLoc)
+        to_csv(df[["UID"] + cols], data_loc)
 
         command = [R, '--vanilla',
-        RSCRIPT, #script location
-        "quantile", #functionName
-        dataLoc, #data location
-        outputLoc #output file
-        ]
+                   RFUNCTIONS,  # script location
+                   "quantile",  # functionName
+                   data_loc,  # data location
+                   output_loc  # output file
+                   ]
 
         try:
             run(command, stdout=PIPE, check=True, stderr=PIPE, universal_newlines=True)
         except CalledProcessError as err:
-            raise Exception(f'Error during execution of R function:\n{err.stderr}')
+            raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
 
-        res = read_csv(outputLoc)
-        resCols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
-        res.columns = resCols
+        res = read_csv(output_loc)
+        res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
+        res.columns = res_cols
         df = df.merge(res, on="UID")
 
-        os.remove(dataLoc)
-        os.remove(outputLoc)
+        os.remove(data_loc)
+        os.remove(output_loc)
 
     else:
-        raise(Exception('Please supply either "r" or "py" as value for the backend arg'))
+        raise (Exception('Please supply either "r" or "py" as value for the backend arg'))
 
-    if returnCols == True:
-        return df, [i for i in resCols if i != "UID"]
-    return df
+    return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols, returnCols=False, backend='r'):
+def vsn(df, cols, return_cols=False, backend='r'):
     r"""
     Perform Variance Stabilizing Normalization.
     VSN acts on raw intensities and returns the transformed intensities.
@@ -1284,7 +1257,7 @@ def vsn(df, cols, returnCols=False, backend='r'):
     cols : list of str
         Colnames to perform normalisation on.
         Should correspond to columns with raw intensities/iBAQs (the VSN will transform them eventually).
-    returnCols : bool, optional
+    return_cols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
     backend : str, optional
@@ -1324,7 +1297,7 @@ def vsn(df, cols, returnCols=False, backend='r'):
 
     >>> phos_lfq = pp.vsn(phos_lfq, intens_cols)
     >>> norm_cols = phos_lfq.filter(regex="_norm").columns
-    >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)
+    >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
     >>> vis.boxplot(phos_lfq, [log_cols, norm_cols], data='Intensity', compare=True)
     >>> plt.show() #doctest: +SKIP
 
@@ -1338,53 +1311,49 @@ def vsn(df, cols, returnCols=False, backend='r'):
         import autoprot.visualization as vis
         import pandas as pd
         phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
-	intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
-	phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
-	phos_lfq = pp.vsn(phos_lfq, intens_cols)
-	norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
-	phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)
-	vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
+    intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
+    phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
+    phos_lfq = pp.vsn(phos_lfq, intens_cols)
+    norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
+    phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)
+    vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
     """
     d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
 
-    if "UID" in df.columns:
-        pass
-    else:
-        df["UID"] = range(1, df.shape[0]+1)
+    if "UID" not in df.columns:
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
+    to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "vsn", #functionName
-    dataLoc, #data location
-    outputLoc #output file
-    ]
+               RFUNCTIONS,  # script location
+               "vsn",  # functionName
+               data_loc,  # data location
+               output_loc  # output file
+               ]
 
     try:
         run(command, stdout=PIPE, check=True, stderr=PIPE, universal_newlines=True)
     except CalledProcessError as err:
-        raise Exception(f'Error during execution of R function:\n{err.stderr}')
+        raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
 
-    res = read_csv(outputLoc)
-    resCols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
-    res.columns = resCols
+    res = read_csv(output_loc)
+    res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
+    res.columns = res_cols
 
     df = df.merge(res, on="UID")
 
-    os.remove(dataLoc)
-    os.remove(outputLoc)
+    os.remove(data_loc)
+    os.remove(output_loc)
 
-    if returnCols == True:
-        return df, [i for i in resCols if i != "UID"]
-    return df
+    return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclicLOESS(df, cols, backend='r'):
+def cyclic_loess(df, cols, backend='r'):
     r"""
     Perform cyclic Loess normalization.
 
@@ -1394,9 +1363,6 @@ def cyclicLOESS(df, cols, backend='r'):
         Input dataframe.
     cols : list of str
         Colnames to perform normlisation on.
-    returnCols : bool, optional
-        if True also the column names of the normalized columns are returned.
-        The default is False.
     backend : str, optional
         Only 'r' is implemented. The default is "r".
 
@@ -1434,7 +1400,7 @@ def cyclicLOESS(df, cols, backend='r'):
 
     Until now this was only preprocessing for the normalisation.
 
-    >>> phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
+    >>> phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
     >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
     >>> plt.show() #doctest: +SKIP
 
@@ -1448,45 +1414,44 @@ def cyclicLOESS(df, cols, backend='r'):
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phosLog = pp.log(phos, phosRatio, base=2)
         noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-        phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
+        phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
         vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
         plt.show()
 
     """
     d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
 
-    if "UID" in df.columns:
-        pass
-    else:
-        df["UID"] = range(1, df.shape[0]+1)
+    if "UID" not in df.columns:
+        df["UID"] = range(1, df.shape[0] + 1)
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
+    to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
-    RSCRIPT, #script location
-    "cloess", #functionName
-    dataLoc, #data location
-    outputLoc #output file
-    ]
+               RFUNCTIONS,  # script location
+               "cloess",  # functionName
+               data_loc,  # data location
+               output_loc  # output file
+               ]
 
     run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
-    res = read_csv(outputLoc)
-    resCols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
-    res.columns = resCols
+    res = read_csv(output_loc)
+    res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
+    res.columns = res_cols
 
     df = df.merge(res, on="UID")
 
-    os.remove(dataLoc)
-    os.remove(outputLoc)
+    os.remove(data_loc)
+    os.remove(output_loc)
 
     return df
 
-def toCanonicalPS(series, organism="human"):
+
+def to_canonical_ps(series, organism="human"):
     """
     Convert phosphosites to "canonical" phosphosites.
 
@@ -1494,7 +1459,7 @@ def toCanonicalPS(series, organism="human"):
     ----------
     series : pd.Series
         Series containing the indices "Gene names" and "Sequence Window".
-        Corresponds e.g. to MQ Phospho(STY)Sites.txt.
+        Corresponds e.g. to a row in MQ Phospho(STY)Sites.txt.
     organism : str, optional
         This conversion is based on Uniprot Identifier used in PSP data.
         possible organisms: 'mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',
@@ -1519,90 +1484,68 @@ def toCanonicalPS(series, organism="human"):
     completeness of the sequence window.
 
     >>> series=pd.Series(['PEX14', "VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE"], index=['Gene names', 'Sequence window'])
-    >>> autoprot.preprocessing.toCanonicalPS(series, organism='human')
+    >>> autoprot.preprocessing.to_canonical_ps(series, organism='human')
     ('O75381', 282)
     >>> series=pd.Series(['PEX14', "_____TSSSPGKEGHSPEGSTVTYHLLGP__"], index=['Gene names', 'Sequence window'])
-    >>> autoprot.preprocessing.toCanonicalPS(series, organism='human')
+    >>> autoprot.preprocessing.to_canonical_ps(series, organism='human')
     ('O75381', 282)
     """
+    global uniprot_acc
+
     # open the phosphosite plus phosphorylation dataset
-    with resources.open_binary('autoprot.data',"phosphorylation_site_dataset.zip") as d:
-                ps = pd.read_csv(d, sep='\t', compression='zip')
+    with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
+        ps = pd.read_csv(d, sep='\t', compression='zip')
 
-    def getUPAcc(gene, organism):
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding organism."""
+    def get_uniprot_accession(gene, organism):
+        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
+        organism. """
         gene = gene.upper()
-
         try:
-            upacc = ps.loc[(ps["GENE"].apply(lambda x: str(x).upper()==gene)) &
-                           (ps["ORGANISM"]==organism), "ACC_ID"].iloc[0]
-            return upacc
-        except:
-            return "notFound"
+            uniprot_acc = ps.loc[(ps["GENE"].apply(lambda x: str(x).upper() == gene) &
+                                  (ps["ORGANISM"] == organism)), "ACC_ID"].iloc[0]
+            return uniprot_acc
+        except Exception:
+            return False
 
-    def getUPSeq(upacc):
+    def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
-        url = f"https://www.uniprot.org/uniprot/{upacc}.fasta"
+        url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
-        seq = ("").join(response.text.split('\n')[1:])
+        seq = "".join(response.text.split('\n')[1:])
         return seq
 
-    def getCanonicalPos(seq, psSeq, n):
+    def get_canonical_psite(seq, ps_seq, n):
         """Align an experimental phosphosite sequence window to the corresponding UniProt sequence."""
-        alignment = pairwise2.align.localms(sequenceA=seq,
-                                            sequenceB=psSeq,
-                                            match=2,# match score
-                                            mismatch=-2, # mismatch penalty
-                                            open=-1, # open penalty
-                                            extend=-1) # exted penalty
-        # Format the alignment e.g.
-        # '1 ACCG\n  | ||\n1 A-CG\n  Score=5\n'
-        formAlign = format_alignment(*alignment[0])
-        # get first position of alignment of seq i.e. in the UniProt sequence
-        start = int(formAlign.lstrip(' ').split(' ')[0])
-        # get first position of the alignment of psSeq
-        start2 = int(formAlign.split('\n')[2].lstrip(' ').split(' ')[0]) - 1
-        # the position of the phosphosite in the UniProt Sequence is the first
-        # position of the alignment in seq minus the position of the alignment
-        # in psSeq (which is usually 1) minus the number of blanks in the sequence
-        # window plus 15 which is half the sequence for a sequence window length of 31
-        canPos = start + ((15-n)-start2)
-        return canPos
+        alignment = pairwise2.align.localms(sequenceA=seq, sequenceB=ps_seq, match=2, mismatch=-2, open=-1, extend=-1)
+
+        form_align = format_alignment(*alignment[0])
+        start = int(form_align.lstrip(' ').split(' ')[0])
+        start2 = int(form_align.split('\n')[2].lstrip(' ').split(' ')[0]) - 1
+        canonical_psite = start + (15 - n - start2)
+        return canonical_psite
 
     gene = str(series["Gene names"])
-    # get uniprot acc
-    # counter used if first gene name not found
-    # in that case appropiate seq window has to be used
     counter = 0
     if ';' in gene:
         for g in gene.split(';'):
-            upacc = getUPAcc(g, organism)
-            if upacc != "notFound":
+            uniprot_acc = get_uniprot_accession(g, organism)
+            if not uniprot_acc:
                 continue
             counter += 1
     else:
-        upacc = getUPAcc(gene, organism)
-    if upacc == "notFound":
+        uniprot_acc = get_uniprot_accession(gene, organism)
+    if not uniprot_acc:
         return "No matching phosphosite found"
-
-    #get sequence
-    seq = getUPSeq(upacc)
-    # get the sequence from the phosphosite annotation
-    psSeq = series["Sequence window"]
-    # if multiple proteins were matched to the phosphosite sequence
-    # take only the sequence corresponding to the last match
-    if ';' in psSeq:
-        psSeq = psSeq.split(';')[counter]
-
-    # n = number of blanks in the sequence window
-    n = len(psSeq) - len(psSeq.lstrip('_'))
-    # clean the experimental sequence from preceding and trailing blanks
-    psSeq = psSeq.strip('_')
-
-    return upacc,getCanonicalPos(seq, psSeq, n)
+    seq = get_uniprot_sequence(uniprot_acc)
+    ps_seq = series["Sequence window"]
+    if ';' in ps_seq:
+        ps_seq = ps_seq.split(';')[counter]
+    n = len(ps_seq) - len(ps_seq.lstrip('_'))
+    ps_seq = ps_seq.strip('_')
+    return upacc, get_canonical_psite(seq, ps_seq, n)
 
 
-def getSubCellLoc(series, database="compartments", loca=None, colname="Gene names"):
+def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
     """
     Annotate the df with subcellular localization.
 
@@ -1639,7 +1582,7 @@ def getSubCellLoc(series, database="compartments", loca=None, colname="Gene name
     pd.DataFrame
         Dataframe with columns "ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"
         for compartments database.
-    tuple of lists (mainLoc, altLoc)
+    tuple of lists (main_loc, alt_loc)
         Lists of main and alternative localisations if the hpa database was chosen.
 
     Examples
@@ -1651,49 +1594,52 @@ def getSubCellLoc(series, database="compartments", loca=None, colname="Gene name
     highest score are retained. The dataframe is converted to list for better
     visualisation.
 
-    >>> loc_df = autoprot.preprocessing.getSubCellLoc(series)
+    >>> loc_df = autoprot.preprocessing.get_subcellular_loc(series)
     >>> sorted(loc_df.loc[loc_df[loc_df['SCORE'] == loc_df['SCORE'].max()].index,
     ...                   'LOCNAME'].tolist())
     ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular', 'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody', 'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome', 'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
 
     Get the score for PEX14 being peroxisomally localised
 
-    >>> loc_df = autoprot.preprocessing.getSubCellLoc(series, loca='Peroxisome')
+    >>> loc_df = autoprot.preprocessing.get_subcellular_loc(series, loca='Peroxisome')
     >>> loc_df['SCORE'].tolist()[0]
     5.0
 
     Using the Human Protein Atlas, a tuple of two lists containing the main and
     alternative localisations is returned
 
-    >>> autoprot.preprocessing.getSubCellLoc(series, database='hpa')
+    >>> autoprot.preprocessing.get_subcellular_loc(series, database='hpa')
     (['Peroxisomes'], ['Nucleoli fibrillar center'])
     """
     gene = series[colname]
     if database == "compartments":
-        with resources.open_binary("autoprot.data","human_compartment_integrated_full.zip") as d:
-            compData = pd.read_csv(d, sep='\t', compression='zip', header=None)
-            compData.columns = ["ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"]
+        with resources.open_binary("autoprot.data", "human_compartment_integrated_full.zip") as d:
+            comp_data = pd.read_csv(d, sep='\t', compression='zip', header=None)
+            comp_data.columns = ["ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"]
         if loca is None:
             # if loca is not provided, a table with all predicted localisations
             # is returned
-            return compData[(compData["Gene name"]==gene)][["LOCNAME", "SCORE"]]
+            return comp_data[(comp_data["Gene name"] == gene)][["LOCNAME", "SCORE"]]
         # if loca is provided, only rows with the correspoding locname and score
         # are returned
-        return compData[(compData["Gene name"]==gene) &
-                (compData["LOCNAME"]==loca)]
+        return comp_data[(comp_data["Gene name"] == gene) &
+                         (comp_data["LOCNAME"] == loca)]
     elif database == "hpa":
         cols = "g,scl,scml,scal"
         # obtain protein atlas subset for the gene of interest
-        html = requests.get(f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&columns={cols}&compress=no").text
-        mainLoc = html.split('Subcellular main location')[1].split(',"Subcellular additional location')[0].lstrip('":[').split(',')
-        altLoc  = html.split('Subcellular additional location')[1].split('}')[0].lstrip('":[').split(',')
-        mainLoc = [i.strip('"]') for i in mainLoc]
-        altLoc  = [i.strip('"]').rstrip('}') for i in altLoc]
-        return mainLoc, altLoc
+        html = requests.get(
+            f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&columns={cols}&compress=no").text
+        main_loc = html.split('Subcellular main location')[1].split(',"Subcellular additional location')[0].lstrip(
+            '":[').split(',')
+        alt_loc = html.split('Subcellular additional location')[1].split('}')[0].lstrip('":[').split(',')
+        main_loc = [i.strip('"]') for i in main_loc]
+        alt_loc = [i.strip('"]').rstrip('}') for i in alt_loc]
+        return main_loc, alt_loc
     else:
         raise ValueError('Database can be either "compartments" or "hpa"')
 
-def makeSimScore(m1, m2, corr="pearson"):
+
+def make_sim_score(m1, m2, corr="pearson"):
     """
     Calculate similarity score.
 
@@ -1724,13 +1670,13 @@ def makeSimScore(m1, m2, corr="pearson"):
 
     >>> s1 = [1,1,1,2,3,4,4]
     >>> s2 = [1,1,1,2,3,3,4]
-    >>> autoprot.preprocessing.makeSimScore(s1, s2)
+    >>> autoprot.preprocessing.make_sim_score(s1, s2)
     50.97173553835997
 
     Low resemblance results in low scores
 
     >>> s2 = [1.1,1.1,1,1,1,1,1]
-    >>> autoprot.preprocessing.makeSimScore(s1, s2)
+    >>> autoprot.preprocessing.make_sim_score(s1, s2)
     16.33374591446012
 
     References
@@ -1738,14 +1684,15 @@ def makeSimScore(m1, m2, corr="pearson"):
     [1] https://www.doi.org/10.1126/scisignal.2001570
 
     """
-    def calcMagnitude(m1,m2):
+
+    def calc_magnitude(m1, m2):
         auca = auc(range(len(m1)), m1)
         aucb = auc(range(len(m2)), m2)
-        #mcomp = np.divide(np.subtract(auca, aucb), np.add(auca, aucb))
-        mcomp = (auca-aucb)/(auca+aucb)
+        # mcomp = np.divide(np.subtract(auca, aucb), np.add(auca, aucb))
+        mcomp = (auca - aucb) / (auca + aucb)
         return abs(mcomp)
 
-    def calcCorr(m1,m2, corr=corr):
+    def calc_corr(m1, m2, corr=corr):
         if corr == "pearson":
             r = pearsonr(m1, m2)[0]
         elif corr == "spearman":
@@ -1753,15 +1700,16 @@ def makeSimScore(m1, m2, corr="pearson"):
         else:
             raise ValueError('Invalid correlation parameter.')
         dof = len(m1) - 2
-        t = (r*np.sqrt(dof))/np.sqrt(1-r**2)
+        t = (r * np.sqrt(dof)) / np.sqrt(1 - r ** 2)
         pval = stats.t.sf(np.abs(t), dof)
         return pval
 
-    pComp = calcCorr(m1,m2)
-    mComp = calcMagnitude(m1,m2)
-    return -10*np.log10(pComp*mComp)
+    p_comp = calc_corr(m1, m2)
+    m_comp = calc_magnitude(m1, m2)
+    return -10 * np.log10(p_comp * m_comp)
 
-def normToProt(entry, protDf, toNormalize):
+
+def norm_to_prot(entry, prot_df, to_normalize):
     """
     Normalize phospho data to total protein level.
 
@@ -1772,9 +1720,9 @@ def normToProt(entry, protDf, toNormalize):
     ----------
     entry : pd.Series
         Row-like object with index "Protein group IDs".
-    protDf : pd.DataFrame
+    prot_df : pd.DataFrame
         MQ ProteinGroups data to which data is normalized.
-    toNormalize : list of str
+    to_normalize : list of str
         Which columns to normalize.
 
     Raises
@@ -1795,26 +1743,27 @@ def normToProt(entry, protDf, toNormalize):
     log transformed columns as log(pep) - log(prot) = log(pep/prot).
     """
     try:
-        protIds = entry["Protein group IDs"]
-    except:
+        prot_ids = entry["Protein group IDs"]
+    except Exception:
         raise ValueError('The input array does not contain an index "Protein group IDs"')
-    if ';' in protIds:
-        protIds = [int(i) for i in protIds.split(';')]
-        protDf = protDf[protDf["id"].isin(protIds)]
-        poi = protDf.groupby("Gene names").median()
+    if ';' in prot_ids:
+        prot_ids = [int(i) for i in prot_ids.split(';')]
+        prot_df = prot_df[prot_df["id"].isin(prot_ids)]
+        poi = prot_df.groupby("Gene names").median()
     else:
         # generate subset of protDf matching the ID of the current protein
-        poi = protDf[protDf["id"]==int(protIds)]
+        poi = prot_df[prot_df["id"] == int(prot_ids)]
     if poi.shape[0] == 0:
-        #can*t normalize. either return non-normalized or drop value?
-        corrected = pd.DataFrame([np.nan]*len(toNormalize)).T
+        # can*t normalize. either return non-normalized or drop value?
+        corrected = pd.DataFrame([np.nan] * len(to_normalize)).T
     else:
         # log(pep) - log(prot) or log(pep/prot)
         # TODO Does this work? isnt poi[toNormalize] a df and entry a series?
-        corrected = entry[toNormalize] - poi[toNormalize]
+        corrected = entry[to_normalize] - poi[to_normalize]
     return pd.Series(corrected.values[0])
 
-def fetchFromPRIDE(accession, term, ignore_caps=True):
+
+def fetch_from_pride(accession, term, ignore_caps=True):
     """
     Get download links files belonging to a PRIDE identifier.
 
@@ -1839,7 +1788,7 @@ def fetchFromPRIDE(accession, term, ignore_caps=True):
     Generate a dict mapping file names to ftp download links.
     Not that only files containing the string proteingroups are retrieved.
 
-    >>> ftpDict = pp.fetchFromPRIDE("PXD031829", 'proteingroups')
+    >>> ftpDict = pp.fetch_from_pride("PXD031829", 'proteingroups')
 
     """
     js_list = requests.get(f'https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession={accession}',
@@ -1859,7 +1808,8 @@ def fetchFromPRIDE(accession, term, ignore_caps=True):
                     print(f'Found file {fname}')
     return file_locs
 
-def downloadFromFTP(url, saveDir, loginname='anonymous', loginpw=''):
+
+def download_from_ftp(url, save_dir, login_name='anonymous', login_pw=''):
     r"""
     Download a file from FTP.
 
@@ -1867,12 +1817,12 @@ def downloadFromFTP(url, saveDir, loginname='anonymous', loginpw=''):
     ----------
     url : TYPE
         DESCRIPTION.
-    saveDir : TYPE
+    save_dir : TYPE
         DESCRIPTION.
-    loginname : str
+    login_name : str
         Login name for the FTP server.
         Default is 'anonymous' working for the PRIDE FTP server.
-    loginpw : str
+    login_pw : str
         Password for access to the FTP server.
         Default is ''
     Returns
@@ -1887,14 +1837,14 @@ def downloadFromFTP(url, saveDir, loginname='anonymous', loginpw=''):
 
     >>> downloadedFiles = []
     >>> for file in ftpDict.keys():
-    ...     downloadedFiles.append(pp.downloadFromFTP(ftpDict[file], r'C:\Users\jbender\Documents\python_playground'))
+    ...     downloadedFiles.append(pp.download_from_ftp(ftpDict[file], r'C:\Users\jbender\Documents\python_playground'))
 
     """
     path, file = os.path.split(parse.urlparse(url).path)
     ftp = FTP(parse.urlparse(url).netloc)
-    ftp.login(loginname, loginpw)
+    ftp.login(login_name, login_pw)
     ftp.cwd(path)
-    ftp.retrbinary("RETR " + file, open(os.path.join(saveDir, file), 'wb').write)
+    ftp.retrbinary("RETR " + file, open(os.path.join(save_dir, file), 'wb').write)
     print(f'Downloaded {file}')
     ftp.quit()
-    return os.path.join(saveDir, file)
+    return os.path.join(save_dir, file)

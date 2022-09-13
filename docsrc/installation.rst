@@ -50,7 +50,7 @@ libraries next to each other. For this, have the following libs ready (on a rece
       sudo apt install build-essential gfortran libreadline8 libreadline-dev libxt-dev zlib1g zlib1g-dev bzip2
       libbz2-dev liblzma-dev openjdk-18-jre-headless openjdk-18-jre libssl-dev libcurl4-openssl-dev libcurl4-gnutls-dev
       libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libgmp3-dev
-      cmake
+      cmake libmpfr-dev
 
 During compilation, R looks for the ICU library and may end up finding it in a close anaconda installation (leading to errors in the compilation).
 If this happens to you, compile R without the ICU libraries using::

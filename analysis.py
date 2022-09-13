@@ -23,8 +23,11 @@ from operator import itemgetter
 from Bio import Entrez
 import time
 
+# noinspection PyUnresolvedReferences
 from autoprot import visualization as vis
-from autoprot import RHelper
+# noinspection PyUnresolvedReferences
+from autoprot import r_helper
+# noinspection PyUnresolvedReferences
 from autoprot import preprocessing as pp
 
 import warnings
@@ -34,15 +37,14 @@ from gprofiler import GProfiler
 gp = GProfiler(
     user_agent="autoprot",
     return_dataframe=True)
-RSCRIPT, R = RHelper.returnRPath()
+RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
-          alternative='two-sided', logged=True):
-    r"""
+def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='two-sided', logged=True):
+    """
     Perform one or two sample ttest.
 
     Parameters
@@ -59,7 +61,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
         The default is "".
     return_fc : bool, optional
         Whether to calculate the fold-change of the provided data.
-        The processing of the fold-change can be controlled by the returnLogFC
+        The processing of the fold-change can be controlled by the logged
         switch.
         The default is True.
     adjust_p_vals : bool, optional
@@ -69,7 +71,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
         The following options are available (default is 'two-sided'):
 
         * 'two-sided': the mean of the underlying distribution of the sample
-          is different than the given population mean (`popmean`)
+          is different from the given population mean (`popmean`)
         * 'less': the mean of the underlying distribution of the sample is
           less than the given population mean (`popmean`)
         * 'greater': the mean of the underlying distribution of the sample is
@@ -108,21 +110,20 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
                         'log2_Ratio H/M normalized BC18_3',
                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
                         'log2_Ratio M/L normalized BC36_2']
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\\t', low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
         prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
 
-    >>> datafrane = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
+    >>> dataframe = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
     ...                           "a2":np.random.normal(loc=0, size=4000),
     ...                           "a3":np.random.normal(loc=0, size=4000),
     ...                           "b1":np.random.normal(loc=0.5, size=4000),
     ...                           "b2":np.random.normal(loc=0.5, size=4000),
     ...                           "b3":np.random.normal(loc=0.5, size=4000),})
-    >>> autoprot.analysis.ttest(df=dataframe,
-                                reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["adj.pValue"].hist(bins=50)
+    >>> autoprot.analysis.ttest(df=dataframe, reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue"].hist(bins=50)
     >>> plt.show()
 
     .. plot::
@@ -136,27 +137,22 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
                   "b1":np.random.normal(loc=0.5, size=4000),
                   "b2":np.random.normal(loc=0.5, size=4000),
                   "b3":np.random.normal(loc=0.5, size=4000),})
-        ana.ttest(df=df,
-                  reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["adj.pValue"].hist(bins=50)
+        ana.ttest(df=df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue"].hist(bins=50)
         plt.show()
 
     """
 
     def one_samp_ttest(x):
-        return np.ma.filled(ttest_1samp(x,
-                                        nan_policy="omit",
-                                        alternative=alternative,
-                                        popmean=0)[1], np.nan)
+        return np.ma.filled(ttest_1samp(x, nan_policy="omit", alternative=alternative, popmean=0)[1], np.nan)
 
     def two_samp_ttest(x):
-        return np.ma.filled(ttest_ind(x[:len(reps[0])],
-                                      x[len(reps[0]):],
-                                      alternative=alternative,
-                                      nan_policy="omit")[1], np.nan)
+        return np.ma.filled(
+            ttest_ind(x[: len(reps[0])], x[len(reps[0]):], alternative=alternative, nan_policy="omit")[1], np.nan)
 
     if isinstance(reps[0], list) and len(reps) == 2:
         print("Performing two-sample t-Test")
         df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: two_samp_ttest(x), 1).astype(float)
+
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if return_fc:
             if logged:
@@ -167,16 +163,12 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True,
     else:
         print("Performing one-sample t-Test")
         df[f"pValue{cond}"] = df[reps].apply(lambda x: one_samp_ttest(x), 1).astype(float)
+
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if return_fc:
-            if logged:
-                df[f"logFC{cond}"] = df[reps].mean(1)
-            else:
-                df[f"logFC{cond}"] = np.log2(df[reps].mean(1))
-
+            df[f"logFC{cond}"] = df[reps].mean(1) if logged else np.log2(df[reps].mean(1))
     if adjust_p_vals:
         adjust_p(df, f"pValue{cond}")
-
     return df
 
 
@@ -221,7 +213,7 @@ def adjust_p(df, p_col, method="fdr_bh"):
     >>> prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = pp.log(prot, protRatio, base=2)
-    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=False)
+    >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjust_p_vals=False)
     >>> prot_tt_adj = ana.adjust_p(prot_tt, p_col="pValue_TvM")
     >>> prot_tt_adj.filter(regex='pValue').head()
        pValue_TvM  adj.pValue_TvM
@@ -358,17 +350,17 @@ class AutoPCA:
         autopca.corr_comp(annot=False)
 
     The bar loading plot is a different way to represent the weights/loads for each
-    condition and principle component. High values indicate a high influence of the
+    condition and principal component. High values indicate a high influence of the
     variable/condition on the PC.
 
-    >>> autopca.bar_load(1)
-    >>> autopca.bar_load(2)
+    >>> autopca.bar_load(pc=1)
+    >>> autopca.bar_load(pc=2)
 
     .. plot::
         :context: close-figs
 
-        autopca.bar_load(1)
-        autopca.bar_load(2)
+        autopca.bar_load(pc=1)
+        autopca.bar_load(pc=2)
 
     The score plot shows how the different data points (i.e. proteins) are positioned
     with respect to two principal components.
@@ -524,7 +516,7 @@ class AutoPCA:
 
         """
         plt.figure()
-        sns.heatmap(self.forVis.filter(regex="PC"), cmap=sns.color_palette("PuOr", 10), annot=annot)
+        sns.heatmap(self.forVis.filter(regex="^PC"), cmap=sns.color_palette("PuOr", 10), annot=annot)
         yp = [i + 0.5 for i in range(len(self.label))]
         plt.yticks(yp, self.forVis["label"], rotation=0)
         plt.title("")
@@ -863,43 +855,40 @@ class KSEA:
 
     Eventually, you can also generate plots of the enrichment analysis.
 
-    >>> ksea.plot_enrichment(up_col="salmon",
-    ...                     bg_col="pink",
-    ...                     down_col="hotpink")
+    >>> ksea.plot_enrichment(up_col="salmon")
 
     .. plot::
         :context: close-figs
 
-	import autoprot.preprocessing as pp
-	import autoprot.analysis as ana
+        import autoprot.preprocessing as pp
+        import autoprot.analysis as ana
+        import pandas as pd
 
-	phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep='\t', low_memory=False)
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
-        phos = pp.filterLocProb(phos, thresh=.75)
+        phos = pp.filter_loc_prob(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-        phos = pp.removeNonQuant(phos, phosRatio)
+        phos = pp.remove_non_quant(phos, phosRatio)
 
         phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
-        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+        phos_expanded = pp.expand_site_table(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
                         'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
         twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
 
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM", return_fc=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM")
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC")
 
         ksea = ana.KSEA(phos)
         ksea.annotate(organism="mouse", only_in_vivo=True)
         ksea.get_kinase_overview(kois=["Akt1","MKK4", "P38A", "Erk1"])
         ksea.ksea(col="logFC_TvC", min_subs=5)
 
-        ksea.plot_enrichment(up_col="salmon",
-                            bg_col="pink",
-                            down_col="hotpink")
+        ksea.plot_enrichment(up_col="salmon")
 
     You can also highlight a list of kinases in volcano plots.
     This is based on the autoprot volcano function.
@@ -909,7 +898,7 @@ class KSEA:
     ...               annot="Gene names", sig_col="gray")
 
     .. plot::
-        :context:
+        :context: close-figs
 
         ksea.volcanos(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
                       annot="Gene names", sig_col="gray")
@@ -924,14 +913,14 @@ class KSEA:
     >>> ksea.plot_enrichment()
 
     .. plot::
-        :context:
+        :context: close-figs
 
         simplify = {"ERK":["ERK1","ERK2"],
                     "GSK3":["GSK3A", "GSK3B"]}
         ksea.ksea(col="logFC_TvC", min_subs=5, simplify=simplify)
         ksea.plot_enrichment()
 
-    Of course you can also get the ksea results as a dataframe to save or to further customize.
+    Of course, you can also get the ksea results as a dataframe to save or to further customize.
 
     >>> ksea.return_enrichment()
 
@@ -1050,7 +1039,7 @@ class KSEA:
         """
         # Extract all strings present in the KINASE column as list of str
         # This is mainly out of caution as all entries in the kinase col should be
-        # stirngs
+        # strings
         koi = [i for i in list(df["KINASE"].values.flatten()) if isinstance(i, str)]
         # remove duplicates
         ks = set(koi)
@@ -1239,7 +1228,7 @@ class KSEA:
             Column used for the analysis containing the kinase substrate
             enrichments.
         min_subs : int, optional
-            Minumum number of substrates a kinase must have to be considered.
+            Minimum number of substrates a kinase must have to be considered.
             The default is 5.
         simplify : None, "auto" or dict, optional
             Merge multiple kinases during analysis.
@@ -1264,7 +1253,7 @@ class KSEA:
         None.
 
         """
-        # TODO wouldnt it make more sense to perform simplification in the
+        # TODO wouldn't it make more sense to perform simplification in the
         # Annotate function?
         copy_annot_df = self.annotDf.copy(deep=True)
         if simplify is not None:
@@ -1295,18 +1284,17 @@ class KSEA:
         # filter kinases with at least min_subs number of substrates
         koi = self.koi[self.koi["#Subs"] >= min_subs]["Kinase"]
 
+        # init empty df
+        self.kseaResults = pd.DataFrame(columns=["kinase", "score"])
         # add the enrichment column back to the annotation df using the mergeID
         copy_annot_df = copy_annot_df.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
-        
-        # init bucket to collect dataframes with one empty df
-        bucket = [] 
         for kinase in koi:
             # calculate the enrichment score
             k, s = self._enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
-            # new dataframe containing kinase names and scores is appended to bucket
-            bucket.append(pd.DataFrame(data={"kinase": k, "score": s}, index=[0]))
-        # add the new df to the pre-initialised df
-        self.kseaResults = pd.concat(bucket)
+            # new dataframe containing kinase names and scores
+            temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
+            # add the new df to the pre-initialised df
+            self.kseaResults = self.kseaResults.append(temp, ignore_index=True)
         # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
 
@@ -1572,12 +1560,12 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
-        phos = pp.filterLocProb(phos, thresh=.75)
+        phos = pp.filter_loc_prob(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-        phos = pp.removeNonQuant(phos, phosRatio)
+        phos = pp.remove_non_quant(phos, phosRatio)
 
         phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
-        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+        phos_expanded = pp.expand_site_table(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
                         'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
@@ -1585,14 +1573,14 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
                         "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="_TvM", return_fc=True)
-        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="_TvC", return_fc=True)
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM")
+        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC")
 
         ana.miss_analysis(phos_expanded,
-                          twitchVsctrl+twitchVsmild+mildVsctrl,
-                          text=False,
-                          sort="descending",
-                          extra_vis = True)
+                         twitchVsctrl+twitchVsmild+mildVsctrl,
+                         text=False,
+                         sort="descending",
+                         extra_vis = True)
     """
     # only analyse subset of cols
     df = df[cols]
@@ -1754,7 +1742,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
         import autoprot.analysis as ana
         ana.get_pub_abstracts(title_or_abstract=["p38", "JNK", "ERK"],
-                            make_word_cloud=True)
+                              make_word_cloud=True)
 
     Even more comfortably, you can also save the results incl. the wordcloud
     as html file
@@ -1821,7 +1809,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
     pids = []
     dates = []
     journals = []
-    final = dict()
+    final_dict = dict()
 
     # iterate through the papers
     for paper in papers:
@@ -1865,16 +1853,16 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
         journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
 
     # sum up the results in a dict containing the search term as key
-    final[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
+    final_dict[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
 
     # STEP 4: Make a word cloud picture from Pubmed search abstracts.
     if make_word_cloud:  # plot a picture of words in the found abstracts
         abstracts = []
         # for every search term (there usually is only one)
-        for i in final:
+        for i in final_dict:
             # the abstract is the third element in the list
             abstracts.extend(
-                abstract["AbstractText"][0] for abstract in final[i][2] if not isinstance(abstract, str))
+                abstract["AbstractText"][0] for abstract in final_dict[i][2] if not isinstance(abstract, str))
         # create a long string of abstract words
         abstracts = " ".join(abstracts)
 
@@ -1882,7 +1870,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
         # TODO properly implement the inclusion of exclusions
         el = ["sup"]
 
-        fig = vis.wordcloud(text=abstracts, exlusionwords=el)
+        fig = vis.wordcloud(text=abstracts, exlusion_words=el)
         if output != "print":
             if output[:-4] == ".txt":
                 output = output[:-4]
@@ -1890,11 +1878,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
     # STEP 5: generate a txt or html output or print to the prompt
     if output == "print":
-        for i in final:
+        for i in final_dict:
             for title, author, abstract, doi, link, pid, date, journal in \
-                    zip(final[i][0], final[i][1], final[i][2], final[i][3], final[i][4],
-                        final[i][5], final[i][6],
-                        final[i][7]):
+                    zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3], final_dict[i][4],
+                        final_dict[i][5], final_dict[i][6],
+                        final_dict[i][7]):
                 print(title)
                 print('-' * 100)
                 print("; ".join(author))
@@ -1914,11 +1902,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
     elif output[-4:] == ".txt":
         with open(output, 'w', encoding="utf-8") as f:
-            for i in final:
+            for i in final_dict:
                 for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
-                            final[i][4], final[i][5],
-                            final[i][6], final[i][7]):
+                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
+                            final_dict[i][4], final_dict[i][5],
+                            final_dict[i][6], final_dict[i][7]):
                     f.write(title)
                     f.write('\n')
                     f.write('-' * 100)
@@ -1975,11 +1963,11 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
             f.write('<body style="background-color:#FFE5B4">')
             if make_word_cloud:
                 f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
-            for i in final:
+            for i in final_dict:
                 for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final[i][0], final[i][1], final[i][2], final[i][3],
-                            final[i][4], final[i][5],
-                            final[i][6], final[i][7]):
+                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
+                            final_dict[i][4], final_dict[i][5],
+                            final_dict[i][6], final_dict[i][7]):
                     f.write(f"<h2>{title}</h2>")
                     f.write('<br>')
                     ta = "; ".join(author)
@@ -2280,7 +2268,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
         test = "custom"
         design_loc = custom_design
 
-    command = [R, '--vanilla', RSCRIPT, "limma", data_loc, output_loc, test, design_loc, calc_contrasts or ""]
+    command = [R, '--vanilla', RFUNCTIONS, "limma", data_loc, output_loc, test, design_loc, calc_contrasts or ""]
 
     p = run(command,
             stdout=PIPE,
@@ -2365,7 +2353,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     pp.to_csv(df[["UID"] + list(pl.flatten(reps))], data_loc)
 
     command = [R, '--vanilla',
-               RSCRIPT,  # script location
+               RFUNCTIONS,  # script location
                "rankProd",  # functionName
                data_loc,  # data location
                output_loc,  # output file,
@@ -2424,11 +2412,11 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
     def make_merge_col(df_to_merge, file="regSites"):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
-            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' +\
+            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
                    df_to_merge["MOD_RSD"].fillna("").apply(
-                lambda x: x.split('-')[0])
-        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' +\
-            df_to_merge["SUB_MOD_RSD"].fillna("")
+                       lambda x: x.split('-')[0])
+        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
+               df_to_merge["SUB_MOD_RSD"].fillna("")
 
     with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
         ks = pd.read_csv(d, sep='\t', compression='zip')

@@ -14,7 +14,7 @@ from datetime import date
 from autoprot import preprocessing as pp
 
 
-def MissedCleavage(df_evidence, enzyme="Trypsin/P", save=True):
+def missed_cleavage(df_evidence, enzyme="Trypsin/P", save=True):
     """
     Parameters
     ----------
@@ -23,6 +23,8 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P", save=True):
         Give any chosen Protease from MQ. The default is "Trypsin/P".
     save : bool,
         While True table and fig will be saved in active filepath.
+
+    Returns
     -------
     None.
     """
@@ -73,20 +75,17 @@ def MissedCleavage(df_evidence, enzyme="Trypsin/P", save=True):
     ax1.set_ylabel("Missed cleavage [%]", size=12)
     ax1.legend(bbox_to_anchor=(1.5, 1),
                loc='upper right', borderaxespad=0.)
-    
-    while save == True:
-        # save fig in cwd with date
-        plt.savefig("{0}_BarChart_missed-cleavage.pdf".format(today), dpi=600)
 
+    if save:
+        # save fig in cwd with date
+        plt.savefig(f"{today}_BarChart_missed-cleavage.pdf", dpi=600)
         # save df missed cleavage summery as .csv
         df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
 
-    # return results
-    return print(df_missed_cleavage_summary, ax1)
+    print(df_missed_cleavage_summary, ax1)
 
 
-def enrichmentSpecifity(df_evidence, typ="Phospho", save=True):
-    # sourcery skip: raise-specific-error
+def enrichment_specifity(df_evidence, typ="Phospho", save=True):
     """
 
     Parameters
@@ -96,6 +95,8 @@ def enrichmentSpecifity(df_evidence, typ="Phospho", save=True):
           Give type of enrichment for analysis. The default is "Phospho".
     save : bool,
         While True table and fig will be saved in active filepath.
+
+    Returns
     -------
     None.
 
@@ -128,17 +129,13 @@ def enrichmentSpecifity(df_evidence, typ="Phospho", save=True):
     elif typ == "Phospho":
         colname = 'Phospho (STY)'
     else:
-        raise Exception("Invalid type specified. Must be 'AHA-Phosphonate', 'CPT', or 'Phospho'")
+        raise TypeError("Invalid type specified. Must be 'AHA-Phosphonate', 'CPT', or 'Phospho'")
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
 
     for name, group in df_evidence.groupby("Experiment"):
         nonmod = round(((group[colname] == 0).sum() / group.shape[0] * 100), 2)
         mod = round(((group[colname] > 0).sum() / group.shape[0] * 100), 2)
-
-        # print(name)
-        # print("% peptides without modification: ",nonmod)
-        # print("% peptides with modification: ",mod)
 
         df.loc[name, "Modified peptides [%]"] = mod
         df.loc[name, "Non-modified peptides [%]"] = nonmod
@@ -157,19 +154,17 @@ def enrichmentSpecifity(df_evidence, typ="Phospho", save=True):
     ax.set_ylabel('peptides [%]')
     ax.legend(bbox_to_anchor=(1.5, 1),
               loc='upper right', borderaxespad=0.)
-    
-    while save == True:
-        # save fig in cwd with date
-        plt.savefig("{0}_BarPlot_enrichmentSpecifity.pdf".format(today), dpi=600)
 
+    if save:
+        # save fig in cwd with date
+        plt.savefig(f"{today}_BarPlot_enrichmentSpecifity.pdf", dpi=600)
         # save df missed cleavage summery as .csv
         df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
 
-    # return results
-    return print(df.T, ax)
+    print(df.T, ax)
 
 
-def TMT6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
+def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
     """
     Calculate TMT6plex labeling efficiency from 3 dedicated MaxQuant searches as described in Zecha et al. 2019.
     TMT6plex channels should be named in MQ experiments.
@@ -265,8 +260,8 @@ def TMT6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                          '\_\(Acetyl \(Protein N\-term\)\)')) &
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() -\
-            df_efficiency.loc[raw, ["fully labeled"]].values
+        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
+                                                        df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 

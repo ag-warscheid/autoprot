@@ -162,9 +162,9 @@ class workflow():
             for i in range(len(self.replicates)):
                 if invert:
                     self.data, self.replicates[i] = pp.log(self.data, self.replicates[i], base=log,
-                                                            invert=invert[i], returnCols=True)
+                                                           invert=invert[i], return_cols=True)
                 else:
-                    self.data, self.replicates[i] = pp.log(self.data, self.replicates[i], base=log, returnCols=True)
+                    self.data, self.replicates[i] = pp.log(self.data, self.replicates[i], base=log, return_cols=True)
         
         
     def setIntensityCols(self, intensities, log=False):
@@ -185,7 +185,7 @@ class workflow():
         """
         self.intCols = intensities
         if log==True:
-            self.data, self.intCols = pp.log(self.data, self.intCols, returnCols=True)
+            self.data, self.intCols = pp.log(self.data, self.intCols, return_cols=True)
             
             
     def getSig(self, name, which="both", pt=None):
@@ -306,12 +306,12 @@ class workflow():
             print("-"*50)
             print("Correlation analysis:")
             if self.corrAnalysis == 'small':
-                vis.corrMap(self.data, self.intCols, cluster=True, annot=True)
+                vis.corr_map(self.data, self.intCols, cluster=True, annot=True)
                 if self.saveDir:
                     plt.savefig(self.saveDir + "/figures/corrMap.pdf")
                 plt.show()
             elif self.corrAnalysis == 'complete':
-                vis.corrMap(self.data, self.intCols, cluster=True, annot=True)
+                vis.corr_map(self.data, self.intCols, cluster=True, annot=True)
                 if self.saveDir:
                     plt.savefig(self.saveDir + "/figures/corrMap.pdf")
                 plt.show()
@@ -408,12 +408,12 @@ class proteomeLabeled(workflow):
         self.data = pp.cleaning(self.data, self.filetype)
         print("-"*50)
         print("Entries without quantitative data are removed:")
-        self.data = pp.removeNonQuant(self.data, self.ratioCols)
+        self.data = pp.remove_non_quant(self.data, self.ratioCols)
         self.missAna()
         self.corrAna()
         print("-"*50)
         print(f"Filter for {self.minValid} valid values / replicate:")
-        self.data = pp.filterVv(self.data, self.replicates, n=self.minValid)
+        self.data = pp.filter_vv(self.data, self.replicates, n=self.minValid)
         print("-"*50)
         print("-"*50)
                             

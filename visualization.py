@@ -136,11 +136,11 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     """
 
     if columns is None:
-        columns = list()
+        columns = []
     if columns is None:
         columns = []
 
-    def getColor(r):
+    def get_color(r):
         colors = {
             0.8: "#d67677",
             0.81: "#d7767c",
@@ -186,7 +186,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         r, _ = stats.pearsonr(x, y)
         ax = plt.gca()
         ax.add_patch(mpl.patches.Rectangle((0, 0), 5, 5,
-                                           color=getColor(r),
+                                           color=get_color(r),
                                            transform=ax.transAxes))
         ax.tick_params(axis="both", which="both", length=0)
         ax.spines["left"].set_visible(False)
@@ -268,8 +268,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         return g
 
 
-def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
-            save_dir=None, save_type="pdf", save_name="pairPlot", ax=None, **kwargs):
+def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
+             save_dir=None, save_type="pdf", save_name="pairPlot", ax=None, **kwargs):
     r"""
     Plot correlation heat- and clustermaps.
 
@@ -312,7 +312,7 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
     --------
     To plot a heatmap with annotated values call corrMap directly:
 
-    >>> autoprot.visualization.corrMap(prot,mildLogInt, annot=True)
+    >>> autoprot.visualization.corr_map(prot,mildLogInt, annot=True)
 
     .. plot::
         :context: close-figs
@@ -325,18 +325,18 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
                    "Intensity M BC36_1","Intensity M BC36_2","Intensity H BC36_2"]
         prot = pp.log(prot, mildInt, base=10)
         mildLogInt = [f"log10_{i}" for i in mildInt]
-        vis.corrMap(prot,mildLogInt, annot=True)
+        vis.corr_map(prot,mildLogInt, annot=True)
         plt.show()
 
     If you want to plot the clustermap, set cluster to True.
     The correlation coefficients are colour-coded.
 
-    >>>  autoprot.visualization.corrMap(prot, mildLogInt, cmap="autumn", annot=None, cluster=True)
+    >>>  autoprot.visualization.corr_map(prot, mildLogInt, cmap="autumn", annot=None, cluster=True)
 
     .. plot::
         :context: close-figs
 
-        vis.corrMap(prot, mildLogInt, cmap="autumn", annot=None, cluster=True)
+        vis.corr_map(prot, mildLogInt, cmap="autumn", annot=None, cluster=True)
         plt.show()
     """
     corr = df[columns].corr()
@@ -355,7 +355,7 @@ def corrMap(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
             plt.savefig(f"{save_dir}/{save_name}.png")
 
 
-def probPlot(df, col, dist="norm", figsize=(6, 6)):
+def prob_plot(df, col, dist="norm", figsize=(6, 6)):
     r"""
     Plot a QQ_plot of the provided column.
 
@@ -384,7 +384,7 @@ def probPlot(df, col, dist="norm", figsize=(6, 6)):
     Plot to check if the experimental data points follow the distribution function
     indicated by dist.
 
-    >>> vis.probPlot(prot,'log10_Intensity H BC18_1')
+    >>> vis.prob_plot(prot,'log10_Intensity H BC18_1')
 
     .. plot::
         :context: close-figs
@@ -399,19 +399,19 @@ def probPlot(df, col, dist="norm", figsize=(6, 6)):
         protInt = prot.filter(regex='Intensity').columns
         prot = pp.log(prot, protInt, base=10)
 
-        vis.probPlot(prot,'log10_Intensity H BC18_1')
+        vis.prob_plot(prot,'log10_Intensity H BC18_1')
         plt.show()
 
     In contrast when the data does not follow the distribution, outliers from the
     linear plot will be visible.
 
-    >>> vis.probPlot(prot,'log10_Intensity H BC18_1', dist=stats.uniform)
+    >>> vis.prob_plot(prot,'log10_Intensity H BC18_1', dist=stats.uniform)
 
     .. plot::
         :context: close-figs
 
         import scipy.stats as stats
-        vis.probPlot(prot,'log10_Intensity H BC18_1', dist=stats.uniform)
+        vis.prob_plot(prot,'log10_Intensity H BC18_1', dist=stats.uniform)
 
     """
     t = stats.probplot(df[col].replace([-np.inf, np.inf], [np.nan, np.nan]).dropna(), dist=dist)
@@ -432,9 +432,9 @@ def probPlot(df, col, dist="norm", figsize=(6, 6)):
     plt.legend()
 
 
-def boxplot(df, reps: list, title=None, labels=None, compare=False,
-            ylabel="log_fc", file=None, ret_fig=False, figsize=(15, 5),
-            **kwargs):
+def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None, compare: bool = False,
+            ylabel: str = "log_fc", file: str = None, ret_fig: bool = False, figsize: tuple = (15, 5),
+            **kwargs: object) -> plt.figure:
     r"""
     Plot intensity boxplots.
 
@@ -537,7 +537,7 @@ def boxplot(df, reps: list, title=None, labels=None, compare=False,
             if ylabel == "log_fc":
                 ax[idx].axhline(0, 0, 1, color="gray", ls="dashed")
 
-        if len(labels) > 0:
+        if labels:
             for idx in [0, 1]:
                 temp = ax[idx].set_xticklabels(labels)
                 tlabel = ax[idx].get_xticklabels()
@@ -554,7 +554,7 @@ def boxplot(df, reps: list, title=None, labels=None, compare=False,
         plt.title(title)
         plt.ylabel(ylabel)
 
-        if len(labels) > 0:
+        if labels:
             temp = ax.set_xticklabels(labels)
             ax.set_xticklabels(labels)
             for i, label in enumerate(temp):
@@ -571,9 +571,9 @@ def boxplot(df, reps: list, title=None, labels=None, compare=False,
         return fig
 
 
-def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
-                  title="Rank Plot", figsize=(15, 7), file=None, hline=None,
-                  ax=None, **kwargs):
+def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
+                   title="Rank Plot", figsize=(15, 7), file=None, hline=None,
+                   ax=None, **kwargs):
     """
     Draw a rank plot.
 
@@ -581,7 +581,7 @@ def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
     ----------
     data : pd.DataFrame
         Input dataframe.
-    rankCol : str, optional
+    rank_col : str, optional
         the column with the values to be ranked (e.g. Intensity values).
         The default is "log10_Intensity".
     label : str, optional
@@ -616,7 +616,7 @@ def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
     intensity. The 15 most and least intense proteins will be labelled.
     Note that marker is passed to seaborn and results in points marked as diamonds.
 
-    >>> autoprot.visualization.intensityRank(data, rankCol="log10_Intensity",
+    >>> autoprot.visualization.intensity_rank(data, rank_col="log10_Intensity",
     ...                                      label="Gene names", n=15,
     ...                                      title="Rank Plot",
     ...                                      hline=8, marker="d")
@@ -628,19 +628,19 @@ def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
         data = data[["log10_Intensity", "Gene names"]]
         data = data[data["log10_Intensity"]!=-np.inf]
 
-        vis.intensityRank(data, rankCol="log10_Intensity", label="Gene names", n=15, title="Rank Plot",
+        vis.intensity_rank(data, rank_col="log10_Intensity", label="Gene names", n=15, title="Rank Plot",
                          hline=8, marker="d")
 
     """
     # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
 
     # remove NaNs
-    data = data.copy().dropna(subset=[rankCol])
+    data = data.copy().dropna(subset=[rank_col])
 
     # if data has mroe columns than 1
     if data.shape[1] > 1:
-        data = data.sort_values(by=rankCol, ascending=True)
-        y = data[rankCol]
+        data = data.sort_values(by=rank_col, ascending=True)
+        y = data[rank_col]
     else:
         y = data.sort_values(ascending=True)
 
@@ -693,11 +693,11 @@ def intensityRank(data, rankCol="log10_Intensity", label=None, n=5,
         plt.savefig(fr"{file}/RankPlot.pdf")
 
 
-def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
+def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
     r"""
     Draw vennDiagrams.
 
-    The .vennDiagram() function allows to draw venn diagrams for 2 to 6 replicates.
+    The .venn_diagram() function allows to draw venn diagrams for 2 to 6 replicates.
     Even though you can compare 6 replicates in a venn diagram does not mean
     that you should. It becomes extremly messy.
 
@@ -708,7 +708,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
 
     Notes
     -----
-    vennDiagram compares row containing not NaN between columns. Therefore,
+    venn_diagram compares row containing not NaN between columns. Therefore,
     you have to pass columns containing NaN on rows where no common protein was
     found (e.g. after ratio calculation).
 
@@ -718,7 +718,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         Input dataframe.
     figsize : tuple of int, optional
         Figure size. The default is (10,10).
-    retFig : bool, optional
+    ret_fig : bool, optional
         Whether to return the figure.
         The default is False.
     proportional : bool, optional
@@ -742,7 +742,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
     values in two columns will be grouped together in the Venn diagram.
 
     >>> data = prot[twitchVsmild[:3]]
-    >>> autoprot.visualization.vennDiagram(data, figsize=(5,5))
+    >>> autoprot.visualization.venn_diagram(data, figsize=(5,5))
 
     .. plot::
         :context: close-figs
@@ -761,31 +761,31 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
 
 
         data = prot[twitchVsmild[:3]]
-        vis.vennDiagram(data, figsize=(5,5))
+        vis.venn_diagram(data, figsize=(5,5))
         plt.show()
 
     Only up to three conditions can be compared in non-proportional Venn
     diagrams
 
-    >>> autoprot.visualization.vennDiagram(data, figsize=(5,5), proportional=False)
+    >>> autoprot.visualization.venn_diagram(data, figsize=(5,5), proportional=False)
 
     .. plot::
         :context: close-figs
 
-        vis.vennDiagram(data, figsize=(5,5), proportional=False)
+        vis.venn_diagram(data, figsize=(5,5), proportional=False)
         plt.show()
 
     Copmaring up to 6 conditions is possible but the resulting Venn diagrams
     get quite messy.
 
     >>> data = prot[twitchVsmild[:6]]
-    >>> vis.vennDiagram(data, figsize=(20,20))
+    >>> vis.venn_diagram(data, figsize=(20,20))
 
     .. plot::
         :context: close-figs
 
         data = prot[twitchVsmild[:6]]
-        vis.vennDiagram(data, figsize=(20,20))
+        vis.venn_diagram(data, figsize=(20,20))
         plt.show()
 
     """
@@ -807,7 +807,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         else:
             labels = venn.get_labels([g1, g2], fill=["number", "logic"])
             fig, ax = venn.venn2(labels, names=[reps[0], reps[1]], figsize=figsize)
-            if retFig:
+            if ret_fig:
                 return fig
 
     elif n == 3:
@@ -822,7 +822,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         else:
             labels = venn.get_labels([g1, g2, g3], fill=["number", "logic"])
             fig, ax = venn.venn3(labels, names=[reps[0], reps[1], reps[2]], figsize=figsize)
-            if retFig:
+            if ret_fig:
                 return fig
 
     elif n == 4:
@@ -837,7 +837,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         labels = venn.get_labels([g1, g2, g3, g4], fill=["number", "logic"])
         fig, ax = venn.venn4(labels, names=[reps[0], reps[1], reps[2], reps[3]], figsize=figsize)
 
-        if retFig:
+        if ret_fig:
             return fig
     elif n == 5:
         g1 = data[[reps[0]] + ["UID"]]
@@ -853,7 +853,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         labels = venn.get_labels([g1, g2, g3, g4, g5], fill=["number", "logic"])
         fig, ax = venn.venn5(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4]], figsize=figsize)
 
-        if retFig:
+        if ret_fig:
             return fig
     elif n == 6:
         g1 = data[[reps[0]] + ["UID"]]
@@ -871,7 +871,7 @@ def vennDiagram(df, figsize=(10, 10), retFig=False, proportional=True):
         labels = venn.get_labels([g1, g2, g3, g4, g5, g6], fill=["number", "logic"])
         fig, ax = venn.venn6(labels, names=[reps[0], reps[1], reps[2], reps[3], reps[4], reps[5]], figsize=figsize)
 
-        if retFig:
+        if ret_fig:
             return fig
 
 
@@ -1090,7 +1090,7 @@ def volcano(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
     if custom_bg is None:
         custom_bg = {}
 
-    def setAesthetic(d, typ, interactive):
+    def set_aesthetic(d, typ, interactive):
         """
         Set standard aesthetics of volcano and integrate with user defined settings.
 
@@ -1136,7 +1136,7 @@ def volcano(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
 
         return d
 
-    def checkData(df, log_fc, score, p, pt, fct):
+    def check_data(df, log_fc, score, p, pt, fct):
         if score is None and p is None:
             raise ValueError("You have to provide either a score or a (adjusted) p value.")
         elif score is None:
@@ -1161,15 +1161,87 @@ def volcano(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
 
     df = df.copy(deep=True)
     # set up standard aesthetics
-    custom_bg = setAesthetic(custom_bg, typ="bg", interactive=interactive)
-    custom_fg = setAesthetic(custom_fg, typ="fg", interactive=interactive)
+    custom_bg = set_aesthetic(custom_bg, typ="bg", interactive=interactive)
+    custom_fg = set_aesthetic(custom_fg, typ="fg", interactive=interactive)
     if highlight is not None:
-        custom_hl = setAesthetic(custom_hl, typ="hl", interactive=interactive)
+        custom_hl = set_aesthetic(custom_hl, typ="hl", interactive=interactive)
 
     # check for input correctness and make sure score is present in df for plot
-    df, score, sig, unsig = checkData(df, log_fc, score, p, pt, fct)
+    df, score, sig, unsig = check_data(df, log_fc, score, p, pt, fct)
 
-    if interactive:
+    # not interactive
+    if not interactive:
+        # draw figure
+        if ax is None:
+            fig = plt.figure(figsize=figsize)
+            ax = plt.subplot()  # for a bare minimum plot you do not need this line
+        else:
+            fig = ax.get_figure()
+
+        # the following lines of code generates the scatter the rest is styling
+        ax.scatter(df[log_fc].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
+        ax.scatter(df[log_fc].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
+        if highlight is not None:
+            ax.scatter(df[log_fc].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
+
+        # draw threshold lines
+        if fct:
+            ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+            ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+        ax.axhline(-np.log10(pt), 0, 1, ls="dashed", color="lightgray")
+
+        # remove of top and right plot boundary
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        # setting x and y labels and title
+        ax.set_ylabel("score")
+        ax.set_xlabel("log_fc")
+        ax.set_title(title, size=18)
+
+        # add legend
+        if legend:
+            ax.legend()
+
+        # Annotation
+        if annot is not None:
+            # get x and y coordinates as well as strings to plot
+            if highlight is None:
+                xs = df[log_fc].loc[sig]
+                ys = df["score"].loc[sig]
+                ss = df[annot].loc[sig]
+            else:
+                if annot_highlight == "all":
+                    xs = df[log_fc].loc[highlight]
+                    ys = df["score"].loc[highlight]
+                    ss = df[annot].loc[highlight]
+                elif annot_highlight == "sig":
+                    xs = df[log_fc].loc[set(highlight) & set(sig)]
+                    ys = df["score"].loc[set(highlight) & set(sig)]
+                    ss = df[annot].loc[set(highlight) & set(sig)]
+                else:
+                    raise TypeError("annot_highlight must be either 'all' or 'sig'")
+
+            # annotation
+            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
+                if idx % 2 != 0:
+                    if x < 0:
+                        ax.plot([x, x - .2], [y, y + .2], color="gray")
+                        ax.text(x - .3, y + .25, s)
+                    else:
+                        ax.plot([x, x + .2], [y, y + .2], color="gray")
+                        ax.text(x + .2, y + .2, s)
+                else:
+                    if x < 0:
+                        ax.plot([x, x - .2], [y, y - .2], color="gray")
+                        ax.text(x - .3, y - .25, s)
+                    else:
+                        ax.plot([x, x + .2], [y, y - .2], color="gray")
+                        ax.text(x + .2, y - .2, s)
+
+        if ret_fig:
+            return fig
+
+    else:
         colors = [bg_col, sig_col]
         if highlight is not None:
 
@@ -1235,82 +1307,10 @@ def volcano(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
         if ret_fig:
             return fig
 
-    # not interactive
-    else:
-        # draw figure
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = plt.subplot()  # for a bare minimum plot you do not need this line
-        else:
-            fig = ax.get_figure()
-            
-        # the following lines of code generates the scatter the rest is styling
-        ax.scatter(df[log_fc].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
-        ax.scatter(df[log_fc].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
-        if highlight is not None:
-            ax.scatter(df[log_fc].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
 
-        # draw threshold lines
-        if fct:
-            ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-            ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-        ax.axhline(-np.log10(pt), 0, 1, ls="dashed", color="lightgray")
-
-        # remove of top and right plot boundary
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        # setting x and y labels and title
-        ax.set_ylabel("score")
-        ax.set_xlabel("log_fc")
-        ax.set_title(title, size=18)
-
-        # add legend
-        if legend:
-            ax.legend()
-
-        # Annotation
-        if annot is not None:
-            # get x and y coordinates as well as strings to plot
-            if highlight is None:
-                xs = df[log_fc].loc[sig]
-                ys = df["score"].loc[sig]
-                ss = df[annot].loc[sig]
-            else:
-                if annot_highlight == "all":
-                    xs = df[log_fc].loc[highlight]
-                    ys = df["score"].loc[highlight]
-                    ss = df[annot].loc[highlight]
-                elif annot_highlight == "sig":
-                    xs = df[log_fc].loc[set(highlight) & set(sig)]
-                    ys = df["score"].loc[set(highlight) & set(sig)]
-                    ss = df[annot].loc[set(highlight) & set(sig)]
-                else:
-                    raise Exception("annot_highlight must be either 'all' or 'sig'")
-
-            # annotation
-            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
-                if idx % 2 != 0:
-                    if x < 0:
-                        ax.plot([x, x - .2], [y, y + .2], color="gray")
-                        ax.text(x - .3, y + .25, s)
-                    else:
-                        ax.plot([x, x + .2], [y, y + .2], color="gray")
-                        ax.text(x + .2, y + .2, s)
-                else:
-                    if x < 0:
-                        ax.plot([x, x - .2], [y, y - .2], color="gray")
-                        ax.text(x - .3, y - .25, s)
-                    else:
-                        ax.plot([x, x + .2], [y, y - .2], color="gray")
-                        ax.text(x + .2, y - .2, s)
-
-        if ret_fig:
-            return fig
-
-
-def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
-               sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-               figsize=(6, 6), ret_fig=False):
+def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
+                 sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
+                 figsize=(6, 6), ret_fig=False):
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
@@ -1351,7 +1351,7 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
     during t-test or LIMMA analysis and (log) intensities to separate points
     on the y axis.
 
-    >>> autoprot.visualization.logIntPlot(prot_limma, "logFC_TvM",
+    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM",
     ...                                   "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
 
     .. plot::
@@ -1373,23 +1373,23 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
         prot["log10_Intensity BC4_3"].replace(-np.inf, np.nan, inplace=True)
 
-        vis.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
+        vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
 
     Similar to the visualization using a volcano plot, points of interest can be
     selected and labelled.
 
-    >>> autoprot.visualization.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
+    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
                    fct=2, annot=True, interactive=False, annot="Gene names")
 
     .. plot::
         :context: close-figs
 
-        vis.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
+        vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
                        fct=2, interactive=False, annot="Gene names")
 
     And the plots can also be investigated interactively
 
-    >>> autoprot.visualization.logIntPlot(prot_limma, "logFC_TvM",
+    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM",
     ...                                   "log10_Intensity BC4_3", fct=0.7,
     ...                                   figsize=(15,5), interactive=True)
     """
@@ -1502,8 +1502,8 @@ def logIntPlot(df, log_fc, Int, fct=None, annot=False, interactive=False,
             fig.show()
 
 
-def MAPlot(df, x, y, interactive=False, fct=None,
-           title="MA Plot", figsize=(6, 6), annot=None):
+def ma_plot(df, x, y, interactive=False, fct=None,
+            title="MA Plot", figsize=(6, 6), annot=None):
     # sourcery skip: assign-if-exp, extract-method
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
@@ -1549,7 +1549,7 @@ def MAPlot(df, x, y, interactive=False, fct=None,
     The majority of intensities should be unchanged between conditions and
     therefore most points should lie on the y=0 line.
 
-    >>> autoprot.visualization.MAPlot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
 
     .. plot::
         :context: close-figs
@@ -1567,12 +1567,12 @@ def MAPlot(df, x, y, interactive=False, fct=None,
         x = "log10_Intensity BC4_3"
         y = "log10_Intensity BC36_1"
 
-        vis.MAPlot(prot, x, y, fct=2,interactive=False)
+        vis.ma_plot(prot, x, y, fct=2,interactive=False)
         plt.show()
 
     If this is not the case, a normalisation using e.g. LOESS should be applied
 
-    >>> autoprot.visualization.MAPlot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
 
     .. plot::
         :context: close-figs
@@ -1580,7 +1580,7 @@ def MAPlot(df, x, y, interactive=False, fct=None,
         twitch = "log10_Intensity H BC18_1"
         ctrl = "log10_Intensity L BC18_1"
 
-        vis.MAPlot(prot, twitch, ctrl, fct=2,interactive=False)
+        vis.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
         plt.show()
     """
     df = df.copy(deep=True)
@@ -1643,7 +1643,7 @@ def MAPlot(df, x, y, interactive=False, fct=None,
         fig.show()
 
 
-def meanSd(df, reps):
+def mean_sd_plot(df, reps):
     r"""
     Rank vs. standard deviation plot.
 
@@ -1663,7 +1663,7 @@ def meanSd(df, reps):
     Visualise the intensity distirbutions of proteins depending on their
     total indensity.
 
-    >>> autoprot.visualization.meanSd(prot, twitchInt)
+    >>> autoprot.visualization.mean_sd_plot(prot, twitchInt)
 
     .. plot::
         :context: close-figs
@@ -1681,7 +1681,7 @@ def meanSd(df, reps):
         twitchInt = ['log10_Intensity H BC18_1','log10_Intensity M BC18_2','log10_Intensity H BC18_3',
                  'log10_Intensity BC36_1','log10_Intensity H BC36_2','log10_Intensity M BC36_2']
 
-        vis.meanSd(prot, twitchInt)
+        vis.mean_sd_plot(prot, twitchInt)
     """
 
     def hexa(x, y):
@@ -1715,10 +1715,10 @@ def meanSd(df, reps):
     p.ax_marg_x.set_title("Mean SD plot", fontsize=18)
 
 
-def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
-               xlabel="", ylabel="log_fc", title="", ax=None,
-               plot_summary=False, plot_summary_only=False, summary_color="red",
-               summary_type="Mean", summary_style="solid", **kwargs):
+def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
+                xlabel="", ylabel="log_fc", title="", ax=None,
+                plot_summary=False, plot_summary_only=False, summary_color="red",
+                summary_type="Mean", summary_style="solid", **kwargs):
     r"""
     Plot numerical data such as fold changes vs. columns (e.g. conditions).
 
@@ -1780,7 +1780,7 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
     >>> idx = phos.sample(10).index
     >>> test = phos.filter(regex="logFC_").loc[idx]
     >>> label = phos.loc[idx, "Gene names"]
-    >>> vis.plotTraces(test, test.columns, labels=label, colors=["red", "green"]*5,
+    >>> vis.plot_traces(test, test.columns, labels=label, colors=["red", "green"]*5,
     ...                xlabel='Column', z_score=None)
 
     .. plot::
@@ -1794,12 +1794,12 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
-        phos = pp.filterLocProb(phos, thresh=.75)
+        phos = pp.filter_loc_prob(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-        phos = pp.removeNonQuant(phos, phosRatio)
+        phos = pp.remove_non_quant(phos, phosRatio)
 
         phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
-        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+        phos_expanded = pp.expand_site_table(phos, phosRatio)
 
         twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
                         'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
@@ -1814,7 +1814,7 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
         idx = phos.sample(10).index
         test = phos.filter(regex="logFC_").loc[idx]
         label = phos.loc[idx, "Gene names"]
-        vis.plotTraces(test, test.columns, labels=label, colors=["red", "green"]*5,
+        vis.plot_traces(test, test.columns, labels=label, colors=["red", "green"]*5,
                        xlabel='Column')
         plt.show()
 
@@ -1857,7 +1857,7 @@ def plotTraces(df, cols: list, labels=None, colors=None, z_score=None,
     ax.set_xlabel(xlabel)
 
 
-def sequenceLogo(df, motif, file=None, rename_to_st=False):
+def sequence_logo(df, motif, file=None, rename_to_st=False):
     r"""
     Generate sequence logo plot based on experimentally observed phosphosites.
 
@@ -1892,11 +1892,11 @@ def sequenceLogo(df, motif, file=None, rename_to_st=False):
     should be marked by a lowercase character.
 
     >>> sequence_motif = ("..R.R..s.......", "MK_down")
-    >>> autoprot.visualization.sequenceLogo(phos, sequence_motif)
+    >>> autoprot.visualization.sequence_logo(phos, sequence_motif)
 
     allow s and t as central residue
 
-    >>> autoprot.visualization.sequenceLogo(phos, sequence_motif, path, rename_to_st=True)
+    >>> autoprot.visualization.sequence_logo(phos, sequence_motif, path, rename_to_st=True)
 
     """
 
@@ -2038,7 +2038,7 @@ def sequenceLogo(df, motif, file=None, rename_to_st=False):
                                sequence_motif="{} - {}".format(motif[0], motif[1]))
 
 
-def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
+def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
     """
     Visualize domains and phosphosites on a protein of interest.
 
@@ -2084,7 +2084,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
     colors (A,B,C,D (gray -> purple), Ad, Bd, Cd, Dd (gray -> teal) can be used to indicate regulation)
 
     >>> plc = ['C', 'A', 'A', 'C', 'Cd', 'D', 'D', 'B', 'D']
-    >>> autoprot.visualization.visPs(name, length, domain_position, ps, pl, plc, pls=12)
+    >>> autoprot.visualization.vis_psites(name, length, domain_position, ps, pl, plc, pls=12)
 
     .. plot::
         :context: close-figs
@@ -2098,7 +2098,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
         ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]
         pl = ["pS88", "pS92", "pS116", "pS183", "pS202", "pS203", "pS211", "pS212", "pS246"]
         plc = ['C', 'A', 'A', 'C', 'Cd', 'D', 'D', 'B', 'D']
-        vis.visPs(name, length, domain_position, ps, pl, plc, pls=12)
+        vis.vis_psites(name, length, domain_position, ps, pl, plc, pls=12)
         plt.show()
 
     """
@@ -2113,11 +2113,11 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
             color = [domain_color, ] * len(domain_position)
         elif isinstance(domain_color, list):
             if len(domain_color) != len(domain_position):
-                raise Exception("Please provide one domain colour per domain") from e
+                raise TypeError("Please provide one domain colour per domain") from e
             else:
                 color = domain_color
         else:
-            raise Exception("You must provide a colormap name, a colour name or a list of colour names") from e
+            raise TypeError("You must provide a colormap name, a colour name or a list of colour names") from e
 
     lims = (1, length)
     height = lims[1] / 25
@@ -2152,7 +2152,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
             plt.axvline(site, 0, 1, color="red")
             plt.text(site - 1,
                      height - (height + height * 0.15),
-                     pl[idx] if pl != None else '',
+                     pl[idx] if pl is not None else '',
                      fontsize=pls,
                      rotation=90,
                      color=text_color[plc[idx]] if plc is not None else 'black')
@@ -2165,7 +2165,7 @@ def visPs(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4,
     plt.tight_layout()
 
 
-def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
+def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
     # sourcery skip: extract-method
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
@@ -2191,7 +2191,7 @@ def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
     --------
     Plot a bar chart of the distribution of the number of phosphosites on the peptides.
 
-    >>> autoprot.visualization.styCountPlot(phos, typ="bar")
+    >>> autoprot.visualization.sty_count_plot(phos, typ="bar")
     Number of phospho (STY) [total] - (count / # Phospho)
     [(29, 0), (37276, 1), (16460, 2), (4276, 3), (530, 4), (52, 5)]
     Percentage of phospho (STY) [total] - (% / # Phospho)
@@ -2206,19 +2206,19 @@ def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
 
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.styCountPlot(phos, typ="bar")
+        vis.sty_count_plot(phos, typ="bar")
         plt.show()
 
     """
-    noOfPhos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
-    count = [(noOfPhos.count(i), i) for i in set(noOfPhos)]
-    counts_perc = [(round(noOfPhos.count(i) / len(noOfPhos) * 100, 2), i) for i in set(noOfPhos)]
+    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
+    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
+    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
 
     print("Number of phospho (STY) [total] - (count / # Phospho)")
     print(count)
     print("Percentage of phospho (STY) [total] - (% / # Phospho)")
     print(counts_perc)
-    df = pd.DataFrame(noOfPhos, columns=["Number of Phospho (STY)"])
+    df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
 
     if typ == "bar":
         fig = plt.figure(figsize=figsize)
@@ -2253,14 +2253,14 @@ def styCountPlot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         plt.pie([i[0] for i in count], labels=[i[1] for i in count])
         plt.title("Number of Phosphosites")
     else:
-        raise Exception("typ must be either 'bar' or 'pie")
+        raise TypeError("typ must be either 'bar' or 'pie")
     
     if ret_fig is True:
         return fig
 
 
 # noinspection PyUnboundLocalVariable
-def chargePlot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
+def charge_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
 
@@ -2289,7 +2289,7 @@ def chargePlot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     --------
     Plot the charge states of a dataframe.
 
-    >>> autoprot.visualization.chargePlot(phos, typ="pie")
+    >>> autoprot.visualization.charge_plot(phos, typ="pie")
     charge [total] - (count / # charge)
     [(44, 1), (20583, 2), (17212, 3), (2170, 4), (61, 5), (4, 6)]
     Percentage of charge [total] - (% / # charge)
@@ -2308,7 +2308,7 @@ def chargePlot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
 
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.chargePlot(phos, typ="pie")
+        vis.charge_plot(phos, typ="pie")
         plt.show()
     """
 
@@ -2365,7 +2365,7 @@ def chargePlot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     return fig
 
 
-def modAa(df, figsize=(6, 6), ret_fig=False):
+def count_mod_aa(df, figsize=(6, 6), ret_fig=False):
     r"""
     Count the number of modifications per amino acid.
 
@@ -2388,7 +2388,7 @@ def modAa(df, figsize=(6, 6), ret_fig=False):
     --------
     Plot pie chart of modified amino acids.
 
-    >>> autoprot.visualization.modAa(phos)
+    >>> autoprot.visualization.count_mod_aa(phos)
 
     .. plot::
         :context: close-figs
@@ -2399,7 +2399,7 @@ def modAa(df, figsize=(6, 6), ret_fig=False):
 
         phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.modAa(phos)
+        vis.count_mod_aa(phos)
         plt.show()
 
     """
@@ -2411,11 +2411,11 @@ def modAa(df, figsize=(6, 6), ret_fig=False):
     plt.pie(df["Amino acid"].value_counts().values,
             labels=(labels))
     plt.title("Modified AAs")
-    if ret_fig == True:
+    if ret_fig:
         return fig
 
 
-def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", mask: str = None, file="",
+def wordcloud(text, exlusion_words=None, background_color="white", mask: str = None,
               contour_width=0, **kwargs):
     """
     Generate Wordcloud from string.
@@ -2424,7 +2424,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
     ----------
     text : str
         text input as a string.
-    exlusionwords : list of str, optional
+    exlusion_words : list of str, optional
         list of words to exclude from wordcloud. The default is None.
     background_color : colour, optional
         The background colour of the plot. The default is "white".
@@ -2432,9 +2432,6 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
         Used to mask the wordcloud.
         set it either to round or true and add a .png file.
         The default is None.
-    file : str, optional
-        file is given as path with path/to/file.filetype.
-        The default is "".
     contour_width : int, optional
         If mask is not None and contour_width > 0, draw the mask contour.
         The default is 0.
@@ -2443,7 +2440,8 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
 
     Returns
     -------
-    None.
+    WordCloud
+        The wordcloud object.
 
     Examples
     --------
@@ -2494,20 +2492,21 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
         fake_file_handle.close()
         return text
 
-    if exlusionwords is not None:
-        exlusionwords = exlusionwords + list(STOPWORDS)
+    if exlusion_words is not None:
+        exlusion_words = exlusion_words + list(STOPWORDS)
 
     if mask is not None:
         if mask.split('.')[-1] == "png":
+            # noinspection PyTypeChecker
             mask = np.array(Image.open(mask))
         elif mask == "round":
             x, y = np.ogrid[:1000, :1000]
             mask = (x - 500) ** 2 + (y - 500) ** 2 > 400 ** 2
             mask = 255 * mask.astype(int)
         wc = WordCloud(background_color=background_color, mask=mask, contour_width=contour_width,
-                       stopwords=exlusionwords, **kwargs).generate(text)
+                       stopwords=exlusion_words, **kwargs).generate(text)
     else:
-        wc = WordCloud(background_color="white", stopwords=exlusionwords, width=1800, height=500).generate(text)
+        wc = WordCloud(background_color="white", stopwords=exlusion_words, width=1800, height=500).generate(text)
 
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
@@ -2516,7 +2515,7 @@ def wordcloud(text, pdffile=None, exlusionwords=None, background_color="white", 
     return wc
 
 
-def BHplot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
+def bh_plot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     r"""
     Visualize Benjamini Hochberg p-value correction.
 
@@ -2546,7 +2545,7 @@ def BHplot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     The grey line indicates the provided alpha level. Values below it are considered
     significantly different.
 
-    >>> autoprot.visualization.BHplot(phos,'pValue_TvC', 'adj.pValue_TvC', alpha=0.05, zoom=7)
+    >>> autoprot.visualization.bh_plot(phos,'pValue_TvC', 'adj.pValue_TvC', alpha=0.05, zoom=7)
 
     .. plot::
         :context: close-figs
@@ -2560,19 +2559,19 @@ def BHplot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
-        phos = pp.filterLocProb(phos, thresh=.75)
+        phos = pp.filter_loc_prob(phos, thresh=.75)
         phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-        phos = pp.removeNonQuant(phos, phosRatio)
+        phos = pp.remove_non_quant(phos, phosRatio)
 
         phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___").columns
-        phos_expanded = pp.expandSiteTable(phos, phosRatio)
+        phos_expanded = pp.expand_site_table(phos, phosRatio)
 
         mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
                       "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
 
         phos = ana.ttest(df=phos_expanded, reps=mildVsctrl, cond="_MvC", return_fc=True)
 
-        vis.BHplot(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
+        vis.bh_plot(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
     """
     n = len(df[ps][df[ps].notnull()])
     x = range(n)
