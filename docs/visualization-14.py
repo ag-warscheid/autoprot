@@ -1,15 +1,5 @@
-import autoprot.preprocessing as pp
-import autoprot.visualization as vis
-import autoprot.analysis as ana
-import pandas as pd
+twitch = "log10_Intensity H BC18_1"
+ctrl = "log10_Intensity L BC18_1"
 
-prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
-prot = pp.cleaning(prot, "proteinGroups")
-protInt = prot.filter(regex='Intensity').columns
-prot = pp.log(prot, protInt, base=10)
-
-x = "log10_Intensity BC4_3"
-y = "log10_Intensity BC36_1"
-
-vis.ma_plot(prot, x, y, fct=2,interactive=False)
+vis.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
 plt.show()

@@ -343,7 +343,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Literal</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 
 <div class="viewcode-block" id="Cluster"><a class="viewcode-back" href="../../clustering.html#autoprot.clustering.Cluster">[docs]</a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
@@ -480,7 +479,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">make_cluster_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">zs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">makeClusterTraces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">zs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Plot RMSD vs colname line plots.</span>
 
@@ -603,9 +602,9 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">make_traces</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;z_score&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="n">make_cluster_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">zs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;z_score&quot;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
+                <span class="n">makeClusterTraces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">zs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;z_score&quot;</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">make_cluster_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
+                <span class="n">makeClusterTraces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">make_heatmap</span><span class="p">:</span>
             <span class="n">make_cluster_heatmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
 
@@ -750,9 +749,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="HCA.make_linkage"><a class="viewcode-back" href="../../clustering.html#autoprot.clustering.HCA.make_linkage">[docs]</a>    <span class="k">def</span> <span class="nf">make_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;braycurtis&#39;</span><span class="p">,</span> <span class="s1">&#39;canberra&#39;</span><span class="p">,</span> <span class="s1">&#39;chebyshev&#39;</span><span class="p">,</span> <span class="s1">&#39;cityblock&#39;</span><span class="p">,</span>
-                                                            <span class="s1">&#39;correlation&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">,</span> <span class="s1">&#39;dice&#39;</span><span class="p">,</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;hamming&#39;</span><span class="p">,</span> <span class="s1">&#39;jaccard&#39;</span><span class="p">,</span> <span class="s1">&#39;jensenshannon&#39;</span><span class="p">,</span> <span class="s1">&#39;kulczynski1&#39;</span><span class="p">,</span>
-                                                            <span class="s1">&#39;mahalanobis&#39;</span><span class="p">,</span> <span class="s1">&#39;matching&#39;</span><span class="p">,</span> <span class="s1">&#39;minkowski&#39;</span><span class="p">,</span> <span class="s1">&#39;rogerstanimoto&#39;</span><span class="p">,</span> <span class="s1">&#39;russellrao&#39;</span><span class="p">,</span> <span class="s1">&#39;seuclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;sokalmichener&#39;</span><span class="p">,</span>
-                                                            <span class="s1">&#39;sokalsneath&#39;</span><span class="p">,</span> <span class="s1">&#39;sqeuclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;yule&#39;</span><span class="p">,</span> <span class="s1">&#39;spearman&#39;</span><span class="p">,</span> <span class="s1">&#39;pearson&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">):</span>
+        <span class="s1">&#39;correlation&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">,</span> <span class="s1">&#39;dice&#39;</span><span class="p">,</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;hamming&#39;</span><span class="p">,</span> <span class="s1">&#39;jaccard&#39;</span><span class="p">,</span> <span class="s1">&#39;jensenshannon&#39;</span><span class="p">,</span> <span class="s1">&#39;kulczynski1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mahalanobis&#39;</span><span class="p">,</span> <span class="s1">&#39;matching&#39;</span><span class="p">,</span> <span class="s1">&#39;minkowski&#39;</span><span class="p">,</span> <span class="s1">&#39;rogerstanimoto&#39;</span><span class="p">,</span> <span class="s1">&#39;russellrao&#39;</span><span class="p">,</span> <span class="s1">&#39;seuclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;sokalmichener&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sokalsneath&#39;</span><span class="p">,</span> <span class="s1">&#39;sqeuclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;yule&#39;</span><span class="p">,</span> <span class="s1">&#39;spearman&#39;</span><span class="p">,</span> <span class="s1">&#39;pearson&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform hierarchical clustering on the data.</span>
@@ -813,12 +812,6 @@
 <span class="sd">             -0.03960705975653923]</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Linkage is already present, using the already defined linkage. If you want to reset the &#39;</span>
-                          <span class="s1">&#39;linkage, manually set HCA.linkage = None&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
-            <span class="c1"># leave the function</span>
-            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># First calculate a distance metric between the points</span>
         <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;pearson&quot;</span><span class="p">,</span> <span class="s2">&quot;spearman&quot;</span><span class="p">}:</span>

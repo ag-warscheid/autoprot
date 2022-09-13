@@ -1634,12 +1634,12 @@
 <span class="sd">        import autoprot.visualization as vis</span>
 <span class="sd">        import pandas as pd</span>
 <span class="sd">        phos_lfq = pd.read_csv(&quot;_static/testdata/Phospho (STY)Sites_lfq.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
-<span class="sd">        intens_cols = phos_lfq.filter(regex=&quot;Intensity .&quot;).columns.to_list()</span>
-<span class="sd">        phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)</span>
-<span class="sd">        phos_lfq = pp.vsn(phos_lfq, intens_cols)</span>
-<span class="sd">        norm_cols = phos_lfq.filter(regex=&quot;_norm&quot;).columns.to_list()</span>
-<span class="sd">        phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)</span>
-<span class="sd">        vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)</span>
+<span class="sd">    intens_cols = phos_lfq.filter(regex=&quot;Intensity .&quot;).columns.to_list()</span>
+<span class="sd">    phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)</span>
+<span class="sd">    phos_lfq = pp.vsn(phos_lfq, intens_cols)</span>
+<span class="sd">    norm_cols = phos_lfq.filter(regex=&quot;_norm&quot;).columns.to_list()</span>
+<span class="sd">    phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)</span>
+<span class="sd">    vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">data_loc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;/input.csv&quot;</span>

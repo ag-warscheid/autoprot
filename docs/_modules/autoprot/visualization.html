@@ -344,7 +344,7 @@
 <span class="kn">import</span> <span class="nn">logomaker</span>
 <span class="kn">import</span> <span class="nn">colorsys</span>
 <span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">patches</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 
 <span class="kn">from</span> <span class="nn">wordcloud</span> <span class="kn">import</span> <span class="n">WordCloud</span>
 <span class="kn">from</span> <span class="nn">wordcloud</span> <span class="kn">import</span> <span class="n">STOPWORDS</span>
@@ -358,8 +358,6 @@
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
-
-<span class="kn">import</span> <span class="nn">upsetplot</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;pdf.fonttype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span>
 
@@ -2465,13 +2463,13 @@
     <span class="c1"># only plot phosphosite if there are any</span>
     <span class="k">if</span> <span class="n">ps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">text_color</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;Ad&quot;</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="s2">&quot;#dc86fa&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;Bd&quot;</span><span class="p">:</span> <span class="s2">&quot;#6AC9BE&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;#aa00d7&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;Cd&quot;</span><span class="p">:</span> <span class="s2">&quot;#239895&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="s2">&quot;#770087&quot;</span><span class="p">,</span>
-                      <span class="s2">&quot;Dd&quot;</span><span class="p">:</span> <span class="s2">&quot;#008080&quot;</span><span class="p">}</span>
+                     <span class="s2">&quot;Ad&quot;</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="s2">&quot;#dc86fa&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;Bd&quot;</span><span class="p">:</span> <span class="s2">&quot;#6AC9BE&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;#aa00d7&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;Cd&quot;</span><span class="p">:</span> <span class="s2">&quot;#239895&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="s2">&quot;#770087&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;Dd&quot;</span><span class="p">:</span> <span class="s2">&quot;#008080&quot;</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ps</span><span class="p">):</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
@@ -2535,8 +2533,7 @@
 <span class="sd">        plt.show()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">no_of_phos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
-                  <span class="nb">list</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">flatten</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Number of Phospho (STY)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)]))]</span>
+    <span class="n">no_of_phos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">flatten</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Number of Phospho (STY)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)]))]</span>
     <span class="n">count</span> <span class="o">=</span> <span class="p">[(</span><span class="n">no_of_phos</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">no_of_phos</span><span class="p">)]</span>
     <span class="n">counts_perc</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">round</span><span class="p">(</span><span class="n">no_of_phos</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">no_of_phos</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">no_of_phos</span><span class="p">)]</span>
 
@@ -2580,7 +2577,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Number of Phosphosites&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;typ must be either &#39;bar&#39; or &#39;pie&quot;</span><span class="p">)</span>
-
+    
     <span class="k">if</span> <span class="n">ret_fig</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fig</span></div>
 
@@ -2918,241 +2915,6 @@
 
     <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
-
-
-<div class="viewcode-block" id="UpSetGrouped"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.UpSetGrouped">[docs]</a><span class="k">class</span> <span class="nc">UpSetGrouped</span><span class="p">(</span><span class="n">upsetplot</span><span class="o">.</span><span class="n">UpSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate upset plot as described in Lex2014 [1] and implemented in Python by jnothman.</span>
-<span class="sd">    This function extends its use by the ability to colour and group bars in the bar plot.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    This function uses the upset plot implementation of jnothman (https://github.com/jnothman/UpSetPlot) and extends it</span>
-<span class="sd">    by grouping and colouring of the bar charts.</span>
-<span class="sd">    Most troubleshooting can be accomplished looking at their documentation at</span>
-<span class="sd">    https://upsetplot.readthedocs.io/en/stable/index.html. Especially their documentation of how to integrate</span>
-<span class="sd">    commonly used data formats is very helpful: https://upsetplot.readthedocs.io/en/stable/formats.html.</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    [1] Alexander Lex, Nils Gehlenborg, Hendrik Strobelt, Romain Vuillemot, Hanspeter Pfister,</span>
-<span class="sd">    UpSet: Visualization of Intersecting Sets, IEEE Transactions on Visualization and Computer Graphics (InfoVis</span>
-<span class="sd">    &#39;14), vol. 20, no. 12, pp. 1983–1992, 2014. doi: doi.org/10.1109/TVCG.2014.2346248</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-
-<span class="sd">    Here we first generate a dummy data set akin to phosphoproteomics results of up- and downregulated sites that</span>
-<span class="sd">    is then used to showcase the usage of the UpSetGrouped class.</span>
-
-<span class="sd">    &gt;&gt;&gt; example</span>
-<span class="sd">    120_down  60_down  30_down  10_down  120_up  60_up  30_up  10_up</span>
-<span class="sd">    False     False    False    False    False   False  True   False    106</span>
-<span class="sd">                                                        False  True      85</span>
-<span class="sd">                                                 True   False  False     50</span>
-<span class="sd">                       True     False    False   False  False  False     30</span>
-<span class="sd">                       False    False    True    False  False  False     29</span>
-<span class="sd">                                True     False   False  False  False     26</span>
-<span class="sd">    True      False    False    False    False   False  False  False     17</span>
-<span class="sd">    False     True     False    False    False   False  False  False     14</span>
-<span class="sd">              False    False    False    False   False  True   True      94</span>
-<span class="sd">                                         True    True   False  False     33</span>
-<span class="sd">                                         False   True   True   False     30</span>
-<span class="sd">    True      True     False    False    False   False  False  False     19</span>
-<span class="sd">    False     True     True     False    False   False  False  False     13</span>
-<span class="sd">    True      False    True     False    False   False  False  False      9</span>
-<span class="sd">    False     False    True     True     False   False  False  False      7</span>
-<span class="sd">                       False    False    False   True   False  True       5</span>
-<span class="sd">                                         True    False  True   False      4</span>
-<span class="sd">                                                        False  True       2</span>
-<span class="sd">              True     False    True     False   False  False  False      1</span>
-<span class="sd">              False    True     False    True    False  False  False      1</span>
-<span class="sd">                       False    True     True    False  False  False      1</span>
-<span class="sd">    True      False    False    False    False   False  False  True       1</span>
-<span class="sd">    False     False    False    False    True    True   True   False    102</span>
-<span class="sd">                                         False   True   True   True      29</span>
-<span class="sd">                                         True    False  True   True      14</span>
-<span class="sd">    True      True     True     False    False   False  False  False     11</span>
-<span class="sd">    False     True     True     True     False   False  False  False      1</span>
-<span class="sd">              False    False    False    True    True   True   True      60</span>
-<span class="sd">    True      True     True     True     False   False  False  False      3</span>
-<span class="sd">    dtype: int64</span>
-
-<span class="sd">    The example dataset is loaded into the UpSetGrouped class and the styling_helper is used to colour the up- and down-</span>
-<span class="sd">    regulated groups. Note that the styling_helper operates on the basis of string comparison with the titles of the</span>
-<span class="sd">    data frame categories.</span>
-<span class="sd">    Also note that the replot_totals function can only be used after calling the plot-function as is requires the</span>
-<span class="sd">    axis on which the original bar plot was drawn.</span>
-
-<span class="sd">    &gt;&gt;&gt; upset = UpSetGrouped(example,</span>
-<span class="sd">    ...                      show_counts=True,</span>
-<span class="sd">    ...                      #show_percentages=True,</span>
-<span class="sd">    ...                      sort_by=None,</span>
-<span class="sd">    ...                      sort_categories_by=&#39;cardinality&#39;,</span>
-<span class="sd">    ...                      facecolor=&quot;gray&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; upset.styling_helper(&#39;up&#39;, facecolor=&#39;darkgreen&#39;, label=&#39;up regulated&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; upset.styling_helper(&#39;down&#39;, facecolor=&#39;darkblue&#39;, label=&#39;down regulated&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; upset.styling_helper([&#39;up&#39;, &#39;down&#39;], facecolor=&#39;darkred&#39;, label=&#39;reversibly regulated&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; specs = upset.plot()</span>
-<span class="sd">    &gt;&gt;&gt; upset.replot_totals(specs=specs, color=[&#39;darkgreen&#39;,</span>
-<span class="sd">    ...                                         &#39;darkgreen&#39;,</span>
-<span class="sd">    ...                                         &#39;darkgreen&#39;,</span>
-<span class="sd">    ...                                         &#39;darkgreen&#39;,</span>
-<span class="sd">    ...                                         &#39;darkblue&#39;,</span>
-<span class="sd">    ...                                         &#39;darkblue&#39;,</span>
-<span class="sd">    ...                                         &#39;darkblue&#39;,</span>
-<span class="sd">    ...                                         &#39;darkblue&#39;,])</span>
-<span class="sd">    &gt;&gt;&gt; plt.show()</span>
-
-<span class="sd">    .. plot::</span>
-<span class="sd">        :context: close-figs</span>
-
-<span class="sd">        import pandas as pd</span>
-<span class="sd">        import autoprot.visualization as vis</span>
-
-<span class="sd">        arrays = [(False,False,False,False,False,False,True,False),</span>
-<span class="sd">                  (False,False,False,False,False,False,False,True),</span>
-<span class="sd">                  (False,False,False,False,False,True,False,False),</span>
-<span class="sd">                  (False,False,True,False,False,False,False,False),</span>
-<span class="sd">                  (False,False,False,False,True,False,False,False),</span>
-<span class="sd">                  (False,False,False,True,False,False,False,False),</span>
-<span class="sd">                  (True,False,False,False,False,False,False,False),</span>
-<span class="sd">                  (False,True,False,False,False,False,False,False),</span>
-<span class="sd">                  (False,False,False,False,False,False,True,True),</span>
-<span class="sd">                  (False,False,False,False,True,True,False,False),</span>
-<span class="sd">                  (False,False,False,False,False,True,True,False),</span>
-<span class="sd">                  (True,True,False,False,False,False,False,False),</span>
-<span class="sd">                  (False,True,True,False,False,False,False,False),</span>
-<span class="sd">                  (True,False,True,False,False,False,False,False),</span>
-<span class="sd">                  (False,False,True,True,False,False,False,False),</span>
-<span class="sd">                  (False,False,False,False,False,True,False,True),</span>
-<span class="sd">                  (False,False,False,False,True,False,True,False),</span>
-<span class="sd">                  (False,False,False,False,True,False,False,True),</span>
-<span class="sd">                  (False,True,False,True,False,False,False,False),</span>
-<span class="sd">                  (False,False,True,False,True,False,False,False),</span>
-<span class="sd">                  (False,False,False,True,True,False,False,False),</span>
-<span class="sd">                  (True,False,False,False,False,False,False,True),</span>
-<span class="sd">                  (False,False,False,False,True,True,True,False),</span>
-<span class="sd">                  (False,False,False,False,False,True,True,True),</span>
-<span class="sd">                  (False,False,False,False,True,False,True,True),</span>
-<span class="sd">                  (True,True,True,False,False,False,False,False),</span>
-<span class="sd">                  (False,True,True,True,False,False,False,False),</span>
-<span class="sd">                  (False,False,False,False,True,True,True,True),</span>
-<span class="sd">                  (True,True,True,True,False,False,False,False)]</span>
-<span class="sd">        arrays = np.array(arrays).T</span>
-<span class="sd">        values = (106,85,50,30,29,26,17,14,94,33,30,19,13,9,7,5,4,2,1,1,1,1,102,29,14,11,1,60,3)</span>
-<span class="sd">        example = pd.Series(values,</span>
-<span class="sd">                            index=pd.MultiIndex.from_arrays(arrays,</span>
-<span class="sd">                                                            names=(&#39;120_down&#39;,</span>
-<span class="sd">                                                                   &#39;60_down&#39;,</span>
-<span class="sd">                                                                   &#39;30_down&#39;,</span>
-<span class="sd">                                                                   &#39;10_down&#39;,</span>
-<span class="sd">                                                                   &#39;120_up&#39;,</span>
-<span class="sd">                                                                   &#39;60_up&#39;,</span>
-<span class="sd">                                                                   &#39;30_up&#39;,</span>
-<span class="sd">                                                                   &#39;10_up&#39;)</span>
-<span class="sd">                                                           )</span>
-<span class="sd">                           )</span>
-
-<span class="sd">        upset = vis.UpSetGrouped(example,</span>
-<span class="sd">                                 show_counts=True,</span>
-<span class="sd">                                 #show_percentages=True,</span>
-<span class="sd">                                 sort_by=None,</span>
-<span class="sd">                                 sort_categories_by=&#39;cardinality&#39;,</span>
-<span class="sd">                                 facecolor=&quot;gray&quot;)</span>
-<span class="sd">        upset.styling_helper(&#39;up&#39;, facecolor=&#39;darkgreen&#39;, label=&#39;up regulated&#39;)</span>
-<span class="sd">        upset.styling_helper(&#39;down&#39;, facecolor=&#39;darkblue&#39;, label=&#39;down regulated&#39;)</span>
-<span class="sd">        upset.styling_helper([&#39;up&#39;, &#39;down&#39;], facecolor=&#39;darkred&#39;, label=&#39;reversibly regulated&#39;)</span>
-<span class="sd">        specs = upset.plot()</span>
-<span class="sd">        upset.replot_totals(specs=specs, color=[&#39;darkgreen&#39;,</span>
-<span class="sd">                                                &#39;darkgreen&#39;,</span>
-<span class="sd">                                                &#39;darkgreen&#39;,</span>
-<span class="sd">                                                &#39;darkgreen&#39;,</span>
-<span class="sd">                                                &#39;darkblue&#39;,</span>
-<span class="sd">                                                &#39;darkblue&#39;,</span>
-<span class="sd">                                                &#39;darkblue&#39;,</span>
-<span class="sd">                                                &#39;darkblue&#39;,])</span>
-
-<span class="sd">        plt.show()</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<div class="viewcode-block" id="UpSetGrouped.styling_helper"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.UpSetGrouped.styling_helper">[docs]</a>    <span class="k">def</span> <span class="nf">styling_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_substrings</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Helper function for styling upsetplot category plots.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        --------</span>
-<span class="sd">        label_substrings : str or list</span>
-<span class="sd">            Substrings that are contained in the names of the row</span>
-<span class="sd">            indices of the UpSet data (e.g. &#39;_up&#39;)</span>
-<span class="sd">        mode : &quot;union&quot; or &quot;intersection&quot;</span>
-<span class="sd">            Whether bars containing with index</span>
-<span class="sd">            names corresponding to either of the labels (union) or only combinations that contain both labels (</span>
-<span class="sd">            intersection) should be treated</span>
-<span class="sd">        kwargs : As passed to UpSet.style_subsets</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersections</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_substrings</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">label_substrings</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_substrings</span><span class="p">,</span> <span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;union&#39;</span><span class="p">,</span> <span class="s1">&#39;intersection&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Please provide either &quot;union&quot; or &quot;intersection&quot; as argument to mode&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">L</span><span class="p">):</span>
-
-                <span class="n">label_found</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">label_substrings</span><span class="p">:</span>
-                    <span class="n">tests</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
-                        <span class="n">tests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span> <span class="ow">in</span> <span class="n">s</span><span class="p">)</span>
-                    <span class="n">label_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">tests</span><span class="p">))</span>
-
-                <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;intersection&#39;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">label_found</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">style_subsets</span><span class="p">(</span><span class="n">present</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">label_found</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">style_subsets</span><span class="p">(</span><span class="n">present</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="UpSetGrouped.replot_totals"><a class="viewcode-back" href="../../visualization.html#autoprot.visualization.UpSetGrouped.replot_totals">[docs]</a>    <span class="k">def</span> <span class="nf">replot_totals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specs</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot bars indicating total set size.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        specs : dict</span>
-<span class="sd">            Dict of object axes as returned by upset.plot()</span>
-<span class="sd">        color : str or list of str</span>
-<span class="sd">            Color(s) of the bars.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;totals&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lines</span> <span class="o">+</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;totals&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
-            <span class="n">artist</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-
-        <span class="n">orig_ax</span> <span class="o">=</span> <span class="n">specs</span><span class="p">[</span><span class="s1">&#39;totals&#39;</span><span class="p">]</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorient</span><span class="p">(</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;totals&#39;</span><span class="p">])</span>
-        <span class="n">rects</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">totals</span><span class="p">,</span>
-                        <span class="mf">.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">specs</span><span class="p">[</span><span class="s1">&#39;matrix&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">())</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_label_sizes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">rects</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="k">else</span> <span class="s1">&#39;top&#39;</span><span class="p">)</span>
-
-        <span class="n">max_total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totals</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span><span class="p">:</span>
-            <span class="n">orig_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">max_total</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">]:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_reorient</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div></div>
 </pre></div>
 
             </article>

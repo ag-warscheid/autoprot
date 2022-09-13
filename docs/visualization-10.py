@@ -1,8 +1,6 @@
-import autoprot.preprocessing as pp
-import autoprot.visualization as vis
-import pandas as pd
+data = pp.log(prot,["Intensity"], base=10)
+data = data[["log10_Intensity", "Gene names"]]
+data = data[data["log10_Intensity"]!=-np.inf]
 
-phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-phos = pp.cleaning(phos, file = "Phospho (STY)")
-vis.count_mod_aa(phos)
-plt.show()
+vis.intensity_rank(data, rank_col="log10_Intensity", label="Gene names", n=15, title="Rank Plot",
+                 hline=8, marker="d")

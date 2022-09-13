@@ -1,2 +1,3 @@
-vis.venn_diagram(data, figsize=(5,5), proportional=False)
+data = prot[twitchVsmild[:6]]
+vis.venn_diagram(data, figsize=(20,20))
 plt.show()

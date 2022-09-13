@@ -328,122 +328,6 @@
 <p>Autoprot Visualisation Functions.</p>
 <p>&#64;author: Wignand</p>
 <p>&#64;documentation: Julian</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="autoprot.visualization.UpSetGrouped">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">UpSetGrouped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#UpSetGrouped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.UpSetGrouped" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate upset plot as described in Lex2014 [1] and implemented in Python by jnothman.
-This function extends its use by the ability to colour and group bars in the bar plot.</p>
-<p class="rubric">Notes</p>
-<p>This function uses the upset plot implementation of jnothman (<a class="reference external" href="https://github.com/jnothman/UpSetPlot">https://github.com/jnothman/UpSetPlot</a>) and extends it
-by grouping and colouring of the bar charts.
-Most troubleshooting can be accomplished looking at their documentation at
-<a class="reference external" href="https://upsetplot.readthedocs.io/en/stable/index.html">https://upsetplot.readthedocs.io/en/stable/index.html</a>. Especially their documentation of how to integrate
-commonly used data formats is very helpful: <a class="reference external" href="https://upsetplot.readthedocs.io/en/stable/formats.html">https://upsetplot.readthedocs.io/en/stable/formats.html</a>.</p>
-<p class="rubric">References</p>
-<p>[1] Alexander Lex, Nils Gehlenborg, Hendrik Strobelt, Romain Vuillemot, Hanspeter Pfister,
-UpSet: Visualization of Intersecting Sets, IEEE Transactions on Visualization and Computer Graphics (InfoVis
-‘14), vol. 20, no. 12, pp. 1983–1992, 2014. doi: doi.org/10.1109/TVCG.2014.2346248</p>
-<p class="rubric">Examples</p>
-<p>Here we first generate a dummy data set akin to phosphoproteomics results of up- and downregulated sites that
-is then used to showcase the usage of the UpSetGrouped class.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">example</span>
-<span class="go">120_down  60_down  30_down  10_down  120_up  60_up  30_up  10_up</span>
-<span class="go">False     False    False    False    False   False  True   False    106</span>
-<span class="go">                                                    False  True      85</span>
-<span class="go">                                             True   False  False     50</span>
-<span class="go">                   True     False    False   False  False  False     30</span>
-<span class="go">                   False    False    True    False  False  False     29</span>
-<span class="go">                            True     False   False  False  False     26</span>
-<span class="go">True      False    False    False    False   False  False  False     17</span>
-<span class="go">False     True     False    False    False   False  False  False     14</span>
-<span class="go">          False    False    False    False   False  True   True      94</span>
-<span class="go">                                     True    True   False  False     33</span>
-<span class="go">                                     False   True   True   False     30</span>
-<span class="go">True      True     False    False    False   False  False  False     19</span>
-<span class="go">False     True     True     False    False   False  False  False     13</span>
-<span class="go">True      False    True     False    False   False  False  False      9</span>
-<span class="go">False     False    True     True     False   False  False  False      7</span>
-<span class="go">                   False    False    False   True   False  True       5</span>
-<span class="go">                                     True    False  True   False      4</span>
-<span class="go">                                                    False  True       2</span>
-<span class="go">          True     False    True     False   False  False  False      1</span>
-<span class="go">          False    True     False    True    False  False  False      1</span>
-<span class="go">                   False    True     True    False  False  False      1</span>
-<span class="go">True      False    False    False    False   False  False  True       1</span>
-<span class="go">False     False    False    False    True    True   True   False    102</span>
-<span class="go">                                     False   True   True   True      29</span>
-<span class="go">                                     True    False  True   True      14</span>
-<span class="go">True      True     True     False    False   False  False  False     11</span>
-<span class="go">False     True     True     True     False   False  False  False      1</span>
-<span class="go">          False    False    False    True    True   True   True      60</span>
-<span class="go">True      True     True     True     False   False  False  False      3</span>
-<span class="go">dtype: int64</span>
-</pre></div>
-</div>
-<p>The example dataset is loaded into the UpSetGrouped class and the styling_helper is used to colour the up- and down-
-regulated groups. Note that the styling_helper operates on the basis of string comparison with the titles of the
-data frame categories.
-Also note that the replot_totals function can only be used after calling the plot-function as is requires the
-axis on which the original bar plot was drawn.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">upset</span> <span class="o">=</span> <span class="n">UpSetGrouped</span><span class="p">(</span><span class="n">example</span><span class="p">,</span>
-<span class="gp">... </span>                     <span class="n">show_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="gp">... </span>                     <span class="c1">#show_percentages=True,</span>
-<span class="gp">... </span>                     <span class="n">sort_by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="gp">... </span>                     <span class="n">sort_categories_by</span><span class="o">=</span><span class="s1">&#39;cardinality&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                     <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">upset</span><span class="o">.</span><span class="n">styling_helper</span><span class="p">(</span><span class="s1">&#39;up&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;up regulated&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">upset</span><span class="o">.</span><span class="n">styling_helper</span><span class="p">(</span><span class="s1">&#39;down&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;darkblue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;down regulated&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">upset</span><span class="o">.</span><span class="n">styling_helper</span><span class="p">([</span><span class="s1">&#39;up&#39;</span><span class="p">,</span> <span class="s1">&#39;down&#39;</span><span class="p">],</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;darkred&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;reversibly regulated&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">specs</span> <span class="o">=</span> <span class="n">upset</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">upset</span><span class="o">.</span><span class="n">replot_totals</span><span class="p">(</span><span class="n">specs</span><span class="o">=</span><span class="n">specs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkblue&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkblue&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkblue&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                                        <span class="s1">&#39;darkblue&#39;</span><span class="p">,])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>(<a class="reference external" href=".//visualization-1.py">Source code</a>, <a class="reference external" href=".//visualization-1.png">png</a>, <a class="reference external" href=".//visualization-1.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-1.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/visualization-1.png" class="plot-directive" src="_images/visualization-1.png" />
-</figure>
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.visualization.UpSetGrouped.replot_totals">
-<span class="sig-name descname"><span class="pre">replot_totals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#UpSetGrouped.replot_totals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.UpSetGrouped.replot_totals" title="Permalink to this definition">#</a></dt>
-<dd><p>Plot bars indicating total set size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>specs</strong> (<em>dict</em>) – Dict of object axes as returned by upset.plot()</p></li>
-<li><p><strong>color</strong> (<em>str</em><em> or </em><em>list of str</em>) – Color(s) of the bars.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autoprot.visualization.UpSetGrouped.styling_helper">
-<span class="sig-name descname"><span class="pre">styling_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_substrings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'intersection'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#UpSetGrouped.styling_helper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.UpSetGrouped.styling_helper" title="Permalink to this definition">#</a></dt>
-<dd><p>Helper function for styling upsetplot category plots.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>label_substrings</strong> (<em>str</em><em> or </em><em>list</em>) – Substrings that are contained in the names of the row
-indices of the UpSet data (e.g. ‘_up’)</p></li>
-<li><p><strong>mode</strong> (<em>&quot;union&quot;</em><em> or </em><em>&quot;intersection&quot;</em>) – Whether bars containing with index
-names corresponding to either of the labels (union) or only combinations that contain both labels (
-intersection) should be treated</p></li>
-<li><p><strong>kwargs</strong> (<em>As passed to UpSet.style_subsets</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="autoprot.visualization.bh_plot">
 <span class="sig-prename descclassname"><span class="pre">autoprot.visualization.</span></span><span class="sig-name descname"><span class="pre">bh_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/autoprot/visualization.html#bh_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.visualization.bh_plot" title="Permalink to this definition">#</a></dt>
@@ -471,9 +355,9 @@ significantly different.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">bh_plot</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span><span class="s1">&#39;pValue_TvC&#39;</span><span class="p">,</span> <span class="s1">&#39;adj.pValue_TvC&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-2.py">Source code</a>, <a class="reference external" href=".//visualization-2.png">png</a>, <a class="reference external" href=".//visualization-2.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-2.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-1.py">Source code</a>, <a class="reference external" href=".//visualization-1.png">png</a>, <a class="reference external" href=".//visualization-1.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-1.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-2.png" class="plot-directive" src="_images/visualization-2.png" />
+<img alt="_images/visualization-1.png" class="plot-directive" src="_images/visualization-1.png" />
 </figure>
 </dd></dl>
 
@@ -519,9 +403,9 @@ fold-change differences between conditions or replicates</p>
 <span class="gp">... </span>                               <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;log_fc&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-3.py">Source code</a>, <a class="reference external" href=".//visualization-3.png">png</a>, <a class="reference external" href=".//visualization-3.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-3.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-2.py">Source code</a>, <a class="reference external" href=".//visualization-2.png">png</a>, <a class="reference external" href=".//visualization-2.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-2.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-3.png" class="plot-directive" src="_images/visualization-3.png" />
+<img alt="_images/visualization-2.png" class="plot-directive" src="_images/visualization-2.png" />
 </figure>
 <p>If you have two datasets for comparison (e.g. normalised and non-normalised)
 fold-changes, you can use boxplot to plot them side-by-side.</p>
@@ -529,9 +413,9 @@ fold-changes, you can use boxplot to plot them side-by-side.</p>
 <span class="gp">... </span>            <span class="n">title</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unormalized&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized&quot;</span><span class="p">],</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;log_fc&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-4.py">Source code</a>, <a class="reference external" href=".//visualization-4.png">png</a>, <a class="reference external" href=".//visualization-4.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-4.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-3.py">Source code</a>, <a class="reference external" href=".//visualization-3.png">png</a>, <a class="reference external" href=".//visualization-3.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-3.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-4.png" class="plot-directive" src="_images/visualization-4.png" />
+<img alt="_images/visualization-3.png" class="plot-directive" src="_images/visualization-3.png" />
 </figure>
 </dd></dl>
 
@@ -572,9 +456,9 @@ The default is False.</p></li>
 <span class="go">[(0.11, 1), (51.36, 2), (42.95, 3), (5.41, 4), (0.15, 5), (0.01, 6)]</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-5.py">Source code</a>, <a class="reference external" href=".//visualization-5.png">png</a>, <a class="reference external" href=".//visualization-5.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-5.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-4.py">Source code</a>, <a class="reference external" href=".//visualization-4.png">png</a>, <a class="reference external" href=".//visualization-4.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-4.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-5.png" class="plot-directive" src="_images/visualization-5.png" />
+<img alt="_images/visualization-4.png" class="plot-directive" src="_images/visualization-4.png" />
 </figure>
 </dd></dl>
 
@@ -613,18 +497,18 @@ The default is “YlGn”.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">corr_map</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-6.py">Source code</a>, <a class="reference external" href=".//visualization-6.png">png</a>, <a class="reference external" href=".//visualization-6.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-6.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-5.py">Source code</a>, <a class="reference external" href=".//visualization-5.png">png</a>, <a class="reference external" href=".//visualization-5.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-5.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-6.png" class="plot-directive" src="_images/visualization-6.png" />
+<img alt="_images/visualization-5.png" class="plot-directive" src="_images/visualization-5.png" />
 </figure>
 <p>If you want to plot the clustermap, set cluster to True.
 The correlation coefficients are colour-coded.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">corr_map</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">mildLogInt</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;autumn&quot;</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cluster</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-7.py">Source code</a>, <a class="reference external" href=".//visualization-7.png">png</a>, <a class="reference external" href=".//visualization-7.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-7.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-6.py">Source code</a>, <a class="reference external" href=".//visualization-6.png">png</a>, <a class="reference external" href=".//visualization-6.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-6.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-7.png" class="plot-directive" src="_images/visualization-7.png" />
+<img alt="_images/visualization-6.png" class="plot-directive" src="_images/visualization-6.png" />
 </figure>
 </dd></dl>
 
@@ -674,17 +558,17 @@ your experiment .</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">correlogram</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;proteinGroups&#39;</span><span class="p">,</span> <span class="n">lower_triang</span><span class="o">=</span><span class="s2">&quot;hist2d&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-8.py">Source code</a>, <a class="reference external" href=".//visualization-8.png">png</a>, <a class="reference external" href=".//visualization-8.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-8.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-7.py">Source code</a>, <a class="reference external" href=".//visualization-7.png">png</a>, <a class="reference external" href=".//visualization-7.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-7.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-8.png" class="plot-directive" src="_images/visualization-8.png" />
+<img alt="_images/visualization-7.png" class="plot-directive" src="_images/visualization-7.png" />
 </figure>
 <p>You may want to change the plot type on the lower left triangle.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">correlogram</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="n">mildLogInt</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s1">&#39;proteinGroups&#39;</span><span class="p">,</span> <span class="n">lower_triang</span><span class="o">=</span><span class="s2">&quot;hexBin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-9.py">Source code</a>, <a class="reference external" href=".//visualization-9.png">png</a>, <a class="reference external" href=".//visualization-9.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-9.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-8.py">Source code</a>, <a class="reference external" href=".//visualization-8.png">png</a>, <a class="reference external" href=".//visualization-8.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-8.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-9.png" class="plot-directive" src="_images/visualization-9.png" />
+<img alt="_images/visualization-8.png" class="plot-directive" src="_images/visualization-8.png" />
 </figure>
 </dd></dl>
 
@@ -713,9 +597,9 @@ Must contain a column “Amino acid”.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">count_mod_aa</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-10.py">Source code</a>, <a class="reference external" href=".//visualization-10.png">png</a>, <a class="reference external" href=".//visualization-10.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-10.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-9.py">Source code</a>, <a class="reference external" href=".//visualization-9.png">png</a>, <a class="reference external" href=".//visualization-9.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-9.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-10.png" class="plot-directive" src="_images/visualization-10.png" />
+<img alt="_images/visualization-9.png" class="plot-directive" src="_images/visualization-9.png" />
 </figure>
 </dd></dl>
 
@@ -758,9 +642,9 @@ Note that marker is passed to seaborn and results in points marked as diamonds.<
 <span class="gp">... </span>                                     <span class="n">hline</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-11.py">Source code</a>, <a class="reference external" href=".//visualization-11.png">png</a>, <a class="reference external" href=".//visualization-11.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-11.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-10.py">Source code</a>, <a class="reference external" href=".//visualization-10.png">png</a>, <a class="reference external" href=".//visualization-10.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-10.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-11.png" class="plot-directive" src="_images/visualization-11.png" />
+<img alt="_images/visualization-10.png" class="plot-directive" src="_images/visualization-10.png" />
 </figure>
 </dd></dl>
 
@@ -799,9 +683,9 @@ on the y axis.</p>
 <span class="gp">... </span>                                  <span class="s2">&quot;log10_Intensity BC4_3&quot;</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-12.py">Source code</a>, <a class="reference external" href=".//visualization-12.png">png</a>, <a class="reference external" href=".//visualization-12.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-12.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-11.py">Source code</a>, <a class="reference external" href=".//visualization-11.png">png</a>, <a class="reference external" href=".//visualization-11.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-11.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-12.png" class="plot-directive" src="_images/visualization-12.png" />
+<img alt="_images/visualization-11.png" class="plot-directive" src="_images/visualization-11.png" />
 </figure>
 <p>Similar to the visualization using a volcano plot, points of interest can be
 selected and labelled.</p>
@@ -809,9 +693,9 @@ selected and labelled.</p>
 <span class="go">               fct=2, annot=True, interactive=False, annot=&quot;Gene names&quot;)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-13.py">Source code</a>, <a class="reference external" href=".//visualization-13.png">png</a>, <a class="reference external" href=".//visualization-13.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-13.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-12.py">Source code</a>, <a class="reference external" href=".//visualization-12.png">png</a>, <a class="reference external" href=".//visualization-12.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-12.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-13.png" class="plot-directive" src="_images/visualization-13.png" />
+<img alt="_images/visualization-12.png" class="plot-directive" src="_images/visualization-12.png" />
 </figure>
 <p>And the plots can also be investigated interactively</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">log_int_plot</span><span class="p">(</span><span class="n">prot_limma</span><span class="p">,</span> <span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span>
@@ -859,17 +743,17 @@ therefore most points should lie on the y=0 line.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">ma_plot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitch</span><span class="p">,</span> <span class="n">ctrl</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-14.py">Source code</a>, <a class="reference external" href=".//visualization-14.png">png</a>, <a class="reference external" href=".//visualization-14.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-14.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-13.py">Source code</a>, <a class="reference external" href=".//visualization-13.png">png</a>, <a class="reference external" href=".//visualization-13.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-13.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-14.png" class="plot-directive" src="_images/visualization-14.png" />
+<img alt="_images/visualization-13.png" class="plot-directive" src="_images/visualization-13.png" />
 </figure>
 <p>If this is not the case, a normalisation using e.g. LOESS should be applied</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">ma_plot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitch</span><span class="p">,</span> <span class="n">ctrl</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-15.py">Source code</a>, <a class="reference external" href=".//visualization-15.png">png</a>, <a class="reference external" href=".//visualization-15.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-15.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-14.py">Source code</a>, <a class="reference external" href=".//visualization-14.png">png</a>, <a class="reference external" href=".//visualization-14.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-14.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-15.png" class="plot-directive" src="_images/visualization-15.png" />
+<img alt="_images/visualization-14.png" class="plot-directive" src="_images/visualization-14.png" />
 </figure>
 </dd></dl>
 
@@ -894,9 +778,9 @@ total indensity.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">mean_sd_plot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span> <span class="n">twitchInt</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-16.py">Source code</a>, <a class="reference external" href=".//visualization-16.png">png</a>, <a class="reference external" href=".//visualization-16.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-16.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-15.py">Source code</a>, <a class="reference external" href=".//visualization-15.png">png</a>, <a class="reference external" href=".//visualization-15.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-15.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-16.png" class="plot-directive" src="_images/visualization-16.png" />
+<img alt="_images/visualization-15.png" class="plot-directive" src="_images/visualization-15.png" />
 </figure>
 </dd></dl>
 
@@ -951,9 +835,9 @@ The default is “solid”.</p></li>
 <span class="gp">... </span>               <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Column&#39;</span><span class="p">,</span> <span class="n">z_score</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-17.py">Source code</a>, <a class="reference external" href=".//visualization-17.png">png</a>, <a class="reference external" href=".//visualization-17.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-17.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-16.py">Source code</a>, <a class="reference external" href=".//visualization-16.png">png</a>, <a class="reference external" href=".//visualization-16.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-16.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-17.png" class="plot-directive" src="_images/visualization-17.png" />
+<img alt="_images/visualization-16.png" class="plot-directive" src="_images/visualization-16.png" />
 </figure>
 </dd></dl>
 
@@ -984,18 +868,18 @@ indicated by dist.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">prob_plot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="s1">&#39;log10_Intensity H BC18_1&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-18.py">Source code</a>, <a class="reference external" href=".//visualization-18.png">png</a>, <a class="reference external" href=".//visualization-18.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-18.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-17.py">Source code</a>, <a class="reference external" href=".//visualization-17.png">png</a>, <a class="reference external" href=".//visualization-17.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-17.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-18.png" class="plot-directive" src="_images/visualization-18.png" />
+<img alt="_images/visualization-17.png" class="plot-directive" src="_images/visualization-17.png" />
 </figure>
 <p>In contrast when the data does not follow the distribution, outliers from the
 linear plot will be visible.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">prob_plot</span><span class="p">(</span><span class="n">prot</span><span class="p">,</span><span class="s1">&#39;log10_Intensity H BC18_1&#39;</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="n">stats</span><span class="o">.</span><span class="n">uniform</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-19.py">Source code</a>, <a class="reference external" href=".//visualization-19.png">png</a>, <a class="reference external" href=".//visualization-19.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-19.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-18.py">Source code</a>, <a class="reference external" href=".//visualization-18.png">png</a>, <a class="reference external" href=".//visualization-18.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-18.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-19.png" class="plot-directive" src="_images/visualization-19.png" />
+<img alt="_images/visualization-18.png" class="plot-directive" src="_images/visualization-18.png" />
 </figure>
 </dd></dl>
 
@@ -1067,9 +951,9 @@ Must contain a column “Number of Phospho (STY)”.</p></li>
 <span class="go">[(0.05, 0), (63.59, 1), (28.08, 2), (7.29, 3), (0.9, 4), (0.09, 5)]</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-20.py">Source code</a>, <a class="reference external" href=".//visualization-20.png">png</a>, <a class="reference external" href=".//visualization-20.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-20.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-19.py">Source code</a>, <a class="reference external" href=".//visualization-19.png">png</a>, <a class="reference external" href=".//visualization-19.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-19.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-20.png" class="plot-directive" src="_images/visualization-20.png" />
+<img alt="_images/visualization-19.png" class="plot-directive" src="_images/visualization-19.png" />
 </figure>
 </dd></dl>
 
@@ -1117,18 +1001,18 @@ values in two columns will be grouped together in the Venn diagram.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">venn_diagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-21.py">Source code</a>, <a class="reference external" href=".//visualization-21.png">png</a>, <a class="reference external" href=".//visualization-21.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-21.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-20.py">Source code</a>, <a class="reference external" href=".//visualization-20.png">png</a>, <a class="reference external" href=".//visualization-20.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-20.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-21.png" class="plot-directive" src="_images/visualization-21.png" />
+<img alt="_images/visualization-20.png" class="plot-directive" src="_images/visualization-20.png" />
 </figure>
 <p>Only up to three conditions can be compared in non-proportional Venn
 diagrams</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">venn_diagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">proportional</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-22.py">Source code</a>, <a class="reference external" href=".//visualization-22.png">png</a>, <a class="reference external" href=".//visualization-22.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-22.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-21.py">Source code</a>, <a class="reference external" href=".//visualization-21.png">png</a>, <a class="reference external" href=".//visualization-21.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-21.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-22.png" class="plot-directive" src="_images/visualization-22.png" />
+<img alt="_images/visualization-21.png" class="plot-directive" src="_images/visualization-21.png" />
 </figure>
 <p>Copmaring up to 6 conditions is possible but the resulting Venn diagrams
 get quite messy.</p>
@@ -1136,9 +1020,9 @@ get quite messy.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">venn_diagram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-23.py">Source code</a>, <a class="reference external" href=".//visualization-23.png">png</a>, <a class="reference external" href=".//visualization-23.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-23.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-22.py">Source code</a>, <a class="reference external" href=".//visualization-22.png">png</a>, <a class="reference external" href=".//visualization-22.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-22.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-23.png" class="plot-directive" src="_images/visualization-23.png" />
+<img alt="_images/visualization-22.png" class="plot-directive" src="_images/visualization-22.png" />
 </figure>
 </dd></dl>
 
@@ -1184,9 +1068,9 @@ or a single color</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">vis_psites</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">domain_position</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">pl</span><span class="p">,</span> <span class="n">plc</span><span class="p">,</span> <span class="n">pls</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-24.py">Source code</a>, <a class="reference external" href=".//visualization-24.png">png</a>, <a class="reference external" href=".//visualization-24.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-24.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-23.py">Source code</a>, <a class="reference external" href=".//visualization-23.png">png</a>, <a class="reference external" href=".//visualization-23.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-23.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-24.png" class="plot-directive" src="_images/visualization-24.png" />
+<img alt="_images/visualization-23.png" class="plot-directive" src="_images/visualization-23.png" />
 </figure>
 </dd></dl>
 
@@ -1272,9 +1156,9 @@ highlight parameter those will be highlighted for you in the plot.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">prot_limma</span><span class="p">,</span> <span class="n">log_fc</span><span class="o">=</span><span class="s2">&quot;logFC_TvM&quot;</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="s2">&quot;P.Value_TvM&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-25.py">Source code</a>, <a class="reference external" href=".//visualization-25.png">png</a>, <a class="reference external" href=".//visualization-25.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-25.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-24.py">Source code</a>, <a class="reference external" href=".//visualization-24.png">png</a>, <a class="reference external" href=".//visualization-24.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-24.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-25.png" class="plot-directive" src="_images/visualization-25.png" />
+<img alt="_images/visualization-24.png" class="plot-directive" src="_images/visualization-24.png" />
 </figure>
 <p>The volcano function allows a certain amount of customisation. E.g. proteins
 exceeding a certain threshold can be annotated and titles and colours can
@@ -1284,9 +1168,9 @@ be adapted to your needs.</p>
 <span class="gp">... </span>            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom Title&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-26.py">Source code</a>, <a class="reference external" href=".//visualization-26.png">png</a>, <a class="reference external" href=".//visualization-26.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-26.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-25.py">Source code</a>, <a class="reference external" href=".//visualization-25.png">png</a>, <a class="reference external" href=".//visualization-25.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-25.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-26.png" class="plot-directive" src="_images/visualization-26.png" />
+<img alt="_images/visualization-25.png" class="plot-directive" src="_images/visualization-25.png" />
 </figure>
 <p>Moreover, custom entries can be highlghted such as target proteins of a study.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="n">prot_limma</span><span class="p">[</span><span class="n">prot_limma</span><span class="p">[</span><span class="s1">&#39;logFC_TvM&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">index</span>
@@ -1294,9 +1178,9 @@ be adapted to your needs.</p>
 <span class="gp">... </span>            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-27.py">Source code</a>, <a class="reference external" href=".//visualization-27.png">png</a>, <a class="reference external" href=".//visualization-27.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-27.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-26.py">Source code</a>, <a class="reference external" href=".//visualization-26.png">png</a>, <a class="reference external" href=".//visualization-26.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-26.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-27.png" class="plot-directive" src="_images/visualization-27.png" />
+<img alt="_images/visualization-26.png" class="plot-directive" src="_images/visualization-26.png" />
 </figure>
 <p>Using dictionaries of matplotlib keywords eventually allows a higher degree
 of customisation.</p>
@@ -1307,9 +1191,9 @@ of customisation.</p>
 <span class="gp">... </span>            <span class="n">custom_hl</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span><span class="mi">40</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span><span class="s2">&quot;purple&quot;</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-28.py">Source code</a>, <a class="reference external" href=".//visualization-28.png">png</a>, <a class="reference external" href=".//visualization-28.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-28.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-27.py">Source code</a>, <a class="reference external" href=".//visualization-27.png">png</a>, <a class="reference external" href=".//visualization-27.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-27.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-28.png" class="plot-directive" src="_images/visualization-28.png" />
+<img alt="_images/visualization-27.png" class="plot-directive" src="_images/visualization-27.png" />
 </figure>
 <p>You can also collect the volcano plot on an axis and plot multiple plots
 on a single figure.</p>
@@ -1322,9 +1206,9 @@ on a single figure.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-29.py">Source code</a>, <a class="reference external" href=".//visualization-29.png">png</a>, <a class="reference external" href=".//visualization-29.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-29.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-28.py">Source code</a>, <a class="reference external" href=".//visualization-28.png">png</a>, <a class="reference external" href=".//visualization-28.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-28.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-29.png" class="plot-directive" src="_images/visualization-29.png" />
+<img alt="_images/visualization-28.png" class="plot-directive" src="_images/visualization-28.png" />
 </figure>
 <p>If you set the interactive keyword arg to True, you can explore your volcano
 plots interactively using plotly.</p>
@@ -1364,9 +1248,9 @@ The default is 0.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">autoprot</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">wordcloud</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;hello world!&quot;</span><span class="p">,</span> <span class="n">contour_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//visualization-30.py">Source code</a>, <a class="reference external" href=".//visualization-30.png">png</a>, <a class="reference external" href=".//visualization-30.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-30.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//visualization-29.py">Source code</a>, <a class="reference external" href=".//visualization-29.png">png</a>, <a class="reference external" href=".//visualization-29.hires.png">hires.png</a>, <a class="reference external" href=".//visualization-29.pdf">pdf</a>)</p>
 <figure class="align-default">
-<img alt="_images/visualization-30.png" class="plot-directive" src="_images/visualization-30.png" />
+<img alt="_images/visualization-29.png" class="plot-directive" src="_images/visualization-29.png" />
 </figure>
 <p>You can also use the extractPDF method to input a pdf text instead of a text
 string</p>

@@ -1,1 +1,8 @@
-vis.correlogram(prot,mildLogInt, file='proteinGroups', lower_triang="hexBin")
+import autoprot.preprocessing as pp
+import autoprot.visualization as vis
+import pandas as pd
+
+phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+phos = pp.cleaning(phos, file = "Phospho (STY)")
+vis.count_mod_aa(phos)
+plt.show()

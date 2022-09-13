@@ -1321,10 +1321,13 @@ We will also log2-transform the intensity data to show that VSN normalisation re
 </div>
 <p>Note how the VSN normalisation and the log2 transformation result in values of similar magnitude.
 However, the exact variances of the two transformations are different.</p>
-<p>(<a class="reference external" href=".//preprocessing-4.py">Source code</a>, <a class="reference external" href=".//preprocessing-4.png">png</a>, <a class="reference external" href=".//preprocessing-4.hires.png">hires.png</a>, <a class="reference external" href=".//preprocessing-4.pdf">pdf</a>)</p>
-<figure class="align-default">
-<img alt="_images/preprocessing-4.png" class="plot-directive" src="_images/preprocessing-4.png" />
-</figure>
+<p>(<a class="reference external" href=".//preprocessing-4.py">Source code</a>)</p>
+<p>intens_cols = phos_lfq.filter(regex=”Intensity .”).columns.to_list()
+phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
+phos_lfq = pp.vsn(phos_lfq, intens_cols)
+norm_cols = phos_lfq.filter(regex=”_norm”).columns.to_list()
+phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)
+vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)</p>
 </dd></dl>
 
 </section>
