@@ -20,6 +20,7 @@ import matplotlib.colors as clrs
 import numpy as np
 import os
 from typing import Union, Literal
+import warnings
 
 
 class Cluster:
@@ -156,7 +157,7 @@ class Cluster:
 
         """
 
-        def makeClusterTraces(self, file, colors: list, zs=None):
+        def make_cluster_traces(self, file, colors: list, zs=None):
             """
             Plot RMSD vs colname line plots.
 
@@ -279,9 +280,9 @@ class Cluster:
             plt.savefig(file)
         if make_traces:
             if "z_score" in kwargs:
-                makeClusterTraces(self, file, zs=kwargs["z_score"], colors=colors)
+                make_cluster_traces(self, file, zs=kwargs["z_score"], colors=colors)
             else:
-                makeClusterTraces(self, file, colors=colors)
+                make_cluster_traces(self, file, colors=colors)
         if make_heatmap:
             make_cluster_heatmap(self, file)
 
@@ -426,9 +427,9 @@ class HCA(Cluster):
     """
 
     def make_linkage(self, method='single', metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-        'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulczynski1',
-        'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-        'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
+                                                            'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulczynski1',
+                                                            'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+                                                            'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
 
         """
         Perform hierarchical clustering on the data.
@@ -489,6 +490,12 @@ class HCA(Cluster):
              -0.03960705975653923]
             """
             return [c[i][j] for i in (range(c.shape[0])) for j in (range(c.shape[1])) if i < j]
+
+        if self.linkage is not None:
+            warnings.warn('Linkage is already present, using the already defined linkage. If you want to reset the '
+                          'linkage, manually set HCA.linkage = None', UserWarning)
+            # leave the function
+            return None
 
         # First calculate a distance metric between the points
         if metric in {"pearson", "spearman"}:
