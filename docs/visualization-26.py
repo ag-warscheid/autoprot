@@ -1,4 +1,4 @@
-idx = prot_limma[prot_limma['logFC_TvM'] > 1].sample(10).index
-vis.volcano(df=prot_limma, logFC="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-            figsize=(15,5))
+vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", pt=0.01,
+   fct=2, annot="Gene names", sig_col="purple", bg_col="teal",
+   title="Custom Title", figsize=(15,5))
 plt.show()

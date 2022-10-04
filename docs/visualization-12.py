@@ -14,4 +14,4 @@ twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC
 prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
 prot["log10_Intensity BC4_3"].replace(-np.inf, np.nan, inplace=True)
 
-vis.logIntPlot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
+vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))

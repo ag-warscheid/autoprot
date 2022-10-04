@@ -5,6 +5,6 @@ phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_
 phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
 phosLog = pp.log(phos, phosRatio, base=2)
 noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-phos_norm_r = pp.cyclicLOESS(phosLog, noNorm, backend='r')
+phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
 vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
 plt.show()

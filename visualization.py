@@ -21,7 +21,7 @@ from matplotlib_venn import venn3
 import logomaker
 import colorsys
 import matplotlib.patches as patches
-from itertools import chain
+from itertools import chain, combinations
 
 from wordcloud import WordCloud
 from wordcloud import STOPWORDS
@@ -35,6 +35,8 @@ import io
 from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
+
+import upsetplot
 
 plt.rcParams['pdf.fonttype'] = 42
 
@@ -2140,13 +2142,13 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
     # only plot phosphosite if there are any
     if ps is not None:
         text_color = {"A": "gray",
-                     "Ad": "gray",
-                     "B": "#dc86fa",
-                     "Bd": "#6AC9BE",
-                     "C": "#aa00d7",
-                     "Cd": "#239895",
-                     "D": "#770087",
-                     "Dd": "#008080"}
+                      "Ad": "gray",
+                      "B": "#dc86fa",
+                      "Bd": "#6AC9BE",
+                      "C": "#aa00d7",
+                      "Cd": "#239895",
+                      "D": "#770087",
+                      "Dd": "#008080"}
 
         for idx, site in enumerate(ps):
             plt.axvline(site, 0, 1, color="red")
@@ -2210,7 +2212,8 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         plt.show()
 
     """
-    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
+    no_of_phos = [int(i) for i in
+                  list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
     count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
     counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
 
@@ -2254,7 +2257,7 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         plt.title("Number of Phosphosites")
     else:
         raise TypeError("typ must be either 'bar' or 'pie")
-    
+
     if ret_fig is True:
         return fig
 
@@ -2592,3 +2595,238 @@ def bh_plot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
 
     sns.despine(ax=ax[0])
     sns.despine(ax=ax[1])
+
+
+class UpSetGrouped(upsetplot.UpSet):
+    """
+    Generate upset plot as described in Lex2014 [1] and implemented in Python by jnothman.
+    This function extends its use by the ability to colour and group bars in the bar plot.
+
+    Notes
+    -----
+    This function uses the upset plot implementation of jnothman (https://github.com/jnothman/UpSetPlot) and extends it
+    by grouping and colouring of the bar charts.
+    Most troubleshooting can be accomplished looking at their documentation at
+    https://upsetplot.readthedocs.io/en/stable/index.html. Especially their documentation of how to integrate
+    commonly used data formats is very helpful: https://upsetplot.readthedocs.io/en/stable/formats.html.
+
+    References
+    ----------
+    [1] Alexander Lex, Nils Gehlenborg, Hendrik Strobelt, Romain Vuillemot, Hanspeter Pfister,
+    UpSet: Visualization of Intersecting Sets, IEEE Transactions on Visualization and Computer Graphics (InfoVis
+    '14), vol. 20, no. 12, pp. 1983–1992, 2014. doi: doi.org/10.1109/TVCG.2014.2346248
+
+    Examples
+    --------
+
+    Here we first generate a dummy data set akin to phosphoproteomics results of up- and downregulated sites that
+    is then used to showcase the usage of the UpSetGrouped class.
+
+    >>> example
+    120_down  60_down  30_down  10_down  120_up  60_up  30_up  10_up
+    False     False    False    False    False   False  True   False    106
+                                                        False  True      85
+                                                 True   False  False     50
+                       True     False    False   False  False  False     30
+                       False    False    True    False  False  False     29
+                                True     False   False  False  False     26
+    True      False    False    False    False   False  False  False     17
+    False     True     False    False    False   False  False  False     14
+              False    False    False    False   False  True   True      94
+                                         True    True   False  False     33
+                                         False   True   True   False     30
+    True      True     False    False    False   False  False  False     19
+    False     True     True     False    False   False  False  False     13
+    True      False    True     False    False   False  False  False      9
+    False     False    True     True     False   False  False  False      7
+                       False    False    False   True   False  True       5
+                                         True    False  True   False      4
+                                                        False  True       2
+              True     False    True     False   False  False  False      1
+              False    True     False    True    False  False  False      1
+                       False    True     True    False  False  False      1
+    True      False    False    False    False   False  False  True       1
+    False     False    False    False    True    True   True   False    102
+                                         False   True   True   True      29
+                                         True    False  True   True      14
+    True      True     True     False    False   False  False  False     11
+    False     True     True     True     False   False  False  False      1
+              False    False    False    True    True   True   True      60
+    True      True     True     True     False   False  False  False      3
+    dtype: int64
+
+    The example dataset is loaded into the UpSetGrouped class and the styling_helper is used to colour the up- and down-
+    regulated groups. Note that the styling_helper operates on the basis of string comparison with the titles of the
+    data frame categories.
+    Also note that the replot_totals function can only be used after calling the plot-function as is requires the
+    axis on which the original bar plot was drawn.
+
+    >>> upset = UpSetGrouped(example,
+    ...                      show_counts=True,
+    ...                      #show_percentages=True,
+    ...                      sort_by=None,
+    ...                      sort_categories_by='cardinality',
+    ...                      facecolor="gray")
+    >>> upset.styling_helper('up', facecolor='darkgreen', label='up regulated')
+    >>> upset.styling_helper('down', facecolor='darkblue', label='down regulated')
+    >>> upset.styling_helper(['up', 'down'], facecolor='darkred', label='reversibly regulated')
+    >>> specs = upset.plot()
+    >>> upset.replot_totals(specs=specs, color=['darkgreen',
+    ...                                         'darkgreen',
+    ...                                         'darkgreen',
+    ...                                         'darkgreen',
+    ...                                         'darkblue',
+    ...                                         'darkblue',
+    ...                                         'darkblue',
+    ...                                         'darkblue',])
+    >>> plt.show()
+
+    .. plot::
+        :context: close-figs
+
+        import pandas as pd
+        import autoprot.visualization as vis
+
+        arrays = [(False,False,False,False,False,False,True,False),
+                  (False,False,False,False,False,False,False,True),
+                  (False,False,False,False,False,True,False,False),
+                  (False,False,True,False,False,False,False,False),
+                  (False,False,False,False,True,False,False,False),
+                  (False,False,False,True,False,False,False,False),
+                  (True,False,False,False,False,False,False,False),
+                  (False,True,False,False,False,False,False,False),
+                  (False,False,False,False,False,False,True,True),
+                  (False,False,False,False,True,True,False,False),
+                  (False,False,False,False,False,True,True,False),
+                  (True,True,False,False,False,False,False,False),
+                  (False,True,True,False,False,False,False,False),
+                  (True,False,True,False,False,False,False,False),
+                  (False,False,True,True,False,False,False,False),
+                  (False,False,False,False,False,True,False,True),
+                  (False,False,False,False,True,False,True,False),
+                  (False,False,False,False,True,False,False,True),
+                  (False,True,False,True,False,False,False,False),
+                  (False,False,True,False,True,False,False,False),
+                  (False,False,False,True,True,False,False,False),
+                  (True,False,False,False,False,False,False,True),
+                  (False,False,False,False,True,True,True,False),
+                  (False,False,False,False,False,True,True,True),
+                  (False,False,False,False,True,False,True,True),
+                  (True,True,True,False,False,False,False,False),
+                  (False,True,True,True,False,False,False,False),
+                  (False,False,False,False,True,True,True,True),
+                  (True,True,True,True,False,False,False,False)]
+        arrays = np.array(arrays).T
+        values = (106,85,50,30,29,26,17,14,94,33,30,19,13,9,7,5,4,2,1,1,1,1,102,29,14,11,1,60,3)
+        example = pd.Series(values,
+                            index=pd.MultiIndex.from_arrays(arrays,
+                                                            names=('120_down',
+                                                                   '60_down',
+                                                                   '30_down',
+                                                                   '10_down',
+                                                                   '120_up',
+                                                                   '60_up',
+                                                                   '30_up',
+                                                                   '10_up')
+                                                           )
+                           )
+
+        upset = vis.UpSetGrouped(example,
+                                 show_counts=True,
+                                 #show_percentages=True,
+                                 sort_by=None,
+                                 sort_categories_by='cardinality',
+                                 facecolor="gray")
+        upset.styling_helper('up', facecolor='darkgreen', label='up regulated')
+        upset.styling_helper('down', facecolor='darkblue', label='down regulated')
+        upset.styling_helper(['up', 'down'], facecolor='darkred', label='reversibly regulated')
+        specs = upset.plot()
+        upset.replot_totals(specs=specs, color=['darkgreen',
+                                                'darkgreen',
+                                                'darkgreen',
+                                                'darkgreen',
+                                                'darkblue',
+                                                'darkblue',
+                                                'darkblue',
+                                                'darkblue',])
+
+        plt.show()
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def styling_helper(self, label_substrings, mode='intersection', **kwargs):
+        """
+        Helper function for styling upsetplot category plots.
+
+        Parameters
+        --------
+        label_substrings : str or list
+            Substrings that are contained in the names of the row
+            indices of the UpSet data (e.g. '_up')
+        mode : "union" or "intersection"
+            Whether bars containing with index
+            names corresponding to either of the labels (union) or only combinations that contain both labels (
+            intersection) should be treated
+        kwargs : As passed to UpSet.style_subsets
+        """
+        labels = self.intersections.index.names
+
+        if isinstance(label_substrings, str):
+            label_substrings = [label_substrings, ]
+
+        if mode not in ['union', 'intersection']:
+            raise AttributeError('Please provide either "union" or "intersection" as argument to mode')
+
+        for L in range(len(labels) + 1):
+            for subset in combinations(labels, L):
+
+                label_found = []
+                for l in label_substrings:
+                    tests = []
+                    for s in subset:
+                        tests.append(l in s)
+                    label_found.append(any(tests))
+
+                if mode == 'intersection':
+                    if all(label_found):
+                        self.style_subsets(present=subset, **kwargs)
+                else:
+                    if any(label_found):
+                        self.style_subsets(present=subset, **kwargs)
+
+    def replot_totals(self, specs, color):
+        """
+        Plot bars indicating total set size.
+
+        Parameters
+        ----------
+        specs : dict
+            Dict of object axes as returned by upset.plot()
+        color : str or list of str
+            Color(s) of the bars.
+        """
+
+        for artist in specs['totals'].lines + specs['totals'].collections:
+            artist.remove()
+
+        orig_ax = specs['totals']
+        ax = self._reorient(specs['totals'])
+        rects = ax.barh(np.arange(len(self.totals.index.values)), self.totals,
+                        .5, color=color, align='center')
+
+        ax.set_yticklabels(specs['matrix'].get_yticklabels())
+
+        self._label_sizes(ax, rects, 'left' if self._horizontal else 'top')
+
+        max_total = self.totals.max()
+        if self._horizontal:
+            orig_ax.set_xlim(max_total, 0)
+        for x in ['top', 'left', 'right']:
+            ax.spines[self._reorient(x)].set_visible(False)
+        ax.yaxis.set_visible(False)
+        ax.xaxis.grid(True)
+        ax.yaxis.grid(False)
+        ax.patch.set_visible(False)

@@ -1,31 +1,14 @@
 import autoprot.preprocessing as pp
+import autoprot.visualization as vis
 import autoprot.analysis as ana
 import pandas as pd
 
-phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-phos = pp.cleaning(phos, file = "Phospho (STY)")
-phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-phos = pp.log(phos, phosRatio, base=2)
-phos = pp.filterLocProb(phos, thresh=.75)
-phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-phos = pp.removeNonQuant(phos, phosRatio)
+prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+prot = pp.cleaning(prot, "proteinGroups")
+protInt = prot.filter(regex='Intensity').columns
+prot = pp.log(prot, protInt, base=10)
 
-phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
-phos_expanded = pp.expandSiteTable(phos, phosRatio)
+twitchInt = ['log10_Intensity H BC18_1','log10_Intensity M BC18_2','log10_Intensity H BC18_3',
+         'log10_Intensity BC36_1','log10_Intensity H BC36_2','log10_Intensity M BC36_2']
 
-twitchVsmild = ['log2_Ratio H/M normalized R1','log2_Ratio M/L normalized R2','log2_Ratio H/M normalized R3',
-                'log2_Ratio H/L normalized R4','log2_Ratio H/M normalized R5','log2_Ratio M/L normalized R6']
-twitchVsctrl = ["log2_Ratio H/L normalized R1","log2_Ratio H/M normalized R2","log2_Ratio H/L normalized R3",
-                "log2_Ratio M/L normalized R4", "log2_Ratio H/L normalized R5","log2_Ratio H/M normalized R6"]
-mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
-              "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
-phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="TvM", mean=True)
-phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond="TvC", mean=True)
-phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond="MvC", mean=True)
-
-idx = phos.sample(10).index
-test = phos.filter(regex="logFC_").loc[idx]
-label = phos.loc[idx, "Gene names"]
-vis.plotTraces(test, test.columns, labels=label, colors=["red", "green"]*5,
-               xlabel='Column')
-plt.show()
+vis.mean_sd_plot(prot, twitchInt)

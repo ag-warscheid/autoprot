@@ -8,7 +8,8 @@ prot = pp.cleaning(prot, "proteinGroups")
 protInt = prot.filter(regex='Intensity').columns
 prot = pp.log(prot, protInt, base=10)
 
-twitchInt = ['log10_Intensity H BC18_1','log10_Intensity M BC18_2','log10_Intensity H BC18_3',
-         'log10_Intensity BC36_1','log10_Intensity H BC36_2','log10_Intensity M BC36_2']
+x = "log10_Intensity BC4_3"
+y = "log10_Intensity BC36_1"
 
-vis.meanSd(prot, twitchInt)
+vis.ma_plot(prot, x, y, fct=2,interactive=False)
+plt.show()

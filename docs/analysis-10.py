@@ -1,3 +1,3 @@
 import autoprot.analysis as ana
-ana.getPubAbstracts(ToA=["p38", "JNK", "ERK"],
-                    makeWordCloud=True)
+ana.get_pub_abstracts(title_or_abstract=["p38", "JNK", "ERK"],
+                      make_word_cloud=True)
