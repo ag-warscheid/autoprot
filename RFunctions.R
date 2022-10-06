@@ -236,8 +236,8 @@ rankprod <- function(dfv) {
   data.origin.sub <- rep(1,NCOL(dfv))
   data.sub <- as.matrix(dfv)
   
-  RP.out <- RP.advance(data.sub, data.cl.sub, data.origin.sub,logged=TRUE,
-                       na.rm=TRUE, gene.names=df$`UID`, plot=FALSE, calculateProduct = FALSE,
+  RP.out <- RP.advance(data.sub, data.cl.sub, data.origin.sub, logged=TRUE,
+                       na.rm=TRUE, gene.names=df$`UID`, plot=FALSE, calculateProduct=FALSE,
                        rand=1337)
   
   RS <- RP.out$RSs[,2]

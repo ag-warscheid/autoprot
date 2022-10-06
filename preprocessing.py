@@ -501,7 +501,7 @@ def filter_vv(df, groups, n=2, valid_values=True):
         idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
 
     # indices that are valid in all groups
-    idx = set.intersection(*idxs)
+    idx = list(set.intersection(*idxs))
     df = df.loc[idx]
 
     return df
@@ -547,7 +547,7 @@ def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bo
     3  11130      RRBP1    6238  GO:0005840  ribosome
     4  16112        SF1    7536  GO:0005840  ribosome
     """
-    with resources.open_binary("autoprot.data", "Homo_sapiens.gene_info.zip") as d:
+    with resources.open_binary("autoprot.data", "Homo_sapiens.zip") as d:
         gene_info = pd.read_csv(d, sep='\t', compression='zip')
     with resources.open_binary("autoprot.data", "gene2go_alt.zip") as d:
         gene2go = pd.read_csv(d, sep='\t', compression='zip')
