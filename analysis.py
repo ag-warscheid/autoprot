@@ -2219,6 +2219,11 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
 
+    # limma handles fold-change calculation opposite to all other autoprot tools
+    # this changes the order for function consistency
+    if isinstance(reps[0], list) and len(reps) == 2:
+        reps = reps[::-1]
+
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
