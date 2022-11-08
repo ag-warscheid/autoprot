@@ -9,6 +9,7 @@ Autoprot Visualisation Functions.
 from scipy import stats
 from scipy.stats import zscore, gaussian_kde
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
@@ -1057,6 +1058,7 @@ def volcano(df: pd.DataFrame,
             p_thresh: float = 0.05,
             log_fc_thresh: float = None,
             pointsize_colname: str or float = None,
+            pointsize_scaler: float = 1,
             highlight: pd.Index = None,
             title: str = None,
             show_legend: bool = True,
@@ -1098,6 +1100,9 @@ def volcano(df: pd.DataFrame,
     pointsize_colname: str or float, optional
         Name of a column to use as measure for point size.
         Alternatively the size of all points.
+    pointsize_scaler: float, optional
+        Value to scale all point sizes.
+        Default is 1.
     highlight : pd.index, optional
         Rows to highlight in the plot.
         The default is None.
@@ -1121,6 +1126,9 @@ def volcano(df: pd.DataFrame,
     annotate_colname: str, optional
         The column name to use for the annotation.
         Default is "Gene names".
+    annotate_density : int, optional
+        The density (normalised to 1) below which points are ignored from labelling.
+        Default is 100.
     kwargs_ns : dict, optional
         Custom kwargs to pass to plt.scatter when generating the non-significant points.
         The default is None.
@@ -1137,9 +1145,7 @@ def volcano(df: pd.DataFrame,
         Custom kwargs to pass to plt.scatter when generating the highlighted points.
         Only relevant if highlight is not None.
         The default is None.
-    annotate_density : int, optional
-        The density (normalised to 1) below which points are ignored from labelling.
-        Default is 100.
+
 
     Returns
     -------
@@ -1177,6 +1183,18 @@ def volcano(df: pd.DataFrame,
         return keyword_dict
 
     def _limit_density(xs, ys, threshold):
+        """
+        Reduce the points for annotation throughh a point density threshold.
+
+        Parameters
+        ----------
+        xs: list
+            x values
+        ys: list
+            y values
+        threshold: float
+            Probability threshold. Only points with 1/density above the value will be retained.
+        """
         # Make some random Gaussian data
         data = np.array([(x, y) for x, y in zip(xs, ys)])
         # Compute KDE
@@ -1191,12 +1209,20 @@ def volcano(df: pd.DataFrame,
 
         return sample.T[0], sample.T[1]
 
-    # the following lines of code generates the scatter the rest is styling
+    # PLOTTING
+    if pointsize_colname is not None:
+        if not is_numeric_dtype(df[pointsize_colname]):
+            raise ValueError('The column provided for point sizing should only contain numeric values')
+        # normalize the point sizes
+        df['s'] = pointsize_scaler * 100 * (df[pointsize_colname] - df[pointsize_colname].min()) / df[
+            pointsize_colname].max()
+
     # Non-Significant
     kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color='lightgrey',
                                                     alpha=0.5))
     ax.scatter(df.loc[df['SigCat'] == 'NS', log_fc_colname],
                df.loc[df['SigCat'] == 'NS', "score"],
+               s=df.loc[df['SigCat'] == 'NS', "s"] if pointsize_colname is not None else None,
                label='NS',
                **kwargs_ns)
     # Significant by p-value
@@ -1204,13 +1230,15 @@ def volcano(df: pd.DataFrame,
                                                           alpha=0.5))
     ax.scatter(df.loc[df['SigCat'] == 'p-value', log_fc_colname],
                df.loc[df['SigCat'] == 'p-value', "score"],
+               s=df.loc[df['SigCat'] == 'p-value', "s"] if pointsize_colname is not None else None,
                label='p-value',
                **kwargs_p_sig)
-    # signficant by log fold-change
+    # significant by log fold-change
     kwargs_log_fc_sig = _set_default_kwargs(kwargs_log_fc_sig, dict(color='lightgreen',
                                                                     alpha=0.5))
     ax.scatter(df.loc[df['SigCat'] == 'log2FC', log_fc_colname],
                df.loc[df['SigCat'] == 'log2FC', "score"],
+               s=df.loc[df['SigCat'] == 'log2FC', "s"] if pointsize_colname is not None else None,
                label=r'$\mathregular{log_2 FC}$',
                **kwargs_log_fc_sig)
     # significant by both
@@ -1218,6 +1246,7 @@ def volcano(df: pd.DataFrame,
                                                                 alpha=0.5))
     ax.scatter(df.loc[df['SigCat'] == 'p-value and log2FC', log_fc_colname],
                df.loc[df['SigCat'] == 'p-value and log2FC', "score"],
+               s=df.loc[df['SigCat'] == 'p-value and log2FC', "s"] if pointsize_colname is not None else None,
                label=r'$\mathregular{log_2 FC}$ and p-value',
                **kwargs_both_sig)
 
@@ -1228,6 +1257,7 @@ def volcano(df: pd.DataFrame,
                                                                       alpha=0.8))
         ax.scatter(df.loc[highlight, log_fc_colname],
                    df.loc[highlight, "score"],
+                   s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
                    **kwargs_highlight)
 
     ax.set_xlabel(r'$\mathregular{log_2 fold-change}$', fontsize=16)
@@ -1261,9 +1291,27 @@ def volcano(df: pd.DataFrame,
 
     # STYLING
     if show_legend:
-        plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode='expand', ncol=4)
+        legend = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode='expand', ncol=4)
+        # this fixes the legend points having the same size as the points in the scatter plot
+        for handle in legend.legendHandles:
+            handle._sizes = [30]
+
+        if pointsize_colname is not None:
+
+            mlabels = np.linspace(start=df[pointsize_colname].max()/5, stop=df[pointsize_colname].max(), num=4)
+
+            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
+
+            markers = []
+            for label, size in zip(mlabels, msizes):
+                markers.append(plt.scatter([], [], c='grey', s=size, label=int(label)))
+
+            legend2 = plt.legend(handles=markers, loc="lower left")
+            ax.add_artist(legend2)
+        ax.add_artist(legend)
+
     if show_caption:
-        plt.figtext(0.5, 0.01, f'total = {len(df)} entries', wrap=True, horizontalalignment='center', fontsize=12)
+        plt.figtext(0.8, 0.01, f'total = {len(df)} entries', wrap=True, horizontalalignment='right', fontsize=12)
     if title is not None:
         if show_legend:
             plt.title(title, y=1.1, fontsize=20)
