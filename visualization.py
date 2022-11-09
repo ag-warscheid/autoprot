@@ -881,7 +881,9 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
             return fig
 
 
-def _prep_volcano_data(df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh):
+def _prep_volcano_data(
+    df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
+):
     """
     Input check for volcano functions.
 
@@ -906,35 +908,41 @@ def _prep_volcano_data(df, log_fc_colname, score_colname, p_colname, p_thresh, l
     # (1) non-significant
     df["SigCat"] = "NS"
     # (2) significant by score
-    df.loc[df[p_colname] < p_thresh, 'SigCat'] = 'p-value'
+    df.loc[df[p_colname] < p_thresh, "SigCat"] = "p-value"
 
     if log_fc_thresh is not None:
         # (3) significant above or below fc-thresh
-        df.loc[(df['SigCat'] == 'NS') & (abs(df[log_fc_colname]) > log_fc_thresh), 'SigCat'] = 'log2FC'
+        df.loc[
+            (df["SigCat"] == "NS") & (abs(df[log_fc_colname]) > log_fc_thresh), "SigCat"
+        ] = "log2FC"
         # (4) significant by both
-        df.loc[(df['SigCat'] == 'p-value') & (abs(df[log_fc_colname]) > log_fc_thresh), 'SigCat'] = 'p-value and log2FC'
+        df.loc[
+            (df["SigCat"] == "p-value") & (abs(df[log_fc_colname]) > log_fc_thresh),
+            "SigCat",
+        ] = "p-value and log2FC"
 
-    unsig = df[df["SigCat"] == 'NS'].index
+    unsig = df[df["SigCat"] == "NS"].index
     sig_fc = df[df["SigCat"] == "log2FC"].index
     sig_p = df[df["SigCat"] == "p-value"].index
-    sig_both = df[df["SigCat"] == 'p-value and log2FC'].index
+    sig_both = df[df["SigCat"] == "p-value and log2FC"].index
 
     return df, score_colname, unsig, sig_fc, sig_p, sig_both
 
 
-def ivolcano(df: pd.DataFrame,
-             log_fc_colname: str,
-             p_colname: str = None,
-             score_colname: str = None,
-             p_thresh: float = 0.05,
-             log_fc_thresh: float = None,
-             hover_colname: str = None,
-             pointsize_colname: str or float = None,
-             highlight: pd.Index = None,
-             title: str = "Volcano Plot",
-             show_legend: bool = True,
-             ret_fig: bool = True,
-             ):
+def ivolcano(
+    df: pd.DataFrame,
+    log_fc_colname: str,
+    p_colname: str = None,
+    score_colname: str = None,
+    p_thresh: float = 0.05,
+    log_fc_thresh: float = None,
+    hover_colname: str = None,
+    pointsize_colname: str or float = None,
+    highlight: pd.Index = None,
+    title: str = "Volcano Plot",
+    show_legend: bool = True,
+    ret_fig: bool = True,
+):
     """
     Return interactive volcano plot.
 
@@ -962,7 +970,7 @@ def ivolcano(df: pd.DataFrame,
     pointsize_colname: str or float, optional
         Name of a column to use as measure for point size.
         Alternatively the size of all points.
-    highlight : pd.index, optional
+    highlight : pd.Index, optional
         Rows to highlight in the plot.
         The default is None.
     title : str, optional
@@ -980,36 +988,63 @@ def ivolcano(df: pd.DataFrame,
     """
 
     # check for input correctness and make sure score is present in df for plot
-    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(df, log_fc_colname, score_colname, p_colname,
-                                                                           p_thresh, log_fc_thresh)
+    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(
+        df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
+    )
 
-    categories = ['NS', 'log2FC', 'p-value', 'p-value and log2FC']
+    categories = ["NS", "log2FC", "p-value", "p-value and log2FC"]
 
     if highlight is not None:
         df["SigCat"] = "-"
         df.loc[highlight, "SigCat"] = "*"
         if hover_colname is not None:
-            fig = px.scatter(data_frame=df, x=log_fc_colname, y=score_colname, hover_name=hover_colname,
-                             size=pointsize_colname,
-                             color="SigCat",
-                             opacity=0.5, category_orders={"SigCat": ['-', '*']}, title=title)
+            fig = px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                hover_name=hover_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
         else:
-            fig = px.scatter(data_frame=df, x=log_fc_colname, y=score_colname,
-                             size=pointsize_colname,
-                             color="SigCat",
-                             opacity=0.5, category_orders={"SigCat": ['-', '*']}, title=title)
+            fig = px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
 
     else:
         if hover_colname is not None:
-            fig = px.scatter(data_frame=df, x=log_fc_colname, y=score_colname, hover_name=hover_colname,
-                             size=pointsize_colname,
-                             color="SigCat",
-                             opacity=0.5, category_orders={"SigCat": categories}, title=title)
+            fig = px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                hover_name=hover_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": categories},
+                title=title,
+            )
         else:
-            fig = px.scatter(data_frame=df, x=log_fc_colname, y=score_colname,
-                             size=pointsize_colname,
-                             color="SigCat",
-                             opacity=0.5, category_orders={"SigCat": categories}, title=title)
+            fig = px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": categories},
+                title=title,
+            )
 
     fig.update_yaxes(showgrid=False, zeroline=True)
     fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1020,7 +1055,8 @@ def ivolcano(df: pd.DataFrame,
             y=[-np.log10(p_thresh), -np.log10(p_thresh)],
             mode="lines",
             line=go.scatter.Line(color="teal", dash="longdash"),
-            showlegend=False)
+            showlegend=False,
+        )
     )
     if log_fc_thresh is not None:
         # add fold change visualization
@@ -1030,7 +1066,8 @@ def ivolcano(df: pd.DataFrame,
                 y=[0, df[score_colname].max()],
                 mode="lines",
                 line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
+                showlegend=False,
+            )
         )
         fig.add_trace(
             go.Scatter(
@@ -1038,12 +1075,14 @@ def ivolcano(df: pd.DataFrame,
                 y=[0, df[score_colname].max()],
                 mode="lines",
                 line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
+                showlegend=False,
+            )
         )
 
-    fig.update_layout(template='simple_white',
-                      showlegend=show_legend,
-                      )
+    fig.update_layout(
+        template="simple_white",
+        showlegend=show_legend,
+    )
 
     if ret_fig:
         return fig
@@ -1051,31 +1090,33 @@ def ivolcano(df: pd.DataFrame,
         fig.show()
 
 
-def volcano(df: pd.DataFrame,
-            log_fc_colname: str,
-            p_colname: str = None,
-            score_colname: str = None,
-            p_thresh: float = 0.05,
-            log_fc_thresh: float = None,
-            pointsize_colname: str or float = None,
-            pointsize_scaler: float = 1,
-            highlight: pd.Index = None,
-            title: str = None,
-            show_legend: bool = True,
-            show_caption: bool = True,
-            ax: plt.axis = None,
-            ret_fig: bool = True,
-            figsize: tuple = (8, 8),
-            annotate: Union[
-                "highlight", "p-value and log2FC", "p-value", "log2FC", None, pd.Index] = 'p-value and log2FC',
-            annotate_colname: str = 'Gene names',
-            kwargs_ns: dict = None,
-            kwargs_p_sig: dict = None,
-            kwargs_log_fc_sig: dict = None,
-            kwargs_both_sig: dict = None,
-            kwargs_highlight: dict = None,
-            annotate_density: int = 100
-            ):
+def volcano(
+    df: pd.DataFrame,
+    log_fc_colname: str,
+    p_colname: str = None,
+    score_colname: str = None,
+    p_thresh: float = 0.05,
+    log_fc_thresh: float = None,
+    pointsize_colname: str or float = None,
+    pointsize_scaler: float = 1,
+    highlight: pd.Index = None,
+    title: str = None,
+    show_legend: bool = True,
+    show_caption: bool = True,
+    ax: plt.axis = None,
+    ret_fig: bool = True,
+    figsize: tuple = (8, 8),
+    annotate: Union[
+        "highlight", "p-value and log2FC", "p-value", "log2FC", None, pd.Index
+    ] = "p-value and log2FC",
+    annotate_colname: str = "Gene names",
+    kwargs_ns: dict = None,
+    kwargs_p_sig: dict = None,
+    kwargs_log_fc_sig: dict = None,
+    kwargs_both_sig: dict = None,
+    kwargs_highlight: dict = None,
+    annotate_density: int = 100,
+):
     """
     Return interactive volcano plot.
 
@@ -1154,8 +1195,9 @@ def volcano(df: pd.DataFrame,
     """
 
     # check for input correctness and make sure score is present in df for plot
-    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(df, log_fc_colname, score_colname, p_colname,
-                                                                           p_thresh, log_fc_thresh)
+    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(
+        df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
+    )
 
     # draw figure
     if ax is None:
@@ -1212,73 +1254,100 @@ def volcano(df: pd.DataFrame,
     # PLOTTING
     if pointsize_colname is not None:
         if not is_numeric_dtype(df[pointsize_colname]):
-            raise ValueError('The column provided for point sizing should only contain numeric values')
+            raise ValueError(
+                "The column provided for point sizing should only contain numeric values"
+            )
         # normalize the point sizes
-        df['s'] = pointsize_scaler * 100 * (df[pointsize_colname] - df[pointsize_colname].min()) / df[
-            pointsize_colname].max()
+        df["s"] = (
+            pointsize_scaler
+            * 100
+            * (df[pointsize_colname] - df[pointsize_colname].min())
+            / df[pointsize_colname].max()
+        )
 
     # Non-Significant
-    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color='lightgrey',
-                                                    alpha=0.5))
-    ax.scatter(df.loc[df['SigCat'] == 'NS', log_fc_colname],
-               df.loc[df['SigCat'] == 'NS', "score"],
-               s=df.loc[df['SigCat'] == 'NS', "s"] if pointsize_colname is not None else None,
-               label='NS',
-               **kwargs_ns)
+    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    ax.scatter(
+        df.loc[df["SigCat"] == "NS", log_fc_colname],
+        df.loc[df["SigCat"] == "NS", "score"],
+        s=df.loc[df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
+        label="NS",
+        **kwargs_ns,
+    )
     # Significant by p-value
-    kwargs_p_sig = _set_default_kwargs(kwargs_p_sig, dict(color='lightblue',
-                                                          alpha=0.5))
-    ax.scatter(df.loc[df['SigCat'] == 'p-value', log_fc_colname],
-               df.loc[df['SigCat'] == 'p-value', "score"],
-               s=df.loc[df['SigCat'] == 'p-value', "s"] if pointsize_colname is not None else None,
-               label='p-value',
-               **kwargs_p_sig)
+    kwargs_p_sig = _set_default_kwargs(kwargs_p_sig, dict(color="lightblue", alpha=0.5))
+    ax.scatter(
+        df.loc[df["SigCat"] == "p-value", log_fc_colname],
+        df.loc[df["SigCat"] == "p-value", "score"],
+        s=df.loc[df["SigCat"] == "p-value", "s"]
+        if pointsize_colname is not None
+        else None,
+        label="p-value",
+        **kwargs_p_sig,
+    )
     # significant by log fold-change
-    kwargs_log_fc_sig = _set_default_kwargs(kwargs_log_fc_sig, dict(color='lightgreen',
-                                                                    alpha=0.5))
-    ax.scatter(df.loc[df['SigCat'] == 'log2FC', log_fc_colname],
-               df.loc[df['SigCat'] == 'log2FC', "score"],
-               s=df.loc[df['SigCat'] == 'log2FC', "s"] if pointsize_colname is not None else None,
-               label=r'$\mathregular{log_2 FC}$',
-               **kwargs_log_fc_sig)
+    kwargs_log_fc_sig = _set_default_kwargs(
+        kwargs_log_fc_sig, dict(color="lightgreen", alpha=0.5)
+    )
+    ax.scatter(
+        df.loc[df["SigCat"] == "log2FC", log_fc_colname],
+        df.loc[df["SigCat"] == "log2FC", "score"],
+        s=df.loc[df["SigCat"] == "log2FC", "s"]
+        if pointsize_colname is not None
+        else None,
+        label=r"$\mathregular{log_2 FC}$",
+        **kwargs_log_fc_sig,
+    )
     # significant by both
-    kwargs_both_sig = _set_default_kwargs(kwargs_both_sig, dict(color='tomato',
-                                                                alpha=0.5))
-    ax.scatter(df.loc[df['SigCat'] == 'p-value and log2FC', log_fc_colname],
-               df.loc[df['SigCat'] == 'p-value and log2FC', "score"],
-               s=df.loc[df['SigCat'] == 'p-value and log2FC', "s"] if pointsize_colname is not None else None,
-               label=r'$\mathregular{log_2 FC}$ and p-value',
-               **kwargs_both_sig)
+    kwargs_both_sig = _set_default_kwargs(
+        kwargs_both_sig, dict(color="tomato", alpha=0.5)
+    )
+    ax.scatter(
+        df.loc[df["SigCat"] == "p-value and log2FC", log_fc_colname],
+        df.loc[df["SigCat"] == "p-value and log2FC", "score"],
+        s=df.loc[df["SigCat"] == "p-value and log2FC", "s"]
+        if pointsize_colname is not None
+        else None,
+        label=r"$\mathregular{log_2 FC}$ and p-value",
+        **kwargs_both_sig,
+    )
 
     if highlight is not None:
         if not isinstance(highlight, pd.Index):
-            raise ValueError('You must provide a pd.Index object for highlighting')
-        kwargs_highlight = _set_default_kwargs(kwargs_highlight, dict(color='orange',
-                                                                      alpha=0.8))
-        ax.scatter(df.loc[highlight, log_fc_colname],
-                   df.loc[highlight, "score"],
-                   s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
-                   **kwargs_highlight)
+            raise ValueError("You must provide a pd.Index object for highlighting")
+        kwargs_highlight = _set_default_kwargs(
+            kwargs_highlight, dict(color="orange", alpha=0.8)
+        )
+        ax.scatter(
+            df.loc[highlight, log_fc_colname],
+            df.loc[highlight, "score"],
+            s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+            **kwargs_highlight,
+        )
 
-    ax.set_xlabel(r'$\mathregular{log_2 fold-change}$', fontsize=16)
-    ax.set_ylabel(r'$\mathregular{-log_{10} P}$', fontsize=16)
+    ax.set_xlabel(r"$\mathregular{log_2 fold-change}$", fontsize=16)
+    ax.set_ylabel(r"$\mathregular{-log_{10} P}$", fontsize=16)
 
     # ANNOTATION AND LABELING
     to_label = pd.Index([])
     if annotate is not None:
         if isinstance(annotate, str):
-            if ('p-value' in annotate) or ('log2FC' in annotate):
-                indices = df[df['SigCat'] == annotate].index
+            if ("p-value" in annotate) or ("log2FC" in annotate):
+                indices = df[df["SigCat"] == annotate].index
                 to_label = to_label.union(indices)
-            if 'highlight' in annotate:
+            if "highlight" in annotate:
                 if highlight is None:
-                    raise ValueError('You must provide input to the "highlight" kwarg before you can'
-                                     ' label the highlighted points')
+                    raise ValueError(
+                        'You must provide input to the "highlight" kwarg before you can'
+                        " label the highlighted points"
+                    )
         elif isinstance(annotate, pd.Index):
             to_label = annotate
         else:
-            raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", None or '
-                             'pd.Index"')
+            raise ValueError(
+                'Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", None or '
+                'pd.Index"'
+            )
 
         xs = df[log_fc_colname].loc[to_label]
         ys = df["score"].loc[to_label]
@@ -1286,32 +1355,47 @@ def volcano(df: pd.DataFrame,
         # reduce the number of points annotated in dense areas of the plot
         xs, ys = _limit_density(xs, ys, threshold=1 / annotate_density)
 
-        texts = [plt.text(x, y, s, ha='center', va='center') for (x, y, s) in zip(xs, ys, ss)]
-        adjust_text(texts, arrowprops=dict(arrowstyle='-', color='black'))
+        texts = [
+            plt.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
+        ]
+        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"))
 
     # STYLING
     if show_legend:
-        legend = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode='expand', ncol=4)
+        legend = plt.legend(
+            bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", ncol=4
+        )
         # this fixes the legend points having the same size as the points in the scatter plot
         for handle in legend.legendHandles:
             handle._sizes = [30]
 
         if pointsize_colname is not None:
 
-            mlabels = np.linspace(start=df[pointsize_colname].max()/5, stop=df[pointsize_colname].max(), num=4)
+            mlabels = np.linspace(
+                start=df[pointsize_colname].max() / 5,
+                stop=df[pointsize_colname].max(),
+                num=4,
+            )
 
             msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
 
             markers = []
             for label, size in zip(mlabels, msizes):
-                markers.append(plt.scatter([], [], c='grey', s=size, label=int(label)))
+                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
 
             legend2 = plt.legend(handles=markers, loc="lower left")
             ax.add_artist(legend2)
         ax.add_artist(legend)
 
     if show_caption:
-        plt.figtext(0.8, 0.01, f'total = {len(df)} entries', wrap=True, horizontalalignment='right', fontsize=12)
+        plt.figtext(
+            0.8,
+            0.01,
+            f"total = {len(df)} entries",
+            wrap=True,
+            horizontalalignment="right",
+            fontsize=12,
+        )
     if title is not None:
         if show_legend:
             plt.title(title, y=1.1, fontsize=20)
