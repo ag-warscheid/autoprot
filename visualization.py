@@ -882,7 +882,7 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
 
 
 def _prep_volcano_data(
-    df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
+        df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
 ):
     """
     Input check for volcano functions.
@@ -930,18 +930,18 @@ def _prep_volcano_data(
 
 
 def ivolcano(
-    df: pd.DataFrame,
-    log_fc_colname: str,
-    p_colname: str = None,
-    score_colname: str = None,
-    p_thresh: float = 0.05,
-    log_fc_thresh: float = None,
-    hover_colname: str = None,
-    pointsize_colname: str or float = None,
-    highlight: pd.Index = None,
-    title: str = "Volcano Plot",
-    show_legend: bool = True,
-    ret_fig: bool = True,
+        df: pd.DataFrame,
+        log_fc_colname: str,
+        p_colname: str = None,
+        score_colname: str = None,
+        p_thresh: float = 0.05,
+        log_fc_thresh: float = None,
+        hover_colname: str = None,
+        pointsize_colname: str or float = None,
+        highlight: pd.Index = None,
+        title: str = "Volcano Plot",
+        show_legend: bool = True,
+        ret_fig: bool = True,
 ):
     """
     Return interactive volcano plot.
@@ -1091,34 +1091,35 @@ def ivolcano(
 
 
 def volcano(
-    df: pd.DataFrame,
-    log_fc_colname: str,
-    p_colname: str = None,
-    score_colname: str = None,
-    p_thresh: float = 0.05,
-    log_fc_thresh: float = None,
-    pointsize_colname: str or float = None,
-    pointsize_scaler: float = 1,
-    highlight: pd.Index = None,
-    title: str = None,
-    show_legend: bool = True,
-    show_caption: bool = True,
-    ax: plt.axis = None,
-    ret_fig: bool = True,
-    figsize: tuple = (8, 8),
-    annotate: Union[
-        "highlight", "p-value and log2FC", "p-value", "log2FC", None, pd.Index
-    ] = "p-value and log2FC",
-    annotate_colname: str = "Gene names",
-    kwargs_ns: dict = None,
-    kwargs_p_sig: dict = None,
-    kwargs_log_fc_sig: dict = None,
-    kwargs_both_sig: dict = None,
-    kwargs_highlight: dict = None,
-    annotate_density: int = 100,
+        df: pd.DataFrame,
+        log_fc_colname: str,
+        p_colname: str = None,
+        score_colname: str = None,
+        p_thresh: float = 0.05,
+        log_fc_thresh: float = np.log2(2),
+        pointsize_colname: str or float = None,
+        pointsize_scaler: float = 1,
+        highlight: pd.Index = None,
+        title: str = None,
+        show_legend: bool = True,
+        show_caption: bool = True,
+        show_thresh: bool = True,
+        ax: plt.axis = None,
+        ret_fig: bool = True,
+        figsize: tuple = (8, 8),
+        annotate: Union[
+            "highlight", "p-value and log2FC", "p-value", "log2FC", None, pd.Index
+        ] = "p-value and log2FC",
+        annotate_colname: str = "Gene names",
+        kwargs_ns: dict = None,
+        kwargs_p_sig: dict = None,
+        kwargs_log_fc_sig: dict = None,
+        kwargs_both_sig: dict = None,
+        kwargs_highlight: dict = None,
+        annotate_density: int = 100,
 ):
     """
-    Return interactive volcano plot.
+    Return static volcano plot.
 
     Parameters
     ----------
@@ -1137,14 +1138,14 @@ def volcano(
         The default is 0.05.
     log_fc_thresh : float, optional
         fold change threshold at which an entry is deemed significant regulated.
-        The default is None
+        The default is log2(2).
     pointsize_colname: str or float, optional
         Name of a column to use as measure for point size.
         Alternatively the size of all points.
     pointsize_scaler: float, optional
         Value to scale all point sizes.
         Default is 1.
-    highlight : pd.index, optional
+    highlight : pd.Index, optional
         Rows to highlight in the plot.
         The default is None.
     title : str, optional
@@ -1153,7 +1154,9 @@ def volcano(
         Whether to plot a legend. The default is True.
     show_caption: bool, optional
         Whether to show the caption below the plot. The default is True.
-    ax : plt.axis, optional
+    show_thresh: bool, optional
+        Whether to show the thresholds as dashed lines. The default is True.
+    ax : matplotlib.pyplot.axis, optional
         Axis to plot on
     ret_fig : bool, optional
         Whether to return the figure, can be used to further
@@ -1171,27 +1174,232 @@ def volcano(
         The density (normalised to 1) below which points are ignored from labelling.
         Default is 100.
     kwargs_ns : dict, optional
-        Custom kwargs to pass to plt.scatter when generating the non-significant points.
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the non-significant points.
         The default is None.
     kwargs_p_sig : dict, optional
-        Custom kwargs to pass to plt.scatter when generating the p-value significant points.
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the p-value significant points.
         The default is None.
     kwargs_log_fc_sig : dict, optional
-        Custom kwargs to pass to plt.scatter when generating the log2 fold-change significant points.
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the log2 fold-change significant points.
         The default is None.
     kwargs_both_sig : dict, optional
-        Custom kwargs to pass to plt.scatter when generating the overall significant points.
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the overall significant points.
         The default is None.
     kwargs_highlight : dict, optional
         Custom kwargs to pass to plt.scatter when generating the highlighted points.
         Only relevant if highlight is not None.
         The default is None.
 
-
     Returns
     -------
     plotly.figure
-        The figure object.
+        The figure object if ret_fig kwarg is True.
+
+    Examples
+    --------
+    The standard setting of volcano should be sufficient for getting a first glimpse on the data. Note that the
+    point labels are automatically adjusted to prevent overlapping text.
+
+    >>> prot_limma['Gene names 1st'] = prot_limma['Gene names'].str.split(';').str[0]
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     title="Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>> )
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+         prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+         prot = pp.cleaning(prot, "proteinGroups")
+         protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+         prot = pp.log(prot, protRatio, base=2)
+         twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
+                          'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+         prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
+         prot_limma['Gene names 1st'] = prot_limma['Gene names'].str.split(';').str[0]
+
+         fig = vis.volcano(
+             df=prot_limma,
+             log_fc_colname="logFC_TvM",
+             p_colname="P.Value_TvM",
+             title="Volcano Plot",
+             annotate_colname="Gene names 1st",
+         )
+
+         fig.show()
+
+    Thresholds can easily be modified using the log_fc_thresh and p_thresh kwargs:
+
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     p_thresh=0.01,
+    >>>     title="Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>> )
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+        fig = vis.volcano(
+            df=prot_limma,
+            log_fc_colname="logFC_TvM",
+            p_colname="P.Value_TvM",
+            p_thresh=0.01,
+            title="Volcano Plot",
+            annotate_colname="Gene names 1st",
+        )
+
+        fig.show()
+
+    All points in the plot can be customised by supplying kwargs to the volcano function. These can be any arguments
+    accepted by matplotlib.pyplot.scatter.
+
+    >>> non_sig_kwargs = dict(color="black", marker="x")
+    >>> sig_kwargs = dict(color="red", marker=7, s=100)
+    >>>
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     p_thresh=0.01,
+    >>>     title="Customised Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>>     kwargs_ns=non_sig_kwargs,
+    >>>     kwargs_p_sig=non_sig_kwargs,
+    >>>     kwargs_log_fc_sig=non_sig_kwargs,
+    >>>     kwargs_both_sig=sig_kwargs,
+    >>> )
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+        non_sig_kwargs = dict(color="black", marker="x")
+        sig_kwargs = dict(color="red", marker=7, s=100)
+
+        fig = vis.volcano(
+            df=prot_limma,
+            log_fc_colname="logFC_TvM",
+            p_colname="P.Value_TvM",
+            p_thresh=0.01,
+            title="Customised Volcano Plot",
+            annotate_colname="Gene names 1st",
+            kwargs_ns=non_sig_kwargs,
+            kwargs_p_sig=non_sig_kwargs,
+            kwargs_log_fc_sig=non_sig_kwargs,
+            kwargs_both_sig=sig_kwargs,
+        )
+
+        fig.show()
+
+    All other elements of the plot can be customised by accessing the figure and axis objects. The axis can be extracted
+    from the figure returned by volano.
+
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     title="Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>> )
+    >>>
+    >>> ax = fig.gca()
+    >>> ax.axhline(y=3, color="red", linestyle=":")
+    >>> ax.axhline(y=4, color="blue", linestyle=":")
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+        fig = vis.volcano(
+           df=prot_limma,
+           log_fc_colname="logFC_TvM",
+           p_colname="P.Value_TvM",
+           title="Volcano Plot",
+           annotate_colname="Gene names 1st",
+        )
+
+        ax = fig.gca()
+        ax.axhline(y=3, color='red', linestyle=':')
+        ax.axhline(y=4, color='blue', linestyle=':')
+
+        fig.show()
+
+    Volcano also allows you to supply a numeric column of your dataframe as agument to pointsize_colname. The
+    numeric values will be noramlized between min and max and used for sizing the points. If the standard size is
+    inconvenient, the point_scaler kwarg enables manual adjustemnt of the point sizes.
+
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     pointsize_colname='iBAQ',
+    >>>     pointsize_scaler=5,
+    >>>     title="Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>> )
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+        fig = vis.volcano(
+            df=prot_limma,
+            log_fc_colname="logFC_TvM",
+            p_colname="P.Value_TvM",
+            pointsize_colname='iBAQ',
+            pointsize_scaler=5,
+            title="Volcano Plot",
+            annotate_colname="Gene names 1st",
+        )
+
+        fig.show()
+
+    Custom points can also be highlighted by providing a pandas Index object of the corresponding rows as input to
+    the highlight kwarg. Note that the annotate kwarg must be updated if you want to also label your highlighted points.
+
+    >>> to_highlight = prot_limma[prot_limma['iBAQ'] > 10e8].index
+    >>>
+    >>> fig = vis.volcano(
+    >>>     df=prot_limma,
+    >>>     log_fc_colname="logFC_TvM",
+    >>>     p_colname="P.Value_TvM",
+    >>>     highlight=to_highlight,
+    >>>     annotate='highlight',
+    >>>     title="Volcano Plot",
+    >>>     annotate_colname="Gene names 1st",
+    >>> )
+    >>>
+    >>> fig.show()
+
+    .. plot::
+        :context: close-figs
+
+        to_highlight = prot_limma[prot_limma['iBAQ'] > 10e8].index
+
+        fig = vis.volcano(
+            df=prot_limma,
+            log_fc_colname="logFC_TvM",
+            p_colname="P.Value_TvM",
+            highlight=to_highlight,
+            annotate='highlight',
+            title="Volcano Plot",
+            annotate_colname="Gene names 1st",
+        )
+
+        fig.show()
     """
 
     # check for input correctness and make sure score is present in df for plot
@@ -1222,18 +1430,21 @@ def volcano(
         for k, v in default_dict.items():
             if k not in keyword_dict.keys():
                 keyword_dict[k] = v
+
         return keyword_dict
 
-    def _limit_density(xs, ys, threshold):
+    def _limit_density(xs, ys, ss, threshold):
         """
-        Reduce the points for annotation throughh a point density threshold.
+        Reduce the points for annotation through a point density threshold.
 
         Parameters
         ----------
-        xs: list
+        xs: numpy.ndarray
             x values
-        ys: list
+        ys: numpy.ndarray
             y values
+        ss: numpy.ndarray
+            labels
         threshold: float
             Probability threshold. Only points with 1/density above the value will be retained.
         """
@@ -1245,11 +1456,10 @@ def volcano(
         p = 1 / kde.pdf(data.T)
         # Normalize choice probabilities
         p /= np.sum(p)
-        # Make sample using choice probabilities
+        # Make subsample using choice probabilities
         idx = np.asarray(p > threshold).nonzero()
-        sample = data[idx]
 
-        return sample.T[0], sample.T[1]
+        return xs[idx], ys[idx], ss[idx]
 
     # PLOTTING
     if pointsize_colname is not None:
@@ -1259,10 +1469,10 @@ def volcano(
             )
         # normalize the point sizes
         df["s"] = (
-            pointsize_scaler
-            * 100
-            * (df[pointsize_colname] - df[pointsize_colname].min())
-            / df[pointsize_colname].max()
+                pointsize_scaler
+                * 100
+                * (df[pointsize_colname] - df[pointsize_colname].min())
+                / df[pointsize_colname].max()
         )
 
     # Non-Significant
@@ -1274,41 +1484,58 @@ def volcano(
         label="NS",
         **kwargs_ns,
     )
+
     # Significant by p-value
-    kwargs_p_sig = _set_default_kwargs(kwargs_p_sig, dict(color="lightblue", alpha=0.5))
+    kwargs_p_sig = _set_default_kwargs(
+        kwargs_p_sig,
+        dict(
+            color="lightblue",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "p-value", "s"]
+            if pointsize_colname is not None
+            else None,
+            label="p-value",
+        ),
+    )
     ax.scatter(
         df.loc[df["SigCat"] == "p-value", log_fc_colname],
         df.loc[df["SigCat"] == "p-value", "score"],
-        s=df.loc[df["SigCat"] == "p-value", "s"]
-        if pointsize_colname is not None
-        else None,
-        label="p-value",
         **kwargs_p_sig,
     )
+
     # significant by log fold-change
     kwargs_log_fc_sig = _set_default_kwargs(
-        kwargs_log_fc_sig, dict(color="lightgreen", alpha=0.5)
+        kwargs_log_fc_sig,
+        dict(
+            color="lightgreen",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "log2FC", "s"]
+            if pointsize_colname is not None
+            else None,
+            label=r"$\mathregular{log_2 FC}$",
+        ),
     )
     ax.scatter(
         df.loc[df["SigCat"] == "log2FC", log_fc_colname],
         df.loc[df["SigCat"] == "log2FC", "score"],
-        s=df.loc[df["SigCat"] == "log2FC", "s"]
-        if pointsize_colname is not None
-        else None,
-        label=r"$\mathregular{log_2 FC}$",
         **kwargs_log_fc_sig,
     )
+
     # significant by both
     kwargs_both_sig = _set_default_kwargs(
-        kwargs_both_sig, dict(color="tomato", alpha=0.5)
+        kwargs_both_sig,
+        dict(
+            color="tomato",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "p-value and log2FC", "s"]
+            if pointsize_colname is not None
+            else None,
+            label=r"$\mathregular{log_2 FC}$ and p-value",
+        ),
     )
     ax.scatter(
         df.loc[df["SigCat"] == "p-value and log2FC", log_fc_colname],
         df.loc[df["SigCat"] == "p-value and log2FC", "score"],
-        s=df.loc[df["SigCat"] == "p-value and log2FC", "s"]
-        if pointsize_colname is not None
-        else None,
-        label=r"$\mathregular{log_2 FC}$ and p-value",
         **kwargs_both_sig,
     )
 
@@ -1316,12 +1543,16 @@ def volcano(
         if not isinstance(highlight, pd.Index):
             raise ValueError("You must provide a pd.Index object for highlighting")
         kwargs_highlight = _set_default_kwargs(
-            kwargs_highlight, dict(color="orange", alpha=0.8)
+            kwargs_highlight,
+            dict(
+                color="orange",
+                alpha=0.8,
+                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+            ),
         )
         ax.scatter(
             df.loc[highlight, log_fc_colname],
             df.loc[highlight, "score"],
-            s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
             **kwargs_highlight,
         )
 
@@ -1332,15 +1563,15 @@ def volcano(
     to_label = pd.Index([])
     if annotate is not None:
         if isinstance(annotate, str):
-            if ("p-value" in annotate) or ("log2FC" in annotate):
-                indices = df[df["SigCat"] == annotate].index
-                to_label = to_label.union(indices)
-            if "highlight" in annotate:
+            if annotate == "highlight":
                 if highlight is None:
                     raise ValueError(
                         'You must provide input to the "highlight" kwarg before you can'
                         " label the highlighted points"
                     )
+                to_label = highlight
+            elif ("p-value" in annotate) or ("log2FC" in annotate):
+                to_label = df[df["SigCat"] == annotate].index
         elif isinstance(annotate, pd.Index):
             to_label = annotate
         else:
@@ -1349,11 +1580,11 @@ def volcano(
                 'pd.Index"'
             )
 
-        xs = df[log_fc_colname].loc[to_label]
-        ys = df["score"].loc[to_label]
-        ss = df[annotate_colname].loc[to_label]
+        xs = df[log_fc_colname].loc[to_label].to_numpy()
+        ys = df["score"].loc[to_label].to_numpy()
+        ss = df[annotate_colname].loc[to_label].to_numpy()
         # reduce the number of points annotated in dense areas of the plot
-        xs, ys = _limit_density(xs, ys, threshold=1 / annotate_density)
+        xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
 
         texts = [
             plt.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
@@ -1389,18 +1620,25 @@ def volcano(
 
     if show_caption:
         plt.figtext(
-            0.8,
-            0.01,
-            f"total = {len(df)} entries",
+            1,  # x position
+            -0.1,  # y position
+            f"total = {len(df)} entries",  # text
+            transform=plt.gca().transAxes,
             wrap=True,
             horizontalalignment="right",
             fontsize=12,
         )
+
     if title is not None:
         if show_legend:
-            plt.title(title, y=1.1, fontsize=20)
+            plt.title(title, y=1.1, fontsize=20, loc='left')
         else:
-            plt.title(title, fontsize=20)
+            plt.title(title, fontsize=20, loc='left')
+
+    if show_thresh:
+        ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
+        ax.axvline(x=-log_fc_thresh, color="black", linestyle="--")
+        ax.axhline(y=-np.log10(p_thresh), color="black", linestyle="--")
 
     if ret_fig:
         return fig
