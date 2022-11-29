@@ -1017,6 +1017,7 @@ class KSEA:
         m = ks.shape[0]  # number of kinase substrates
         sig = df[col].std()  # standard dev of FC of all
         score = ((s - p) * np.sqrt(m)) / sig
+
         return [kinase, score]
 
     @staticmethod
@@ -1242,11 +1243,15 @@ class KSEA:
         The enrichment score is calculated as
 
         .. math::
-            \frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{all}}}{\sigma_{all}}
+            \frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{kinase}}}{\sigma_{all}}
 
         i.e. the difference in mean fold change between kinase and all substrates
         multiplied by the square root of number of kinase substrates and divided
-        by the standard deviation of the fold change of all substrates.
+        by the standard deviation of the fold change of all substrates (see [1]).
+
+        References
+        ----------
+        [1] https://academic.oup.com/bioinformatics/article/33/21/3489/3892392
 
         Returns
         -------
@@ -1284,8 +1289,8 @@ class KSEA:
         # filter kinases with at least min_subs number of substrates
         koi = self.koi[self.koi["#Subs"] >= min_subs]["Kinase"]
 
-        # init empty df
-        self.kseaResults = pd.DataFrame(columns=["kinase", "score"])
+        # init empty list to collect sub-dfs
+        ksea_results_dfs = []
         # add the enrichment column back to the annotation df using the mergeID
         copy_annot_df = copy_annot_df.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
         for kinase in koi:
@@ -1293,8 +1298,11 @@ class KSEA:
             k, s = self._enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
             # new dataframe containing kinase names and scores
             temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
-            # add the new df to the pre-initialised df
-            self.kseaResults = self.kseaResults.append(temp, ignore_index=True)
+            # add the new df to the pre-initialised list
+            ksea_results_dfs.append(temp)
+
+        # generate a single large df from the collected temp dfs
+        self.kseaResults = pd.concat(ksea_results_dfs, ignore_index=True)
         # sort the concatenated dfs by kinase enrichment score
         self.kseaResults = self.kseaResults.sort_values(by="score", ascending=False)
 
@@ -2218,6 +2226,11 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
     d = os.getcwd()
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
+
+    # limma handles fold-change calculation opposite to all other autoprot tools
+    # this changes the order for function consistency
+    if isinstance(reps[0], list) and len(reps) == 2:
+        reps = reps[::-1]
 
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)

@@ -1,8 +1,10 @@
 import autoprot.preprocessing as pp
 import autoprot.visualization as vis
-import pandas as pd
 
-phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-phos = pp.cleaning(phos, file = "Phospho (STY)")
-vis.chargePlot(phos, typ="pie")
+prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+mildInt = ["Intensity M BC18_1","Intensity H BC18_2","Intensity M BC18_3",
+           "Intensity M BC36_1","Intensity M BC36_2","Intensity H BC36_2"]
+prot = pp.log(prot, mildInt, base=10)
+mildLogInt = [f"log10_{i}" for i in mildInt]
+vis.corr_map(prot,mildLogInt, annot=True)
 plt.show()

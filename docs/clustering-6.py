@@ -1,3 +1,3 @@
 c.nclusters = 3
-c.makeCluster()
-c.visCluster(rowColors={'species': labels}, makeTraces=True, file=None, makeHeatmap=True)
+c.make_cluster()
+c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)

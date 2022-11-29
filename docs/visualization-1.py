@@ -1,22 +1,67 @@
-import autoprot.preprocessing as pp
-import autoprot.analysis as ana
-import autoprot.visualization as vis
 import pandas as pd
+import autoprot.visualization as vis
 
-phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-phos = pp.cleaning(phos, file = "Phospho (STY)")
-phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-phos = pp.log(phos, phosRatio, base=2)
-phos = pp.filterLocProb(phos, thresh=.75)
-phosRatio = phos.filter(regex="log2_Ratio .\/.( | normalized )R.___").columns
-phos = pp.removeNonQuant(phos, phosRatio)
+arrays = [(False,False,False,False,False,False,True,False),
+          (False,False,False,False,False,False,False,True),
+          (False,False,False,False,False,True,False,False),
+          (False,False,True,False,False,False,False,False),
+          (False,False,False,False,True,False,False,False),
+          (False,False,False,True,False,False,False,False),
+          (True,False,False,False,False,False,False,False),
+          (False,True,False,False,False,False,False,False),
+          (False,False,False,False,False,False,True,True),
+          (False,False,False,False,True,True,False,False),
+          (False,False,False,False,False,True,True,False),
+          (True,True,False,False,False,False,False,False),
+          (False,True,True,False,False,False,False,False),
+          (True,False,True,False,False,False,False,False),
+          (False,False,True,True,False,False,False,False),
+          (False,False,False,False,False,True,False,True),
+          (False,False,False,False,True,False,True,False),
+          (False,False,False,False,True,False,False,True),
+          (False,True,False,True,False,False,False,False),
+          (False,False,True,False,True,False,False,False),
+          (False,False,False,True,True,False,False,False),
+          (True,False,False,False,False,False,False,True),
+          (False,False,False,False,True,True,True,False),
+          (False,False,False,False,False,True,True,True),
+          (False,False,False,False,True,False,True,True),
+          (True,True,True,False,False,False,False,False),
+          (False,True,True,True,False,False,False,False),
+          (False,False,False,False,True,True,True,True),
+          (True,True,True,True,False,False,False,False)]
+arrays = np.array(arrays).T
+values = (106,85,50,30,29,26,17,14,94,33,30,19,13,9,7,5,4,2,1,1,1,1,102,29,14,11,1,60,3)
+example = pd.Series(values,
+                    index=pd.MultiIndex.from_arrays(arrays,
+                                                    names=('120_down',
+                                                           '60_down',
+                                                           '30_down',
+                                                           '10_down',
+                                                           '120_up',
+                                                           '60_up',
+                                                           '30_up',
+                                                           '10_up')
+                                                   )
+                   )
 
-phosRatio = phos.filter(regex="log2_Ratio .\/. normalized R.___")
-phos_expanded = pp.expandSiteTable(phos, phosRatio)
+upset = vis.UpSetGrouped(example,
+                         show_counts=True,
+                         #show_percentages=True,
+                         sort_by=None,
+                         sort_categories_by='cardinality',
+                         facecolor="gray")
+upset.styling_helper('up', facecolor='darkgreen', label='up regulated')
+upset.styling_helper('down', facecolor='darkblue', label='down regulated')
+upset.styling_helper(['up', 'down'], facecolor='darkred', label='reversibly regulated')
+specs = upset.plot()
+upset.replot_totals(specs=specs, color=['darkgreen',
+                                        'darkgreen',
+                                        'darkgreen',
+                                        'darkgreen',
+                                        'darkblue',
+                                        'darkblue',
+                                        'darkblue',
+                                        'darkblue',])
 
-mildVsctrl = ["log2_Ratio M/L normalized R1","log2_Ratio H/L normalized R2","log2_Ratio M/L normalized R3",
-              "log2_Ratio H/M normalized R4","log2_Ratio M/L normalized R5","log2_Ratio H/L normalized R6"]
-
-phos = ana.ttest(df=phos_expanded, reps=mildVsctrl, cond="MvC", mean=True)
-
-vis.BHplot(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
+plt.show()

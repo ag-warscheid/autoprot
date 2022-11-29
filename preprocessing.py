@@ -501,7 +501,7 @@ def filter_vv(df, groups, n=2, valid_values=True):
         idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
 
     # indices that are valid in all groups
-    idx = set.intersection(*idxs)
+    idx = list(set.intersection(*idxs))
     df = df.loc[idx]
 
     return df
@@ -547,7 +547,7 @@ def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bo
     3  11130      RRBP1    6238  GO:0005840  ribosome
     4  16112        SF1    7536  GO:0005840  ribosome
     """
-    with resources.open_binary("autoprot.data", "Homo_sapiens.gene_info.zip") as d:
+    with resources.open_binary("autoprot.data", "Homo_sapiens.zip") as d:
         gene_info = pd.read_csv(d, sep='\t', compression='zip')
     with resources.open_binary("autoprot.data", "gene2go_alt.zip") as d:
         gene2go = pd.read_csv(d, sep='\t', compression='zip')
@@ -1270,7 +1270,9 @@ def vsn(df, cols, return_cols=False, backend='r'):
 
     References
     ----------
-    [1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance stabilization applied to microarray data calibration and to the quantification of differential expression. Bioinformatics 18 Supplement 1, S96-S104.
+    [1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance
+    stabilization applied to microarray data calibration and to the quantification of differential expression.
+    Bioinformatics 18 Supplement 1, S96-S104.
 
     Notes
     -----
@@ -1279,9 +1281,9 @@ def vsn(df, cols, return_cols=False, backend='r'):
     samples onto a same scale with a set of parametric transformations
     and maximum likelihood estimation.
     
-    See https://www.bioconductor.org/packages/release/bioc/html/vsn.html:
-    Differences between transformed intensities are analogous to "normalized log-ratios".
-    However, in contrast to the latter, their variance is independent of the mean, and they are usually more sensitive and specific in detecting differential transcription.
+    See https://www.bioconductor.org/packages/release/bioc/html/vsn.html: Differences between transformed intensities
+    are analogous to "normalized log-ratios". However, in contrast to the latter, their variance is independent of
+    the mean, and they are usually more sensitive and specific in detecting differential transcription.
 
     Examples
     --------
@@ -1292,8 +1294,8 @@ def vsn(df, cols, return_cols=False, backend='r'):
     >>> intens_cols = phos_lfq.filter(regex="Intensity .").columns
     >>> phos_lfq[intens_cols] = phos_lfq[noNorm].replace(0, np.nan)
 
-    Until now this was only preprocessing for the normalisation.
-    We will also log2-transform the intensity data to show that VSN normalisation results in values of similar scale than log2 transformation.
+    Until now this was only preprocessing for the normalisation. We will also log2-transform the intensity data to
+    show that VSN normalisation results in values of similar scale than log2 transformation.
 
     >>> phos_lfq = pp.vsn(phos_lfq, intens_cols)
     >>> norm_cols = phos_lfq.filter(regex="_norm").columns
@@ -1311,12 +1313,12 @@ def vsn(df, cols, return_cols=False, backend='r'):
         import autoprot.visualization as vis
         import pandas as pd
         phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
-    intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
-    phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
-    phos_lfq = pp.vsn(phos_lfq, intens_cols)
-    norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
-    phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, returnCols=True)
-    vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
+        intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
+        phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
+        phos_lfq = pp.vsn(phos_lfq, intens_cols)
+        norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
+        phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
+        vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
     """
     d = os.getcwd()
     data_loc = d + "/input.csv"
