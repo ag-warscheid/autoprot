@@ -1490,22 +1490,25 @@ def to_canonical_ps(series, organism="human"):
     >>> autoprot.preprocessing.to_canonical_ps(series, organism='human')
     ('O75381', 282)
     """
-    global uniprot_acc
 
     # open the phosphosite plus phosphorylation dataset
     with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
         ps = pd.read_csv(d, sep='\t', compression='zip')
 
     def get_uniprot_accession(gene, organism):
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
-        organism. """
-        gene = gene.upper()
-        try:
-            uniprot_acc = ps.loc[(ps["GENE"].apply(lambda x: str(x).upper() == gene) &
-                                  (ps["ORGANISM"] == organism)), "ACC_ID"].iloc[0]
-            return uniprot_acc
-        except Exception:
-            return False
+         """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
+         organism. """
+         gene = gene.upper()
+         try:
+             gene_in_GENE = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+             gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+
+             uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+             
+             return uniprot_acc
+        
+         except:
+             return False
 
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
@@ -1514,35 +1517,55 @@ def to_canonical_ps(series, organism="human"):
         seq = "".join(response.text.split('\n')[1:])
         return seq
 
-    def get_canonical_psite(seq, ps_seq, n):
+    def get_canonical_psite(seq, ps_seq, aa_to_ps):
         """Align an experimental phosphosite sequence window to the corresponding UniProt sequence."""
         alignment = pairwise2.align.localms(sequenceA=seq, sequenceB=ps_seq, match=2, mismatch=-2, open=-1, extend=-1)
 
         form_align = format_alignment(*alignment[0])
         start = int(form_align.lstrip(' ').split(' ')[0])
-        start2 = int(form_align.split('\n')[2].lstrip(' ').split(' ')[0]) - 1
-        canonical_psite = start + (15 - n - start2)
+        missmatched_aa = form_align.split('\n')[0].split(' ')[1].count("-")
+        canonical_psite = start + (aa_to_ps - missmatched_aa)
+        
+        #debugging
+        seq_window_alignment = form_align.split('\n')
+        score = form_align.split('\n')[3].split(' ')[2]
+        score = int(score[6:])
+        if score < 15:
+            print(seq_window_alignment)
+        
         return canonical_psite
-
+    
+    uniprot_acc_extr = []
+    ps_seq_extr = []
     gene = str(series["Gene names"])
-    counter = 0
-    if ';' in gene:
-        for g in gene.split(';'):
-            uniprot_acc = get_uniprot_accession(g, organism)
-            if not uniprot_acc:
-                continue
-            counter += 1
-    else:
-        uniprot_acc = get_uniprot_accession(gene, organism)
-    if not uniprot_acc:
-        return "No matching phosphosite found"
-    seq = get_uniprot_sequence(uniprot_acc)
     ps_seq = series["Sequence window"]
-    if ';' in ps_seq:
-        ps_seq = ps_seq.split(';')[counter]
-    n = len(ps_seq) - len(ps_seq.lstrip('_'))
-    ps_seq = ps_seq.strip('_')
-    return upacc, get_canonical_psite(seq, ps_seq, n)
+    
+    ps_seq_list = ps_seq.split(';')
+    gene_list = gene.split(';')
+    if len(ps_seq_list) != len(gene_list):
+        print(f'Gene list does not match sequence list:\n {gene}\n{ps_seq}')
+        ps_seq_list = ps_seq_list * len(gene_list)
+    
+    for idx, g in enumerate(gene_list):
+        uniprot_acc_ex = get_uniprot_accession(g, organism)
+        if not uniprot_acc_ex:
+            continue
+        uniprot_acc_extr.append(uniprot_acc_ex)
+        ps_seq_extr.append(ps_seq_list[idx])
+
+
+    if len(uniprot_acc_extr) == 0:
+        return "No matching Uniprot ID found"
+    
+    canonical_ps_list = []
+    for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
+        seq = get_uniprot_sequence(uniprot_acc)
+        
+        aa_to_ps = len(ps_seq[0:15].lstrip('_'))
+        ps_seq = ps_seq.strip('_')
+        canonical_ps_list.append(str(get_canonical_psite(seq, ps_seq, aa_to_ps)))
+       
+    return [(";".join(uniprot_acc_extr)), (";".join(canonical_ps_list))]
 
 
 def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
