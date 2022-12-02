@@ -1453,7 +1453,7 @@ def cyclic_loess(df, cols, backend='r'):
     return df
 
 
-def to_canonical_ps(series, organism="human"):
+def to_canonical_ps(series, organism="human", get_seq="online", uniprot=False):
     """
     Convert phosphosites to "canonical" phosphosites.
 
@@ -1469,6 +1469,7 @@ def to_canonical_ps(series, organism="human"):
         'quail', 'horse', 'goat', 'papillomavirus', 'water buffalo',
         'marmoset', 'turkey', 'cat', 'starfish', 'torpedo', 'SARSCoV1',
         'green monkey', 'ferret'. The default is "human".
+    get_seq : "local" or "online"
 
     Notes
     -----
@@ -1496,7 +1497,13 @@ def to_canonical_ps(series, organism="human"):
     # open the phosphosite plus phosphorylation dataset
     with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
         ps = pd.read_csv(d, sep='\t', compression='zip')
-
+    
+    while uniprot==False:    
+        # open the uniprot datatable if not provided
+        with resources.open_binary('autoprot.data', r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cgene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
+            uniprot = pd.read_csv(e, sep='\t', compression='gzip')
+    uniprot = uniprot
+    
     def get_uniprot_accession(gene, organism):
          """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
          organism. """
@@ -1511,12 +1518,28 @@ def to_canonical_ps(series, organism="human"):
         
          except:
              return False
-
+    
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
         seq = "".join(response.text.split('\n')[1:])
+        return seq
+        
+    def get_uniprot_sequence_locally(uniprot_acc, organism):
+        """Get sequence from a locally stored uniprot file by UniProt ID."""
+        
+        if organism == "mouse":
+            uniprot_organism = "Mus musculus (Mouse)"
+        else:
+            uniprot_organism = "Homo sapiens (Human)"
+            
+        seq = uniprot["Sequence"][(uniprot["Entry"]==uniprot_acc) & (uniprot["Organism"]==uniprot_organism)]
+        try:
+            seq = seq.values.tolist()[0]
+        except IndexError:
+            print(f"no match found for {uniprot_acc}")
+            seq=False
         return seq
 
     def get_canonical_psite(seq, ps_seq, aa_to_ps):
@@ -1533,7 +1556,7 @@ def to_canonical_ps(series, organism="human"):
         score = form_align.split('\n')[3].split(' ')[2]
         score = int(score[6:])
         if score < 15:
-            print(seq_window_alignment)
+            print(ps_seq)
         
         return canonical_psite
     
@@ -1545,7 +1568,10 @@ def to_canonical_ps(series, organism="human"):
     ps_seq_list = ps_seq.split(';')
     gene_list = gene.split(';')
     if len(ps_seq_list) != len(gene_list):
-        print(f'Gene list does not match sequence list:\n {gene}\n{ps_seq}')
+        
+        if get_seq=="online":
+            print(f'Gene list does not match sequence list:\n {gene}\n{ps_seq}')
+        
         ps_seq_list = ps_seq_list * len(gene_list)
     
     for idx, g in enumerate(gene_list):
@@ -1561,12 +1587,19 @@ def to_canonical_ps(series, organism="human"):
     
     canonical_ps_list = []
     for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
-        seq = get_uniprot_sequence(uniprot_acc)
         
-        aa_to_ps = len(ps_seq[0:15].lstrip('_'))
-        ps_seq = ps_seq.strip('_')
-        canonical_ps_list.append(str(get_canonical_psite(seq, ps_seq, aa_to_ps)))
-       
+        if get_seq=="local":
+            seq = get_uniprot_sequence_locally(uniprot_acc, organism)
+        if get_seq=="online":
+            seq = get_uniprot_sequence(uniprot_acc)
+        
+        if seq==False:
+            canonical_ps_list.append("no match") 
+        else:
+            aa_to_ps = len(ps_seq[0:15].lstrip('_'))
+            ps_seq = ps_seq.strip('_')
+            canonical_ps_list.append(str(get_canonical_psite(seq, ps_seq, aa_to_ps)))
+      
     return [(";".join(uniprot_acc_extr)), (";".join(canonical_ps_list))]
 
 
