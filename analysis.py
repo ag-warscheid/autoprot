@@ -1379,7 +1379,7 @@ class KSEA:
                 plt.tight_layout()
                 return fig
 
-    def volcanos(self, log_fc, p, kinases=None, **kwargs):
+    def volcanos(self, log_fc, p_colname, kinases=None, **kwargs):
         """
         Plot volcano plots highlighting substrates of a given kinase.
 
@@ -1388,7 +1388,7 @@ class KSEA:
         log_fc : str
             Column name of column containing the log fold changes.
             Must be present in the dataframe KSEA was initialised with.
-        p : str
+        p_colname : str
             Column name of column containing the p values.
             Must be present in the dataframe KSEA was initialised with.
         kinases : list of str, optional
@@ -1408,9 +1408,9 @@ class KSEA:
         for k in kinases:
             # index for highlighting the selected kinase substrates
             idx = df[df[k] == 1].index
-            vis.volcano(df, log_fc, p=p, highlight=idx,
-                        custom_hl={"label": k},
-                        custom_fg={"alpha": .5},
+            vis.volcano(df, log_fc, p_colname=p_colname, highlight=idx,
+                        kwargs_highlight={"label": k},
+                        kwargs_both_sig={"alpha": .5},
                         **kwargs)
 
     def return_kinase_substrate(self, kinase):
