@@ -156,3 +156,6 @@ docsrc/_build
 
 # R
 .Rhistory
+
+# testing for dev
+/testing
