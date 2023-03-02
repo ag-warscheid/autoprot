@@ -159,3 +159,6 @@ docsrc/_build
 
 # testing for dev
 /testing
+
+# data downloaded with exammples
+/examples/*.zip
