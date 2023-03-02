@@ -936,7 +936,7 @@ def ivolcano(
         score_colname: str = None,
         p_thresh: float = 0.05,
         log_fc_thresh: float = None,
-        hover_colname: str = None,
+        annotate_colname: str = None,
         pointsize_colname: str or float = None,
         highlight: pd.Index = None,
         title: str = "Volcano Plot",
@@ -964,7 +964,7 @@ def ivolcano(
     log_fc_thresh : float, optional
         fold change threshold at which an entry is deemed significant regulated.
         The default is None
-    hover_colname : str, optional
+    annotate_colname : str, optional
         Colname to use for labels in interactive plot.
         The default is None.
     pointsize_colname: str or float, optional
@@ -997,20 +997,20 @@ def ivolcano(
     if highlight is not None:
         df["SigCat"] = "-"
         df.loc[highlight, "SigCat"] = "*"
-        if hover_colname is not None:
-            fig = px.scatter(
+        fig = (
+            px.scatter(
                 data_frame=df,
                 x=log_fc_colname,
                 y=score_colname,
-                hover_name=hover_colname,
+                hover_name=annotate_colname,
                 size=pointsize_colname,
                 color="SigCat",
                 opacity=0.5,
                 category_orders={"SigCat": ["-", "*"]},
                 title=title,
             )
-        else:
-            fig = px.scatter(
+            if annotate_colname is not None
+            else px.scatter(
                 data_frame=df,
                 x=log_fc_colname,
                 y=score_colname,
@@ -1020,31 +1020,30 @@ def ivolcano(
                 category_orders={"SigCat": ["-", "*"]},
                 title=title,
             )
-
+        )
+    elif annotate_colname is not None:
+        fig = px.scatter(
+            data_frame=df,
+            x=log_fc_colname,
+            y=score_colname,
+            hover_name=annotate_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
     else:
-        if hover_colname is not None:
-            fig = px.scatter(
-                data_frame=df,
-                x=log_fc_colname,
-                y=score_colname,
-                hover_name=hover_colname,
-                size=pointsize_colname,
-                color="SigCat",
-                opacity=0.5,
-                category_orders={"SigCat": categories},
-                title=title,
-            )
-        else:
-            fig = px.scatter(
-                data_frame=df,
-                x=log_fc_colname,
-                y=score_colname,
-                size=pointsize_colname,
-                color="SigCat",
-                opacity=0.5,
-                category_orders={"SigCat": categories},
-                title=title,
-            )
+        fig = px.scatter(
+            data_frame=df,
+            x=log_fc_colname,
+            y=score_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
 
     fig.update_yaxes(showgrid=False, zeroline=True)
     fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1160,7 +1159,7 @@ def volcano(
         Axis to plot on
     ret_fig : bool, optional
         Whether to return the figure, can be used to further
-        customize it afterwards. The default is False.
+        customize it later. The default is False.
     figsize: tuple, optional
         The size of the figure.
         Default is (8,8)
@@ -1448,8 +1447,11 @@ def volcano(
         threshold: float
             Probability threshold. Only points with 1/density above the value will be retained.
         """
+        # if there is only one datapoint kernel density estimation with fail
+        if len(xs) == 1:
+            return xs, ys, ss
         # Make some random Gaussian data
-        data = np.array([(x, y) for x, y in zip(xs, ys)])
+        data = np.array(list(zip(xs, ys)))
         # Compute KDE
         kde = gaussian_kde(data.T)
         # Choice probabilities are computed from inverse probability density in KDE

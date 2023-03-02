@@ -153,7 +153,9 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
     """
 
     def one_samp_ttest(x):
-        return np.ma.filled(ttest_1samp(x, nan_policy="omit", alternative=alternative, popmean=0)[1], np.nan)
+        # nan-containing/masked inputs with nan_policy='omit' are currently not supported by one-sided alternatives.
+        x = x[~np.isnan(x)]
+        return np.ma.filled(ttest_1samp(x, nan_policy="raise", alternative=alternative, popmean=0)[1], np.nan)
 
     def two_samp_ttest(x):
         return np.ma.filled(
