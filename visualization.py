@@ -2933,7 +2933,7 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
     plt.tight_layout()
 
 
-def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
+def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     # sourcery skip: extract-method
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
@@ -2949,6 +2949,8 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         'bar' or 'pie'. The default is "bar".
     ret_fig : bool, optional
         Whether to return the figure. The default is False.
+    ax : matplotlib axis
+        Axis to plot on
 
     Returns
     -------
@@ -2990,8 +2992,12 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
     df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
 
     if typ == "bar":
-        fig = plt.figure(figsize=figsize)
-        ax = sns.countplot(x="Number of Phospho (STY)", data=df)
+        
+        if ax is None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.gca()
+            
+        sns.countplot(x="Number of Phospho (STY)", data=df, ax=ax)
         plt.title('Number of Phospho (STY)')
         plt.xlabel('Number of Phospho (STY)')
         ncount = df.shape[0]
@@ -3018,9 +3024,11 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False):
         ax.set_ylim(0, ncount)
         ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
     elif typ == "pie":
-        fig = plt.figure(figsize=figsize)
-        plt.pie([i[0] for i in count], labels=[i[1] for i in count])
-        plt.title("Number of Phosphosites")
+        if ax is None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.gca()
+        ax.pie([i[0] for i in count], labels=[i[1] for i in count])
+        ax.set_title("Number of Phosphosites")
     else:
         raise TypeError("typ must be either 'bar' or 'pie")
 
@@ -3134,7 +3142,7 @@ def charge_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     return fig
 
 
-def count_mod_aa(df, figsize=(6, 6), ret_fig=False):
+def count_mod_aa(df, figsize=(6, 6), ret_fig=False, ax=None):
     r"""
     Count the number of modifications per amino acid.
 
@@ -3147,6 +3155,8 @@ def count_mod_aa(df, figsize=(6, 6), ret_fig=False):
         The size of the figure. The default is (6,6).
     ret_fig : bool, optional
         Whether to return the figure object. The default is False.
+    ax : matplotlib axis
+        Axis to plot on
 
     Returns
     -------
@@ -3176,10 +3186,14 @@ def count_mod_aa(df, figsize=(6, 6), ret_fig=False):
               for i, j in zip(df["Amino acid"].value_counts().index,
                               df["Amino acid"].value_counts().values)]
 
-    fig = plt.figure(figsize=figsize)
-    plt.pie(df["Amino acid"].value_counts().values,
+    if ax is None:
+         fig = plt.figure(figsize=figsize)
+         ax = fig.gca()
+            
+    ax.pie(df["Amino acid"].value_counts().values,
             labels=(labels))
-    plt.title("Modified AAs")
+    ax.set_title("Modified AAs")
+    
     if ret_fig:
         return fig
 

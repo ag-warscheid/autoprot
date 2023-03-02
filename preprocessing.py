@@ -940,7 +940,7 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     return df, perf
 
 
-def expSemiCol(df, scCol, newCol, castTo=None):
+def exp_semi_col(df, scCol, newCol, castTo=None):
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
