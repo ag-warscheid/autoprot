@@ -1452,7 +1452,59 @@ def cyclic_loess(df, cols, backend='r'):
     os.remove(output_loc)
 
     return df
+    
+def annotate_phosphosite(df, ps, cols_to_keep=None):
+    """
+    Annotate phosphosites with information derived from PhosphositePlus.
 
+    Parameters
+    ----------
+    df : pd.Dataframe
+        dataframe containing PS of interst.
+    ps : str
+        Column containing info about the PS.
+        Format: GeneName_AminoacidPositoin (e.g. AKT_T308).
+    cols_to_keep : list, optional
+        Which columns from original dataframe (input df) to keep in output.
+        The default is None.
+
+    Returns
+    -------
+    pd.Dataframe
+        The input dataframe with the kept columns and additional phosphosite cols.
+
+    """
+
+    if cols_to_keep is None:
+        cols_to_keep = []
+
+    def make_merge_col(df_to_merge, file="regSites"):
+        """Format the phosphosite positions and gene names so that merging is possible."""
+        if file == "regSites":
+            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
+                   df_to_merge["MOD_RSD"].fillna("").apply(
+                       lambda x: x.split('-')[0])
+        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
+               df_to_merge["SUB_MOD_RSD"].fillna("")
+
+    with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
+        ks = pd.read_csv(d, sep='\t', compression='zip')
+        ks["merge"] = make_merge_col(ks, "KS")
+    with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
+        reg_sites = pd.read_csv(d, sep='\t', compression='zip')
+        reg_sites["merge"] = make_merge_col(reg_sites)
+
+    ks_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
+    reg_sites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
+                     'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
+
+    df = df.copy(deep=True)
+    df.rename(columns={ps: "merge"}, inplace=True)
+    df = df[["merge"] + cols_to_keep]
+    df = df.merge(ks[ks_coi], on="merge", how="left")
+    df = df.merge(reg_sites[reg_sites_coi], on="merge", how="left")
+
+    return df
 
 def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     """

@@ -3297,8 +3297,348 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
 
     return wc
 
+def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=None,
+                      exclusion=None, custom_search_term=None, make_word_cloud=False,
+                      sort='pub+date', retmax=20, output="print"):
+    """
+    Get Pubmed abstracts.
 
-def bh_plot(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
+    Notes
+    -----
+    Provide the search terms and pubmed will be searched for paper matching those
+    The exclusion list can be used to exclude certain words to be contained in a paper
+    If you want to perform more complicated searches use the possibility of using
+    a custom term.
+
+    If you search for a not excact term you can use *
+    For example opto* will also return optogenetic.
+
+    Parameters
+    ----------
+    text : list of str, optional
+        List of words which must occur in text.
+        The default is None.
+    title_or_abstract : list of str, optional
+        List of words which must occur in Titel or Abstract.
+        The default is None.
+    author : list of str, optional
+        List of authors which must occor in Author list.
+        The default is None.
+    phrase : list of str, optional
+        List of phrases which should occur in text.
+        Seperate word in phrases with hyphen (e.g. akt-signaling).
+        The default is None.
+    exclusion : list of str, optional
+        List of words which must not occur in text.
+        The default is None.
+    custom_search_term : str, optional
+        Enter a custom search term (make use of advanced pubmed search functionality).
+        If this is supplied all other search terms will be ignored.
+        The default is None.
+    make_word_cloud : bool, optional
+        Whether to draw a wordcloud of the words in retrieved abstrace.
+        The default is False.
+    sort : str, optional
+        How to sort the results.
+        The default is 'pub+date'.
+    retmax : int, optional
+        Maximum number of found articles to return.
+        The default is 20.
+    output : str, optional
+        How to handle the output.
+        Possible values are 'SOMEPATH.txt',
+        'SOMEPATH.html' or 'SOMEPATH'.
+        If no extension is given, the output will be html.
+        The default is "print".
+
+    Returns
+    -------
+    None.
+
+    Examples
+    --------
+    To generate a wordcloud and print the results of the found articles to the
+    prompt use the following command
+
+    >>> autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
+                                          make_word_cloud=True)
+
+    .. plot::
+        :context: close-figs
+
+        import autoprot.analysis as ana
+        ana.get_pub_abstracts(title_or_abstract=["p38", "JNK", "ERK"],
+                              make_word_cloud=True)
+
+    Even more comfortably, you can also save the results incl. the wordcloud
+    as html file
+
+    >>>  autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
+                                          make_word_cloud=True,
+                                          output='./MyPubmedSearch.html')
+
+    """
+
+    if exclusion is None:
+        exclusion = [""]
+    if phrase is None:
+        phrase = [""]
+    if author is None:
+        author = [""]
+    if title_or_abstract is None:
+        title_or_abstract = [""]
+    if text is None:
+        text = [""]
+
+    # STEP 1: Generate the search term
+    if custom_search_term is None:  # generate a pubmed search term from user input
+        # Generate long list of concatenated search terms
+        term = [i + "[Title/Abstract]" if i != "" else "" for i in title_or_abstract] + \
+               [i + "[Text Word]" if i != "" else "" for i in text] + \
+               [i + "[Author]" if i != "" else "" for i in author] + \
+               [i if i != "" else "" for i in phrase]
+        term = " AND ".join([i for i in term if i != ""])
+
+        # add exclusions joined by NOT
+        if exclusion != [""]:
+            exclusion = " NOT ".join(exclusion)
+            term = " NOT ".join([term] + [exclusion])
+    else:  # if the user provides a custom search term, ignore all remaining input
+        term = custom_search_term
+
+    # STEP 2: Perform the PubMed search and return the PubMed IDs of the found articles
+    Entrez.email = 'your.email@example.com'  # seemingly no true mail address is required.
+    handle = Entrez.esearch(db='pubmed',
+                            sort=sort,
+                            retmax=str(retmax),
+                            retmode='xml',
+                            term=term)
+    time.sleep(0.5)  # if function is executed in a loop: a small delay to ensure pubmed is responding
+    results = Entrez.read(handle)["IdList"]
+
+    # if the search was not successful, leave the function
+    if len(results) == 0:
+        print("No results for " + term)
+        return
+
+    # STEP 3: get more detailed results including abstracts, authors etc
+    handle = Entrez.efetch(db='pubmed',
+                           retmode='xml',
+                           id=','.join(set(results)))
+    papers = Entrez.read(handle)["PubmedArticle"]
+
+    titles = []
+    abstracts = []
+    authors = []
+    dois = []
+    links = []
+    pids = []
+    dates = []
+    journals = []
+    final_dict = dict()
+
+    # iterate through the papers
+    for paper in papers:
+        # get titles
+        titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
+        # get abstract
+        if "Abstract" in paper["MedlineCitation"]["Article"].keys():
+            abstracts.append(paper["MedlineCitation"]["Article"]["Abstract"])
+        else:
+            abstracts.append("No abstract")
+        # get authors
+        al = paper['MedlineCitation']['Article']["AuthorList"]
+        temp_authors = []
+        for a in al:
+            if "ForeName" in a and "LastName" in a:
+                temp_authors.append([f"{a['ForeName']} {a['LastName']}"])
+            elif "LastName" in a:
+                temp_authors.append([a['LastName']])
+            else:
+                temp_authors.append(a)
+        authors.append(list(pl.flatten(temp_authors)))
+        # get dois and make link
+        doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "doi"]
+        if len(doi) > 0:
+            doi = str(doi[0])
+        else:
+            doi = "NaN"
+        dois.append(doi)
+        links.append(f" https://doi.org/{doi}")
+        # get pids
+        pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "pubmed"][0]))
+        # get dates
+
+        raw_date = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
+        try:
+            date = f"{raw_date['Year']}-{raw_date['Month']}-{raw_date['Day']}"
+        except KeyError:
+            date = raw_date
+        dates.append(date)
+        # get journal
+        journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
+
+    # sum up the results in a dict containing the search term as key
+    final_dict[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
+
+    # STEP 4: Make a word cloud picture from Pubmed search abstracts.
+    if make_word_cloud:  # plot a picture of words in the found abstracts
+        abstracts = []
+        # for every search term (there usually is only one)
+        for i in final_dict:
+            # the abstract is the third element in the list
+            abstracts.extend(
+                abstract["AbstractText"][0] for abstract in final_dict[i][2] if not isinstance(abstract, str))
+        # create a long string of abstract words
+        abstracts = " ".join(abstracts)
+
+        # when exlusion list is added in wordcloud add those
+        # TODO properly implement the inclusion of exclusions
+        el = ["sup"]
+
+        fig = vis.wordcloud(text=abstracts, exlusion_words=el)
+        if output != "print":
+            if output[:-4] == ".txt":
+                output = output[:-4]
+            fig.to_file(output + "/WordCloud.png")
+
+    # STEP 5: generate a txt or html output or print to the prompt
+    if output == "print":
+        for i in final_dict:
+            for title, author, abstract, doi, link, pid, date, journal in \
+                    zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3], final_dict[i][4],
+                        final_dict[i][5], final_dict[i][6],
+                        final_dict[i][7]):
+                print(title)
+                print('-' * 100)
+                print("; ".join(author))
+                print('-' * 100)
+                print(journal)
+                print(date)
+                print(f"doi: {doi}, PubMedID: {pid}")
+                print(link)
+                print('-' * 100)
+                if isinstance(abstract, str):
+                    print(abstract)
+                else:
+                    print(abstract["AbstractText"][0])
+                print('-' * 100)
+                print('*' * 100)
+                print('-' * 100)
+
+    elif output[-4:] == ".txt":
+        with open(output, 'w', encoding="utf-8") as f:
+            for i in final_dict:
+                for title, author, abstract, doi, link, pid, date, journal in \
+                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
+                            final_dict[i][4], final_dict[i][5],
+                            final_dict[i][6], final_dict[i][7]):
+                    f.write(title)
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write("; ".join(author))
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write(journal)
+                    f.write('\n')
+                    f.write(str(date))
+                    f.write('\n')
+                    f.write(f"doi: {doi}, PubMedID: {pid}")
+                    f.write('\n')
+                    f.write(link)
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+
+                    # write the abstract in a structured manner with defined line breaks
+                    if not isinstance(abstract, str):
+                        abstract = abstract["AbstractText"][0]
+                    abstract = abstract.split(" ")
+                    for idx, word in enumerate(abstract):
+                        f.write(word)
+                        f.write(' ')
+                        if idx % 20 == 0 and idx > 0:
+                            f.write('\n')
+
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+                    f.write('*' * 100)
+                    f.write('\n')
+                    f.write('-' * 100)
+                    f.write('\n')
+
+    # if the output is a html file or a folder, write html
+    elif output[-5:] == ".html" or os.path.isdir(output):
+        if os.path.isdir(output):
+            output = os.path.join(output, "PubCrawlerResults.html")
+        with open(output, 'w', encoding="utf-8") as f:
+            f.write("<!DOC html>")
+            f.write("<html>")
+            f.write("<head>")
+            f.write("<style>")
+            f.write(".center {")
+            f.write("display: block;")
+            f.write("margin-left: auto;")
+            f.write("margin-right: auto;")
+            f.write("width: 80%;}")
+            f.write("</style>")
+            f.write("</head>")
+            f.write('<body style="background-color:#FFE5B4">')
+            if make_word_cloud:
+                f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
+            for i in final_dict:
+                for title, author, abstract, doi, link, pid, date, journal in \
+                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
+                            final_dict[i][4], final_dict[i][5],
+                            final_dict[i][6], final_dict[i][7]):
+                    f.write(f"<h2>{title}</h2>")
+                    f.write('<br>')
+                    ta = "; ".join(author)
+                    f.write(f'<p style="color:gray; font-size:16px">{ta}</p>')
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+                    f.write(f"<i>{journal}</i>")
+                    f.write('<br>')
+                    f.write(str(date))
+                    f.write('<br>')
+                    f.write(f"<i>doi:</i> {doi}, <i>PubMedID:</i> {pid}")
+                    f.write('<br>')
+                    f.write(f'<a href={link}><i>Link to journal</i></a>')
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+
+                    # write the abstract in a structured manner with defined line breaks
+                    if not isinstance(abstract, str):
+                        abstract = abstract["AbstractText"][0]
+                    abstract = abstract.split(" ")
+
+                    f.write('<p style="color:#202020">')
+                    for idx, word in enumerate(abstract):
+                        f.write(word)
+                        f.write(' ')
+                        if idx % 20 == 0 and idx > 0:
+                            f.write('</p>')
+                            f.write('<p style="color:#202020">')
+                    f.write('</p>')
+
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+                    f.write('*' * 150)
+                    f.write('<br>')
+                    f.write('-' * 200)
+                    f.write('<br>')
+            f.write("</body>")
+            f.write("</html>")
+
+
+
+def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     r"""
     Visualize Benjamini Hochberg p-value correction.
 

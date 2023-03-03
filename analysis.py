@@ -1689,346 +1689,6 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
         return True
 
 
-def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=None,
-                      exclusion=None, custom_search_term=None, make_word_cloud=False,
-                      sort='pub+date', retmax=20, output="print"):
-    """
-    Get Pubmed abstracts.
-
-    Notes
-    -----
-    Provide the search terms and pubmed will be searched for paper matching those
-    The exclusion list can be used to exclude certain words to be contained in a paper
-    If you want to perform more complicated searches use the possibility of using
-    a custom term.
-
-    If you search for a not excact term you can use *
-    For example opto* will also return optogenetic.
-
-    Parameters
-    ----------
-    text : list of str, optional
-        List of words which must occur in text.
-        The default is None.
-    title_or_abstract : list of str, optional
-        List of words which must occur in Titel or Abstract.
-        The default is None.
-    author : list of str, optional
-        List of authors which must occor in Author list.
-        The default is None.
-    phrase : list of str, optional
-        List of phrases which should occur in text.
-        Seperate word in phrases with hyphen (e.g. akt-signaling).
-        The default is None.
-    exclusion : list of str, optional
-        List of words which must not occur in text.
-        The default is None.
-    custom_search_term : str, optional
-        Enter a custom search term (make use of advanced pubmed search functionality).
-        If this is supplied all other search terms will be ignored.
-        The default is None.
-    make_word_cloud : bool, optional
-        Whether to draw a wordcloud of the words in retrieved abstrace.
-        The default is False.
-    sort : str, optional
-        How to sort the results.
-        The default is 'pub+date'.
-    retmax : int, optional
-        Maximum number of found articles to return.
-        The default is 20.
-    output : str, optional
-        How to handle the output.
-        Possible values are 'SOMEPATH.txt',
-        'SOMEPATH.html' or 'SOMEPATH'.
-        If no extension is given, the output will be html.
-        The default is "print".
-
-    Returns
-    -------
-    None.
-
-    Examples
-    --------
-    To generate a wordcloud and print the results of the found articles to the
-    prompt use the following command
-
-    >>> autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
-                                          make_word_cloud=True)
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.analysis as ana
-        ana.get_pub_abstracts(title_or_abstract=["p38", "JNK", "ERK"],
-                              make_word_cloud=True)
-
-    Even more comfortably, you can also save the results incl. the wordcloud
-    as html file
-
-    >>>  autoprot.analysis.get_pub_abstracts(titel_or_abstract=["p38", "JNK", "ERK"],
-                                          make_word_cloud=True,
-                                          output='./MyPubmedSearch.html')
-
-    """
-
-    if exclusion is None:
-        exclusion = [""]
-    if phrase is None:
-        phrase = [""]
-    if author is None:
-        author = [""]
-    if title_or_abstract is None:
-        title_or_abstract = [""]
-    if text is None:
-        text = [""]
-
-    # STEP 1: Generate the search term
-    if custom_search_term is None:  # generate a pubmed search term from user input
-        # Generate long list of concatenated search terms
-        term = [i + "[Title/Abstract]" if i != "" else "" for i in title_or_abstract] + \
-               [i + "[Text Word]" if i != "" else "" for i in text] + \
-               [i + "[Author]" if i != "" else "" for i in author] + \
-               [i if i != "" else "" for i in phrase]
-        term = " AND ".join([i for i in term if i != ""])
-
-        # add exclusions joined by NOT
-        if exclusion != [""]:
-            exclusion = " NOT ".join(exclusion)
-            term = " NOT ".join([term] + [exclusion])
-    else:  # if the user provides a custom search term, ignore all remaining input
-        term = custom_search_term
-
-    # STEP 2: Perform the PubMed search and return the PubMed IDs of the found articles
-    Entrez.email = 'your.email@example.com'  # seemingly no true mail address is required.
-    handle = Entrez.esearch(db='pubmed',
-                            sort=sort,
-                            retmax=str(retmax),
-                            retmode='xml',
-                            term=term)
-    time.sleep(0.5)  # if function is executed in a loop: a small delay to ensure pubmed is responding
-    results = Entrez.read(handle)["IdList"]
-
-    # if the search was not successful, leave the function
-    if len(results) == 0:
-        print("No results for " + term)
-        return
-
-    # STEP 3: get more detailed results including abstracts, authors etc
-    handle = Entrez.efetch(db='pubmed',
-                           retmode='xml',
-                           id=','.join(set(results)))
-    papers = Entrez.read(handle)["PubmedArticle"]
-
-    titles = []
-    abstracts = []
-    authors = []
-    dois = []
-    links = []
-    pids = []
-    dates = []
-    journals = []
-    final_dict = dict()
-
-    # iterate through the papers
-    for paper in papers:
-        # get titles
-        titles.append(paper["MedlineCitation"]["Article"]["ArticleTitle"])
-        # get abstract
-        if "Abstract" in paper["MedlineCitation"]["Article"].keys():
-            abstracts.append(paper["MedlineCitation"]["Article"]["Abstract"])
-        else:
-            abstracts.append("No abstract")
-        # get authors
-        al = paper['MedlineCitation']['Article']["AuthorList"]
-        temp_authors = []
-        for a in al:
-            if "ForeName" in a and "LastName" in a:
-                temp_authors.append([f"{a['ForeName']} {a['LastName']}"])
-            elif "LastName" in a:
-                temp_authors.append([a['LastName']])
-            else:
-                temp_authors.append(a)
-        authors.append(list(pl.flatten(temp_authors)))
-        # get dois and make link
-        doi = [i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "doi"]
-        if len(doi) > 0:
-            doi = str(doi[0])
-        else:
-            doi = "NaN"
-        dois.append(doi)
-        links.append(f" https://doi.org/{doi}")
-        # get pids
-        pids.append(str([i for i in paper['PubmedData']['ArticleIdList'] if i.attributes["IdType"] == "pubmed"][0]))
-        # get dates
-
-        raw_date = paper['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']
-        try:
-            date = f"{raw_date['Year']}-{raw_date['Month']}-{raw_date['Day']}"
-        except KeyError:
-            date = raw_date
-        dates.append(date)
-        # get journal
-        journals.append(paper['MedlineCitation']['Article']['Journal']['Title'])
-
-    # sum up the results in a dict containing the search term as key
-    final_dict[term] = (titles, authors, abstracts, dois, links, pids, dates, journals)
-
-    # STEP 4: Make a word cloud picture from Pubmed search abstracts.
-    if make_word_cloud:  # plot a picture of words in the found abstracts
-        abstracts = []
-        # for every search term (there usually is only one)
-        for i in final_dict:
-            # the abstract is the third element in the list
-            abstracts.extend(
-                abstract["AbstractText"][0] for abstract in final_dict[i][2] if not isinstance(abstract, str))
-        # create a long string of abstract words
-        abstracts = " ".join(abstracts)
-
-        # when exlusion list is added in wordcloud add those
-        # TODO properly implement the inclusion of exclusions
-        el = ["sup"]
-
-        fig = vis.wordcloud(text=abstracts, exlusion_words=el)
-        if output != "print":
-            if output[:-4] == ".txt":
-                output = output[:-4]
-            fig.to_file(output + "/WordCloud.png")
-
-    # STEP 5: generate a txt or html output or print to the prompt
-    if output == "print":
-        for i in final_dict:
-            for title, author, abstract, doi, link, pid, date, journal in \
-                    zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3], final_dict[i][4],
-                        final_dict[i][5], final_dict[i][6],
-                        final_dict[i][7]):
-                print(title)
-                print('-' * 100)
-                print("; ".join(author))
-                print('-' * 100)
-                print(journal)
-                print(date)
-                print(f"doi: {doi}, PubMedID: {pid}")
-                print(link)
-                print('-' * 100)
-                if isinstance(abstract, str):
-                    print(abstract)
-                else:
-                    print(abstract["AbstractText"][0])
-                print('-' * 100)
-                print('*' * 100)
-                print('-' * 100)
-
-    elif output[-4:] == ".txt":
-        with open(output, 'w', encoding="utf-8") as f:
-            for i in final_dict:
-                for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
-                            final_dict[i][4], final_dict[i][5],
-                            final_dict[i][6], final_dict[i][7]):
-                    f.write(title)
-                    f.write('\n')
-                    f.write('-' * 100)
-                    f.write('\n')
-                    f.write("; ".join(author))
-                    f.write('\n')
-                    f.write('-' * 100)
-                    f.write('\n')
-                    f.write(journal)
-                    f.write('\n')
-                    f.write(str(date))
-                    f.write('\n')
-                    f.write(f"doi: {doi}, PubMedID: {pid}")
-                    f.write('\n')
-                    f.write(link)
-                    f.write('\n')
-                    f.write('-' * 100)
-                    f.write('\n')
-
-                    # write the abstract in a structured manner with defined line breaks
-                    if not isinstance(abstract, str):
-                        abstract = abstract["AbstractText"][0]
-                    abstract = abstract.split(" ")
-                    for idx, word in enumerate(abstract):
-                        f.write(word)
-                        f.write(' ')
-                        if idx % 20 == 0 and idx > 0:
-                            f.write('\n')
-
-                    f.write('\n')
-                    f.write('-' * 100)
-                    f.write('\n')
-                    f.write('*' * 100)
-                    f.write('\n')
-                    f.write('-' * 100)
-                    f.write('\n')
-
-    # if the output is a html file or a folder, write html
-    elif output[-5:] == ".html" or os.path.isdir(output):
-        if os.path.isdir(output):
-            output = os.path.join(output, "PubCrawlerResults.html")
-        with open(output, 'w', encoding="utf-8") as f:
-            f.write("<!DOC html>")
-            f.write("<html>")
-            f.write("<head>")
-            f.write("<style>")
-            f.write(".center {")
-            f.write("display: block;")
-            f.write("margin-left: auto;")
-            f.write("margin-right: auto;")
-            f.write("width: 80%;}")
-            f.write("</style>")
-            f.write("</head>")
-            f.write('<body style="background-color:#FFE5B4">')
-            if make_word_cloud:
-                f.write('<img src="WordCloud.png" alt="WordCloud" class="center">')
-            for i in final_dict:
-                for title, author, abstract, doi, link, pid, date, journal in \
-                        zip(final_dict[i][0], final_dict[i][1], final_dict[i][2], final_dict[i][3],
-                            final_dict[i][4], final_dict[i][5],
-                            final_dict[i][6], final_dict[i][7]):
-                    f.write(f"<h2>{title}</h2>")
-                    f.write('<br>')
-                    ta = "; ".join(author)
-                    f.write(f'<p style="color:gray; font-size:16px">{ta}</p>')
-                    f.write('<br>')
-                    f.write('-' * 200)
-                    f.write('<br>')
-                    f.write(f"<i>{journal}</i>")
-                    f.write('<br>')
-                    f.write(str(date))
-                    f.write('<br>')
-                    f.write(f"<i>doi:</i> {doi}, <i>PubMedID:</i> {pid}")
-                    f.write('<br>')
-                    f.write(f'<a href={link}><i>Link to journal</i></a>')
-                    f.write('<br>')
-                    f.write('-' * 200)
-                    f.write('<br>')
-
-                    # write the abstract in a structured manner with defined line breaks
-                    if not isinstance(abstract, str):
-                        abstract = abstract["AbstractText"][0]
-                    abstract = abstract.split(" ")
-
-                    f.write('<p style="color:#202020">')
-                    for idx, word in enumerate(abstract):
-                        f.write(word)
-                        f.write(' ')
-                        if idx % 20 == 0 and idx > 0:
-                            f.write('</p>')
-                            f.write('<p style="color:#202020">')
-                    f.write('</p>')
-
-                    f.write('<br>')
-                    f.write('-' * 200)
-                    f.write('<br>')
-                    f.write('*' * 150)
-                    f.write('<br>')
-                    f.write('-' * 200)
-                    f.write('<br>')
-            f.write("</body>")
-            f.write("</html>")
-
-
 def loess(data, xvals, yvals, alpha, poly_degree=2):
     r"""
     Calculate a LOcally-Weighted Scatterplot Smoothing Fit.
@@ -2406,61 +2066,6 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
 
     return df
 
-
-def annotate_phosphosite(df, ps, cols_to_keep=None):
-    """
-    Annotate phosphosites with information derived from PhosphositePlus.
-
-    Parameters
-    ----------
-    df : pd.Dataframe
-        dataframe containing PS of interst.
-    ps : str
-        Column containing info about the PS.
-        Format: GeneName_AminoacidPositoin (e.g. AKT_T308).
-    cols_to_keep : list, optional
-        Which columns from original dataframe (input df) to keep in output.
-        The default is None.
-
-    Returns
-    -------
-    pd.Dataframe
-        The input dataframe with the kept columns and additional phosphosite cols.
-
-    """
-
-    if cols_to_keep is None:
-        cols_to_keep = []
-
-    def make_merge_col(df_to_merge, file="regSites"):
-        """Format the phosphosite positions and gene names so that merging is possible."""
-        if file == "regSites":
-            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-                   df_to_merge["MOD_RSD"].fillna("").apply(
-                       lambda x: x.split('-')[0])
-        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-               df_to_merge["SUB_MOD_RSD"].fillna("")
-
-    with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
-        ks = pd.read_csv(d, sep='\t', compression='zip')
-        ks["merge"] = make_merge_col(ks, "KS")
-    with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
-        reg_sites = pd.read_csv(d, sep='\t', compression='zip')
-        reg_sites["merge"] = make_merge_col(reg_sites)
-
-    ks_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
-    reg_sites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
-                     'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
-
-    df = df.copy(deep=True)
-    df.rename(columns={ps: "merge"}, inplace=True)
-    df = df[["merge"] + cols_to_keep]
-    df = df.merge(ks[ks_coi], on="merge", how="left")
-    df = df.merge(reg_sites[reg_sites_coi], on="merge", how="left")
-
-    return df
-
-
 def go_analysis(gene_list, organism="hsapiens"):
     """
     Perform go Enrichment analysis (also KEGG and REAC).
@@ -2745,7 +2350,308 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
         df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
 
     print(df.T, ax)
+    
+def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_conversion=["Arg6", "Arg10"]):
+    '''
+    
 
+    Parameters
+    ----------
+    df_evidence : MaxQuant evidence table
+        DESCRIPTION. clean reverse and contaminant first autoprot.preprocessing.cleaning()
+    label : TYPE, optional
+        DESCRIPTION. The default is ["L", "M", "H"].
+    RtoP_conversion : variable modifications ["Pro6", "Pro10"] set in MaxQuant.
+
+    Returns
+    -------
+    Fig, table for SILAC label incorporation
+
+    '''
+    ##set plot style
+    plt.style.use('seaborn-whitegrid')
+    
+    ##set parameters
+    today = date.today().isoformat()
+    df_evidence.sort_values(["Raw file"], inplace=True)
+    experiments = list(df_evidence["Experiment"].unique())
+    runs = list(df_evidence["Raw file"].unique()) 
+    
+    dic_setup={}
+    for key, val in zip(runs, experiments):
+        dic_setup[key] = val
+    
+    df_labeling_eff = pd.DataFrame()
+    df_labeling_eff_summary = pd.DataFrame()
+    
+    ####calculate Arg to Pro for each raw file in df_evidence
+    if "Arg6" in RtoP_conversion:
+        col_name = "Pro6"
+        title = "% Arg6 to Pro6 conversion"
+    if "Arg10" in RtoP_conversion:
+        col_name = "Pro10"
+        title = "% Arg10 to Pro10 conversion"
+    
+    df_RtoP_summary = pd.DataFrame()
+    df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
+    for raw, df_group in df_evidence.groupby("Raw file"):
+        df_RtoP = pd.DataFrame()
+        df_RtoP.loc[raw,["P count"]] = df_group["P count"][df_group[col_name]==0].sum()
+        df_RtoP.loc[raw,[col_name]] = df_group[col_name][df_group[col_name]>0].sum()
+        df_RtoP_summary = pd.concat([df_RtoP_summary, df_RtoP], axis=0)
+   
+    df_RtoP_summary.index = experiments
+    df_RtoP_summary.dropna(inplace=True)
+    df_RtoP_summary["RtoP [%]"] = df_RtoP_summary[col_name]/df_RtoP_summary["P count"] *100
+    
+    #### making the box plot Arg to Pro conversion
+    x_ax=len(experiments)+1
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
+    fig.suptitle(title, fontdict=None,
+                 horizontalalignment='center', size=14
+                 #,fontweight="bold"
+                 )
+    df_RtoP_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
+    ax1.set_xlabel("rawfile number", size=12)
+    ax1.set_ylabel("Arg to Pro [%]", size=12)
+    
+    plt.tight_layout()
+    plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
+    
+    #### save df Arg to Pro conversion as .csv
+    df_RtoP_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
+        
+    
+    def labeling_efficiency(df_evidence, label):
+        '''
+        This function calculates the labeling efficiency of SILAC labeled samples using a MaxQuant evidence table.
+    
+        Parameters
+        ----------
+        df_evidence : pandas.DataFrame
+            A MaxQuant evidence table that has been cleaned of reverse and contaminant peptides.
+        label : str
+            The SILAC label type used in the experiment ('L', 'M', or 'H').
+    
+        Returns
+        -------
+        pandas.DataFrame
+            A table that shows the SILAC label incorporation for each sample.
+    
+        '''
+        # Create column names for the intensity and ratio columns.
+        intensity_col = f"Intensity {label}"
+        ratio_col_name = f"Ratio Intensity {label}/total"
+        
+        # Create empty DataFrames to store the results.
+        df_labeling_eff_K = pd.DataFrame()
+        df_labeling_eff_R = pd.DataFrame()
+        
+        # Remove NaN values from the intensity column.
+        df_evidence[intensity_col] = df_evidence[intensity_col].dropna()
+        
+        # Calculate the SILAC labeling ratio for each peptide.
+        df_evidence[ratio_col_name] = df_evidence[intensity_col] / df_evidence["Intensity"] * 100
+        
+        # Iterate through each sample (i.e., raw file).
+        for raw, df_group in df_evidence.groupby("Raw file"):
+            
+            # Calculate the SILAC labeling efficiency for Lysine.
+            K_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
+            s_K_binned = df_group[ratio_col_name][K_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            K_count = K_filter.sum()
+            s_relative_K_binned = s_K_binned / K_count * 100
+            df_labeling_eff_K[raw] = s_relative_K_binned
+            
+            # Calculate the SILAC labeling efficiency for Arginine.
+            R_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
+            s_R_binned = df_group[ratio_col_name][R_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            R_count = R_filter.sum()
+            s_relative_R_binned = s_R_binned / R_count * 100
+            df_labeling_eff_R[raw] = s_relative_R_binned
+        
+        # Rename the columns to match the experimental setup.
+        exp = []
+        for elem in df_labeling_eff_K.columns:
+            exp.append(dic_setup[elem])
+        df_labeling_eff_K.columns = exp
+        df_labeling_eff_R.columns = exp
+            
+        # Combine the two DataFrames into one and return it.
+        df_labeling_eff = pd.concat([df_labeling_eff_K, df_labeling_eff_R],
+                                    keys=["Lys incorpororation", "Arg incorpororation"],
+                                    names=["Amino acid", "bins"]
+                                    )
+        
+        return df_labeling_eff
+    
+    #### check for input in labeling and filter for rawfiles while given
+    
+    df_labeling_eff_summary_list = []
+    
+    if "L" in label:
+        text = "Light"
+        if bool(label["L"]):
+            list_raw = []
+            for rawfile in label["L"]:
+                list_raw.append(rawfile)
+            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtert, "L")
+        else:
+            df_labeling_eff = labeling_efficiency(df_evidence, "L")
+            
+        df_labeling_eff_summary_list.append(df_labeling_eff)
+    
+        
+    if "M" in label:
+        text = "Medium"
+        if bool(label["M"]):
+            list_raw = []
+            for rawfile in label["M"]:
+                list_raw.append(rawfile)
+            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtert, "M")
+        else:
+            df_labeling_eff = labeling_efficiency(df_evidence, "M")
+        
+        df_labeling_eff_summary_list.append(df_labeling_eff)
+        
+    if "H" in label:
+        text = "Heavy"
+        if bool(label["H"]):
+            list_raw = []
+            for rawfile in label["H"]:
+                list_raw.append(rawfile)
+            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtert, "H")
+        else:
+            df_labeling_eff = labeling_efficiency(df_evidence, "H")
+            
+        df_labeling_eff_summary_list.append(df_labeling_eff)
+        
+
+    df_labeling_eff_summary = pd.concat(df_labeling_eff_summary_list, axis=1)
+
+        
+    ##### store the results    
+    df_labeling_eff_summary.to_csv("{0}_labeling_eff_summary.csv".format(today), sep='\t')
+    
+    #####plot labeling efficiency overview
+    x_ax=len(experiments)+1
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax*2, 4))
+    fig.suptitle(("SILAC Labeling efficiency {}").format(text), fontdict=None,
+                 horizontalalignment='center', size=14
+                 #,fontweight="bold"
+                 )
+    for i, (aa, df) in enumerate(df_labeling_eff_summary.groupby(level=0)):
+        
+        df.plot(kind="bar", ax=ax[i], legend=False)
+        
+        ax[i].set_xticklabels(["0-10","11-20","21-30","31-40","41-50"
+                               ,"51-60","61-70","71-80","81-90","91-100"])
+        ax[i].set_xlabel("bins", size=12)
+        ax[i].set_ylabel(("{} {} [%]").format(text, aa), size=12)
+        
+    plt.tight_layout()
+    plt.savefig("{0}_BoxPlot_Lab-eff_overview.png".format(today))
+    
+
+    return df_labeling_eff_summary
+
+def dimethyl_labeling_efficieny(df_evidence, label):
+    '''
+    
+
+    Parameters
+    ----------
+    df_evidence : MQ evidence table as pandas.Dataframe
+    label : string, set label to MQ intensity column header "L", "M", "H"
+
+    Returns
+    -------
+    labeling efficiency as pd.DataFrame, saves table as tab seperated .csv and overview labeling efficiency as .png
+
+    '''
+    ##set plot style
+    plt.style.use('seaborn-whitegrid')
+    
+    ##set parameters
+    today = date.today().isoformat()
+    
+    df_evidence.sort_values(["Raw file"], inplace=True)
+    try:
+        experiments = list((df_evidence["Experiment"].unique()))
+    except:
+        experiments = list((df_evidence["Raw file"].unique()))
+        print("Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used")
+
+    df_labeling_eff = pd.DataFrame()
+
+    df_evidence.dropna(subset=["Intensity"], inplace=True)
+    df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence["Intensity"] *100
+    
+    #### build label ratio and count labeled Arg and Lys
+    for raw, df_group in df_evidence.groupby("Raw file"):
+        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0,101,10), sort=False)
+        count = df_group["Ratio Intensity {}/total".format(label)].count()
+        s_relative_binned = s_binned / count *100
+        df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
+
+    df_labeling_eff.columns = experiments
+    print(df_labeling_eff)
+    df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
+    
+    #####plot labeling efficiency overview
+    x_ax=len(experiments)+1
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax*2, 4))
+    fig.suptitle("Dimethyl Labeling efficiency {}".format(label), fontdict=None,
+                 horizontalalignment='center', size=14
+                 #,fontweight="bold"
+                 )
+    df_labeling_eff.plot(kind="bar", ax=ax1)
+    ax1.set_xlabel("bins", size=12)
+    ax1.set_ylabel("{} labeling [%]".format(label), size=12)
+    
+    plt.tight_layout()
+    plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
+    
+    #####plot labeling efficiency Lys for each experiment seperatly
+    ##columns and rows from number of experiments in df_evidence
+    number_of_subplots = len(experiments)
+
+    if (number_of_subplots%3) == 0:
+        number_of_columns = 3
+    elif (number_of_subplots%2) == 0:
+        number_of_columns = 2
+    else:
+        number_of_columns = 1
+    
+    number_of_rows = number_of_subplots // number_of_columns
+    
+    ##adjust figsize
+    #8.3 *11.7 inch is the size of a dinA4
+    fig = plt.figure(figsize=(2.76*number_of_columns,
+                              2.925*number_of_rows))
+
+    for col_name, plot in zip(experiments, range(number_of_subplots)):
+    
+        ax1 = fig.add_subplot(number_of_rows,number_of_columns,plot+1)
+        
+        #filter for bins with low values: set 1%
+        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum()>1].plot(kind="bar", ax=ax1)
+        
+        ax1.set_title(col_name)
+        ax1.set_xlabel("bins", size=8)
+        ax1.set_ylabel("{} Dimethyl incorporation [%]".format(label), size=8)
+        ax1.set_ylim(0,100)
+        ax1.axhline(95, linestyle = "--",c = "k")
+    
+    fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
+    plt.tight_layout()
+    plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
+    
+    return df_labeling_eff
 
 def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
     """
