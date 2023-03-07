@@ -893,6 +893,9 @@ def _prep_volcano_data(
         If neither a p-score nor a p value is provided by the user.
 
     """
+    # Work with a copy of the dataframe
+    df = df.copy()
+
     if score_colname is None and p_colname is None:
         raise ValueError("You have to provide either a score or a (adjusted) p value.")
     elif score_colname is None:
@@ -1448,8 +1451,11 @@ def volcano(
             Probability threshold. Only points with 1/density above the value will be retained.
         """
         # if there is only one datapoint kernel density estimation with fail
-        if len(xs) == 1:
+        if len(xs) < 3:
             return xs, ys, ss
+        if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
+            raise ValueError('Cannot perform density estimation. Make sure there are no NaN values in your x and y '
+                             'data.')
         # Make some random Gaussian data
         data = np.array(list(zip(xs, ys)))
         # Compute KDE

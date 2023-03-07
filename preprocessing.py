@@ -1268,6 +1268,8 @@ def vsn(df, cols, return_cols=False, backend='r'):
     -------
     pd.DataFrame
         The original dataframe with extra columns _normalized.
+    list
+        Column names after vsn transformation
 
     References
     ----------
@@ -1356,7 +1358,7 @@ def vsn(df, cols, return_cols=False, backend='r'):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclic_loess(df, cols, backend='r'):
+def cyclic_loess(df, cols, return_cols=False, backend='r'):
     r"""
     Perform cyclic Loess normalization.
 
@@ -1366,6 +1368,9 @@ def cyclic_loess(df, cols, backend='r'):
         Input dataframe.
     cols : list of str
         Colnames to perform normlisation on.
+    return_cols : bool, optional
+        Whether to return a list of names corresponding to the columns added
+        to the dataframe. The default is False.
     backend : str, optional
         Only 'r' is implemented. The default is "r".
 
@@ -1403,7 +1408,7 @@ def cyclic_loess(df, cols, backend='r'):
 
     Until now this was only preprocessing for the normalisation.
 
-    >>> phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
+    >>> phos_norm_r = pp.cyclic_loess(phosLog,noNorm,backend='r')
     >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
     >>> plt.show() #doctest: +SKIP
 
@@ -1451,8 +1456,8 @@ def cyclic_loess(df, cols, backend='r'):
     os.remove(data_loc)
     os.remove(output_loc)
 
-    return df
-    
+    return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
+
 def annotate_phosphosite(df, ps, cols_to_keep=None):
     """
     Annotate phosphosites with information derived from PhosphositePlus.
