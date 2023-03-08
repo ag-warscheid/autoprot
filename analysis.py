@@ -120,7 +120,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
                         'log2_Ratio H/M normalized BC18_3',
                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
                         'log2_Ratio M/L normalized BC36_2']
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\\t', low_memory=False)
+        prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep='\\t', low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
         prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
@@ -222,7 +222,7 @@ def adjust_p(df, p_col, method="fdr_bh"):
     ...                 'log2_Ratio H/M normalized BC18_3',
     ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
     ...                 'log2_Ratio M/L normalized BC36_2']
-    >>> prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+    >>> prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep='\t', low_memory=False)
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = pp.log(prot, protRatio, base=2)
     >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjust_p_vals=False)
@@ -339,7 +339,7 @@ class AutoPCA:
         import autoprot.preprocessing as pp
         import pandas as pd
 
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep="\t", low_memory=False)
+        prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep="\t", low_memory=False)
         protRatio = prot.filter(regex="Ratio .\/. normalized")
         protLog = pp.log(prot, protRatio, base=2)
         temp = protLog[~protLog.filter(regex="log2.*norm").isnull().any(1)]
@@ -1329,7 +1329,7 @@ class KSEA:
             return self.kseaResults.dropna()
 
     def plot_enrichment(self, up_col="orange", down_col="blue", bg_col="lightgray",
-                        plot_bg=True, ret=False, title="", figsize=(5, 10)):
+                        plot_bg=True, ret_fig=False, title="", figsize=(5, 10), ax=None):
         """
         Plot the KSEA results.
 
@@ -1347,13 +1347,15 @@ class KSEA:
         plot_bg : bool, optional
             Whether to plot the unaffected kinases.
             The default is True.
-        ret : bool, optional
+        ret_fig : bool, optional
             Whether to return the figure object.
             The default is False.
         title : str, optional
             Title of the figure. The default is "".
         figsize : tuple of int, optional
             Figure size. The default is (5,10).
+        ax : matplotlib.axis, optional
+            The axis to plot on. Default is None.
 
         Returns
         -------
@@ -1369,27 +1371,34 @@ class KSEA:
             # highlight up and down regulated
             self.kseaResults.loc[self.kseaResults["score"] > 2, "color"] = up_col
             self.kseaResults.loc[self.kseaResults["score"] < -2, "color"] = down_col
+
             # init figure
-            fig = plt.figure(figsize=figsize)
-            plt.yticks(fontsize=10)
-            plt.title(title)
+            if ax is None:
+                fig, ax = plt.subplots(1, 1, figsize=figsize)
+            else:
+                fig = plt.gcf()
+
             # only plot the unaffected substrates if plot_bg is True
             if plot_bg:
                 sns.barplot(data=self.kseaResults.dropna(), x="score", y="kinase",
-                            palette=self.kseaResults.dropna()["color"])
+                            palette=self.kseaResults.dropna()["color"], ax=ax)
             else:
                 # else remove the unaffected substrates from the plotting df
                 sns.barplot(data=self.kseaResults[self.kseaResults["color"] != bg_col].dropna(), x="score", y="kinase",
-                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"])
+                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"], ax=ax)
 
             # remove top and right spines/plot lines
             sns.despine()
             plt.legend([], [], frameon=False)
+            plt.yticks(fontsize=10)
+            ax.set_title(title)
             plt.axvline(0, 0, 1, ls="dashed", color="lightgray")
             # return the figure object only if demanded
-            if ret:
+            if ret_fig:
                 plt.tight_layout()
                 return fig
+            else:
+                return None
 
     def volcanos(self, log_fc, p_colname, kinases=None, **kwargs):
         """
@@ -1826,7 +1835,7 @@ def edm(matrix_a, matrix_b):
     return np.sqrt(p1 + p2 + p3)
 
 
-def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=False):
+def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     # sourcery skip: extract-method, inline-immediately-returned-variable
     r"""
     Perform moderated ttest as implemented from R LIMMA.
@@ -1844,11 +1853,10 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
     custom_design : str, optional
         Path to custom design file.
         The default is None.
-    calc_contrasts : str, optional
-        The contrasts to be calculated by limma. Must refer to the column names
-        in the data file. Differences are indicated e.g. by "CondA-CondB".
-        The autoprot implementation only calculates contrasts based on the
-        column names specified in the design matrix.
+    coef : str, optional
+        The coefficients serving as the basis for calculating p-vlaues and fold-changes from the eBayes.
+        Must refer to design matrix colnames. If no custom design is specified the default coeficient is "coef".
+        Differences are indicated e.g. by "CondA-CondB". See https://rdrr.io/bioc/limma/man/toptable.html for details.
         The default is None.
     print_r : bool, optional
         Whether to print the R output.
@@ -1861,8 +1869,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
 
     Notes
     -----
-    matrix_a custom design representing the design matrix of the microarray experiment,
-    with rows corresponding to arrays and columns to coefficients to be estimated
+    A custom design matriox has rows corresponding to arrays and columns to coefficients to be estimated
     can be provided using customDesign.
     If customDesign is the unit vector meaning that the arrays are treated as replicates.
     See: https://www.rdocumentation.org/packages/limma/versions/3.28.14/topics/lmFit
@@ -1895,6 +1902,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
 
     """
     # TODO: better handle coefficient extraction in R
+    df = df.copy()
     d = os.getcwd()
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
@@ -1953,7 +1961,7 @@ def limma(df, reps, cond="", custom_design=None, calc_contrasts=None, print_r=Fa
         test = "custom"
         design_loc = custom_design
 
-    command = [R, '--vanilla', RFUNCTIONS, "limma", data_loc, output_loc, test, design_loc, calc_contrasts or ""]
+    command = [R, '--vanilla', RFUNCTIONS, "limma", data_loc, output_loc, test, design_loc, coef or ""]
 
     p = run(command,
             stdout=PIPE,
@@ -2067,6 +2075,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     os.remove(output_loc)
 
     return df
+
 
 def go_analysis(gene_list, organism="hsapiens"):
     """
