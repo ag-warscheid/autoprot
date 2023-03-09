@@ -906,7 +906,7 @@ class KSEA:
     This is based on the autoprot volcano function.
     You can pass all the common parameters to this function.
 
-    >>> ksea.volcanos(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
+    >>> ksea.plot_volcano(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
     ...               annot="Gene names", sig_col="gray")
 
     .. plot::
@@ -1400,7 +1400,7 @@ class KSEA:
             else:
                 return None
 
-    def volcanos(self, log_fc, p_colname, kinases=None, **kwargs):
+    def plot_volcano(self, log_fc, p_colname, kinases=None, ret_fig=False, **kwargs):
         """
         Plot volcano plots highlighting substrates of a given kinase.
 
@@ -1414,25 +1414,38 @@ class KSEA:
             Must be present in the dataframe KSEA was initialised with.
         kinases : list of str, optional
             Limit the analysis to these kinases. The default is [].
+        ret_fig : bool
+            Whether to return a list of figures for every kinase.
         **kwargs :
             passed to autoprot.visualisation.volcano.
 
         Returns
         -------
-        None.
+        volcano_returns : list
+            list of all returned figure objects. Only if ret_fig is True.
 
         """
         # generate a df containing only the kinases of interest
         if kinases is None:
-            kinases = []
+            kinases = self.koi.sort_values('#Subs', ascending=False).head(5)['Kinase']
+            print("No Kinase supplied, plotting the top 5 kinases.")
         df = self.annotate_df(kinases=kinases)
+
+        volcano_returns = []
         for k in kinases:
             # index for highlighting the selected kinase substrates
             idx = df[df[k] == 1].index
-            vis.volcano(df, log_fc, p_colname=p_colname, highlight=idx,
-                        kwargs_highlight={"label": k},
-                        kwargs_both_sig={"alpha": .5},
-                        **kwargs)
+            fig = vis.volcano(df, log_fc, p_colname=p_colname, highlight=idx,
+                              kwargs_highlight={"label": f"{k} substrate"},
+                              kwargs_both_sig={"alpha": .5},
+                              **kwargs
+                              )
+
+            # add to the return list
+            volcano_returns.append(fig)
+
+        if ret_fig:
+            return volcano_returns
 
     def return_kinase_substrate(self, kinase):
         """
@@ -1504,7 +1517,7 @@ class KSEA:
 
         """
         if kinases is None:
-            kinases = []
+            raise ValueError('Please provide at least one kinase for annotation')
         if len(kinases) > 0:
             # remove the two columns from the returned df
             df = self.data.drop(["MOD_RSD", "ucGene"], axis=1)
@@ -1519,7 +1532,7 @@ class KSEA:
             # remove also the mergeID column before returning the df
             return df.drop("mergeID", axis=1)
         else:
-            print("Please provide kinase(s) for annotation.")
+            raise ValueError('Please provide at least one kinase for annotation')
 
 
 def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
@@ -2211,6 +2224,7 @@ def make_psm(seq, seq_len):
 
     return m.T
 
+
 def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     """
     Parameters
@@ -2318,9 +2332,9 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
 
     if not typ:
         print("Error: Choose type of enrichment")
-    
-    #include modifications with there column name from MD output in evedence.txt
-    #has to be updated
+
+    # include modifications with there column name from MD output in evedence.txt
+    # has to be updated
     if typ == "AHA-Phosphonate":
         colname = 'Met--> Phosphonate'
     elif typ == "CPT":
@@ -2361,8 +2375,9 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
         df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
 
     print(df.T, ax)
-    
-def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_conversion=["Arg6", "Arg10"]):
+
+
+def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, RtoP_conversion=["Arg6", "Arg10"]):
     '''
     
 
@@ -2381,20 +2396,20 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
     '''
     ##set plot style
     plt.style.use('seaborn-whitegrid')
-    
+
     ##set parameters
     today = date.today().isoformat()
     df_evidence.sort_values(["Raw file"], inplace=True)
     experiments = list(df_evidence["Experiment"].unique())
-    runs = list(df_evidence["Raw file"].unique()) 
-    
-    dic_setup={}
+    runs = list(df_evidence["Raw file"].unique())
+
+    dic_setup = {}
     for key, val in zip(runs, experiments):
         dic_setup[key] = val
-    
+
     df_labeling_eff = pd.DataFrame()
     df_labeling_eff_summary = pd.DataFrame()
-    
+
     ####calculate Arg to Pro for each raw file in df_evidence
     if "Arg6" in RtoP_conversion:
         col_name = "Pro6"
@@ -2402,37 +2417,36 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
     if "Arg10" in RtoP_conversion:
         col_name = "Pro10"
         title = "% Arg10 to Pro10 conversion"
-    
+
     df_RtoP_summary = pd.DataFrame()
     df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
     for raw, df_group in df_evidence.groupby("Raw file"):
         df_RtoP = pd.DataFrame()
-        df_RtoP.loc[raw,["P count"]] = df_group["P count"][df_group[col_name]==0].sum()
-        df_RtoP.loc[raw,[col_name]] = df_group[col_name][df_group[col_name]>0].sum()
+        df_RtoP.loc[raw, ["P count"]] = df_group["P count"][df_group[col_name] == 0].sum()
+        df_RtoP.loc[raw, [col_name]] = df_group[col_name][df_group[col_name] > 0].sum()
         df_RtoP_summary = pd.concat([df_RtoP_summary, df_RtoP], axis=0)
-   
+
     df_RtoP_summary.index = experiments
     df_RtoP_summary.dropna(inplace=True)
-    df_RtoP_summary["RtoP [%]"] = df_RtoP_summary[col_name]/df_RtoP_summary["P count"] *100
-    
+    df_RtoP_summary["RtoP [%]"] = df_RtoP_summary[col_name] / df_RtoP_summary["P count"] * 100
+
     #### making the box plot Arg to Pro conversion
-    x_ax=len(experiments)+1
+    x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
     fig.suptitle(title, fontdict=None,
                  horizontalalignment='center', size=14
-                 #,fontweight="bold"
+                 # ,fontweight="bold"
                  )
     df_RtoP_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
     ax1.set_xlabel("rawfile number", size=12)
     ax1.set_ylabel("Arg to Pro [%]", size=12)
-    
+
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
-    
+
     #### save df Arg to Pro conversion as .csv
     df_RtoP_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
-        
-    
+
     def labeling_efficiency(df_evidence, label):
         '''
         This function calculates the labeling efficiency of SILAC labeled samples using a MaxQuant evidence table.
@@ -2453,53 +2467,52 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
         # Create column names for the intensity and ratio columns.
         intensity_col = f"Intensity {label}"
         ratio_col_name = f"Ratio Intensity {label}/total"
-        
+
         # Create empty DataFrames to store the results.
         df_labeling_eff_K = pd.DataFrame()
         df_labeling_eff_R = pd.DataFrame()
-        
+
         # Remove NaN values from the intensity column.
         df_evidence[intensity_col] = df_evidence[intensity_col].dropna()
-        
+
         # Calculate the SILAC labeling ratio for each peptide.
         df_evidence[ratio_col_name] = df_evidence[intensity_col] / df_evidence["Intensity"] * 100
-        
+
         # Iterate through each sample (i.e., raw file).
         for raw, df_group in df_evidence.groupby("Raw file"):
-            
             # Calculate the SILAC labeling efficiency for Lysine.
             K_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
             s_K_binned = df_group[ratio_col_name][K_filter].value_counts(bins=range(0, 101, 10), sort=False)
             K_count = K_filter.sum()
             s_relative_K_binned = s_K_binned / K_count * 100
             df_labeling_eff_K[raw] = s_relative_K_binned
-            
+
             # Calculate the SILAC labeling efficiency for Arginine.
             R_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
             s_R_binned = df_group[ratio_col_name][R_filter].value_counts(bins=range(0, 101, 10), sort=False)
             R_count = R_filter.sum()
             s_relative_R_binned = s_R_binned / R_count * 100
             df_labeling_eff_R[raw] = s_relative_R_binned
-        
+
         # Rename the columns to match the experimental setup.
         exp = []
         for elem in df_labeling_eff_K.columns:
             exp.append(dic_setup[elem])
         df_labeling_eff_K.columns = exp
         df_labeling_eff_R.columns = exp
-            
+
         # Combine the two DataFrames into one and return it.
         df_labeling_eff = pd.concat([df_labeling_eff_K, df_labeling_eff_R],
                                     keys=["Lys incorpororation", "Arg incorpororation"],
                                     names=["Amino acid", "bins"]
                                     )
-        
+
         return df_labeling_eff
-    
+
     #### check for input in labeling and filter for rawfiles while given
-    
+
     df_labeling_eff_summary_list = []
-    
+
     if "L" in label:
         text = "Light"
         if bool(label["L"]):
@@ -2510,10 +2523,9 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
             df_labeling_eff = labeling_efficiency(df_filtert, "L")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "L")
-            
+
         df_labeling_eff_summary_list.append(df_labeling_eff)
-    
-        
+
     if "M" in label:
         text = "Medium"
         if bool(label["M"]):
@@ -2524,9 +2536,9 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
             df_labeling_eff = labeling_efficiency(df_filtert, "M")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "M")
-        
+
         df_labeling_eff_summary_list.append(df_labeling_eff)
-        
+
     if "H" in label:
         text = "Heavy"
         if bool(label["H"]):
@@ -2537,37 +2549,34 @@ def SILAC_labeling_efficiency(df_evidence, label={"L":[], "M":[], "H":[]}, RtoP_
             df_labeling_eff = labeling_efficiency(df_filtert, "H")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "H")
-            
+
         df_labeling_eff_summary_list.append(df_labeling_eff)
-        
 
     df_labeling_eff_summary = pd.concat(df_labeling_eff_summary_list, axis=1)
 
-        
-    ##### store the results    
+    ##### store the results
     df_labeling_eff_summary.to_csv("{0}_labeling_eff_summary.csv".format(today), sep='\t')
-    
+
     #####plot labeling efficiency overview
-    x_ax=len(experiments)+1
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax*2, 4))
+    x_ax = len(experiments) + 1
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax * 2, 4))
     fig.suptitle(("SILAC Labeling efficiency {}").format(text), fontdict=None,
                  horizontalalignment='center', size=14
-                 #,fontweight="bold"
+                 # ,fontweight="bold"
                  )
     for i, (aa, df) in enumerate(df_labeling_eff_summary.groupby(level=0)):
-        
         df.plot(kind="bar", ax=ax[i], legend=False)
-        
-        ax[i].set_xticklabels(["0-10","11-20","21-30","31-40","41-50"
-                               ,"51-60","61-70","71-80","81-90","91-100"])
+
+        ax[i].set_xticklabels(["0-10", "11-20", "21-30", "31-40", "41-50"
+                                  , "51-60", "61-70", "71-80", "81-90", "91-100"])
         ax[i].set_xlabel("bins", size=12)
         ax[i].set_ylabel(("{} {} [%]").format(text, aa), size=12)
-        
+
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff_overview.png".format(today))
-    
 
     return df_labeling_eff_summary
+
 
 def dimethyl_labeling_efficieny(df_evidence, label):
     '''
@@ -2585,10 +2594,10 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     '''
     ##set plot style
     plt.style.use('seaborn-whitegrid')
-    
+
     ##set parameters
     today = date.today().isoformat()
-    
+
     df_evidence.sort_values(["Raw file"], inplace=True)
     try:
         experiments = list((df_evidence["Experiment"].unique()))
@@ -2600,69 +2609,70 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     df_labeling_eff = pd.DataFrame()
 
     df_evidence.dropna(subset=["Intensity"], inplace=True)
-    df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence["Intensity"] *100
-    
+    df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence[
+        "Intensity"] * 100
+
     #### build label ratio and count labeled Arg and Lys
     for raw, df_group in df_evidence.groupby("Raw file"):
-        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0,101,10), sort=False)
+        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0, 101, 10), sort=False)
         count = df_group["Ratio Intensity {}/total".format(label)].count()
-        s_relative_binned = s_binned / count *100
+        s_relative_binned = s_binned / count * 100
         df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
 
     df_labeling_eff.columns = experiments
     print(df_labeling_eff)
     df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
-    
+
     #####plot labeling efficiency overview
-    x_ax=len(experiments)+1
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax*2, 4))
+    x_ax = len(experiments) + 1
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax * 2, 4))
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), fontdict=None,
                  horizontalalignment='center', size=14
-                 #,fontweight="bold"
+                 # ,fontweight="bold"
                  )
     df_labeling_eff.plot(kind="bar", ax=ax1)
     ax1.set_xlabel("bins", size=12)
     ax1.set_ylabel("{} labeling [%]".format(label), size=12)
-    
+
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
-    
+
     #####plot labeling efficiency Lys for each experiment seperatly
     ##columns and rows from number of experiments in df_evidence
     number_of_subplots = len(experiments)
 
-    if (number_of_subplots%3) == 0:
+    if (number_of_subplots % 3) == 0:
         number_of_columns = 3
-    elif (number_of_subplots%2) == 0:
+    elif (number_of_subplots % 2) == 0:
         number_of_columns = 2
     else:
         number_of_columns = 1
-    
+
     number_of_rows = number_of_subplots // number_of_columns
-    
+
     ##adjust figsize
-    #8.3 *11.7 inch is the size of a dinA4
-    fig = plt.figure(figsize=(2.76*number_of_columns,
-                              2.925*number_of_rows))
+    # 8.3 *11.7 inch is the size of a dinA4
+    fig = plt.figure(figsize=(2.76 * number_of_columns,
+                              2.925 * number_of_rows))
 
     for col_name, plot in zip(experiments, range(number_of_subplots)):
-    
-        ax1 = fig.add_subplot(number_of_rows,number_of_columns,plot+1)
-        
-        #filter for bins with low values: set 1%
-        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum()>1].plot(kind="bar", ax=ax1)
-        
+        ax1 = fig.add_subplot(number_of_rows, number_of_columns, plot + 1)
+
+        # filter for bins with low values: set 1%
+        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum() > 1].plot(kind="bar", ax=ax1)
+
         ax1.set_title(col_name)
         ax1.set_xlabel("bins", size=8)
         ax1.set_ylabel("{} Dimethyl incorporation [%]".format(label), size=8)
-        ax1.set_ylim(0,100)
-        ax1.axhline(95, linestyle = "--",c = "k")
-    
+        ax1.set_ylim(0, 100)
+        ax1.axhline(95, linestyle="--", c="k")
+
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
-    
+
     return df_labeling_eff
+
 
 def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
     """
@@ -2839,6 +2849,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     ax4.remove()
 
     return df_efficiency, fig
+
 
 class Cluster:
     r"""
@@ -3244,9 +3255,9 @@ class HCA(Cluster):
     """
 
     def make_linkage(self, method='single', metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-                                                            'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulczynski1',
-                                                            'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-                                                            'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
+    'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulczynski1',
+    'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+    'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
 
         """
         Perform hierarchical clustering on the data.

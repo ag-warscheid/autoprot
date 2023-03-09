@@ -1454,8 +1454,10 @@ def volcano(
         if len(xs) < 3:
             return xs, ys, ss
         if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
-            raise ValueError('Cannot perform density estimation. Make sure there are no NaN values in your x and y '
-                             'data.')
+            nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
+            xs = xs[~nan_idx]
+            ys = ys[~nan_idx]
+            ss = ss[~nan_idx]
         # Make some random Gaussian data
         data = np.array(list(zip(xs, ys)))
         # Compute KDE
@@ -1538,7 +1540,7 @@ def volcano(
             s=df.loc[df["SigCat"] == "p-value and log2FC", "s"]
             if pointsize_colname is not None
             else None,
-            label=r"$\mathregular{log_2 FC}$ and p-value",
+            label=r"$\mathregular{log_2 FC}$ & p-value",
         ),
     )
     ax.scatter(
@@ -1564,8 +1566,8 @@ def volcano(
             **kwargs_highlight,
         )
 
-    ax.set_xlabel(r"$\mathregular{log_2 fold-change}$", fontsize=16)
-    ax.set_ylabel(r"$\mathregular{-log_{10} P}$", fontsize=16)
+    ax.set_xlabel(r"$\mathregular{log_2 fold-change}$")
+    ax.set_ylabel(r"$\mathregular{-log_{10} P}$")
 
     # ANNOTATION AND LABELING
     to_label = pd.Index([])
@@ -1595,18 +1597,23 @@ def volcano(
         xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
 
         texts = [
-            plt.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
+            ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
         ]
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"))
+        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
 
     # STYLING
     if show_legend:
-        legend = plt.legend(
-            bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left", mode="expand", ncol=4
-        )
+        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
+                           bbox_transform=ax.transAxes)
+
         # this fixes the legend points having the same size as the points in the scatter plot
         for handle in legend.legendHandles:
             handle._sizes = [30]
+        ax.add_artist(legend)
+
+        # shrink the plot so that the legend does not cover any points
+        lim = ax.get_ylim()
+        ax.set_ylim(lim[0], 1.25 * lim[1])
 
         if pointsize_colname is not None:
 
@@ -1622,9 +1629,8 @@ def volcano(
             for label, size in zip(mlabels, msizes):
                 markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
 
-            legend2 = plt.legend(handles=markers, loc="lower left")
+            legend2 = ax.legend(handles=markers, loc="lower left")
             ax.add_artist(legend2)
-        ax.add_artist(legend)
 
     if show_caption:
         plt.figtext(
@@ -1633,15 +1639,14 @@ def volcano(
             f"total = {len(df)} entries",  # text
             transform=plt.gca().transAxes,
             wrap=True,
-            horizontalalignment="right",
-            fontsize=12,
+            horizontalalignment="right"
         )
 
     if title is not None:
         if show_legend:
-            plt.title(title, y=1.1, fontsize=20, loc='left')
+            ax.set_title(title, y=1.1, loc='left')
         else:
-            plt.title(title, fontsize=20, loc='left')
+            ax.set_title(title, loc='left')
 
     if show_thresh:
         ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
@@ -1650,438 +1655,6 @@ def volcano(
 
     if ret_fig:
         return fig
-
-def volcano_legacy(df, log_fc, p=None, score=None, pt=0.05, fct=None, annot=None,
-            interactive=False, sig_col="green", bg_col="lightgray",
-            title="Volcano Plot", figsize=(6, 6), hover_name=None, highlight=None,
-            pointsize_name=None,
-            highlight_col="red", annot_highlight="all", custom_bg=None,
-            custom_fg=None, custom_hl=None, ret_fig=False, ax=None, legend=True):
-    r"""
-    Draw Volcano plot.
-
-    This function can either plot a static or an interactive version of the
-    volcano. Further it allows the user to set the desired log_fc and p value
-    threshold as well as toggle the annotation of the plot. If provided it is
-    possible to highlight a selection of datapoints in the plot.
-    Those will then be annotated instead of all significant entries.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        dataframe which contains the data.
-    log_fc : str
-        column of the dataframe with the log fold change.
-    p : str, optional
-        column of the dataframe containing p values (provide score or p).
-        The default is None.
-    score : str, optional
-        column of the dataframe containing -log10(p values) (provide score or p).
-        The default is None.
-    pt : float, optional
-        p-value threshold under which a entry is deemed significantly regulated.
-        The default is 0.05.
-    fct : float, optional
-        fold change threshold at which an entry is deemed significant regulated.
-        The default is None.
-    annot : str, optional
-        Column name to annotate the plot. The default is None.
-    interactive : bool, optional
-         The default is False.
-    sig_col : str, optional
-        Colour for significant points. The default is "green".
-    bg_col : str, optional
-        Background colour. The default is "lightgray".
-    title : str, optional
-        Title for the plot. The default is "Volcano Plot".
-    figsize : tuple of int, optional
-        Size of the figure. The default is (6,6).
-    hover_name : str, optional
-        Colname to use for labels in interactive plot.
-        The default is None.
-    highlight : pd.index, optional
-        Rows to highlight in the plot.
-        The default is None.
-    pointsize_name: str or float, optional
-        Name of a column to use as emasure for point size.
-        Alternatively the size of all points.
-    highlight_col : str, optional
-        Colour for the highlights. The default is "red".
-    annot_highlight : str, optional
-        'all' or 'sig'.
-        Whether to highlight all rows in indicated by highlight or only
-        the significant positions.
-        The default is "all".
-    custom_bg : dict, optional
-        Key:value pairs that are passed as kwargs to plt.scatter to define the background.
-        Ignored for the interactive plots.
-        The default is None.
-    custom_fg : dict, optional
-        Key:value pairs that are passed as kwargs to plt.scatter to define the foreground.
-        Ignored for the interactive plots.
-        The default is None.
-    custom_hl : dict, optional
-        Key:value pairs that are passed as kwargs to plt.scatter to define the highlighted points.
-        Ignored for the interactive plots.
-        The default is None.
-    ret_fig : bool, optional
-        Whether to return the figure, can be used to further
-        customize it afterwards. The default is False.
-    ax : matplotlib.axis, optional
-        Axis to print on. The default is None.
-    legend : bool, optional
-        Whether to plot a legend. The default is True.
-
-    Raises
-    ------
-    ValueError
-        If neither a p-score nor a p value is provided by the user.
-
-    Notes
-    -----
-    Setting a strict log_fc threshold is arbitrary and should generally be avoided.
-    Annotation of volcano plot can become cluttered quickly.
-    You might want to prettify annotation in illustrator.
-    Alternatively, use VolcanoDashBoard to interactively annotate your Volcano
-    plot or an interactive version of volcano plot to investigate the results.
-
-    Returns
-    -------
-    matplotlib.figure
-        The figure object.
-
-    Examples
-    --------
-    The function .volcano() draws a volcano plot.
-    You can either provide precalculated scores or raw (adjusted) p values.
-    You can also set a desired significance threshold (p value as well as log_fc).
-    You can customize the volcano plot, for instance you can also choose between
-    interactive and static plot. When you provide a set of indices in the
-    highlight parameter those will be highlighted for you in the plot.
-
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM")
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
-        prot = pp.cleaning(prot, "proteinGroups")
-        protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
-        prot = pp.log(prot, protRatio, base=2)
-        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
-        prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM")
-        plt.show()
-
-    The volcano function allows a certain amount of customisation. E.g. proteins
-    exceeding a certain threshold can be annotated and titles and colours can
-    be adapted to your needs.
-
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", pt=0.01,
-    ...             fct=2, annot="Gene names", sig_col="purple", bg_col="teal",
-    ...             title="Custom Title", figsize=(15,5))
-
-    .. plot::
-        :context: close-figs
-
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", pt=0.01,
-           fct=2, annot="Gene names", sig_col="purple", bg_col="teal",
-           title="Custom Title", figsize=(15,5))
-        plt.show()
-
-    Moreover, custom entries can be highlghted such as target proteins of a study.
-
-    >>> idx = prot_limma[prot_limma['logFC_TvM'] > 1].sample(10).index
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-    ...             figsize=(15,5))
-
-    .. plot::
-        :context: close-figs
-
-        idx = prot_limma[prot_limma['logFC_TvM'] > 1].sample(10).index
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-                    figsize=(15,5))
-        plt.show()
-
-    Using dictionaries of matplotlib keywords eventually allows a higher degree
-    of customisation.
-
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-    ...             figsize=(15,5), highlight_col = "teal", sig_col="lightgray",
-    ...             custom_bg = {"s":1, "alpha":.1},
-    ...             custom_fg = {"s":5, "alpha":.33},
-    ...             custom_hl = {"s":40, "linewidth":1, "edgecolor":"purple"})
-
-    .. plot::
-        :context: close-figs
-
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-           figsize=(15,5), highlight_col = "teal", sig_col="lightgray",
-           custom_bg = {"s":1, "alpha":.1},
-           custom_fg = {"s":5, "alpha":.33},
-           custom_hl = {"s":40, "linewidth":1, "edgecolor":"purple"})
-        plt.show()
-
-    You can also collect the volcano plot on an axis and plot multiple plots
-    on a single figure.
-
-    >>> fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(15,10))
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-    ...             figsize=(15,5), ax=ax[0])
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-    ...             figsize=(15,5), ax=ax[1])
-    >>> ax[1].set_ylim(2,4)
-    >>> ax[1].set_xlim(0,4)
-
-    .. plot::
-        :context: close-figs
-
-        fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(15,10))
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-                   figsize=(15,5), ax=ax[0])
-        vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", highlight=idx, annot="Gene names",
-                   figsize=(15,5), ax=ax[1])
-        ax[1].set_ylim(2,4)
-        ax[1].set_xlim(0,4)
-        plt.show()
-
-    If you set the interactive keyword arg to True, you can explore your volcano
-    plots interactively using plotly.
-
-    >>> vis.volcano(df=prot_limma, log_fc="logFC_TvM", p="P.Value_TvM", interactive=True, hover_name="Gene names",
-                    fct=0.4)
-
-    """
-
-    if custom_hl is None:
-        custom_hl = {}
-    if custom_fg is None:
-        custom_fg = {}
-    if custom_bg is None:
-        custom_bg = {}
-
-    def set_aesthetic(d, typ, interactive):
-        """
-        Set standard aesthetics of volcano and integrate with user defined settings.
-
-        Parameters
-        ----------
-        d : dict
-            User defined dictionary.
-        typ : str
-            Whether background 'bg', foreground 'fg' or highlight 'hl' points.
-        interactive : bool
-            Whether this is an interactive plot.
-
-        Returns
-        -------
-        d : dict
-            The input dict plus standard settings if not specified.
-
-        """
-        standard = {}
-
-        if typ == "bg":
-            standard = {"alpha": 0.33,
-                        "s": 2,
-                        "label": "background",
-                        "linewidth": 0}  # this hugely improves performance in illustrator
-
-        elif typ == "fg":
-            standard = {"alpha": 1,
-                        "s": 6,
-                        "label": "sig",
-                        "linewidth": 0}
-
-        elif typ == "hl":
-            standard = {"alpha": 1,
-                        "s": 20,
-                        "label": "POI",
-                        "linewidth": 0}
-
-        if not interactive:
-            for k in standard:
-                if k not in d:
-                    d[k] = standard[k]
-
-        return d
-
-    def check_data(df, log_fc, score, p, pt, fct):
-        if score is None and p is None:
-            raise ValueError("You have to provide either a score or a (adjusted) p value.")
-        elif score is None:
-            df["score"] = -np.log10(df[p])
-            score = "score"
-        else:
-            df.rename(columns={score: "score"}, inplace=True)
-            score = "score"
-            p = "p"
-            df["p"] = 10 ** (df["score"] * -1)
-
-        # define the significant entries in dataframe
-        df["SigCat"] = "-"
-        if fct is not None:
-            df.loc[(df[p] < pt) & (abs(df[log_fc]) > fct), "SigCat"] = '*'
-        else:
-            df.loc[(df[p] < pt), "SigCat"] = '*'
-        sig = df[df["SigCat"] == '*'].index
-        unsig = df[df["SigCat"] == "-"].index
-
-        return df, score, sig, unsig
-
-    df = df.copy(deep=True)
-    # set up standard aesthetics
-    custom_bg = set_aesthetic(custom_bg, typ="bg", interactive=interactive)
-    custom_fg = set_aesthetic(custom_fg, typ="fg", interactive=interactive)
-    if highlight is not None:
-        custom_hl = set_aesthetic(custom_hl, typ="hl", interactive=interactive)
-
-    # check for input correctness and make sure score is present in df for plot
-    df, score, sig, unsig = check_data(df, log_fc, score, p, pt, fct)
-
-    # not interactive
-    if not interactive:
-        # draw figure
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = plt.subplot()  # for a bare minimum plot you do not need this line
-        else:
-            fig = ax.get_figure()
-
-        # the following lines of code generates the scatter the rest is styling
-        ax.scatter(df[log_fc].loc[unsig], df["score"].loc[unsig], color=bg_col, **custom_bg)
-        ax.scatter(df[log_fc].loc[sig], df["score"].loc[sig], color=sig_col, **custom_fg)
-        if highlight is not None:
-            ax.scatter(df[log_fc].loc[highlight], df["score"].loc[highlight], color=highlight_col, **custom_hl)
-
-        # draw threshold lines
-        if fct:
-            ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-            ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-        ax.axhline(-np.log10(pt), 0, 1, ls="dashed", color="lightgray")
-
-        # remove of top and right plot boundary
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        # setting x and y labels and title
-        ax.set_ylabel("score")
-        ax.set_xlabel("log_fc")
-        ax.set_title(title, size=18)
-
-        # add legend
-        if legend:
-            ax.legend()
-
-        # Annotation
-        if annot is not None:
-            # get x and y coordinates as well as strings to plot
-            if highlight is None:
-                xs = df[log_fc].loc[sig]
-                ys = df["score"].loc[sig]
-                ss = df[annot].loc[sig]
-            else:
-                if annot_highlight == "all":
-                    xs = df[log_fc].loc[highlight]
-                    ys = df["score"].loc[highlight]
-                    ss = df[annot].loc[highlight]
-                elif annot_highlight == "sig":
-                    xs = df[log_fc].loc[set(highlight) & set(sig)]
-                    ys = df["score"].loc[set(highlight) & set(sig)]
-                    ss = df[annot].loc[set(highlight) & set(sig)]
-                else:
-                    raise TypeError("annot_highlight must be either 'all' or 'sig'")
-
-            # annotation
-            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
-                if idx % 2 != 0:
-                    if x < 0:
-                        ax.plot([x, x - .2], [y, y + .2], color="gray")
-                        ax.text(x - .3, y + .25, s)
-                    else:
-                        ax.plot([x, x + .2], [y, y + .2], color="gray")
-                        ax.text(x + .2, y + .2, s)
-                else:
-                    if x < 0:
-                        ax.plot([x, x - .2], [y, y - .2], color="gray")
-                        ax.text(x - .3, y - .25, s)
-                    else:
-                        ax.plot([x, x + .2], [y, y - .2], color="gray")
-                        ax.text(x + .2, y - .2, s)
-
-        if ret_fig:
-            return fig
-
-    else:
-        colors = [bg_col, sig_col]
-        if highlight is not None:
-
-            df["SigCat"] = "-"
-            df.loc[highlight, "SigCat"] = "*"
-            if hover_name is not None:
-                fig = px.scatter(data_frame=df, x=log_fc, y=score, hover_name=hover_name,
-                                 size=pointsize_name,
-                                 color="SigCat", color_discrete_sequence=colors,
-                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
-            else:
-                fig = px.scatter(data_frame=df, x=log_fc, y=score,
-                                 size=pointsize_name,
-                                 color="SigCat", color_discrete_sequence=colors,
-                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
-
-        else:
-            if hover_name is not None:
-                fig = px.scatter(data_frame=df, x=log_fc, y=score, hover_name=hover_name,
-                                 size=pointsize_name,
-                                 color="SigCat", color_discrete_sequence=colors,
-                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
-            else:
-                fig = px.scatter(data_frame=df, x=log_fc, y=score,
-                                 size=pointsize_name,
-                                 color="SigCat", color_discrete_sequence=colors,
-                                 opacity=0.5, category_orders={"SigCat": ["-", "*"]}, title=title)
-
-        fig.update_yaxes(showgrid=False, zeroline=True)
-        fig.update_xaxes(showgrid=False, zeroline=False)
-
-        fig.add_trace(
-            go.Scatter(
-                x=[df[log_fc].min(), df[log_fc].max()],
-                y=[-np.log10(pt), -np.log10(pt)],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
-        )
-        if fct is not None:
-            # add fold change visualization
-            fig.add_trace(
-                go.Scatter(
-                    x=[-fct, -fct],
-                    y=[0, df[score].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=[fct, fct],
-                    y=[0, df[score].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
-
-        fig.update_layout(template='simple_white',
-                          showlegend=legend,
-                          )
-
-        if ret_fig:
-            return fig
 
 
 def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
@@ -2488,7 +2061,7 @@ def mean_sd_plot(df, reps):
     )
 
     p.ax_marg_x.get_xaxis().set_visible(False)
-    p.ax_marg_x.set_title("Mean SD plot", fontsize=18)
+    p.ax_marg_x.set_title("Mean SD plot")
 
 
 def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
@@ -3000,11 +2573,11 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
 
     if typ == "bar":
-        
+
         if ax is None:
             fig = plt.figure(figsize=figsize)
             ax = fig.gca()
-            
+
         sns.countplot(x="Number of Phospho (STY)", data=df, ax=ax)
         plt.title('Number of Phospho (STY)')
         plt.xlabel('Number of Phospho (STY)')
@@ -3195,13 +2768,13 @@ def count_mod_aa(df, figsize=(6, 6), ret_fig=False, ax=None):
                               df["Amino acid"].value_counts().values)]
 
     if ax is None:
-         fig = plt.figure(figsize=figsize)
-         ax = fig.gca()
-            
+        fig = plt.figure(figsize=figsize)
+        ax = fig.gca()
+
     ax.pie(df["Amino acid"].value_counts().values,
-            labels=(labels))
+           labels=(labels))
     ax.set_title("Modified AAs")
-    
+
     if ret_fig:
         return fig
 
@@ -3304,6 +2877,7 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
     plt.show()
 
     return wc
+
 
 def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=None,
                       exclusion=None, custom_search_term=None, make_word_cloud=False,
@@ -3645,7 +3219,6 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
             f.write("</html>")
 
 
-
 def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     r"""
     Visualize Benjamini Hochberg p-value correction.
@@ -3715,7 +3288,6 @@ def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     ax[0].plot(x, y, color='gray', label=r'$\frac{i * \alpha}{n}$')
     ax[0].scatter(x, df[ps].loc[idx].sort_values(), label="p_values", color="teal", alpha=0.5)
     ax[0].scatter(x, df[adj_ps].loc[idx], label="adj. p_values", color="purple", alpha=0.5)
-    ax[0].legend(fontsize=12)
 
     ax[1].plot(x[:zoom], y[:zoom], color='gray')
     ax[1].scatter(x[:zoom], df[ps].loc[idx].sort_values().iloc[:zoom], label="p_values", color="teal")
