@@ -7,9 +7,9 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 import os
-from subprocess import run, PIPE, STDOUT
+from subprocess import run, PIPE
 from importlib import resources
-from typing import Iterable, List, Any, Union, Literal
+from typing import Union, Literal
 from datetime import date
 
 import pandas as pd
@@ -21,7 +21,7 @@ import pylab as pl
 import seaborn as sns
 
 from statsmodels.stats import multitest as mt
-from scipy.stats import ttest_1samp, ttest_ind, wilcoxon
+from scipy.stats import ttest_1samp, ttest_ind
 from scipy.stats import zscore
 from scipy.spatial import distance
 from scipy import cluster as clst
@@ -30,8 +30,6 @@ from sklearn import cluster as clstsklearn
 from sklearn.decomposition import PCA
 
 from operator import itemgetter
-from Bio import Entrez
-import time
 
 # noinspection PyUnresolvedReferences
 from autoprot import visualization as vis
@@ -54,6 +52,7 @@ cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
 def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='two-sided', logged=True):
+    # noinspection PyUnresolvedReferences
     """
     Perform one or two sample ttest.
 
@@ -106,7 +105,8 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
     ...                 'log2_Ratio M/L normalized BC36_2']
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
+    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True,
+    ... adjust_p_vals=True)
     >>> prot_tt["pValue_TvM"].hist(bins=50)
     >>> plt.show()
 
@@ -185,6 +185,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
 
 
 def adjust_p(df, p_col, method="fdr_bh"):
+    # noinspection PyUnresolvedReferences
     r"""
     Use statsmodels.multitest on dataframes.
 
@@ -286,6 +287,7 @@ def cohen_d(df, group1, group2):
 
 
 class AutoPCA:
+    # noinspection PyUnresolvedReferences
     r"""
     Conduct principal component analyses.
 
@@ -813,6 +815,7 @@ class AutoPCA:
 
 
 class KSEA:
+    # noinspection PyUnresolvedReferences
     r"""
     Perform kinase substrate enrichment analysis.
 
@@ -836,7 +839,7 @@ class KSEA:
 
     Next, you can annotate the data with respective kinases.
     You can provide the function with a organism of your choice as well as
-    toggle whether or not to screen for only in vivo determined substrate
+    toggle whether to screen for only in vivo determined substrate
     phosphorylation of the respective kinases.
 
     >>> ksea.annotate(organism="mouse", only_in_vivo=True)
@@ -1537,6 +1540,7 @@ class KSEA:
 
 def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
                   extra_vis=False, save_dir=None):
+    # noinspection PyUnresolvedReferences
     r"""
     Print missing statistics for a dataframe.
 
@@ -1714,6 +1718,7 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
 
 
 def loess(data, xvals, yvals, alpha, poly_degree=2):
+    # noinspection PyUnresolvedReferences
     r"""
     Calculate a LOcally-Weighted Scatterplot Smoothing Fit.
 
@@ -1850,6 +1855,7 @@ def edm(matrix_a, matrix_b):
 
 def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     # sourcery skip: extract-method, inline-immediately-returned-variable
+    # noinspection PyUnresolvedReferences
     r"""
     Perform moderated ttest as implemented from R LIMMA.
 
@@ -2091,6 +2097,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
 
 
 def go_analysis(gene_list, organism="hsapiens"):
+    # noinspection PyUnresolvedReferences
     """
     Perform go Enrichment analysis (also KEGG and REAC).
 
@@ -2130,6 +2137,7 @@ def go_analysis(gene_list, organism="hsapiens"):
 
 
 def make_psm(seq, seq_len):
+    # noinspection PyUnresolvedReferences
     """
     Generate a position score matrix for a set of sequences.
 
@@ -2220,7 +2228,7 @@ def make_psm(seq, seq_len):
         x = list(score_matrix[i].values())
         m[i] = x
 
-    m = pd.DataFrame(m, columns=aa_dic.keys())
+    m = pd.DataFrame(m, columns=list(aa_dic.keys()))
 
     return m.T
 
@@ -2377,27 +2385,32 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
     print(df.T, ax)
 
 
-def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, RtoP_conversion=["Arg6", "Arg10"]):
-    '''
-    
-
+def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L', 'M', 'H']] = None,
+                              r_to_p_conversion: Literal['Pro6', 'Pro10'] = None):
+    """
     Parameters
     ----------
     df_evidence : MaxQuant evidence table
         DESCRIPTION. clean reverse and contaminant first autoprot.preprocessing.cleaning()
-    label : TYPE, optional
-        DESCRIPTION. The default is ["L", "M", "H"].
-    RtoP_conversion : variable modifications ["Pro6", "Pro10"] set in MaxQuant.
+    label : list, optional
+        The labels used in the experiment. The default is ["L", "M", "H"].
+    r_to_p_conversion : variable modifications ["Pro6", "Pro10"] set in MaxQuant.
 
     Returns
     -------
     Fig, table for SILAC label incorporation
+    """
+    # set plot style
+    if r_to_p_conversion is None:
+        r_to_p_conversion = ["Arg6", "Arg10"]
+    if label is None:
+        label = list('LMH')
+    # convert to dict
+    label = {x: [] for x in label}
 
-    '''
-    ##set plot style
     plt.style.use('seaborn-whitegrid')
 
-    ##set parameters
+    # set parameters
     today = date.today().isoformat()
     df_evidence.sort_values(["Raw file"], inplace=True)
     experiments = list(df_evidence["Experiment"].unique())
@@ -2407,70 +2420,66 @@ def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, Rt
     for key, val in zip(runs, experiments):
         dic_setup[key] = val
 
-    df_labeling_eff = pd.DataFrame()
-    df_labeling_eff_summary = pd.DataFrame()
-
-    ####calculate Arg to Pro for each raw file in df_evidence
-    if "Arg6" in RtoP_conversion:
+    # calculate Arg to Pro for each raw file in df_evidence
+    if "Arg6" in r_to_p_conversion:
         col_name = "Pro6"
         title = "% Arg6 to Pro6 conversion"
-    if "Arg10" in RtoP_conversion:
+    else:
         col_name = "Pro10"
         title = "% Arg10 to Pro10 conversion"
 
-    df_RtoP_summary = pd.DataFrame()
+    df_r_to_p_summary = pd.DataFrame()
     df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
     for raw, df_group in df_evidence.groupby("Raw file"):
-        df_RtoP = pd.DataFrame()
-        df_RtoP.loc[raw, ["P count"]] = df_group["P count"][df_group[col_name] == 0].sum()
-        df_RtoP.loc[raw, [col_name]] = df_group[col_name][df_group[col_name] > 0].sum()
-        df_RtoP_summary = pd.concat([df_RtoP_summary, df_RtoP], axis=0)
+        df_r_to_p = pd.DataFrame()
+        df_r_to_p.loc[raw, ["P count"]] = df_group["P count"][df_group[col_name] == 0].sum()
+        df_r_to_p.loc[raw, [col_name]] = df_group[col_name][df_group[col_name] > 0].sum()
+        df_r_to_p_summary = pd.concat([df_r_to_p_summary, df_r_to_p], axis=0)
 
-    df_RtoP_summary.index = experiments
-    df_RtoP_summary.dropna(inplace=True)
-    df_RtoP_summary["RtoP [%]"] = df_RtoP_summary[col_name] / df_RtoP_summary["P count"] * 100
+    df_r_to_p_summary.index = experiments
+    df_r_to_p_summary.dropna(inplace=True)
+    df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[col_name] / df_r_to_p_summary["P count"] * 100
 
-    #### making the box plot Arg to Pro conversion
+    # making the box plot Arg to Pro conversion
     x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
     fig.suptitle(title, fontdict=None,
                  horizontalalignment='center', size=14
-                 # ,fontweight="bold"
                  )
-    df_RtoP_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
+    df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
     ax1.set_xlabel("rawfile number", size=12)
     ax1.set_ylabel("Arg to Pro [%]", size=12)
 
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
 
-    #### save df Arg to Pro conversion as .csv
-    df_RtoP_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
+    # save df Arg to Pro conversion as .csv
+    df_r_to_p_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
 
     def labeling_efficiency(df_evidence, label):
-        '''
+        """
         This function calculates the labeling efficiency of SILAC labeled samples using a MaxQuant evidence table.
-    
+
         Parameters
         ----------
         df_evidence : pandas.DataFrame
             A MaxQuant evidence table that has been cleaned of reverse and contaminant peptides.
         label : str
             The SILAC label type used in the experiment ('L', 'M', or 'H').
-    
+
         Returns
         -------
         pandas.DataFrame
             A table that shows the SILAC label incorporation for each sample.
-    
-        '''
+
+        """
         # Create column names for the intensity and ratio columns.
         intensity_col = f"Intensity {label}"
         ratio_col_name = f"Ratio Intensity {label}/total"
 
         # Create empty DataFrames to store the results.
-        df_labeling_eff_K = pd.DataFrame()
-        df_labeling_eff_R = pd.DataFrame()
+        df_labeling_eff_k = pd.DataFrame()
+        df_labeling_eff_r = pd.DataFrame()
 
         # Remove NaN values from the intensity column.
         df_evidence[intensity_col] = df_evidence[intensity_col].dropna()
@@ -2481,72 +2490,68 @@ def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, Rt
         # Iterate through each sample (i.e., raw file).
         for raw, df_group in df_evidence.groupby("Raw file"):
             # Calculate the SILAC labeling efficiency for Lysine.
-            K_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
-            s_K_binned = df_group[ratio_col_name][K_filter].value_counts(bins=range(0, 101, 10), sort=False)
-            K_count = K_filter.sum()
-            s_relative_K_binned = s_K_binned / K_count * 100
-            df_labeling_eff_K[raw] = s_relative_K_binned
+            k_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
+            s_k_binned = df_group[ratio_col_name][k_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            k_count = k_filter.sum()
+            s_relative_k_binned = s_k_binned / k_count * 100
+            df_labeling_eff_k[raw] = s_relative_k_binned
 
             # Calculate the SILAC labeling efficiency for Arginine.
-            R_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
-            s_R_binned = df_group[ratio_col_name][R_filter].value_counts(bins=range(0, 101, 10), sort=False)
-            R_count = R_filter.sum()
-            s_relative_R_binned = s_R_binned / R_count * 100
-            df_labeling_eff_R[raw] = s_relative_R_binned
+            r_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
+            s_r_binned = df_group[ratio_col_name][r_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            r_count = r_filter.sum()
+            s_relative_r_binned = s_r_binned / r_count * 100
+            df_labeling_eff_r[raw] = s_relative_r_binned
 
         # Rename the columns to match the experimental setup.
         exp = []
-        for elem in df_labeling_eff_K.columns:
+        for elem in df_labeling_eff_k.columns:
             exp.append(dic_setup[elem])
-        df_labeling_eff_K.columns = exp
-        df_labeling_eff_R.columns = exp
+        df_labeling_eff_k.columns = exp
+        df_labeling_eff_r.columns = exp
 
         # Combine the two DataFrames into one and return it.
-        df_labeling_eff = pd.concat([df_labeling_eff_K, df_labeling_eff_R],
+        df_labeling_eff = pd.concat([df_labeling_eff_k, df_labeling_eff_r],
                                     keys=["Lys incorpororation", "Arg incorpororation"],
                                     names=["Amino acid", "bins"]
                                     )
 
         return df_labeling_eff
 
-    #### check for input in labeling and filter for rawfiles while given
-
+    # check for input in labeling and filter for rawfiles while given
     df_labeling_eff_summary_list = []
 
     if "L" in label:
-        text = "Light"
         if bool(label["L"]):
             list_raw = []
             for rawfile in label["L"]:
                 list_raw.append(rawfile)
-            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtert, "L")
+            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtered, "L")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "L")
 
         df_labeling_eff_summary_list.append(df_labeling_eff)
 
     if "M" in label:
-        text = "Medium"
         if bool(label["M"]):
             list_raw = []
             for rawfile in label["M"]:
                 list_raw.append(rawfile)
-            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtert, "M")
+            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtered, "M")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "M")
 
         df_labeling_eff_summary_list.append(df_labeling_eff)
 
     if "H" in label:
-        text = "Heavy"
         if bool(label["H"]):
             list_raw = []
             for rawfile in label["H"]:
                 list_raw.append(rawfile)
-            df_filtert = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtert, "H")
+            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
+            df_labeling_eff = labeling_efficiency(df_filtered, "H")
         else:
             df_labeling_eff = labeling_efficiency(df_evidence, "H")
 
@@ -2554,23 +2559,22 @@ def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, Rt
 
     df_labeling_eff_summary = pd.concat(df_labeling_eff_summary_list, axis=1)
 
-    ##### store the results
+    # store the results
     df_labeling_eff_summary.to_csv("{0}_labeling_eff_summary.csv".format(today), sep='\t')
 
-    #####plot labeling efficiency overview
+    # plot labeling efficiency overview
     x_ax = len(experiments) + 1
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax * 2, 4))
-    fig.suptitle(("SILAC Labeling efficiency {}").format(text), fontdict=None,
+    fig.suptitle("SILAC Labeling efficiency {}".format(', '.join(label.keys())), fontdict=None,
                  horizontalalignment='center', size=14
-                 # ,fontweight="bold"
                  )
     for i, (aa, df) in enumerate(df_labeling_eff_summary.groupby(level=0)):
         df.plot(kind="bar", ax=ax[i], legend=False)
 
-        ax[i].set_xticklabels(["0-10", "11-20", "21-30", "31-40", "41-50"
-                                  , "51-60", "61-70", "71-80", "81-90", "91-100"])
+        ax[i].set_xticklabels(["0-10", "11-20", "21-30", "31-40", "41-50",
+                               "51-60", "61-70", "71-80", "81-90", "91-100"])
         ax[i].set_xlabel("bins", size=12)
-        ax[i].set_ylabel(("{} {} [%]").format(text, aa), size=12)
+        ax[i].set_ylabel("{} {} [%]".format(', '.join(label.keys()), aa), size=12)
 
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff_overview.png".format(today))
@@ -2579,9 +2583,7 @@ def SILAC_labeling_efficiency(df_evidence, label={"L": [], "M": [], "H": []}, Rt
 
 
 def dimethyl_labeling_efficieny(df_evidence, label):
-    '''
-    
-
+    """
     Parameters
     ----------
     df_evidence : MQ evidence table as pandas.Dataframe
@@ -2591,17 +2593,17 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     -------
     labeling efficiency as pd.DataFrame, saves table as tab seperated .csv and overview labeling efficiency as .png
 
-    '''
-    ##set plot style
+    """
+    # set plot style
     plt.style.use('seaborn-whitegrid')
 
-    ##set parameters
+    # set parameters
     today = date.today().isoformat()
 
     df_evidence.sort_values(["Raw file"], inplace=True)
     try:
         experiments = list((df_evidence["Experiment"].unique()))
-    except:
+    except KeyError:
         experiments = list((df_evidence["Raw file"].unique()))
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
@@ -2612,7 +2614,7 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence[
         "Intensity"] * 100
 
-    #### build label ratio and count labeled Arg and Lys
+    # build label ratio and count labeled Arg and Lys
     for raw, df_group in df_evidence.groupby("Raw file"):
         s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0, 101, 10), sort=False)
         count = df_group["Ratio Intensity {}/total".format(label)].count()
@@ -2623,7 +2625,7 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     print(df_labeling_eff)
     df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
 
-    #####plot labeling efficiency overview
+    # plot labeling efficiency overview
     x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax * 2, 4))
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), fontdict=None,
@@ -2637,8 +2639,8 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
 
-    #####plot labeling efficiency Lys for each experiment seperatly
-    ##columns and rows from number of experiments in df_evidence
+    # plot labeling efficiency Lys for each experiment separately
+    # columns and rows from number of experiments in df_evidence
     number_of_subplots = len(experiments)
 
     if (number_of_subplots % 3) == 0:
@@ -2650,7 +2652,7 @@ def dimethyl_labeling_efficieny(df_evidence, label):
 
     number_of_rows = number_of_subplots // number_of_columns
 
-    ##adjust figsize
+    # adjust figsize
     # 8.3 *11.7 inch is the size of a dinA4
     fig = plt.figure(figsize=(2.76 * number_of_columns,
                               2.925 * number_of_rows))
@@ -2771,7 +2773,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
         df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+            df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 
@@ -2851,7 +2853,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     return df_efficiency, fig
 
 
-class Cluster:
+class _Cluster:
     r"""
     Base class for clustering pipelines.
     """
@@ -2985,7 +2987,7 @@ class Cluster:
 
         """
 
-        def make_cluster_traces(self, file, colors: list, zs=None):
+        def make_cluster_traces(file, colors: list, zs=None):
             """
             Plot RMSD vs colname line plots.
 
@@ -3041,10 +3043,10 @@ class Cluster:
                 else:
                     ax.set_ylabel("z-score")
                 ax.set_xlabel("Condition")
-                for idx, (i, group) in enumerate(grouped):
+                for jdx, (_, group) in enumerate(grouped):
                     for j in range(group.shape[0]):
-                        ax.plot(range(temp2.shape[1] - 1), group.drop("distance", axis=1).iloc[j], color=color[idx],
-                                alpha=alpha[idx])
+                        ax.plot(range(temp2.shape[1] - 1), group.drop("distance", axis=1).iloc[j], color=color[jdx],
+                                alpha=alpha[jdx])
 
                 plt.xticks(range(len(self.clabels)), self.clabels, rotation=90)
                 plt.tight_layout()
@@ -3053,7 +3055,7 @@ class Cluster:
                     filet = f"{name}_traces.{ext}"
                     plt.savefig(filet)
 
-        def make_cluster_heatmap(self, file=None):
+        def make_cluster_heatmap(file=None):
             """
             Make summary heatmap of clustering.
 
@@ -3089,30 +3091,30 @@ class Cluster:
         else:
             mapper = plt.cm.ScalarMappable(norm=norm, cmap=self.cmap)
         a = mapper.to_rgba(self.clusterId)
-        clusterColors = np.apply_along_axis(clrs.to_hex, 1, a)
+        cluster_colors = np.apply_along_axis(clrs.to_hex, 1, a)
         if "cmap" not in kwargs.keys():
             kwargs["cmap"] = self.cmap
         if row_colors is not None:
-            rowColors_df = pd.DataFrame(row_colors)
-            rowColors_df['Cluster'] = clusterColors
-            rowColors_df.index = self.rlabels
+            row_colors_df = pd.DataFrame(row_colors)
+            row_colors_df['Cluster'] = cluster_colors
+            row_colors_df.index = self.rlabels
         else:
-            rowColors_df = pd.DataFrame(clusterColors, columns=['Cluster'], index=self.rlabels)
+            row_colors_df = pd.DataFrame(cluster_colors, columns=['Cluster'], index=self.rlabels)
 
         value_type = 'z-score' if "z_score" in kwargs else 'value'
         sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels), row_linkage=self.linkage,
-                       row_colors=rowColors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
+                       row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
                        cbar_kws={'label': value_type}, **kwargs)
 
         if file is not None:
             plt.savefig(file)
         if make_traces:
             if "z_score" in kwargs:
-                make_cluster_traces(self, file, zs=kwargs["z_score"], colors=colors)
+                make_cluster_traces(file, zs=kwargs["z_score"], colors=colors)
             else:
-                make_cluster_traces(self, file, colors=colors)
+                make_cluster_traces(file, colors=colors)
         if make_heatmap:
-            make_cluster_heatmap(self, file)
+            make_cluster_heatmap(file)
 
     def return_cluster(self):
         """Return dataframe with clustered data."""
@@ -3174,7 +3176,8 @@ class Cluster:
             plt.grid(axis='x')
 
 
-class HCA(Cluster):
+class HCA(_Cluster):
+    # noinspection PyUnresolvedReferences
     r"""
     Conduct hierarchical cluster analysis.
 
@@ -3182,82 +3185,84 @@ class HCA(Cluster):
     -----
     User provides dataframe and can afterwards use various metrics and methods to perfom and evaluate
     clustering.
-    
+
     StandarWorkflow:
     makeLinkage() -> findNClusters() -> makeCluster()
-    
+
     Examples
     --------
     First grab a dataset that will be used for clustering such as the iris dataset.
     Extract the species labelling from the dataframe as it cannot be used for
     clustering and will be used later to evaluate the result.
-    
+
     >>> import seaborn as sns
     >>> df = sns.load_dataset('iris')
     >>> labels = df.pop('species')
-    
+
     Initialise the clustering class with the data and find the optimum number of
     clusters and generate the final clustering with the autoRun method.
-    
-    >>> from autoprot import clustering as clst
-    >>> c = clst.HCA(df)
+
+    >>> from autoprot import analysis as ana
+    >>> c = ana.HCA(df)
     Removed 0 NaN values from the dataframe to prepare for clustering.
-    
+
     >>> c.auto_run()
     Best Davies Boulding at 2 with 0.38275284210068616
     Best Silhouoette_score at 2 with 0.6867350732769781
     Best Harabasz/Calinski at 2 with 502.82156350235897
     Using Davies Boulding Score for setting # clusters: 2
     You may manually overwrite this by setting self.nclusters
-    
+
     .. plot::
         :context: close-figs
-    
+
         import seaborn as sns
         import autoprot.clustering as clst
-        
+
         df = sns.load_dataset('iris')
         labels = df.pop('species')
         c = clst.HCA(df)
         c.auto_run()
-    
+
     Finally visualise the clustering using the visCluster method and include the
     previously extracted labeling column from the original dataframe.
-    
+
     >>> labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
     >>> rc = {"species" : labels}
     >>> c.vis_cluster(row_colors={'species': labels})
-    
+
      .. plot::
          :context: close-figs
-    
-         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
+
+         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
          rc = {"species" : labels}
          c.vis_cluster(row_colors={'species': labels})
-         
+
     HCA separates the setosa quite well but virginica and versicolor are harder.
     When we manually pick true the number of clusters, HCA performs only slightly
     better von this dataset. Note that you can change the default cmap for the
     class by changing the cmap attribute.
-    
+
     >>> c.nclusters = 3
     >>> c.make_cluster()
     >>> c.cmap = 'coolwarm'
     >>> c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
-    
+
      .. plot::
          :context: close-figs
-    
-            c.nclusters = 3  
+
+            c.nclusters = 3
             c.make_cluster()
             c.cmap = 'coolwarm'
             c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
-    """
+        """
 
-    def make_linkage(self, method='single', metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-    'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard', 'jensenshannon', 'kulczynski1',
-    'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-    'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
+    def make_linkage(self, method='single',
+                     metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
+                                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
+                                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
+                                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+                                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
 
         """
         Perform hierarchical clustering on the data.
@@ -3282,6 +3287,7 @@ class HCA(Cluster):
         """
 
         def as_dist(c):
+            # noinspection PyUnresolvedReferences
             """
             Convert a matrix (i.e. correlation matrix) into a distance matrix for hierachical clustering.
 
@@ -3448,7 +3454,8 @@ class HCA(Cluster):
             self.make_cluster()
 
 
-class KMeans(Cluster):
+class KMeans(_Cluster):
+    # noinspection PyUnresolvedReferences
     """
     Perform KMeans clustering on a dataset.
 
@@ -3463,7 +3470,8 @@ class KMeans(Cluster):
 
     References
     ----------
-    D. Arthur and S. Vassilvitskii, “k-means++: the advantages of careful seeding”, Proceedings of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms, 2007.
+    D. Arthur and S. Vassilvitskii, “k-means++: the advantages of careful seeding”, Proceedings of the Eighteenth
+    Annual ACM-SIAM Symposium on Discrete Algorithms, 2007.
 
     Examples
     --------
@@ -3479,8 +3487,8 @@ class KMeans(Cluster):
     Initialise the clustering class with the data and find the optimum number of
     clusters and generate the final clustering with the autoRun method.
     
-    >>> from autoprot import clustering as clst
-    >>> c = clst.KMeans(df)
+    >>> from autoprot import analysis as ana
+    >>> c = ana.KMeans(df)
     Removed 0 NaN values from the dataframe to prepare for clustering.
     >>> c.auto_run()
     Best Davies Boulding at 2 with 0.40429283717304343
