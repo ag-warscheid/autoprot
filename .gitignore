@@ -162,3 +162,7 @@ docsrc/_build
 
 # data downloaded with exammples
 /examples/*.zip
+# downloaded databases
+/db/**
+# old database neednt be synced
+/data/old_database/

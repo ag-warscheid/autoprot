@@ -24,7 +24,8 @@ from sklearn.metrics import auc
 from urllib import parse
 from ftplib import FTP
 import warnings
-from typing import Union
+from typing import Union, Literal
+import getpass
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -1458,6 +1459,7 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
 
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
+
 def annotate_phosphosite(df, ps, cols_to_keep=None):
     """
     Annotate phosphosites with information derived from PhosphositePlus.
@@ -1487,10 +1489,10 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
             return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-                   df_to_merge["MOD_RSD"].fillna("").apply(
-                       lambda x: x.split('-')[0])
+                df_to_merge["MOD_RSD"].fillna("").apply(
+                    lambda x: x.split('-')[0])
         return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-               df_to_merge["SUB_MOD_RSD"].fillna("")
+            df_to_merge["SUB_MOD_RSD"].fillna("")
 
     with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
         ks = pd.read_csv(d, sep='\t', compression='zip')
@@ -1511,7 +1513,121 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
 
     return df
 
-def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
+
+def _download_phosphosite_plus(target_path):
+    url = "https://www.phosphosite.org/downloads/Phosphorylation_site_dataset.gz"
+    u = input('Please provide PSP username: ')
+    p = getpass.getpass('PSP Password: ')
+
+    with requests.get(url, auth=(u, p)) as request:
+        request.raise_for_status()
+        if not os.path.isdir('./db'):
+            os.mkdir('./db')
+
+        with open(target_path, "wb") as f:
+            for chunk in request.iter_content(chunk_size=2 ** 20):
+                f.write(chunk)
+
+        print(f"Wrote database to {os.path.abspath(target_path)}")
+
+
+def _get_uniprot_accession(gene, organism):
+    """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
+     organism. """
+    gene = gene.upper()
+
+    psp_path = f'./db/Phosphorylation_site_dataset.gz'
+    if not os.path.isfile(psp_path):
+        print(f"Could not fine uniprot at {psp_path}. Downloading new file from phosphosite plus." + \
+              "If you do not have a username and password yet, obtain one at https://www.phosphosite.org/signUpAction.")
+        _download_phosphosite_plus(target_path=psp_path)
+
+    ps = pd.read_csv(psp_path, sep='\t', compression='gzip', skiprows=3)
+
+    gene_in_GENE = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+    gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+    uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+    return uniprot_acc
+
+
+def _get_fasta_sequence(uniprot_acc):
+    """Download sequence from uniprot by UniProt ID."""
+    url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
+    response = requests.get(url)
+    seq = "".join(response.text.split('\n')[1:])
+    return seq
+
+
+def _download_uniprot_databases(tax_ids=None):
+    if tax_ids is None:
+        tax_ids = ['9606', '10090']
+
+    formatted_tax_ids = [f"%28organism_id%3A{t}%29" for t in tax_ids]
+
+    url = "https://rest.uniprot.org/uniprotkb/stream?compressed=true" + \
+          "&fields=accession%2Creviewed%2Cid%2Cprotein_name%2Cgene_names%2Corganism_id%2Clength%2Csequence" + \
+          f"&format=tsv&query=query={'%20OR%20'.join(formatted_tax_ids)}"
+
+    with requests.get(url, stream=True) as request:
+        request.raise_for_status()
+        if not os.path.isdir('./db'):
+            os.mkdir('./db')
+
+        with open(db_path := f"./db/uniprot.tsv.gz", "wb") as f:
+            for chunk in request.iter_content(chunk_size=2 ** 20):
+                f.write(chunk)
+
+        print(f"Wrote database to {os.path.abspath(db_path)}")
+
+
+def _get_fasta_from_local_uniprot(uniprot_acc, organism, uniprot=None):
+    """Get sequence from a locally stored uniprot file by UniProt ID."""
+
+    tax_id_mapper = {
+        'mouse': 10090,
+        'human': 9606,
+        'rat': 10116,
+        'sheep': 9940,
+        'SARSCoV2': 2901879,
+        'guinea pig': 10140,
+        'cow': 9913,
+        'hamster': 10036,
+        'fruit fly': 7227,
+        'dog': 9615,
+        'rabbit': 9986,
+        'pig': 9823,
+        'chicken': 9031,
+    }
+
+    if organism in tax_id_mapper.keys():
+        uniprot_tax_id = tax_id_mapper[organism]
+    else:
+        raise ValueError(f"Please provide one of the following taxonomy id: {', '.join(tax_id_mapper.keys())}")
+
+    # No file was provided, so we check if there is a file present and download the uniprot if not
+    if uniprot is None:
+        # check if there is already a local uniprot present
+        if not os.path.isfile(uniprot := './db/uniprot.tsv.gz'):
+            print(f"Could not fine uniprot at {uniprot}. Downloading new file with taxonomy id {uniprot_tax_id}.")
+            _download_uniprot_databases(tax_ids=[uniprot_tax_id])
+    try:
+        uniprot = pd.read_csv(uniprot, sep='\t', compression='gzip')
+    except FileNotFoundError:
+        raise ValueError(f'Could not open local uniprot at {os.path.abspath(uniprot)}.')
+
+    seq = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism (ID)"] == uniprot_tax_id)]
+    try:
+        seq = seq.values.tolist()[0]
+    except IndexError:
+        print(f"no match found for {uniprot_acc}")
+        seq = False
+    return seq
+
+
+def to_canonical_ps(series, organism: Literal['mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',
+'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken'] = "human",
+                    get_seq: Literal['online', 'local'] = "online",
+                    uniprot: Union[str, None] = None) -> list[str]:
     """
     Convert phosphosites to "canonical" phosphosites.
 
@@ -1523,11 +1639,10 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     organism : str, optional
         This conversion is based on Uniprot Identifier used in PSP data.
         possible organisms: 'mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',
-        'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken', 'frog',
-        'quail', 'horse', 'goat', 'papillomavirus', 'water buffalo',
-        'marmoset', 'turkey', 'cat', 'starfish', 'torpedo', 'SARSCoV1',
-        'green monkey', 'ferret'. The default is "human".
+        'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken'. The default is "human".
     get_seq : "local" or "online"
+    uniprot : str or None, optional
+        Path to local uniprot file. Default is None.
 
     Notes
     -----
@@ -1553,54 +1668,6 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     ('O75381', 282)
     """
 
-    # open the phosphosite plus phosphorylation dataset
-    with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
-        ps = pd.read_csv(d, sep='\t', compression='zip')
-
-    if uniprot is None:
-        # open the uniprot datatable if not provided
-        with resources.open_binary('autoprot.data',
-                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cgene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
-            uniprot = pd.read_csv(e, sep='\t', compression='gzip')
-
-    def get_uniprot_accession(gene, organism):
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
-         organism. """
-        gene = gene.upper()
-        try:
-            gene_in_GENE = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-            gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-
-            uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
-
-            return uniprot_acc
-
-        except:
-            return False
-
-    def get_uniprot_sequence(uniprot_acc):
-        """Download sequence from uniprot by UniProt ID."""
-        url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
-        response = requests.get(url)
-        seq = "".join(response.text.split('\n')[1:])
-        return seq
-
-    def get_uniprot_sequence_locally(uniprot_acc, organism):
-        """Get sequence from a locally stored uniprot file by UniProt ID."""
-
-        if organism == "mouse":
-            uniprot_organism = "Mus musculus (Mouse)"
-        else:
-            uniprot_organism = "Homo sapiens (Human)"
-
-        seq = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
-        try:
-            seq = seq.values.tolist()[0]
-        except IndexError:
-            print(f"no match found for {uniprot_acc}")
-            seq = False
-        return seq
-
     def get_canonical_psite(seq, ps_seq, aa_to_ps):
         """Align an experimental phosphosite sequence window to the corresponding UniProt sequence."""
         alignment = pairwise2.align.localms(sequenceA=seq, sequenceB=ps_seq, match=2, mismatch=-2, open=-1, extend=-1)
@@ -1611,19 +1678,18 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
 
         try:
             offset = int(form_align.split('\n')[2].lstrip(' ').split(' ')[0]) - 1
-        except:
+        except Exception:
             offset = 0
 
         canonical_psite = start + (aa_to_ps - missmatched_aa - offset)
 
         # debugging
-        seq_window_alignment = form_align.split('\n')
         score = form_align.split('\n')[3].split(' ')[2]
         score = int(score[6:])
 
         return canonical_psite, score
 
-    uniprot_acc_extr = []
+    uniprot_acc_extr: list[str] = []
     ps_seq_extr = []
     gene = str(series["Gene names"])
     ps_seq = series["Sequence window"]
@@ -1638,25 +1704,29 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
         ps_seq_list = ps_seq_list * len(gene_list)
 
     for idx, g in enumerate(gene_list):
-        uniprot_acc_ex = get_uniprot_accession(g, organism)
-        if not uniprot_acc_ex:
+        try:
+            uniprot_acc_ex = _get_uniprot_accession(g, organism)
+        except Exception:
             continue
         uniprot_acc_extr.append(uniprot_acc_ex)
         ps_seq_extr.append(ps_seq_list[idx])
 
     if len(uniprot_acc_extr) == 0:
-        return "No matching Uniprot ID found"
+        print("No matching Uniprot ID found")
+        return []
 
     canonical_ps_list = []
     score_list = []
     for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
 
-        if get_seq == "local":
-            seq = get_uniprot_sequence_locally(uniprot_acc, organism)
-        if get_seq == "online":
-            seq = get_uniprot_sequence(uniprot_acc)
+        seq = None
 
-        if seq == False:
+        if get_seq == "local":
+            seq = _get_fasta_from_local_uniprot(uniprot_acc, organism, uniprot=uniprot)
+        if get_seq == "online":
+            seq = _get_fasta_sequence(uniprot_acc)
+
+        if seq is None:
             canonical_ps_list.append("no match")
         else:
             aa_to_ps = len(ps_seq[0:15].lstrip('_'))
@@ -1668,7 +1738,10 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     return [(";".join(uniprot_acc_extr)), (";".join(canonical_ps_list)), (";".join(score_list))]
 
 
-def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human", get_seq="online", uniprot=None):
+def calculate_iBAQ(intensity: int, gene_name: Union[str, None] = None, uniprot_acc: str = None,
+                   organism: Literal['mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',
+                   'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken'] = "human",
+                   get_seq: Literal["online", 'local'] = 'online', uniprot: Union[str, None] = None):
     """
     Convert raw intensities to ‘intensity-based absolute quantification’ or iBAQ intensities.
     Given intensities are divided by the number of theoretically observable tryptic peptides. 
@@ -1679,7 +1752,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
         Integer with raw MS intensity for Transformation.
     gene_name : str
         Gene name of the protein related to the intensity given.
-    protein_id= str
+    uniprot_acc: str
         Uniprot Protein ID of the protein related to the intensity given.
     organism : str, optional
         This conversion is based on Uniprot Identifier used in data.
@@ -1691,8 +1764,8 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
     get_seq : str, "local" or "online"
         Defines if sequence is fetched locally or downloaded from uniprot.
         It is advised to give a locally loaded dataframe when function is used in batch processing.
-    uniprot : pd.DataFrame, optional
-        contains Sequences listed by Gene Names and UniProt IDs
+    uniprot : str or None
+        contains Sequences listed by Gene Names and UniProt IDs. Default is None.
 
     Notes
     -----
@@ -1709,60 +1782,11 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
 
     """
 
-    if protein_id is None and get_seq == "online":
-        # open the phosphosite plus phosphorylation dataset
-        with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
-            ps = pd.read_csv(d, sep='\t', compression='zip')
-
-    if uniprot is None and get_seq == "offline":
-        # open the uniprot datatable if not provided
-        with resources.open_binary('autoprot.data',
-                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cgene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
-            uniprot = pd.read_csv(e, sep='\t', compression='gzip')
-
-    def get_uniprot_accession(gene_name, organism):
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
-        organism. """
-        gene_name = gene_name.upper()
-        try:
-            gene_in_GENE = (ps['GENE'].str.upper() == gene_name) & (ps['ORGANISM'] == organism)
-            gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene_name) & (ps['ORGANISM'] == organism)
-
-            uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
-
-            return uniprot_acc
-
-        except:
-            return False
-
-    def get_uniprot_sequence(uniprot_acc):
-        """Download sequence from uniprot by UniProt ID."""
-        url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
-        response = requests.get(url)
-        sequence = "".join(response.text.split('\n')[1:])
-        return sequence
-
-    def get_uniprot_sequence_locally(uniprot_acc, organism):
-        """Get sequence from a locally stored uniprot file by UniProt ID."""
-
-        if organism == "mouse":
-            uniprot_organism = "Mus musculus (Mouse)"
-        else:
-            uniprot_organism = "Homo sapiens (Human)"
-
-        sequence = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
-        try:
-            sequence = sequence.values.tolist()[0]
-        except IndexError:
-            print(f"no match found for {uniprot_acc}")
-            sequence = False
-        return sequence
-
-    def count_tryptic_peptides(sequence):
+    def count_tryptic_peptides(peptides):
         """count tryptic peptides 6<=pep<=30 after cleavage """
         peptide_counter = 0
-        # trypsin cuts after K and R, could be adjustet for different enzymes
-        for peptide in sequence.split("K"):
+        # trypsin cuts after K and R, could be adjusted for different enzymes
+        for peptide in peptides.split("K"):
             peptide = peptide + "K"
             pep = peptide.split("R")
             for p in pep:
@@ -1773,19 +1797,19 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
                     peptide_counter = peptide_counter + 1
         return peptide_counter
 
-    if protein_id is None:
-        uniprot_acc = get_uniprot_accession(gene_name, organism)
+    if uniprot_acc is None:
+        if gene_name is None:
+            raise ValueError('You must provide either gene_name or uniprot_acc!')
+        uniprot_acc = _get_uniprot_accession(gene_name, organism)
     if get_seq == "online":
-        sequence = get_uniprot_sequence(uniprot_acc)
-    if get_seq == "offline":
-        sequence = get_uniprot_sequence_locally(uniprot_acc, organism)
-        if sequence == False:
-            sequence = get_uniprot_sequence(uniprot_acc)
+        sequence = _get_fasta_sequence(uniprot_acc)
+    else:
+        sequence = _get_fasta_from_local_uniprot(uniprot_acc, organism, uniprot=uniprot)
 
-    iBAQ_pep_count = count_tryptic_peptides(sequence)
-    iBAQ = intensity / iBAQ_pep_count
+    ibaq_pep_count = count_tryptic_peptides(sequence)
+    ibaq = intensity / ibaq_pep_count
 
-    return iBAQ
+    return ibaq
 
 
 def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
