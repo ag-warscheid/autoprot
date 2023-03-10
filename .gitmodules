@@ -1,0 +1,3 @@
+[submodule "dependencies/venn"]
+	path = dependencies/venn
+	url = https://github.com/tctianchi/pyvenn

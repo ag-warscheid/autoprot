@@ -16,14 +16,13 @@ import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as ticker
 import pylab as pl
-from autoprot import venn
+from dependencies.venn import venn
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
 import logomaker
-import colorsys
 from adjustText import adjust_text
 import matplotlib.patches as patches
-from itertools import chain, combinations
+from itertools import combinations
 
 from wordcloud import WordCloud
 from wordcloud import STOPWORDS
