@@ -13,7 +13,9 @@ from importlib import resources
 import re
 import os
 from subprocess import run, PIPE, STDOUT, CalledProcessError
+# noinspection PyUnresolvedReferences
 from autoprot.decorators import report
+# noinspection PyUnresolvedReferences
 from autoprot import r_helper
 import requests
 from Bio import pairwise2
@@ -87,6 +89,7 @@ def to_csv(df, file, sep='\t', index=False, **kwargs):
 
 @report
 def cleaning(df, file="proteinGroups"):
+    # noinspection PyUnresolvedReferences
     """
     Remove contaminant, reverse and identified by site only entries.
 
@@ -143,6 +146,7 @@ def cleaning(df, file="proteinGroups"):
 
 
 def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
+    # noinspection PyUnresolvedReferences
     """
     Perform log transformation.
 
@@ -198,7 +202,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
     2                    NaN
     3                    NaN
     4               1.236503
-    """
+        """
     df = df.copy()
     with np.errstate(divide='ignore'):
         if base == 2:
@@ -224,11 +228,12 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
     new_cols = [f"log{base}_{c}" for c in cols]
     if invert is not None:
         df[new_cols] = df[new_cols] * invert
-    return (df, new_cols) if return_cols == True else df
+    return (df, new_cols) if return_cols is True else df
 
 
 @report
 def filter_loc_prob(df, thresh=.75):
+    # noinspection PyUnresolvedReferences
     """
     Filter by localization probability.
 
@@ -263,7 +268,7 @@ def filter_loc_prob(df, thresh=.75):
 
 
 @report
-def filter_seq_cov(df, thresh, cols=None):
+def filter_seq_cov(df: pd.DataFrame, thresh: int = 75, cols: list[str] = None):
     """
     Filter by sequence coverage.
 
@@ -273,9 +278,10 @@ def filter_seq_cov(df, thresh, cols=None):
         Dataframe to filter.
     thresh : int, optional
         Entries below that value will be excluded from the dataframe.
+        Default is 75.
     cols : list of str, optional
         List of sequence coverage colnames.
-        A row is excluded fromt the final dataframe the value in any of the provided columns is below the threshold.
+        A row is excluded from the final dataframe the value in any of the provided columns is below the threshold.
         The default is None.
 
     Returns
@@ -292,6 +298,7 @@ def filter_seq_cov(df, thresh, cols=None):
 
 @report
 def remove_non_quant(df, cols):
+    # noinspection PyUnresolvedReferences
     r"""
     Remove entries without quantitative data.
 
@@ -341,6 +348,7 @@ def remove_non_quant(df, cols):
 
 
 def expand_site_table(df, cols, replace_zero=True):
+    # noinspection PyUnresolvedReferences
     r"""
     Convert a phosphosite table into a phosphopeptide table.
 
@@ -348,7 +356,8 @@ def expand_site_table(df, cols, replace_zero=True):
     It converts the phosphosite table into a phosphopeptide table.
     After expansion peptides with no quantitative information are dropped.
     You might want to consider to remove some columns after the expansion.
-    For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones, or vice versa.
+    For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones, or vice
+    versa.
 
     Parameters
     ----------
@@ -451,6 +460,7 @@ def expand_site_table(df, cols, replace_zero=True):
 
 @report
 def filter_vv(df, groups, n=2, valid_values=True):
+    # noinspection PyUnresolvedReferences
     r"""
     Filter dataframe for minimum number of valid values.
 
@@ -484,11 +494,14 @@ def filter_vv(df, groups, n=2, valid_values=True):
     >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
 
     >>> a = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    ...      'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+    ...      'log2_Ratio M/L normalized BC36_2']
     >>> b = ["log2_Ratio H/L normalized BC18_1","log2_Ratio H/M normalized BC18_2","log2_Ratio H/L normalized BC18_3",
-    ...                 "log2_Ratio M/L normalized BC36_1", "log2_Ratio H/L normalized BC36_2","log2_Ratio H/M normalized BC36_2"]
+    ...      "log2_Ratio M/L normalized BC36_1", "log2_Ratio H/L normalized BC36_2",
+    ...      "log2_Ratio H/M normalized BC36_2"]
     >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2","log2_Ratio M/L normalized BC18_3",
-    ...               "log2_Ratio H/M normalized BC36_1","log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
+    ...      "log2_Ratio H/M normalized BC36_1","log2_Ratio M/L normalized BC36_2",
+    ...      "log2_Ratio H/L normalized BC36_2"]
     >>> protFilter = autoprot.preprocessing.filter_vv(protLog, groups=[a,b,c], n=3)
     4910 rows before filter operation.
     2674 rows after filter operation.
@@ -511,6 +524,7 @@ def filter_vv(df, groups, n=2, valid_values=True):
 
 def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bool = True) \
         -> Union[pd.DataFrame, pd.Series]:
+    # noinspection PyUnresolvedReferences
     """
     Filter a list of experimentally determined gene names by GO annotation.
 
@@ -528,7 +542,9 @@ def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bo
     only_prots : bool, optional
         Whether to return dataframe or only list of gene names annotated with terms. The default is False.
     exact : bool, optional
-        whether go term must match exactly. i.e. MAPK activity <-> regulation of MAPK acitivity etc. The default is True.
+        Whether the go term must match exactly. i.e. MAPK activity <-> regulation of MAPK acitivity etc.
+        The default is True.
+
 
     Returns
     -------
@@ -609,7 +625,6 @@ def motif_annot(df, motif, col="Sequence window"):
         seq = x[col]
         seqs = seq.split(';') if ";" in seq else [seq]
         for seq in seqs:
-            pos = 0
             pos2 = re.finditer(motif, seq)
             if pos2:
                 # iterate over re match objects
@@ -644,6 +659,7 @@ def motif_annot(df, motif, col="Sequence window"):
 # IMPUTATION ALGORITHMS
 # =============================================================================
 def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
+    # noinspection PyUnresolvedReferences
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
@@ -693,8 +709,10 @@ def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
         forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
         impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
         fig, ax1 = plt.subplots(1)
-        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50, label="not Imputed", ax=ax1)
-        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50, label="Imputed", ax=ax1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50,
+        label="not Imputed", ax=ax1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50,
+        label="Imputed", ax=ax1)
         plt.legend()
         plt.show()
     """
@@ -722,13 +740,16 @@ def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
     return df
 
 
-def imp_seq(df, cols, print_r=True):
+def imp_seq(df: pd.DataFrame, cols: list[str], print_r: bool = True):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
     See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the
     algorithm.
-    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.
+    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an
+    incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data
+    matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm
+    continues with the next observation with missing values.
 
     Parameters
     ----------
@@ -748,22 +769,20 @@ def imp_seq(df, cols, print_r=True):
 
     """
     d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
 
     if "UID" not in df.columns:
         # UID is basically a row index starting at 1
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if not isinstance(cols, list):
-        cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
+    to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
                "impSeq",  # functionName
-               dataLoc,  # data location
-               outputLoc  # output file
+               data_loc,  # data location
+               output_loc  # output file
                ]
 
     p = run(command,
@@ -774,7 +793,7 @@ def imp_seq(df, cols, print_r=True):
     if print_r:
         print(p.stdout)
 
-    res = read_csv(outputLoc)
+    res = read_csv(output_loc)
     # append a string to recognise the cols
     res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
     # change back the R colnames
@@ -787,13 +806,14 @@ def imp_seq(df, cols, print_r=True):
     df.drop("UID", axis=1, inplace=True)
 
     # os.remove(dataLoc)
-    # os.remove(outputLoc)
+    # os.remove(output_loc)
 
     return df
 
 
-def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
+def dima(df, cols: list[str], selection_substr=None, ttest_substr='cluster', methods='fast',
          npat=20, performance_metric='RMSE', print_r=True):
+    # noinspection PyUnresolvedReferences
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
 
@@ -869,7 +889,8 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     
     References
     ----------
-    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).
+    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm.
+    Journal of Proteome Research 20, 3489–3496 (2021-06).
     """
     if not df.isnull().values.any():
         raise ValueError('Your dataframe does not contain missing values. Will return as is.')
@@ -890,8 +911,6 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
         # UID is basically a row index starting at 1
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if not isinstance(cols, list):
-        cols = cols.to_list()
     to_csv(df[["UID"] + cols], data_loc)
 
     if isinstance(ttest_substr, list):
@@ -942,7 +961,8 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     return df, perf
 
 
-def exp_semi_col(df, scCol, newCol, castTo=None):
+def exp_semi_col(df: pd.DataFrame, sc_col: str, new_col: str, cast_to: Union[str, None] = None):
+    # noinspection PyUnresolvedReferences
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
@@ -950,11 +970,11 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     ----------
     df : pd.dataframe
         Dataframe to expant columns.
-    scCol : str
+    sc_col : str
         Colname of a column containing semicolon-separated values.
-    newCol : str
+    new_col : str
         Name for the newly generated column.
-    castTo : dtype, optional
+    cast_to : dtype, optional
         If provided new column will be set to the provided dtype. The default is None.
 
     Returns
@@ -972,7 +992,7 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     1    Q6XZL8;F7CVL0;F6SJX8
     1    Q6XZL8;F7CVL0;F6SJX8
     Name: Proteins, dtype: object
-    >>> expSemi = autoprot.preprocessing.expSemiCol(expSemi, "Proteins", "SingleProts")
+    >>> expSemi = autoprot.preprocessing.exp_semi_col(expSemi, "Proteins", "SingleProts")
     >>> expSemi["SingleProts"].head()
     0    P61255
     0    B1ARA3
@@ -985,16 +1005,16 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     df = df.reset_index(drop=True)
 
     # make temp df with expanded columns
-    temp = df[scCol].str.split(";", expand=True)
+    temp = df[sc_col].str.split(";", expand=True)
     # use stack to bring it into long format series and directly convert back to df
-    temp = pd.DataFrame(temp.stack(), columns=[newCol])
+    temp = pd.DataFrame(temp.stack(), columns=[new_col])
     # get first level of multiindex (corresponds to original index)
     temp.index = temp.index.get_level_values(0)
     # join on idex
     df = df.join(temp)
 
-    if castTo is not None:
-        df[newCol] = df[newCol].astype(castTo)
+    if cast_to is not None:
+        df[new_col] = df[new_col].astype(cast_to)
 
     return df
 
@@ -1092,8 +1112,8 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
         m2.rename(columns={semicolon_col2: semicolon_col1}, inplace=True)
 
     # expand the semicol columns and name the new col sUID
-    m1_exp = expSemiCol(m1, semicolon_col1, "sUID")
-    m2_exp = expSemiCol(m2, semicolon_col1, "sUID")
+    m1_exp = exp_semi_col(m1, semicolon_col1, "sUID")
+    m2_exp = exp_semi_col(m2, semicolon_col1, "sUID")
 
     # add the appropriate original row indices of m2 to the corresponding rows
     # of m1_exp
@@ -1119,78 +1139,76 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
     return merge_pairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
 
-def quantile_norm(df, cols, return_cols=False, backend="r"):
+def quantile_norm(df: pd.DataFrame, cols: list[str], return_cols: bool = False, backend: Literal['py', 'r'] = "r"):
+    # noinspection PyUnresolvedReferences
     r"""
-    Perform quantile normalization.
+        Perform quantile normalization.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-    cols : list of str
-        Colnames to perform normlisation on.
-    return_cols : bool, optional
-        if True also the column names of the normalized columns are returned.
-        The default is False.
-    backend : str, optional
-        'py' or 'r'. The default is "r".
-        While the python implementation is much faster than r (since R is executed in a subroutine), the
-        R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Input dataframe.
+        cols : list of str
+            Colnames to perform normlisation on.
+        return_cols : bool, optional
+            if True also the column names of the normalized columns are returned.
+            The default is False.
+        backend : str, optional
+            'py' or 'r'. The default is "r".
+            While the python implementation is much faster than r (since R is executed in a subroutine), the
+            R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)
 
-    Returns
-    -------
-    pd.DataFrame
-        The original dataframe with extra columns _normalized.
+        Returns
+        -------
+        pd.DataFrame
+            The original dataframe with extra columns _normalized.
 
-    Notes
-    -----
-    The quantile normalization forces the distributions of the samples to be the
-    same on the basis of the quantiles of the samples by replacing each point of a
-    sample with the mean of the corresponding quantile.
-    This is applicable for large datasets with only few changes but will introduce
-    errors if the rank assumption is violated i.e. if there are large variations
-    across groups to compare. See [2].
+        Notes
+        -----
+        The quantile normalization forces the distributions of the samples to be the
+        same on the basis of the quantiles of the samples by replacing each point of a
+        sample with the mean of the corresponding quantile.
+        This is applicable for large datasets with only few changes but will introduce
+        errors if the rank assumption is violated i.e. if there are large variations
+        across groups to compare. See [2].
 
-    References
-    ----------
-    [1] https://doi.org/10.1093/bioinformatics/19.2.185
+        References
+        ----------
+        [1] https://doi.org/10.1093/bioinformatics/19.2.185
 
-    [2] https://www.biorxiv.org/content/10.1101/012203v1.full
+        [2] https://www.biorxiv.org/content/10.1101/012203v1.full
 
-    Examples
-    --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-    >>> phosLog = pp.log(phos, phosRatio, base=2)
-    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+        Examples
+        --------
+        >>> import autoprot.preprocessing as pp
+        >>> import autoprot.visualization as vis
+        >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        >>> phosLog = pp.log(phos, phosRatio, base=2)
+        >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
 
-    Until now this was only preprocessing for the normalisation.
+        Until now this was only preprocessing for the normalisation.
 
-    >>> phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
-    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-    >>> plt.show() #doctest: +SKIP
+        >>> phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
+        >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+        >>> plt.show() #doctest: +SKIP
 
-    .. plot::
-        :context: close-figs
+        .. plot::
+            :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-        phosLog = pp.log(phos, phosRatio, base=2)
-        noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-        phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
-        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-        plt.show()
+            import autoprot.preprocessing as pp
+            import autoprot.visualization as vis
+            import pandas as pd
+            phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+            phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+            phosLog = pp.log(phos, phosRatio, base=2)
+            noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+            phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
+            vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+            plt.show()
 
-    """
+        """
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
-
-    if not isinstance(cols, list):
-        cols = cols.to_list()
 
     # TODO: Check why python backend fails so poorly
     # See https://github.com/bmbolstad/preprocessCore/blob/master/R/normalize.quantiles.R
@@ -1245,85 +1263,85 @@ def quantile_norm(df, cols, return_cols=False, backend="r"):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols, return_cols=False, backend='r'):
+def vsn(df: pd.DataFrame, cols: list[str], return_cols: bool = False):
+    # noinspection PyUnresolvedReferences
     r"""
-    Perform Variance Stabilizing Normalization.
-    VSN acts on raw intensities and returns the transformed intensities.
-    These are similar in scale to a log2 transformation.
-    The columns generated by VSN have the suffix _norm.
+        Perform Variance Stabilizing Normalization.
+        VSN acts on raw intensities and returns the transformed intensities.
+        These are similar in scale to a log2 transformation.
+        The columns generated by VSN have the suffix _norm.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-    cols : list of str
-        Colnames to perform normalisation on.
-        Should correspond to columns with raw intensities/iBAQs (the VSN will transform them eventually).
-    return_cols : bool, optional
-        if True also the column names of the normalized columns are returned.
-        The default is False.
-    backend : str, optional
-        Only 'r' is implemented. The default is "r".
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Input dataframe.
+        cols : list of str
+            Colnames to perform normalisation on.
+            Should correspond to columns with raw intensities/iBAQs (the VSN will transform them eventually).
+        return_cols : bool, optional
+            if True also the column names of the normalized columns are returned.
+            The default is False.
 
-    Returns
-    -------
-    pd.DataFrame
-        The original dataframe with extra columns _normalized.
-    list
-        Column names after vsn transformation
+        Returns
+        -------
+        pd.DataFrame
+            The original dataframe with extra columns _normalized.
+        list
+            Column names after vsn transformation
 
-    References
-    ----------
-    [1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance
-    stabilization applied to microarray data calibration and to the quantification of differential expression.
-    Bioinformatics 18 Supplement 1, S96-S104.
+        References
+        ----------
+        [1] Huber, W, von Heydebreck, A, Sueltmann, H, Poustka, A, Vingron, M (2002). Variance
+        stabilization applied to microarray data calibration and to the quantification of differential expression.
+        Bioinformatics 18 Supplement 1, S96-S104.
 
-    Notes
-    -----
-    The Vsn is a statistical method aiming at making the sample
-    variances nondependent from their mean intensities and bringing the
-    samples onto a same scale with a set of parametric transformations
-    and maximum likelihood estimation.
-    
-    See https://www.bioconductor.org/packages/release/bioc/html/vsn.html: Differences between transformed intensities
-    are analogous to "normalized log-ratios". However, in contrast to the latter, their variance is independent of
-    the mean, and they are usually more sensitive and specific in detecting differential transcription.
+        Notes
+        -----
+        The Vsn is a statistical method aiming at making the sample
+        variances nondependent from their mean intensities and bringing the
+        samples onto a same scale with a set of parametric transformations
+        and maximum likelihood estimation.
 
-    Examples
-    --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> import pandas as pd
-    >>> phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
-    >>> intens_cols = phos_lfq.filter(regex="Intensity .").columns
-    >>> phos_lfq[intens_cols] = phos_lfq[noNorm].replace(0, np.nan)
+        See https://www.bioconductor.org/packages/release/bioc/html/vsn.html: Differences between transformed
+        intensities are analogous to "normalized log-ratios". However, in contrast to the latter,
+        their variance is independent of the mean, and they are usually more sensitive and specific in detecting
+        differential transcription.
 
-    Until now this was only preprocessing for the normalisation. We will also log2-transform the intensity data to
-    show that VSN normalisation results in values of similar scale than log2 transformation.
+        Examples
+        --------
+        >>> import autoprot.preprocessing as pp
+        >>> import autoprot.visualization as vis
+        >>> import pandas as pd
+        >>> phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
+        >>> intens_cols = phos_lfq.filter(regex="Intensity .").columns
+        >>> phos_lfq[intens_cols] = phos_lfq[noNorm].replace(0, np.nan)
 
-    >>> phos_lfq = pp.vsn(phos_lfq, intens_cols)
-    >>> norm_cols = phos_lfq.filter(regex="_norm").columns
-    >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
-    >>> vis.boxplot(phos_lfq, [log_cols, norm_cols], data='Intensity', compare=True)
-    >>> plt.show() #doctest: +SKIP
+        Until now this was only preprocessing for the normalisation. We will also log2-transform the intensity data to
+        show that VSN normalisation results in values of similar scale than log2 transformation.
 
-    Note how the VSN normalisation and the log2 transformation result in values of similar magnitude.
-    However, the exact variances of the two transformations are different.
+        >>> phos_lfq = pp.vsn(phos_lfq, intens_cols)
+        >>> norm_cols = phos_lfq.filter(regex="_norm").columns
+        >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
+        >>> vis.boxplot(phos_lfq, [log_cols, norm_cols], data='Intensity', compare=True)
+        >>> plt.show() #doctest: +SKIP
 
-    .. plot::
-        :context: close-figs
+        Note how the VSN normalisation and the log2 transformation result in values of similar magnitude.
+        However, the exact variances of the two transformations are different.
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
-        intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
-        phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
-        phos_lfq = pp.vsn(phos_lfq, intens_cols)
-        norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
-        phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
-        vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
-    """
+        .. plot::
+            :context: close-figs
+
+            import autoprot.preprocessing as pp
+            import autoprot.visualization as vis
+            import pandas as pd
+            phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
+            intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
+            phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
+            phos_lfq = pp.vsn(phos_lfq, intens_cols)
+            norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
+            phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
+            vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
+        """
     d = os.getcwd()
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
@@ -1331,8 +1349,6 @@ def vsn(df, cols, return_cols=False, backend='r'):
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if not isinstance(cols, list):
-        cols = cols.to_list()
     to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
@@ -1359,75 +1375,75 @@ def vsn(df, cols, return_cols=False, backend='r'):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclic_loess(df, cols, return_cols=False, backend='r'):
+def cyclic_loess(df: pd.DataFrame, cols: list[str], return_cols: bool = False):
+    # noinspection PyUnresolvedReferences
     r"""
-    Perform cyclic Loess normalization.
+        Perform cyclic Loess normalization.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-    cols : list of str
-        Colnames to perform normlisation on.
-    return_cols : bool, optional
-        Whether to return a list of names corresponding to the columns added
-        to the dataframe. The default is False.
-    backend : str, optional
-        Only 'r' is implemented. The default is "r".
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Input dataframe.
+        cols : list of str
+            Colnames to perform normlisation on.
+        return_cols : bool, optional
+            Whether to return a list of names corresponding to the columns added
+            to the dataframe. The default is False.
 
-    Returns
-    -------
-    pd.DataFrame
-        The original dataframe with extra columns _normalized.
+        Returns
+        -------
+        pd.DataFrame
+            The original dataframe with extra columns _normalized.
 
-    References
-    ----------
-    [1] https://doi.org/10.1093/bioinformatics/19.2.185
+        References
+        ----------
+        [1] https://doi.org/10.1093/bioinformatics/19.2.185
 
-    [2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by local fitting. J. Am. Stat. Assoc., 83, 596–610
+        [2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by
+        local fitting. J. Am. Stat. Assoc., 83, 596–610
 
-    [3] https://en.wikipedia.org/wiki/Local_regression
+        [3] https://en.wikipedia.org/wiki/Local_regression
 
-    Notes
-    -----
-    Cyclic loess normalization applies loess normalization to all possible pairs of arrays,
-    usually cycling through all pairs several times.
-    Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
-    the data around every point using low-order functions and giving less weight to distant
-    data points.
+        Notes
+        -----
+        Cyclic loess normalization applies loess normalization to all possible pairs of arrays,
+        usually cycling through all pairs several times.
+        Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
+        the data around every point using low-order functions and giving less weight to distant
+        data points.
 
-    Cyclic loess is slower than quantile, but allows probe-wise weights and
-    is more robust to unbalanced differential expression.
+        Cyclic loess is slower than quantile, but allows probe-wise weights and
+        is more robust to unbalanced differential expression.
 
-    Examples
-    --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-    >>> phosLog = pp.log(phos, phosRatio, base=2)
-    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+        Examples
+        --------
+        >>> import autoprot.preprocessing as pp
+        >>> import autoprot.visualization as vis
+        >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+        >>> phosLog = pp.log(phos, phosRatio, base=2)
+        >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
 
-    Until now this was only preprocessing for the normalisation.
+        Until now this was only preprocessing for the normalisation.
 
-    >>> phos_norm_r = pp.cyclic_loess(phosLog,noNorm,backend='r')
-    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-    >>> plt.show() #doctest: +SKIP
+        >>> phos_norm_r = pp.cyclic_loess(phosLog,noNorm,backend='r')
+        >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+        >>> plt.show() #doctest: +SKIP
 
-    .. plot::
-        :context: close-figs
+        .. plot::
+            :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-        phosLog = pp.log(phos, phosRatio, base=2)
-        noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-        phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
-        vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-        plt.show()
+            import autoprot.preprocessing as pp
+            import autoprot.visualization as vis
+            import pandas as pd
+            phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+            phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+            phosLog = pp.log(phos, phosRatio, base=2)
+            noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
+            phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
+            vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
+            plt.show()
 
-    """
+        """
     d = os.getcwd()
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
@@ -1435,8 +1451,6 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if not isinstance(cols, list):
-        cols = cols.to_list()
     to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
@@ -1538,15 +1552,15 @@ def _get_uniprot_accession(gene, organism):
 
     psp_path = f'./db/Phosphorylation_site_dataset.gz'
     if not os.path.isfile(psp_path):
-        print(f"Could not fine uniprot at {psp_path}. Downloading new file from phosphosite plus." + \
+        print(f"Could not fine uniprot at {psp_path}. Downloading new file from phosphosite plus." +
               "If you do not have a username and password yet, obtain one at https://www.phosphosite.org/signUpAction.")
         _download_phosphosite_plus(target_path=psp_path)
 
     ps = pd.read_csv(psp_path, sep='\t', compression='gzip', skiprows=3)
 
-    gene_in_GENE = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-    gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-    uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+    in_gene = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+    in_protein = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
+    uniprot_acc = ps.loc[(in_gene | in_protein), 'ACC_ID'].iloc[0]
     return uniprot_acc
 
 
@@ -1625,9 +1639,10 @@ def _get_fasta_from_local_uniprot(uniprot_acc, organism, uniprot=None):
 
 
 def to_canonical_ps(series, organism: Literal['mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',
-'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken'] = "human",
+                    'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken'] = "human",
                     get_seq: Literal['online', 'local'] = "online",
                     uniprot: Union[str, None] = None) -> list[str]:
+    # noinspection PyUnresolvedReferences
     """
     Convert phosphosites to "canonical" phosphosites.
 
@@ -1813,6 +1828,7 @@ def calculate_iBAQ(intensity: int, gene_name: Union[str, None] = None, uniprot_a
 
 
 def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
+    # noinspection PyUnresolvedReferences
     """
     Annotate the df with subcellular localization.
 
@@ -1864,7 +1880,10 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
     >>> loc_df = autoprot.preprocessing.get_subcellular_loc(series)
     >>> sorted(loc_df.loc[loc_df[loc_df['SCORE'] == loc_df['SCORE'].max()].index,
     ...                   'LOCNAME'].tolist())
-    ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular', 'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody', 'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome', 'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
+    ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular',
+    'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody',
+    'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome',
+    'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
 
     Get the score for PEX14 being peroxisomally localised
 
@@ -1892,10 +1911,10 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
         return comp_data[(comp_data["Gene name"] == gene) &
                          (comp_data["LOCNAME"] == loca)]
     elif database == "hpa":
-        cols = "g,scl,scml,scal"
         # obtain protein atlas subset for the gene of interest
         html = requests.get(
-            f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&columns={cols}&compress=no").text
+            f"https://www.proteinatlas.org/api/search_download.php?" +
+            "search={gene}&format=json&columns={cols}&compress=no").text
         main_loc = html.split('Subcellular main location')[1].split(',"Subcellular additional location')[0].lstrip(
             '":[').split(',')
         alt_loc = html.split('Subcellular additional location')[1].split('}')[0].lstrip('":[').split(',')
@@ -1907,6 +1926,7 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
 
 
 def make_sim_score(m1, m2, corr="pearson"):
+    # noinspection PyUnresolvedReferences
     """
     Calculate similarity score.
 
@@ -2031,6 +2051,7 @@ def norm_to_prot(entry, prot_df, to_normalize):
 
 
 def fetch_from_pride(accession, term, ignore_caps=True):
+    # noinspection PyUnresolvedReferences
     """
     Get download links files belonging to a PRIDE identifier.
 
@@ -2077,6 +2098,7 @@ def fetch_from_pride(accession, term, ignore_caps=True):
 
 
 def download_from_ftp(url, save_dir, login_name='anonymous', login_pw=''):
+    # noinspection PyUnresolvedReferences
     r"""
     Download a file from FTP.
 
