@@ -24,6 +24,9 @@ from adjustText import adjust_text
 import matplotlib.patches as patches
 from itertools import combinations
 
+# noinspection PyUnresolvedReferences
+from autoprot import visualization as vis
+
 from wordcloud import WordCloud
 from wordcloud import STOPWORDS
 
@@ -32,6 +35,10 @@ from pdfminer3.pdfpage import PDFPage
 from pdfminer3.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer3.converter import TextConverter
 
+from Bio import Entrez
+import time
+import os
+
 import io
 from PIL import Image
 import plotly.express as px
@@ -39,7 +46,7 @@ import plotly.graph_objects as go
 
 import upsetplot
 
-from typing import Union
+from typing import Literal, Union
 
 plt.rcParams['pdf.fonttype'] = 42
 
@@ -49,6 +56,7 @@ plt.rcParams['pdf.fonttype'] = 42
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                 save_type="pdf", save_name="pairPlot", lower_triang="scatter",
                 sample_frac=None, bins=100, ret_fig=False):
+    # noinspection PyUnresolvedReferences
     r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
 
     Notes
@@ -171,7 +179,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         }
         return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
-    def corrfunc(x, y, **kws):
+    def corrfunc(x, y):
         """Calculate correlation coefficient and add text to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
@@ -182,7 +190,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
 
-    def heatmap(x, y, **kws):
+    def heatmap(x, y):
         """Calculate correlation coefficient and add coloured tile to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.replace(-np.inf, np.nan).dropna()
@@ -197,7 +205,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
 
-    def lower_scatter(x, y, **kws):
+    def lower_scatter(x, y):
         """Plot data points as scatter plot to axis."""
         data = pd.DataFrame({"x": x, "y": y})
         if sample_frac is not None:
@@ -205,12 +213,12 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax = plt.gca()
         ax.scatter(data['x'], data['y'], linewidth=0)
 
-    def lower_hex_bin(x, y, **kws):
+    def lower_hex_bin(x, y):
         """Plot data points as hexBin plot to axis."""
         plt.hexbin(x, y, cmap="Blues", bins=bins,
                    gridsize=50)
 
-    def lower_hist_2D(x, y, **kws):
+    def lower_hist_2D(x, y):
         """Plot data points as hist2d plot to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
@@ -218,7 +226,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         y = df["y"].values
         plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1)
 
-    def proteins_found(x, y, **kws):
+    def proteins_found(x, y):
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
@@ -275,6 +283,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
 def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7),
              save_dir=None, save_type="pdf", save_name="pairPlot", ax=None, **kwargs):
+    # noinspection PyUnresolvedReferences
     r"""
     Plot correlation heat- and clustermaps.
 
@@ -361,6 +370,7 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
 
 
 def prob_plot(df, col, dist="norm", figsize=(6, 6)):
+    # noinspection PyUnresolvedReferences
     r"""
     Plot a QQ_plot of the provided column.
 
@@ -440,6 +450,7 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6)):
 def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None, compare: bool = False,
             ylabel: str = "log_fc", file: str = None, ret_fig: bool = False, figsize: tuple = (15, 5),
             **kwargs: object) -> plt.figure:
+    # noinspection PyUnresolvedReferences
     r"""
     Plot intensity boxplots.
 
@@ -544,7 +555,6 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
 
         if labels:
             for idx in [0, 1]:
-                temp = ax[idx].set_xticklabels(labels)
                 tlabel = ax[idx].get_xticklabels()
                 for i, label in enumerate(tlabel):
                     label.set_y(label.get_position()[1] - (i % 2) * .05)
@@ -579,6 +589,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
 def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
                    title="Rank Plot", figsize=(15, 7), file=None, hline=None,
                    ax=None, **kwargs):
+    # noinspection PyUnresolvedReferences
     """
     Draw a rank plot.
 
@@ -642,12 +653,12 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
     # remove NaNs
     data = data.copy().dropna(subset=[rank_col])
 
-    # if data has mroe columns than 1
+    # if data has more columns than 1
     if data.shape[1] > 1:
         data = data.sort_values(by=rank_col, ascending=True)
         y = data[rank_col]
     else:
-        y = data.sort_values(ascending=True)
+        y = data.sort_values(by=data.columns[0], ascending=True)
 
     x = range(data.shape[0])
 
@@ -699,6 +710,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
 
 
 def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
+    # noinspection PyUnresolvedReferences
     r"""
     Draw vennDiagrams.
 
@@ -1108,9 +1120,8 @@ def volcano(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[
-            "highlight", "p-value and log2FC", "p-value", "log2FC", None, pd.Index
-        ] = "p-value and log2FC",
+        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"],
+                        None, pd.Index] = "p-value and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_p_sig: dict = None,
@@ -1119,6 +1130,7 @@ def volcano(
         kwargs_highlight: dict = None,
         annotate_density: int = 100,
 ):
+    # noinspection PyUnresolvedReferences
     """
     Return static volcano plot.
 
@@ -1219,8 +1231,10 @@ def volcano(
          prot = pp.cleaning(prot, "proteinGroups")
          protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
          prot = pp.log(prot, protRatio, base=2)
-         twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-                          'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+         twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+                         'log2_Ratio H/M normalized BC18_3',
+                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+                         'log2_Ratio M/L normalized BC36_2']
          prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
          prot_limma['Gene names 1st'] = prot_limma['Gene names'].str.split(';').str[0]
 
@@ -1656,9 +1670,10 @@ def volcano(
         return fig
 
 
-def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
+def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
                  figsize=(6, 6), ret_fig=False):
+    # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
@@ -1668,7 +1683,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         Input dataframe.
     log_fc : str
         Colname containing log fold-changes.
-    Int : str
+    log_intens_col : str
         Colname containing the log intensities.
     fct : float, optional
         fold change threshold at which an entry is deemed significant regulated.
@@ -1716,8 +1731,10 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         prot = pp.log(prot, protRatio, base=2)
         protInt = prot.filter(regex='Intensity').columns
         prot = pp.log(prot, protInt, base=10)
-        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+                        'log2_Ratio H/M normalized BC18_3',
+                        'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
+                        'log2_Ratio M/L normalized BC36_2']
         prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
         prot["log10_Intensity BC4_3"].replace(-np.inf, np.nan, inplace=True)
 
@@ -1745,7 +1762,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
     # TODO also add option to not highlight anything
     df = df.copy(deep=True)
 
-    df = df[~df[Int].isin([-np.inf, np.nan])]
+    df = df[~df[log_intens_col].isin([-np.inf, np.nan])]
     df["SigCat"] = "-"
     if fct is not None:
         df.loc[abs(df[log_fc]) > fct, "SigCat"] = "*"
@@ -1756,8 +1773,9 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         # draw figure
         plt.figure(figsize=figsize)
         ax = plt.subplot()
-        plt.scatter(df[log_fc].loc[unsig], df[Int].loc[unsig], color=bg_col, alpha=.75, s=5, label="background")
-        plt.scatter(df[log_fc].loc[sig], df[Int].loc[sig], color=sig_col, label="POI")
+        plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
+                    label="background")
+        plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
 
         # draw threshold lines
         if fct:
@@ -1780,7 +1798,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
             # Annotation
             # get x and y coordinates as well as strings to plot
             xs = df[log_fc].loc[sig]
-            ys = df[Int].loc[sig]
+            ys = df[log_intens_col].loc[sig]
             ss = df[annot].loc[sig]
 
             # annotation
@@ -1801,11 +1819,11 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
                     plt.text(x + .2, y + .2, s)
     if interactive:
         if annot:
-            fig = px.scatter(data_frame=df, x=log_fc, y=Int, hover_name=annot,
+            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col, hover_name=annot,
                              color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
                              opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
         else:
-            fig = px.scatter(data_frame=df, x=log_fc, y=Int,
+            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col,
                              color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
                              opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
 
@@ -1815,7 +1833,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         fig.add_trace(
             go.Scatter(
                 x=[0, 0],
-                y=[0, df[Int].max()],
+                y=[0, df[log_intens_col].max()],
                 mode="lines",
                 line=go.scatter.Line(color="purple", dash="longdash"),
                 showlegend=False)
@@ -1824,7 +1842,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         fig.add_trace(
             go.Scatter(
                 x=[-fct, -fct],
-                y=[0, df[Int].max()],
+                y=[0, df[log_intens_col].max()],
                 mode="lines",
                 line=go.scatter.Line(color="teal", dash="longdash"),
                 showlegend=False)
@@ -1833,7 +1851,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
         fig.add_trace(
             go.Scatter(
                 x=[fct, fct],
-                y=[0, df[Int].max()],
+                y=[0, df[log_intens_col].max()],
                 mode="lines",
                 line=go.scatter.Line(color="teal", dash="longdash"),
                 showlegend=False)
@@ -1853,6 +1871,7 @@ def log_int_plot(df, log_fc, Int, fct=None, annot=False, interactive=False,
 def ma_plot(df, x, y, interactive=False, fct=None,
             title="MA Plot", figsize=(6, 6), annot=None):
     # sourcery skip: assign-if-exp, extract-method
+    # noinspection PyUnresolvedReferences
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
 
@@ -1992,6 +2011,7 @@ def ma_plot(df, x, y, interactive=False, fct=None,
 
 
 def mean_sd_plot(df, reps):
+    # noinspection PyUnresolvedReferences
     r"""
     Rank vs. standard deviation plot.
 
@@ -2067,6 +2087,7 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
                 xlabel="", ylabel="log_fc", title="", ax=None,
                 plot_summary=False, plot_summary_only=False, summary_color="red",
                 summary_type="Mean", summary_style="solid", **kwargs):
+    # noinspection PyUnresolvedReferences
     r"""
     Plot numerical data such as fold changes vs. columns (e.g. conditions).
 
@@ -2206,6 +2227,7 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
 
 
 def sequence_logo(df, motif, file=None, rename_to_st=False):
+    # noinspection PyUnresolvedReferences
     r"""
     Generate sequence logo plot based on experimentally observed phosphosites.
 
@@ -2273,24 +2295,24 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
                       T=0)
 
         seq = [i for i in seq if len(i) == 15]
-        seqT = [''.join(s) for s in zip(*seq)]
-        scoreMatrix = []
-        for pos in seqT:
+        seq_t = [''.join(s) for s in zip(*seq)]
+        score_matrix = []
+        for pos in seq_t:
             d = aa_dic.copy()
             for aa in pos:
                 aa = aa.upper()
                 if aa not in ['.', '-', '_', "X"]:
                     d[aa] += 1
-            scoreMatrix.append(d)
+            score_matrix.append(d)
 
-        for pos in scoreMatrix:
+        for pos in score_matrix:
             for k in pos.keys():
                 pos[k] /= len(seq)
 
         # empty array -> (sequenceWindow, aa)
         m = np.empty((15, 20))
         for i in range(m.shape[0]):
-            x = list(scoreMatrix[i].values())
+            x = list(score_matrix[i].values())
             m[i] = x
 
         # create Logo object
@@ -2338,24 +2360,22 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
             The kinase sequence_motif.
 
         """
-        global pos1
         import re
         # identified sequence window
         d = x["Sequence window"]
         # In Sequence window the aa of interest is always at pos 15
         # This loop will check if the sequence_motif we are interested in is
         # centered with its phospho residue at pos 15 of the sequence window
-        check_lower = False
+        pos1 = None
         for j, i in enumerate(sequence_motif):
             # the phospho residue in the sequence_motif is indicated by lowercase character
             if i.islower():
-                # pos1 is position of the phosphosite in the sequence_motif
+                # pos1 is position of the phospho site in the sequence_motif
                 pos1 = len(sequence_motif) - j
-                check_lower = True
-        if not check_lower:
-            raise ValueError("Phosphoresidue has to be lower case!")
+        if pos1 is None:
+            raise ValueError("Phospho residue has to be lower case!")
         if rename_to_st:
-            # insert the expression (S/T) on the position of the phosphosite
+            # insert the expression (S/T) on the position of the phospho site
             exp = sequence_motif[:pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
         else:
             # for finding pos2, the whole sequence_motif is uppercase
@@ -2387,6 +2407,7 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
 
 
 def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
+    # noinspection PyUnresolvedReferences
     """
     Visualize domains and phosphosites on a protein of interest.
 
@@ -2515,6 +2536,7 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
 
 def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     # sourcery skip: extract-method
+    # noinspection PyUnresolvedReferences
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
 
@@ -2571,12 +2593,13 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
     print(counts_perc)
     df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
 
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.gca()
+    else:
+        fig = ax.get_figure()
+
     if typ == "bar":
-
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
-
         sns.countplot(x="Number of Phospho (STY)", data=df, ax=ax)
         plt.title('Number of Phospho (STY)')
         plt.xlabel('Number of Phospho (STY)')
@@ -2603,10 +2626,8 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
         ax2.set_ylim(0, 100)
         ax.set_ylim(0, ncount)
         ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
+
     elif typ == "pie":
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
         ax.pie([i[0] for i in count], labels=[i[1] for i in count])
         ax.set_title("Number of Phosphosites")
     else:
@@ -2618,6 +2639,7 @@ def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
 
 # noinspection PyUnboundLocalVariable
 def charge_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
+    # noinspection PyUnresolvedReferences
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
 
@@ -2723,6 +2745,7 @@ def charge_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
 
 
 def count_mod_aa(df, figsize=(6, 6), ret_fig=False, ax=None):
+    # noinspection PyUnresolvedReferences
     r"""
     Count the number of modifications per amino acid.
 
@@ -2769,17 +2792,20 @@ def count_mod_aa(df, figsize=(6, 6), ret_fig=False, ax=None):
     if ax is None:
         fig = plt.figure(figsize=figsize)
         ax = fig.gca()
+    else:
+        fig = ax.get_figure()
 
     ax.pie(df["Amino acid"].value_counts().values,
-           labels=(labels))
+           labels=labels)
     ax.set_title("Modified AAs")
 
     if ret_fig:
         return fig
 
 
-def wordcloud(text, exlusion_words=None, background_color="white", mask: str = None,
+def wordcloud(text, exclusion_words=None, background_color="white", mask: Union[str, None] = None,
               contour_width=0, **kwargs):
+    # noinspection PyUnresolvedReferences
     """
     Generate Wordcloud from string.
 
@@ -2787,7 +2813,7 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
     ----------
     text : str
         text input as a string.
-    exlusion_words : list of str, optional
+    exclusion_words : list of str, optional
         list of words to exclude from wordcloud. The default is None.
     background_color : colour, optional
         The background colour of the plot. The default is "white".
@@ -2855,8 +2881,8 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
         fake_file_handle.close()
         return text
 
-    if exlusion_words is not None:
-        exlusion_words = exlusion_words + list(STOPWORDS)
+    if exclusion_words is not None:
+        exclusion_words = exclusion_words + list(STOPWORDS)
 
     if mask is not None:
         if mask.split('.')[-1] == "png":
@@ -2867,9 +2893,9 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
             mask = (x - 500) ** 2 + (y - 500) ** 2 > 400 ** 2
             mask = 255 * mask.astype(int)
         wc = WordCloud(background_color=background_color, mask=mask, contour_width=contour_width,
-                       stopwords=exlusion_words, **kwargs).generate(text)
+                       stopwords=exclusion_words, **kwargs).generate(text)
     else:
-        wc = WordCloud(background_color="white", stopwords=exlusion_words, width=1800, height=500).generate(text)
+        wc = WordCloud(background_color="white", stopwords=exclusion_words, width=1800, height=500).generate(text)
 
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
@@ -2881,6 +2907,7 @@ def wordcloud(text, exlusion_words=None, background_color="white", mask: str = N
 def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=None,
                       exclusion=None, custom_search_term=None, make_word_cloud=False,
                       sort='pub+date', retmax=20, output="print"):
+    # noinspection PyUnresolvedReferences
     """
     Get Pubmed abstracts.
 
@@ -3077,7 +3104,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
         # TODO properly implement the inclusion of exclusions
         el = ["sup"]
 
-        fig = vis.wordcloud(text=abstracts, exlusion_words=el)
+        fig = vis.wordcloud(text=abstracts, exclusion_words=el)
         if output != "print":
             if output[:-4] == ".txt":
                 output = output[:-4]
@@ -3219,6 +3246,7 @@ def get_pub_abstracts(text=None, title_or_abstract=None, author=None, phrase=Non
 
 
 def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
+    # noinspection PyUnresolvedReferences
     r"""
     Visualize Benjamini Hochberg p-value correction.
 
@@ -3297,6 +3325,7 @@ def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
 
 
 class UpSetGrouped(upsetplot.UpSet):
+    # noinspection PyUnresolvedReferences
     """
     Generate upset plot as described in Lex2014 [1] and implemented in Python by jnothman.
     This function extends its use by the ability to colour and group bars in the bar plot.
@@ -3483,10 +3512,10 @@ class UpSetGrouped(upsetplot.UpSet):
             for subset in combinations(labels, L):
 
                 label_found = []
-                for l in label_substrings:
+                for label in label_substrings:
                     tests = []
                     for s in subset:
-                        tests.append(l in s)
+                        tests.append(label in s)
                     label_found.append(any(tests))
 
                 if mode == 'intersection':
