@@ -1,0 +1,340 @@
+# -*- coding: utf-8 -*-
+"""
+Autoprot Preprocessing Functions.
+
+@author: Wignand, Julian, Johannes
+
+@documentation: Julian
+"""
+
+import numpy as np
+import pandas as pd
+from importlib import resources
+import re
+import os
+from subprocess import run, PIPE, STDOUT, CalledProcessError
+from autoprot.decorators import report
+from autoprot import r_helper
+import requests
+from Bio import pairwise2
+from Bio.pairwise2 import format_alignment
+from scipy.stats import pearsonr, spearmanr
+from scipy import stats
+from sklearn.metrics import auc
+from urllib import parse
+from ftplib import FTP
+import warnings
+from typing import Union
+
+RFUNCTIONS, R = r_helper.return_r_path()
+
+
+# =============================================================================
+# Note: When using R functions provided column names might get changed
+# Especially, do not use +,- or spaces in your column names. Maybe write decorator to
+# validate proper column formatting and handle exceptions
+# =============================================================================
+
+
+
+# =============================================================================
+# IMPUTATION ALGORITHMS
+# =============================================================================
+@report
+def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
+    r"""
+    Perform an imputation by modeling a distribution on the far left site of the actual distribution.
+
+    The final distribution will be mean shifted and has a smaller variation.
+    Intensities should be log transformed before being supplied to this function.
+
+    Downsshift: mean - downshift*sigma
+    Var: width*sigma
+
+    Parameters
+    ----------
+    df : pd.dataframe
+        Dataframe on which imputation is performed.
+    cols_to_impute : list
+        Columns to impute. Should correspond to a single condition (i.e. control).
+    max_missing : int, optional
+        How many missing values have to be missing across all columns to perfom imputation
+        If None all values have to be missing. The default is None.
+    downshift : float, optional
+        How many Stds to lower values the mean of the new population is shifted. The default is 1.8.
+    width : float, optional
+        How to scale the Std of the new distribution with respect to the original. The default is .3.
+
+    Returns
+    -------
+    pd.dataframe
+        The dataframe with imputed values.
+
+    Examples
+    --------
+    >>> forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
+    >>> impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns,
+    ...                         width=.4, downshift=2.5)
+    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50,
+    ...                                                                         label="not Imputed")
+    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50,
+    ...                                                                        label="Imputed")
+    >>> plt.legend()
+
+    .. plot::
+        :context: close-figs
+
+        import autoprot.preprocessing as pp
+        import autoprot.visualization as vis
+        import pandas as pd
+        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
+        impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
+        fig, ax1 = plt.subplots(1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50, label="not Imputed", ax=ax1)
+        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50, label="Imputed", ax=ax1)
+        plt.legend()
+        plt.show()
+    """
+    df = df.copy(deep=True)
+
+    if max_missing is None:
+        max_missing = len(cols_to_impute)
+    # idxs of all rows in which imputation will be performed
+    idx_no_ctrl = df[df[cols_to_impute].isnull().sum(1) >= max_missing].index
+    df["Imputed"] = False
+    df.loc[idx_no_ctrl, "Imputed"] = True
+
+    for col in cols_to_impute:
+        df[col + '_imputed'] = df[col]
+        mean = df[col].mean()
+        var = df[col].std()
+        mean_ = mean - downshift * var
+        var_ = var * width
+
+        # generate random numbers matching the target dist
+        rnd = np.random.normal(mean_, var_, size=len(idx_no_ctrl))
+        for i, idx in enumerate(idx_no_ctrl):
+            df.loc[idx, col + '_imputed'] = rnd[i]
+
+    return df
+
+
+def imp_seq(df, cols, print_r=True):
+    """
+    Perform sequential imputation in R using impSeq from rrcovNA.
+
+    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the
+    algorithm.
+    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    cols : list of str
+        Colnames to perform imputation of.
+    print_r : bool, optional
+        Whether to print the output of R, default is True.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with imputed values.
+        Cols with imputed values are named _imputed.
+        Contains a col UID that was used for processing.
+
+    """
+    d = os.getcwd()
+    dataLoc = d + "/input.csv"
+    outputLoc = d + "/output.csv"
+
+    if "UID" not in df.columns:
+        # UID is basically a row index starting at 1
+        df["UID"] = range(1, df.shape[0] + 1)
+
+    if not isinstance(cols, list):
+        cols = cols.to_list()
+    to_csv(df[["UID"] + cols], dataLoc)
+
+    command = [R, '--vanilla',
+               RFUNCTIONS,  # script location
+               "impSeq",  # functionName
+               dataLoc,  # data location
+               outputLoc  # output file
+               ]
+
+    p = run(command,
+            stdout=PIPE,
+            stderr=STDOUT,
+            universal_newlines=True)
+
+    if print_r:
+        print(p.stdout)
+
+    res = read_csv(outputLoc)
+    # append a string to recognise the cols
+    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    # change back the R colnames
+    res_cols = [x.replace('.', ' ') for x in res_cols]
+    res.columns = res_cols
+
+    # merge and retain the rows of the original df
+    df = df.merge(res, how='left', on="UID")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
+
+    # os.remove(dataLoc)
+    # os.remove(outputLoc)
+
+    return df
+
+
+def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
+         npat=20, performance_metric='RMSE', print_r=True):
+    """
+    Perform Data-Driven Selection of an Imputation Algorithm.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    cols : list of str
+        Colnames to perform imputation on.
+        NOTE: if used on intensities, use log-transformed values.
+    selection_substr : str
+        pattern to extract columns for processing during DIMA run.
+    ttest_substr : 2-element list or str
+        If string, two elements need to be separated by ','
+        If list, concatenation will be done automatically.
+        The two elements must be substrings of the columns to compare.
+        Make sure that for each substring at least two matching colnames
+        are present in the data.
+    methods : str or list of str, optional
+        Methods to evaluate. Default 'fast' for the 9 most used imputation
+        methods. Possible values are 'impSeqRob','impSeq','missForest',
+        'imputePCA','ppca','bpca', ...
+    npat : int, optional
+        Number of missing value patterns to evaluate
+    performance_metric : str, optional
+        Metric used to select the best algorithm. Possible values are
+        Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.
+    print_r : bool
+        Whether to print the R output to the Python console.
+
+    Returns
+    -------
+    pd.DataFrame
+        Input dataframe with imputed values.
+    pd.DataFrame
+        Overview of performance metrices of the different algorithms.
+
+    Examples
+    --------
+    We will use a standard sample dataframe and generate some missing values to
+    demonstrate the imputation.
+    
+    >>> from autoprot import preprocessing as pp
+    >>> import seaborn as sns
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> iris = sns.load_dataset('iris')
+    >>> _ = iris.pop('species')
+    >>> for col in iris.columns:
+    ...     iris.loc[iris.sample(frac=0.1).index, col] = np.nan
+
+    >>> imp, perf = pp.dima(
+    ...     iris, iris.columns, performance_metric="RMSEt", ttest_substr=["petal", "sepal"]
+    ... )
+    
+    >>> imp.head()
+       sepal_length  sepal_width  petal_length  ...  sepal_width_imputed  petal_length_imputed  petal_width_imputed
+    0           5.1          3.5           1.4  ...                  3.5                   1.4                  0.2
+    1           4.9          3.0           1.4  ...                  3.0                   1.4                  0.2
+    2           4.7          3.2           1.3  ...                  3.2                   1.3                  0.2
+    3           4.6          3.1           1.5  ...                  3.1                   1.5                  0.2
+    4           5.0          3.6           1.4  ...                  3.6                   1.4                  0.2
+    
+    [5 rows x 9 columns]
+    
+    >>> perf.head()
+                Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest
+    impSeqRob    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656
+    impSeq       0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783
+    missForest   0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783
+    imputePCA    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656
+    ppca         0.377638  0.500354  0.249424        0.933919  95.000000  0.997721   0.199830
+    
+    References
+    ----------
+    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).
+    """
+    if not df.isnull().values.any():
+        raise ValueError('Your dataframe does not contain missing values. Will return as is.')
+    df = df.copy(deep=True)
+
+    d = os.getcwd()
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
+
+    for col in cols:
+        mvs = df[col].isna().sum() / df[col].size
+        print(f"{mvs * 100:.2f}% MVs in column {col}")
+
+    if selection_substr is not None:
+        df = df.filter(regex=selection_substr)
+
+    if "UID" not in df.columns:
+        # UID is basically a row index starting at 1
+        df["UID"] = range(1, df.shape[0] + 1)
+
+    if not isinstance(cols, list):
+        cols = cols.to_list()
+    to_csv(df[["UID"] + cols], data_loc)
+
+    if isinstance(ttest_substr, list):
+        ttest_substr = ','.join(ttest_substr)
+
+    if isinstance(methods, list):
+        methods = ','.join(methods)
+
+    command = [R, '--vanilla',
+               RFUNCTIONS,  # script location
+               "dima",  # functionName
+               data_loc,  # data location
+               output_loc,  # output file
+               ttest_substr,  # substring for ttesting
+               methods,  # method(s) aka algorithms to benchmark
+               str(npat),  # number of patterns
+               performance_metric  # to select the best algorithm
+               ]
+
+    p = run(command,
+            stdout=PIPE,
+            stderr=STDOUT,
+            universal_newlines=True)
+
+    if print_r:
+        print(p.stdout)
+
+    res = read_csv(output_loc)
+    # keep only the columns added by DIMA and the UID for merging
+    res = res.loc[:, (res.columns.str.contains('Imputation')) | (res.columns.str.contains('UID'))]
+    # append a string to recognise the cols
+    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
+    # remove the preceding string Imputation
+    res_cols = [x.replace('Imputation.', '') for x in res_cols]
+    res.columns = res_cols
+
+    # merge and retain the rows of the original df
+    df = df.merge(res, how='left', on="UID")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
+
+    perf = read_csv(output_loc[:-4] + '_performance.csv')
+
+    os.remove(data_loc)
+    os.remove(output_loc)
+    os.remove(output_loc[:-4] + '_performance.csv')
+
+    return df, perf
