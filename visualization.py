@@ -16,7 +16,8 @@ import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as ticker
 import pylab as pl
-from dependencies.venn import venn
+
+from autoprot.dependencies.venn import venn
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
 import logomaker
