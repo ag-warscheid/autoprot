@@ -20,7 +20,9 @@ from ftplib import FTP
 import warnings
 from typing import Union
 
-@report
+from autoprot.decorators import report
+
+
 def read_csv(file, sep='\t', low_memory=False, **kwargs):
     r"""
     pd.read_csv with modified default args.
