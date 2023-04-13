@@ -1,47 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-Autoprot Visualisation Functions.
+Autoprot Basic Plotting Functions.
 
-@author: Wignand
+@author: Wignand, Julian, Johannes
 
 @documentation: Julian
 """
+
 from scipy import stats
 from scipy.stats import zscore, gaussian_kde
 import pandas as pd
+# noinspection PyProtectedMember
 from pandas.api.types import is_numeric_dtype
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
-import matplotlib.ticker as ticker
-import pylab as pl
 
-from autoprot.dependencies.venn import venn
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
-import logomaker
 from adjustText import adjust_text
 import matplotlib.patches as patches
 from itertools import combinations
 
 # noinspection PyUnresolvedReferences
+from autoprot.dependencies.venn import venn
+# noinspection PyUnresolvedReferences
 from autoprot import visualization as vis
 
-from wordcloud import WordCloud
-from wordcloud import STOPWORDS
-
-from pdfminer3.layout import LAParams
-from pdfminer3.pdfpage import PDFPage
-from pdfminer3.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer3.converter import TextConverter
-
-from Bio import Entrez
-import time
-import os
-
-import io
-from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -49,10 +35,6 @@ import upsetplot
 
 from typing import Literal, Union
 
-plt.rcParams['pdf.fonttype'] = 42
-
-
-# TODO: Add functionality of embedding all the plots as subplots in figures by providing ax parameter
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                 save_type="pdf", save_name="pairPlot", lower_triang="scatter",
@@ -148,6 +130,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         vis.correlogram(prot,mildLogInt, file='proteinGroups', lower_triang="hexBin")
 
     """
+
+    # TODO: Add functionality of embedding all the plots as subplots in figures by providing ax parameter
 
     if columns is None:
         columns = []
@@ -815,11 +799,13 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
         raise ValueError("You should at least provide 2 conditions to compare in a venn diagram!")
     reps = data.columns.to_list()
     data["UID"] = range(data.shape[0])
+
+    g1 = data[[reps[0]] + ["UID"]]
+    g2 = data[[reps[1]] + ["UID"]]
+    g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
+    g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
+
     if n == 2:
-        g1 = data[[reps[0]] + ["UID"]]
-        g2 = data[[reps[1]] + ["UID"]]
-        g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
-        g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         if proportional:
             venn2([g1, g2], set_labels=reps)
         else:
@@ -829,11 +815,7 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
                 return fig
 
     elif n == 3:
-        g1 = data[[reps[0]] + ["UID"]]
-        g2 = data[[reps[1]] + ["UID"]]
         g3 = data[[reps[2]] + ["UID"]]
-        g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
-        g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         if proportional:
             venn3([g1, g2, g3], set_labels=reps)
@@ -844,12 +826,8 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
                 return fig
 
     elif n == 4:
-        g1 = data[[reps[0]] + ["UID"]]
-        g2 = data[[reps[1]] + ["UID"]]
         g3 = data[[reps[2]] + ["UID"]]
         g4 = data[[reps[3]] + ["UID"]]
-        g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
-        g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         g4 = set(g4["UID"][g4[reps[3]].notnull()].values)
         labels = venn.get_labels([g1, g2, g3, g4], fill=["number", "logic"])
@@ -858,13 +836,9 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
         if ret_fig:
             return fig
     elif n == 5:
-        g1 = data[[reps[0]] + ["UID"]]
-        g2 = data[[reps[1]] + ["UID"]]
         g3 = data[[reps[2]] + ["UID"]]
         g4 = data[[reps[3]] + ["UID"]]
         g5 = data[[reps[4]] + ["UID"]]
-        g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
-        g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         g4 = set(g4["UID"][g4[reps[3]].notnull()].values)
         g5 = set(g5["UID"][g5[reps[4]].notnull()].values)
@@ -874,14 +848,10 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
         if ret_fig:
             return fig
     elif n == 6:
-        g1 = data[[reps[0]] + ["UID"]]
-        g2 = data[[reps[1]] + ["UID"]]
         g3 = data[[reps[2]] + ["UID"]]
         g4 = data[[reps[3]] + ["UID"]]
         g5 = data[[reps[4]] + ["UID"]]
         g6 = data[[reps[5]] + ["UID"]]
-        g1 = set(g1["UID"][g1[reps[0]].notnull()].values)
-        g2 = set(g2["UID"][g2[reps[1]].notnull()].values)
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         g4 = set(g4["UID"][g4[reps[3]].notnull()].values)
         g5 = set(g5["UID"][g5[reps[4]].notnull()].values)
@@ -893,6 +863,7 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
             return fig
 
 
+# VOLCANO PLOTS #
 def _prep_volcano_data(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
 ):
@@ -944,166 +915,6 @@ def _prep_volcano_data(
     return df, score_colname, unsig, sig_fc, sig_p, sig_both
 
 
-def ivolcano(
-        df: pd.DataFrame,
-        log_fc_colname: str,
-        p_colname: str = None,
-        score_colname: str = None,
-        p_thresh: float = 0.05,
-        log_fc_thresh: float = None,
-        annotate_colname: str = None,
-        pointsize_colname: str or float = None,
-        highlight: pd.Index = None,
-        title: str = "Volcano Plot",
-        show_legend: bool = True,
-        ret_fig: bool = True,
-):
-    """
-    Return interactive volcano plot.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dataframe containing the data to plot.
-    log_fc_colname : str
-        column of the dataframe with the log fold change.
-    p_colname : str, optional
-        column of the dataframe containing p values (provide score_colname or p_colname).
-        The default is None.
-    score_colname : str, optional
-        column of the dataframe containing -log10(p values) (provide score or p).
-        The default is None.
-    p_thresh : float, optional
-        p-value threshold under which a entry is deemed significantly regulated.
-        The default is 0.05.
-    log_fc_thresh : float, optional
-        fold change threshold at which an entry is deemed significant regulated.
-        The default is None
-    annotate_colname : str, optional
-        Colname to use for labels in interactive plot.
-        The default is None.
-    pointsize_colname: str or float, optional
-        Name of a column to use as measure for point size.
-        Alternatively the size of all points.
-    highlight : pd.Index, optional
-        Rows to highlight in the plot.
-        The default is None.
-    title : str, optional
-        Title for the plot. The default is "Volcano Plot".
-    show_legend : bool, optional
-        Whether to plot a legend. The default is True.
-    ret_fig : bool, optional
-        Whether to return the figure, can be used to further
-        customize it afterwards. The default is False.
-
-    Returns
-    -------
-    plotly.figure
-        The figure object.
-    """
-
-    # check for input correctness and make sure score is present in df for plot
-    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(
-        df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
-    )
-
-    categories = ["NS", "log2FC", "p-value", "p-value and log2FC"]
-
-    if highlight is not None:
-        df["SigCat"] = "-"
-        df.loc[highlight, "SigCat"] = "*"
-        fig = (
-            px.scatter(
-                data_frame=df,
-                x=log_fc_colname,
-                y=score_colname,
-                hover_name=annotate_colname,
-                size=pointsize_colname,
-                color="SigCat",
-                opacity=0.5,
-                category_orders={"SigCat": ["-", "*"]},
-                title=title,
-            )
-            if annotate_colname is not None
-            else px.scatter(
-                data_frame=df,
-                x=log_fc_colname,
-                y=score_colname,
-                size=pointsize_colname,
-                color="SigCat",
-                opacity=0.5,
-                category_orders={"SigCat": ["-", "*"]},
-                title=title,
-            )
-        )
-    elif annotate_colname is not None:
-        fig = px.scatter(
-            data_frame=df,
-            x=log_fc_colname,
-            y=score_colname,
-            hover_name=annotate_colname,
-            size=pointsize_colname,
-            color="SigCat",
-            opacity=0.5,
-            category_orders={"SigCat": categories},
-            title=title,
-        )
-    else:
-        fig = px.scatter(
-            data_frame=df,
-            x=log_fc_colname,
-            y=score_colname,
-            size=pointsize_colname,
-            color="SigCat",
-            opacity=0.5,
-            category_orders={"SigCat": categories},
-            title=title,
-        )
-
-    fig.update_yaxes(showgrid=False, zeroline=True)
-    fig.update_xaxes(showgrid=False, zeroline=False)
-
-    fig.add_trace(
-        go.Scatter(
-            x=[df[log_fc_colname].min(), df[log_fc_colname].max()],
-            y=[-np.log10(p_thresh), -np.log10(p_thresh)],
-            mode="lines",
-            line=go.scatter.Line(color="teal", dash="longdash"),
-            showlegend=False,
-        )
-    )
-    if log_fc_thresh is not None:
-        # add fold change visualization
-        fig.add_trace(
-            go.Scatter(
-                x=[-log_fc_thresh, -log_fc_thresh],
-                y=[0, df[score_colname].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False,
-            )
-        )
-        fig.add_trace(
-            go.Scatter(
-                x=[log_fc_thresh, log_fc_thresh],
-                y=[0, df[score_colname].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False,
-            )
-        )
-
-    fig.update_layout(
-        template="simple_white",
-        showlegend=show_legend,
-    )
-
-    if ret_fig:
-        return fig
-    else:
-        fig.show()
-
-
 def volcano(
         df: pd.DataFrame,
         log_fc_colname: str,
@@ -1121,8 +932,8 @@ def volcano(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"],
-        None, pd.Index] = "p-value and log2FC",
+        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None, pd.Index] = "p-value "
+                                                                                                           "and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_p_sig: dict = None,
@@ -1671,6 +1482,167 @@ def volcano(
         return fig
 
 
+def ivolcano(
+        df: pd.DataFrame,
+        log_fc_colname: str,
+        p_colname: str = None,
+        score_colname: str = None,
+        p_thresh: float = 0.05,
+        log_fc_thresh: float = None,
+        annotate_colname: str = None,
+        pointsize_colname: str or float = None,
+        highlight: pd.Index = None,
+        title: str = "Volcano Plot",
+        show_legend: bool = True,
+        ret_fig: bool = True,
+):
+    """
+    Return interactive volcano plot.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe containing the data to plot.
+    log_fc_colname : str
+        column of the dataframe with the log fold change.
+    p_colname : str, optional
+        column of the dataframe containing p values (provide score_colname or p_colname).
+        The default is None.
+    score_colname : str, optional
+        column of the dataframe containing -log10(p values) (provide score or p).
+        The default is None.
+    p_thresh : float, optional
+        p-value threshold under which a entry is deemed significantly regulated.
+        The default is 0.05.
+    log_fc_thresh : float, optional
+        fold change threshold at which an entry is deemed significant regulated.
+        The default is None
+    annotate_colname : str, optional
+        Colname to use for labels in interactive plot.
+        The default is None.
+    pointsize_colname: str or float, optional
+        Name of a column to use as measure for point size.
+        Alternatively the size of all points.
+    highlight : pd.Index, optional
+        Rows to highlight in the plot.
+        The default is None.
+    title : str, optional
+        Title for the plot. The default is "Volcano Plot".
+    show_legend : bool, optional
+        Whether to plot a legend. The default is True.
+    ret_fig : bool, optional
+        Whether to return the figure, can be used to further
+        customize it afterwards. The default is False.
+
+    Returns
+    -------
+    plotly.figure
+        The figure object.
+    """
+
+    # check for input correctness and make sure score is present in df for plot
+    df, score_colname, unsig, sig_fc, sig_p, sig_both = _prep_volcano_data(
+        df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
+    )
+
+    categories = ["NS", "log2FC", "p-value", "p-value and log2FC"]
+
+    if highlight is not None:
+        df["SigCat"] = "-"
+        df.loc[highlight, "SigCat"] = "*"
+        fig = (
+            px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                hover_name=annotate_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+            if annotate_colname is not None
+            else px.scatter(
+                data_frame=df,
+                x=log_fc_colname,
+                y=score_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+        )
+    elif annotate_colname is not None:
+        fig = px.scatter(
+            data_frame=df,
+            x=log_fc_colname,
+            y=score_colname,
+            hover_name=annotate_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+    else:
+        fig = px.scatter(
+            data_frame=df,
+            x=log_fc_colname,
+            y=score_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    fig.add_trace(
+        go.Scatter(
+            x=[df[log_fc_colname].min(), df[log_fc_colname].max()],
+            y=[-np.log10(p_thresh), -np.log10(p_thresh)],
+            mode="lines",
+            line=go.scatter.Line(color="teal", dash="longdash"),
+            showlegend=False,
+        )
+    )
+    if log_fc_thresh is not None:
+        # add fold change visualization
+        fig.add_trace(
+            go.Scatter(
+                x=[-log_fc_thresh, -log_fc_thresh],
+                y=[0, df[score_colname].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False,
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[log_fc_thresh, log_fc_thresh],
+                y=[0, df[score_colname].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False,
+            )
+        )
+
+    fig.update_layout(
+        template="simple_white",
+        showlegend=show_legend,
+    )
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
+
+
+# Log Intensity Plots #
 def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
                  figsize=(6, 6), ret_fig=False):
@@ -1869,6 +1841,7 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
             fig.show()
 
 
+# MA Plots #
 def ma_plot(df, x, y, interactive=False, fct=None,
             title="MA Plot", figsize=(6, 6), annot=None):
     # sourcery skip: assign-if-exp, extract-method
@@ -2011,6 +1984,7 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         fig.show()
 
 
+# Mean SD plot #
 def mean_sd_plot(df, reps):
     # noinspection PyUnresolvedReferences
     r"""
@@ -2084,6 +2058,7 @@ def mean_sd_plot(df, reps):
     p.ax_marg_x.set_title("Mean SD plot")
 
 
+# Traces #
 def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
                 xlabel="", ylabel="log_fc", title="", ax=None,
                 plot_summary=False, plot_summary_only=False, summary_color="red",
@@ -2227,583 +2202,7 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
     ax.set_xlabel(xlabel)
 
 
-def sequence_logo(df, motif, file=None, rename_to_st=False):
-    # noinspection PyUnresolvedReferences
-    r"""
-    Generate sequence logo plot based on experimentally observed phosphosites.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The dataframe from which experimentally determined sequences are extracted.
-    motif : tuple of str
-        A tuple of the sequence_motif and its name.
-        The phosphosite residue in the sequence_motif should be indicated by a
-        lowercase character.
-        Example ("..R.R..s.......", "MK_down").
-    file : str
-        Path to write the figure to outfile_path.
-        Default is None.
-    rename_to_st : bool, optional
-        If true, the phoshoresidue will be considered to be
-        either S or T. The default is False.
-
-    Raises
-    ------
-    ValueError
-        If the phosphoresidue was not indicated by lowercase character.
-
-    Returns
-    -------
-    None.
-
-    Examples
-    --------
-    First define the sequence_motif of interest. Note that the phosphorylated residue
-    should be marked by a lowercase character.
-
-    >>> sequence_motif = ("..R.R..s.......", "MK_down")
-    >>> autoprot.visualization.sequence_logo(phos, sequence_motif)
-
-    allow s and t as central residue
-
-    >>> autoprot.visualization.sequence_logo(phos, sequence_motif, path, rename_to_st=True)
-
-    """
-
-    # TODO: sequence_motif and name should be provided in 2 parameter
-
-    def generate_sequence_logo(seq: list, outfile_path: str = None, sequence_motif: str = ""):
-        """
-        Draw a sequence logo plot for a sequence_motif.
-
-        Parameters
-        ----------
-        seq : list of str
-            List of experimentally determined sequences matching the sequence_motif.
-        outfile_path : str
-            path to folder where the output file will be written.
-            Default is None.
-        sequence_motif : str, optional
-            The sequence_motif used to find the sequences.
-            The default is "".
-
-        Returns
-        -------
-        None.
-        """
-        aa_dic = dict(G=0, P=0, A=0, V=0, L=0, I=0, M=0, C=0, F=0, Y=0, W=0, H=0, K=0, R=0, Q=0, N=0, E=0, D=0, S=0,
-                      T=0)
-
-        seq = [i for i in seq if len(i) == 15]
-        seq_t = [''.join(s) for s in zip(*seq)]
-        score_matrix = []
-        for pos in seq_t:
-            d = aa_dic.copy()
-            for aa in pos:
-                aa = aa.upper()
-                if aa not in ['.', '-', '_', "X"]:
-                    d[aa] += 1
-            score_matrix.append(d)
-
-        for pos in score_matrix:
-            for k in pos.keys():
-                pos[k] /= len(seq)
-
-        # empty array -> (sequenceWindow, aa)
-        m = np.empty((15, 20))
-        for i in range(m.shape[0]):
-            x = list(score_matrix[i].values())
-            m[i] = x
-
-        # create Logo object
-        kinase_motif_df = pd.DataFrame(m).fillna(0)
-        kinase_motif_df.columns = aa_dic.keys()
-        k_logo = logomaker.Logo(kinase_motif_df,
-                                font_name="Arial",
-                                color_scheme="dmslogo_funcgroup",
-                                vpad=0,
-                                width=.8)
-
-        k_logo.highlight_position(p=7, color='purple', alpha=.5)
-        plt.title(f"{sequence_motif} SequenceLogo")
-        k_logo.ax.set_xticklabels(labels=[-7, -7, -5, -3, -1, 1, 3, 5, 7])
-        sns.despine()
-        if outfile_path is not None:
-            plt.savefig(outfile_path)
-
-    def find_motif(x: pd.DataFrame, sequence_motif: str, typ: str, rename_to_st=False):
-        """
-        Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
-
-        Parameters
-        ----------
-        x : pd.DataFrame
-            Dataframe containing the identified sequence windows.
-        sequence_motif : str
-            The kinase sequence_motif.
-        typ : str
-            The kinase sequence_motif.
-        rename_to_st : bool, optional
-            Look for S and T at the phosphorylation position.
-            The phoshorylated residue should be S or T, otherwise it is transformed
-            to S/T.
-            The default is False.
-
-        Raises
-        ------
-        ValueError
-            If not lowercase phospho residue is given.
-
-        Returns
-        -------
-        typ : str
-            The kinase sequence_motif.
-
-        """
-        import re
-        # identified sequence window
-        d = x["Sequence window"]
-        # In Sequence window the aa of interest is always at pos 15
-        # This loop will check if the sequence_motif we are interested in is
-        # centered with its phospho residue at pos 15 of the sequence window
-        pos1 = None
-        for j, i in enumerate(sequence_motif):
-            # the phospho residue in the sequence_motif is indicated by lowercase character
-            if i.islower():
-                # pos1 is position of the phospho site in the sequence_motif
-                pos1 = len(sequence_motif) - j
-        if pos1 is None:
-            raise ValueError("Phospho residue has to be lower case!")
-        if rename_to_st:
-            # insert the expression (S/T) on the position of the phospho site
-            exp = sequence_motif[:pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
-        else:
-            # for finding pos2, the whole sequence_motif is uppercase
-            exp = sequence_motif.upper()
-
-        # pos2 is the last position of the matched sequence
-        # the MQ Sequence window is always 30 AAs long and centred on the modified
-        # amino acid. Hence, for a true hit, pos2-pos1 should be 15
-        if pos2 := re.search(exp.upper(), d):
-            pos2 = pos2.end()
-            pos = pos2 - pos1
-            if pos == 15:
-                return typ
-
-    # init empty col corresponding to sequence sequence_motif
-    df[motif[0]] = np.nan
-    # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
-    # window
-    df[motif[0]] = df.apply(lambda x: find_motif(x, motif[0], motif[0], rename_to_st), 1)
-
-    if file is not None:
-        # consider only the +- 7 amino acids around the modified residue (x[8:23])
-        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                               outfile_path=file + "/{}_{}.svg".format(motif[0], motif[1]),
-                               sequence_motif="{} - {}".format(motif[0], motif[1]))
-    else:
-        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                               sequence_motif="{} - {}".format(motif[0], motif[1]))
-
-
-def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
-    # noinspection PyUnresolvedReferences
-    """
-    Visualize domains and phosphosites on a protein of interest.
-
-    Parameters
-    ----------
-    name : str
-        Name of the protein.
-        Used for plot title.
-    length : int
-        Length of the protein.
-    domain_position : list of tuples of int
-        Each element is a tuple of domain start and end postiions.
-    ps : list of int
-        position of phosphosites.
-    pl : list of str
-        label for ps (has to be in same order as ps).
-    plc : list of colours
-        optionally one can provide a list of colors for the phosphosite labels.
-    pls : int, optional
-        Fontsize for the phosphosite labels. The default is 4.
-    ax: matplotlib axis, optional
-        To draw on an existing axis
-    domain_color: str
-        Either a matplotlib colormap (see https://predictablynoisy.com/matplotlib/gallery/color/colormap_reference.html)
-        or a single color
-
-    Returns
-    -------
-    matplotlib.figure
-        The figure object.
-
-    Examples
-    --------
-    Draw an overview on the phosphorylation of AKT1S1.
-
-    >>> name = "AKT1S1"
-    >>> length = 256
-    >>> domain_position = [35,43,
-    ...                    77,96]
-    >>> ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]
-    >>> pl = ["pS88", "pS92", "pS116", "pS183", "pS202", "pS203", "pS211", "pS212", "pS246"]
-
-    colors (A,B,C,D (gray -> purple), Ad, Bd, Cd, Dd (gray -> teal) can be used to indicate regulation)
-
-    >>> plc = ['C', 'A', 'A', 'C', 'Cd', 'D', 'D', 'B', 'D']
-    >>> autoprot.visualization.vis_psites(name, length, domain_position, ps, pl, plc, pls=12)
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.visualization as vis
-
-        name = "AKT1S1"
-        length = 256
-        domain_position = [(35,43),
-                           (77,96)]
-        ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]
-        pl = ["pS88", "pS92", "pS116", "pS183", "pS202", "pS203", "pS211", "pS212", "pS246"]
-        plc = ['C', 'A', 'A', 'C', 'Cd', 'D', 'D', 'B', 'D']
-        vis.vis_psites(name, length, domain_position, ps, pl, plc, pls=12)
-        plt.show()
-
-    """
-    if domain_position is None:
-        domain_position = []
-    # check if domain_color is a cmap name
-    try:
-        cm = plt.get_cmap(domain_color)
-        color = cm(np.linspace(0, 1, len(domain_position)))
-    except ValueError as e:
-        if isinstance(domain_color, str):
-            color = [domain_color, ] * len(domain_position)
-        elif isinstance(domain_color, list):
-            if len(domain_color) != len(domain_position):
-                raise TypeError("Please provide one domain colour per domain") from e
-            else:
-                color = domain_color
-        else:
-            raise TypeError("You must provide a colormap name, a colour name or a list of colour names") from e
-
-    lims = (1, length)
-    height = lims[1] / 25
-
-    if ax is None:
-        fig1 = plt.figure(figsize=(15, 2))
-        ax1 = fig1.add_subplot(111, aspect='equal')
-    else:
-        ax1 = ax
-
-    # background of the whole protein in grey
-    ax1.add_patch(
-        patches.Rectangle((0, 0), length, height, color='lightgrey'))
-
-    for idx, (start, end) in enumerate(domain_position):
-        width = end - start
-        ax1.add_patch(
-            patches.Rectangle((start, 0), width, height, color=color[idx]))
-
-    # only plot phosphosite if there are any
-    if ps is not None:
-        text_color = {"A": "gray",
-                      "Ad": "gray",
-                      "B": "#dc86fa",
-                      "Bd": "#6AC9BE",
-                      "C": "#aa00d7",
-                      "Cd": "#239895",
-                      "D": "#770087",
-                      "Dd": "#008080"}
-
-        for idx, site in enumerate(ps):
-            plt.axvline(site, 0, 1, color="red")
-            plt.text(site - 1,
-                     height - (height + height * 0.15),
-                     pl[idx] if pl is not None else '',
-                     fontsize=pls,
-                     rotation=90,
-                     color=text_color[plc[idx]] if plc is not None else 'black')
-
-    plt.subplots_adjust(left=0.25)
-    plt.ylim(height)
-    plt.xlim(lims)
-    ax1.axes.get_yaxis().set_visible(False)
-    plt.title(name + '\n', size=18)
-    plt.tight_layout()
-
-
-def sty_count_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
-    # sourcery skip: extract-method
-    # noinspection PyUnresolvedReferences
-    r"""
-    Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-        Must contain a column "Number of Phospho (STY)".
-    figsize : tuple of int, optional
-        Figure size. The default is (12,8).
-    typ : str, optional
-        'bar' or 'pie'. The default is "bar".
-    ret_fig : bool, optional
-        Whether to return the figure. The default is False.
-    ax : matplotlib axis
-        Axis to plot on
-
-    Returns
-    -------
-    fig : matplotlib.figure
-        The figure object.
-
-    Examples
-    --------
-    Plot a bar chart of the distribution of the number of phosphosites on the peptides.
-
-    >>> autoprot.visualization.sty_count_plot(phos, typ="bar")
-    Number of phospho (STY) [total] - (count / # Phospho)
-    [(29, 0), (37276, 1), (16460, 2), (4276, 3), (530, 4), (52, 5)]
-    Percentage of phospho (STY) [total] - (% / # Phospho)
-    [(0.05, 0), (63.59, 1), (28.08, 2), (7.29, 3), (0.9, 4), (0.09, 5)]
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.sty_count_plot(phos, typ="bar")
-        plt.show()
-
-    """
-    no_of_phos = [int(i) for i in
-                  list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
-
-    print("Number of phospho (STY) [total] - (count / # Phospho)")
-    print(count)
-    print("Percentage of phospho (STY) [total] - (% / # Phospho)")
-    print(counts_perc)
-    df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
-
-    if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.gca()
-    else:
-        fig = ax.get_figure()
-
-    if typ == "bar":
-        sns.countplot(x="Number of Phospho (STY)", data=df, ax=ax)
-        plt.title('Number of Phospho (STY)')
-        plt.xlabel('Number of Phospho (STY)')
-        ncount = df.shape[0]
-
-        # Make twin axis
-        ax2 = ax.twinx()
-
-        ax2.yaxis.tick_left()
-        ax.yaxis.tick_right()
-
-        ax.yaxis.set_label_position('right')
-        ax2.yaxis.set_label_position('left')
-
-        ax2.set_ylabel('Frequency [%]')
-
-        for p in ax.patches:
-            x = p.get_bbox().get_points()[:, 0]
-            y = p.get_bbox().get_points()[1, 1]
-            ax.annotate('{:.1f}%'.format(100. * y / ncount), (x.mean(), y),
-                        ha='center', va='bottom')  # set the alignment of the text
-
-        ax.yaxis.set_major_locator(ticker.LinearLocator(11))
-        ax2.set_ylim(0, 100)
-        ax.set_ylim(0, ncount)
-        ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
-
-    elif typ == "pie":
-        ax.pie([i[0] for i in count], labels=[i[1] for i in count])
-        ax.set_title("Number of Phosphosites")
-    else:
-        raise TypeError("typ must be either 'bar' or 'pie")
-
-    if ret_fig is True:
-        return fig
-
-
-# noinspection PyUnboundLocalVariable
-def charge_plot(df, figsize=(12, 8), typ="bar", ret_fig=False, ax=None):
-    # noinspection PyUnresolvedReferences
-    r"""
-    Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
-
-    Parameters
-    ----------
-    df : pd.Dataframe
-        Input dataframe.
-        Must contain a column named "Charge".
-    figsize : tuple of int, optional
-        The size of the figure. The default is (12,8).
-    typ : str, optional
-        "pie" or "bar".
-        The default is "bar".
-    ret_fig : bool, optional
-        Whether to return the figure.
-        The default is False.
-    ax : matplotlib axis
-        Axis to plot on
-
-    Returns
-    -------
-    fig : matplotlib.figure
-        The figure object.
-
-    Examples
-    --------
-    Plot the charge states of a dataframe.
-
-    >>> autoprot.visualization.charge_plot(phos, typ="pie")
-    charge [total] - (count / # charge)
-    [(44, 1), (20583, 2), (17212, 3), (2170, 4), (61, 5), (4, 6)]
-    Percentage of charge [total] - (% / # charge)
-    [(0.11, 1), (51.36, 2), (42.95, 3), (5.41, 4), (0.15, 5), (0.01, 6)]
-    charge [total] - (count / # charge)
-    [(44, 1), (20583, 2), (17212, 3), (2170, 4), (61, 5), (4, 6)]
-    Percentage of charge [total] - (% / # charge)
-    [(0.11, 1), (51.36, 2), (42.95, 3), (5.41, 4), (0.15, 5), (0.01, 6)]
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.charge_plot(phos, typ="pie")
-        plt.show()
-    """
-
-    df = df.copy(deep=True)
-    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
-
-    print("charge [total] - (count / # charge)")
-    print(count)
-    print("Percentage of charge [total] - (% / # charge)")
-    print(counts_perc)
-    df = pd.DataFrame(no_of_phos, columns=["charge"])
-
-    if typ == "bar":
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
-
-        sns.countplot(x="charge", data=df, ax=ax)
-        plt.title('charge')
-        plt.xlabel('charge')
-        ncount = df.shape[0]
-
-        # Make twin axis
-        ax2 = ax.twinx()
-
-        ax2.yaxis.tick_left()
-        ax.yaxis.tick_right()
-
-        ax.yaxis.set_label_position('right')
-        ax2.yaxis.set_label_position('left')
-
-        ax2.set_ylabel('Frequency [%]')
-
-        for p in ax.patches:
-            x = p.get_bbox().get_points()[:, 0]
-            y = p.get_bbox().get_points()[1, 1]
-            ax.annotate('{:.1f}%'.format(100. * y / ncount), (x.mean(), y),
-                        ha='center', va='bottom')  # set the alignment of the text
-
-        ax.yaxis.set_major_locator(ticker.LinearLocator(11))
-        ax2.set_ylim(0, 100)
-        ax.set_ylim(0, ncount)
-        ax2.yaxis.set_major_locator(ticker.MultipleLocator(10))
-    elif typ == "pie":
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
-        ax.pie([i[0] for i in count], labels=[i[1] for i in count])
-        ax.set_title("charge")
-    if not ret_fig:
-        return
-    return fig
-
-
-def count_mod_aa(df, figsize=(6, 6), ret_fig=False, ax=None):
-    # noinspection PyUnresolvedReferences
-    r"""
-    Count the number of modifications per amino acid.
-
-    Parameters
-    ----------
-    df : pd.Dataframe
-        The input dataframe.
-        Must contain a column "Amino acid".
-    figsize : tuple of int, optional
-        The size of the figure. The default is (6,6).
-    ret_fig : bool, optional
-        Whether to return the figure object. The default is False.
-    ax : matplotlib axis
-        Axis to plot on
-
-    Returns
-    -------
-    fig : matplotlib.figure
-        The figure object.
-
-    Examples
-    --------
-    Plot pie chart of modified amino acids.
-
-    >>> autoprot.visualization.count_mod_aa(phos)
-
-    .. plot::
-        :context: close-figs
-
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
-        phos = pp.cleaning(phos, file = "Phospho (STY)")
-        vis.count_mod_aa(phos)
-        plt.show()
-
-    """
-    labels = [str(i) + '\n' + str(round(j / df.shape[0] * 100, 2)) + '%'
-              for i, j in zip(df["Amino acid"].value_counts().index,
-                              df["Amino acid"].value_counts().values)]
-
-    if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.gca()
-    else:
-        fig = ax.get_figure()
-
-    ax.pie(df["Amino acid"].value_counts().values,
-           labels=labels)
-    ax.set_title("Modified AAs")
-
-    if ret_fig:
-        return fig
-
-
+# p Value Histograms #
 def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     # noinspection PyUnresolvedReferences
     r"""
@@ -2883,6 +2282,7 @@ def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     sns.despine(ax=ax[1])
 
 
+# Upset PLot #
 class UpSetGrouped(upsetplot.UpSet):
     # noinspection PyUnresolvedReferences
     """
