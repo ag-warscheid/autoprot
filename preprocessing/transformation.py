@@ -35,7 +35,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # validate proper column formatting and handle exceptions
 # =============================================================================
 
-@report
+
 def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
     """
     Perform log transformation.
@@ -121,7 +121,6 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
     return (df, new_cols) if return_cols == True else df
 
 
-@report
 def expand_site_table(df, cols, replace_zero=True):
     r"""
     Convert a phosphosite table into a phosphopeptide table.
@@ -229,66 +228,6 @@ def expand_site_table(df, cols, replace_zero=True):
     temp = temp[~(temp[melt_set].isnull().all(1))]
     print(f"{temp.shape[0]} phospho peptides in dataframe after expansion.")
     return temp
-
-
-@report
-def filter_vv(df, groups, n=2, valid_values=True):
-    r"""
-    Filter dataframe for minimum number of valid values.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dataframe to be filtered.
-    groups : list of lists of str
-        Lists of colnames of the experimental groups.
-        Each group is filtered for at least n vv.
-    n : int, optional
-        Minimum amount of valid values. The default is 2.
-    valid_values : bool, optional
-        True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
-
-    Returns
-    -------
-    pd.DataFrame
-        Filtered dataframe.
-    set (optional)
-        Set of indices after filtering.
-
-    Examples
-    --------
-    The function filterVv() filters the dataframe for a minimum number of valid values per group.
-    You have to provide the data, the groups as well as the desired number of valid values.
-    If the specified n is not reached in one or more groups the respective row is dropped.
-    Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.
-
-    >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
-    >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-
-    >>> a = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2','log2_Ratio H/M normalized BC18_3',
-    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
-    >>> b = ["log2_Ratio H/L normalized BC18_1","log2_Ratio H/M normalized BC18_2","log2_Ratio H/L normalized BC18_3",
-    ...                 "log2_Ratio M/L normalized BC36_1", "log2_Ratio H/L normalized BC36_2","log2_Ratio H/M normalized BC36_2"]
-    >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2","log2_Ratio M/L normalized BC18_3",
-    ...               "log2_Ratio H/M normalized BC36_1","log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
-    >>> protFilter = autoprot.preprocessing.filter_vv(protLog, groups=[a,b,c], n=3)
-    4910 rows before filter operation.
-    2674 rows after filter operation.
-    """
-    df = df.copy()  # make sure to keep the original dataframe unmodified
-
-    if valid_values:
-        idxs = [set(df[df[group].notnull().sum(1) >= n].index) for group in groups]
-        # idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
-        #        group in groups]
-    else:
-        idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
-
-    # indices that are valid in all groups
-    idx = list(set.intersection(*idxs))
-    df = df.loc[idx]
-
-    return df
 
 
 def exp_semi_col(df, scCol, newCol, castTo=None):
