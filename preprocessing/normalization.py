@@ -26,6 +26,8 @@ from ftplib import FTP
 import warnings
 from typing import Union
 
+import autoprot.preprocessing as pp
+
 RFUNCTIONS, R = r_helper.return_r_path()
 
 
@@ -36,10 +38,8 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-@report
-
 def quantile_norm(df, cols, return_cols=False, backend="r"):
-    r"""
+    r""" 
     Perform quantile normalization.
 
     Parameters
@@ -136,7 +136,7 @@ def quantile_norm(df, cols, return_cols=False, backend="r"):
         data_loc = d + "/input.csv"
         output_loc = d + "/output.csv"
 
-        to_csv(df[["UID"] + cols], data_loc)
+        pp.to_csv(df[["UID"] + cols], data_loc)
 
         command = [R, '--vanilla',
                    RFUNCTIONS,  # script location
@@ -150,7 +150,7 @@ def quantile_norm(df, cols, return_cols=False, backend="r"):
         except CalledProcessError as err:
             raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
 
-        res = read_csv(output_loc)
+        res = pp.read_csv(output_loc)
         res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
         res.columns = res_cols
         df = df.merge(res, on="UID")
@@ -252,7 +252,7 @@ def vsn(df, cols, return_cols=False, backend='r'):
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], data_loc)
+    pp.to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
@@ -266,7 +266,7 @@ def vsn(df, cols, return_cols=False, backend='r'):
     except CalledProcessError as err:
         raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
 
-    res = read_csv(output_loc)
+    res = pp.read_csv(output_loc)
     res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
     res.columns = res_cols
 
@@ -356,7 +356,7 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], data_loc)
+    pp.to_csv(df[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
@@ -367,7 +367,7 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
 
     run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
-    res = read_csv(output_loc)
+    res = pp.read_csv(output_loc)
     res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
     res.columns = res_cols
 

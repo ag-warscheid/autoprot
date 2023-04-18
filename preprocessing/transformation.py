@@ -13,7 +13,6 @@ from importlib import resources
 import re
 import os
 from subprocess import run, PIPE, STDOUT, CalledProcessError
-from autoprot.decorators import report
 from autoprot import r_helper
 import requests
 from Bio import pairwise2
@@ -42,8 +41,8 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
 
     Parameters
     ----------
-    df : pd.DataFrame
-        Input dataframe.
+    df : pd.dfFrame
+        Input dfframe.
     cols : list of str
         Cols which are transformed.
     base : int, optional
@@ -54,14 +53,14 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
         The default is None.
     return_cols : bool, optional
         Whether to return a list of names corresponding to the columns added
-        to the dataframe. The default is False.
+        to the dfframe. The default is False.
     replace_inf : bool, optional
         Whether to replace inf and -inf values by np.nan
 
     Returns
     -------
-    pd.Dataframe
-        The log transformed dataframe.
+    pd.dfframe
+        The log transformed dfframe.
     list
         A list of column names (if returnCols is True).
 
@@ -83,7 +82,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
     >>> prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert*2)
     >>> phos2 = autoprot.preprocessing.log(phos, phosRatio, base=10)
 
-    The resulting dataframe contains log ratios or NaN.
+    The resulting dfframe contains log ratios or NaN.
 
     >>> prot2.filter(regex="log.+_Ratio M/L BC18_1$").head()
        log2_Ratio M/L BC18_1
