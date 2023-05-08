@@ -21,6 +21,66 @@ from autoprot.dependencies.venn import venn
 from autoprot import visualization as vis
 
 
+## SEQUENCE LOGO
+
+
+def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False):
+    """
+    Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
+
+    Parameters
+    ----------
+    row : pd.Series
+        Pandas dataframe row containing the identified sequence windows.
+    sequence_motif : str
+        The kinase sequence_motif.
+    rename_to_st : bool, optional
+        Look for S and T at the phosphorylation position.
+        The phoshorylated residue should be S or T, otherwise it is transformed
+        to S/T.
+        The default is False.
+
+    Raises
+    ------
+    ValueError
+        If not lowercase phospho residue is given.
+
+    Returns
+    -------
+    typ : str
+        The kinase sequence_motif.
+
+    """
+    import re
+    # identified sequence window
+    d = row["Sequence window"]
+    # In Sequence window the aa of interest is always at pos 15
+    # This loop will check if the sequence_motif we are interested in is
+    # centered with its phospho residue at pos 15 of the sequence window
+    pos1 = None
+    for idx, i in enumerate(sequence_motif):
+        # the phospho residue in the sequence_motif is indicated by lowercase character
+        if i.islower():
+            # pos1 is position of the phospho site in the sequence_motif
+            pos1 = len(sequence_motif) - idx
+    if pos1 is None:
+        raise ValueError("Phospho residue has to be lower case!")
+    # pos2 is the last position of the matched sequence
+    # the MQ Sequence window is always 30 AAs long and centred on the modified
+    # amino acid. Hence, for a true hit, pos2-pos1 should be 15
+    if isinstance(d, str):  # only consider searchable strings, not NaN
+        exp = (
+            sequence_motif[: pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
+            if rename_to_st  # if phospho site is to be renamed
+            else sequence_motif.upper()  # else keep the original sequence
+        )
+        if pos2 := re.search(exp.upper(), d):
+            pos2 = pos2.end()
+            pos = pos2 - pos1
+            if pos == 15:
+                return sequence_motif
+
+
 def sequence_logo(df, motif, file=None, rename_to_st=False):
     # noinspection PyUnresolvedReferences
     r"""
@@ -121,75 +181,19 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
 
         k_logo.highlight_position(p=7, color='purple', alpha=.5)
         plt.title(f"{sequence_motif} SequenceLogo")
-        k_logo.ax.set_xticklabels(labels=[-7, -7, -5, -3, -1, 1, 3, 5, 7])
+
+        # generate x labels corresponding to sequence indices
+        k_logo.ax.set_xticks([1, 3, 5, 7, 9, 11, 13, 15])
+        k_logo.ax.set_xticklabels(labels=[-7, -5, -3, -1, 1, 3, 5, 7])
         sns.despine()
         if outfile_path is not None:
             plt.savefig(outfile_path)
-
-    def find_motif(x: pd.DataFrame, sequence_motif: str, typ: str, rename_to_st=False):
-        """
-        Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
-
-        Parameters
-        ----------
-        x : pd.DataFrame
-            Dataframe containing the identified sequence windows.
-        sequence_motif : str
-            The kinase sequence_motif.
-        typ : str
-            The kinase sequence_motif.
-        rename_to_st : bool, optional
-            Look for S and T at the phosphorylation position.
-            The phoshorylated residue should be S or T, otherwise it is transformed
-            to S/T.
-            The default is False.
-
-        Raises
-        ------
-        ValueError
-            If not lowercase phospho residue is given.
-
-        Returns
-        -------
-        typ : str
-            The kinase sequence_motif.
-
-        """
-        import re
-        # identified sequence window
-        d = x["Sequence window"]
-        # In Sequence window the aa of interest is always at pos 15
-        # This loop will check if the sequence_motif we are interested in is
-        # centered with its phospho residue at pos 15 of the sequence window
-        pos1 = None
-        for j, i in enumerate(sequence_motif):
-            # the phospho residue in the sequence_motif is indicated by lowercase character
-            if i.islower():
-                # pos1 is position of the phospho site in the sequence_motif
-                pos1 = len(sequence_motif) - j
-        if pos1 is None:
-            raise ValueError("Phospho residue has to be lower case!")
-        if rename_to_st:
-            # insert the expression (S/T) on the position of the phospho site
-            exp = sequence_motif[:pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
-        else:
-            # for finding pos2, the whole sequence_motif is uppercase
-            exp = sequence_motif.upper()
-
-        # pos2 is the last position of the matched sequence
-        # the MQ Sequence window is always 30 AAs long and centred on the modified
-        # amino acid. Hence, for a true hit, pos2-pos1 should be 15
-        if pos2 := re.search(exp.upper(), d):
-            pos2 = pos2.end()
-            pos = pos2 - pos1
-            if pos == 15:
-                return typ
 
     # init empty col corresponding to sequence sequence_motif
     df[motif[0]] = np.nan
     # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
     # window
-    df[motif[0]] = df.apply(lambda x: find_motif(x, motif[0], motif[0], rename_to_st), 1)
+    df[motif[0]] = df.apply(lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1)
 
     if file is not None:
         # consider only the +- 7 amino acids around the modified residue (x[8:23])
