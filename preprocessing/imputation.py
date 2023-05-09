@@ -26,6 +26,8 @@ from ftplib import FTP
 import warnings
 from typing import Union
 
+import autoprot.preprocessing as pp
+
 RFUNCTIONS, R = r_helper.return_r_path()
 
 
@@ -155,7 +157,7 @@ def imp_seq(df, cols, print_r=True):
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], dataLoc)
+    pp.to_csv(df[["UID"] + cols], dataLoc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
@@ -172,7 +174,7 @@ def imp_seq(df, cols, print_r=True):
     if print_r:
         print(p.stdout)
 
-    res = read_csv(outputLoc)
+    res = pp.read_csv(outputLoc)
     # append a string to recognise the cols
     res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
     # change back the R colnames
@@ -290,7 +292,7 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
 
     if not isinstance(cols, list):
         cols = cols.to_list()
-    to_csv(df[["UID"] + cols], data_loc)
+    pp.to_csv(df[["UID"] + cols], data_loc)
 
     if isinstance(ttest_substr, list):
         ttest_substr = ','.join(ttest_substr)
@@ -317,7 +319,7 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     if print_r:
         print(p.stdout)
 
-    res = read_csv(output_loc)
+    res = pp.read_csv(output_loc)
     # keep only the columns added by DIMA and the UID for merging
     res = res.loc[:, (res.columns.str.contains('Imputation')) | (res.columns.str.contains('UID'))]
     # append a string to recognise the cols
@@ -331,7 +333,7 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
-    perf = read_csv(output_loc[:-4] + '_performance.csv')
+    perf = pp.read_csv(output_loc[:-4] + '_performance.csv')
 
     os.remove(data_loc)
     os.remove(output_loc)
