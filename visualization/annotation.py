@@ -21,6 +21,8 @@ from autoprot.dependencies.venn import venn
 from autoprot import visualization as vis
 from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
+import plotly.graph_objects as go
+
 
 # SEQUENCE LOGO
 
@@ -266,7 +268,7 @@ def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
         kinase_motif_df = _generate_kinase_motif_df(seq)
         interactive_logo = plogo.logo(kinase_motif_df, return_fig=True)
         interactive_logo.update_layout(title=f"{sequence_motif} SequenceLogo",
-                                       margin=dict(t=50) # add margin to accommodate title
+                                       margin=dict(t=50)  # add margin to accommodate title
                                        )
 
         return interactive_logo
@@ -287,8 +289,33 @@ def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
 
 # VISUALIZE PHOSPHO SITES
 
+def _vis_psites_init(domain_position, domain_color, length):
+    if domain_position is None:
+        domain_position = []
+    # check if domain_color is a cmap name
+    try:
+        cm = plt.get_cmap(domain_color)
+        color = cm(np.linspace(0, 1, len(domain_position)))
+    except ValueError as e:
+        if isinstance(domain_color, str):
+            color = [domain_color, ] * len(domain_position)
+        elif isinstance(domain_color, list):
+            if len(domain_color) != len(domain_position):
+                raise TypeError("Please provide one domain colour per domain") from e
+            else:
+                color = domain_color
+        else:
+            raise TypeError("You must provide a colormap name, a colour name or a list of colour names") from e
+
+    lims = (1, length)
+    height = lims[1] / 25
+
+    return lims, height, color, domain_position
+
+
 def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
     # noinspection PyUnresolvedReferences
+    # noinspection PyShadowingNames
     """
     Visualize domains and phosphosites on a protein of interest.
 
@@ -326,8 +353,8 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
 
     >>> name = "AKT1S1"
     >>> length = 256
-    >>> domain_position = [35,43,
-    ...                    77,96]
+    >>> domain_position = [(35,43),
+    ...                    (77,96)]
     >>> ps = [88, 92, 116, 183, 202, 203, 211, 212, 246]
     >>> pl = ["pS88", "pS92", "pS116", "pS183", "pS202", "pS203", "pS211", "pS212", "pS246"]
 
@@ -352,25 +379,8 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
         plt.show()
 
     """
-    if domain_position is None:
-        domain_position = []
-    # check if domain_color is a cmap name
-    try:
-        cm = plt.get_cmap(domain_color)
-        color = cm(np.linspace(0, 1, len(domain_position)))
-    except ValueError as e:
-        if isinstance(domain_color, str):
-            color = [domain_color, ] * len(domain_position)
-        elif isinstance(domain_color, list):
-            if len(domain_color) != len(domain_position):
-                raise TypeError("Please provide one domain colour per domain") from e
-            else:
-                color = domain_color
-        else:
-            raise TypeError("You must provide a colormap name, a colour name or a list of colour names") from e
 
-    lims = (1, length)
-    height = lims[1] / 25
+    lims, height, color, domain_position = _vis_psites_init(domain_position, domain_color, length)
 
     if ax is None:
         fig1 = plt.figure(figsize=(15, 2))
@@ -387,7 +397,7 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
         ax1.add_patch(
             patches.Rectangle((start, 0), width, height, color=color[idx]))
 
-    # only plot phosphosite if there are any
+    # only plot phospho site if there are any
     if ps is not None:
         text_color = {"A": "gray",
                       "Ad": "gray",
@@ -413,3 +423,81 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
     ax1.axes.get_yaxis().set_visible(False)
     plt.title(name + '\n', size=18)
     plt.tight_layout()
+
+
+def ivis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, domain_color='tab10',
+                ret_fig=False):
+    lims, height, color, domain_position = _vis_psites_init(domain_position, domain_color, length)
+
+    def to_rgba(ndarray):
+        return f"rgba({ndarray[0] * 256}, {ndarray[1] * 256}, {ndarray[2] * 256}, {ndarray[3]})"
+
+    fig = go.Figure()
+
+    # the protein background
+    shapes = [
+        dict(
+            type='rect',
+            xref='x',
+            yref='y',
+            x0=0,
+            y0=0,
+            x1=length,
+            y1=height,
+            fillcolor='lightgray',
+            layer='below'
+        )
+    ]
+
+    # the annotated domains
+    for idx, (start, end) in enumerate(domain_position):
+        width = end - start
+        shapes.append(
+            dict(
+                type='rect',
+                xref='x',
+                yref='y',
+                x0=start,
+                y0=0,
+                x1=start+width,
+                y1=height,
+                fillcolor=to_rgba(color[idx]),
+                layer='below'
+
+            )
+        )
+
+    fig.update_layout(shapes=shapes,
+                      xaxis_range=[0, length],  # length
+                      yaxis_range=[0, 2*height],  # height
+                      xaxis=dict(showgrid=False,
+                                 visible=True,
+                                 zeroline=False,
+                                 showticklabels=True),
+                      yaxis=dict(showgrid=False,
+                                 visible=False,
+                                 showticklabels=False),
+                      plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)",
+                      title=name
+                      )
+
+    # only plot phospho site if there are any
+    if ps is not None:
+        text_color = {"A": "gray",
+                      "Ad": "gray",
+                      "B": "#dc86fa",
+                      "Bd": "#6AC9BE",
+                      "C": "#aa00d7",
+                      "Cd": "#239895",
+                      "D": "#770087",
+                      "Dd": "#008080"}
+
+        for idx, site in enumerate(ps):
+            fig.add_trace(go.Scatter(x=[site, ] * int(height), y=np.linspace(0, height, int(height)), mode='lines',
+                                     hovertemplate=f'{pl[idx]}<br>Pos: {site}<extra></extra>',
+                                     line=dict(color=text_color[plc[idx]] if plc is not None else 'black')))
+
+    if ret_fig:
+        return fig
+    fig.show()
