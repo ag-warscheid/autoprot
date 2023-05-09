@@ -19,6 +19,110 @@ import matplotlib.patches as patches
 from autoprot.dependencies.venn import venn
 # noinspection PyUnresolvedReferences
 from autoprot import visualization as vis
+from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
+
+
+# SEQUENCE LOGO
+
+def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False):
+    """
+    Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
+
+    Parameters
+    ----------
+    row : pd.Series
+        Pandas dataframe row containing the identified sequence windows.
+    sequence_motif : str
+        The kinase sequence_motif.
+    rename_to_st : bool, optional
+        Look for S and T at the phosphorylation position.
+        The phoshorylated residue should be S or T, otherwise it is transformed
+        to S/T.
+        The default is False.
+
+    Raises
+    ------
+    ValueError
+        If not lowercase phospho residue is given.
+
+    Returns
+    -------
+    typ : str
+        The kinase sequence_motif.
+
+    """
+    import re
+    # identified sequence window
+    d = row["Sequence window"]
+    # In Sequence window the aa of interest is always at pos 15
+    # This loop will check if the sequence_motif we are interested in is
+    # centered with its phospho residue at pos 15 of the sequence window
+    pos1 = None
+    for idx, i in enumerate(sequence_motif):
+        # the phospho residue in the sequence_motif is indicated by lowercase character
+        if i.islower():
+            # pos1 is position of the phospho site in the sequence_motif
+            pos1 = len(sequence_motif) - idx
+    if pos1 is None:
+        raise ValueError("Phospho residue has to be lower case!")
+    # pos2 is the last position of the matched sequence
+    # the MQ Sequence window is always 30 AAs long and centred on the modified
+    # amino acid. Hence, for a true hit, pos2-pos1 should be 15
+    if isinstance(d, str):  # only consider searchable strings, not NaN
+        exp = (
+            sequence_motif[: pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
+            if rename_to_st  # if phospho site is to be renamed
+            else sequence_motif.upper()  # else keep the original sequence
+        )
+        if pos2 := re.search(exp.upper(), d):
+            pos2 = pos2.end()
+            pos = pos2 - pos1
+            if pos == 15:
+                return sequence_motif
+
+
+def _generate_kinase_motif_df(seq: list):
+    """
+    Generate a dataframe with relative frequencies for amino acids.
+
+    Parameters
+    ----------
+    seq : list of str
+        List of experimentally determined sequences matching the sequence_motif.
+
+    Returns
+    -------
+    pd.Dataframe : kinase_motif_df
+    """
+    aa_dic = dict(G=0, P=0, A=0, V=0, L=0, I=0, M=0, C=0, F=0, Y=0, W=0, H=0, K=0, R=0, Q=0, N=0, E=0, D=0, S=0,
+                  T=0)
+
+    seq = [i for i in seq if len(i) == 15]
+    seq_t = [''.join(s) for s in zip(*seq)]
+    score_matrix = []
+    for pos in seq_t:
+        d = aa_dic.copy()
+        for aa in pos:
+            aa = aa.upper()
+            if aa not in ['.', '-', '_', "X"]:
+                d[aa] += 1
+        score_matrix.append(d)
+
+    for pos in score_matrix:
+        for k in pos.keys():
+            pos[k] /= len(seq)
+
+    # empty array -> (sequenceWindow, aa)
+    m = np.empty((15, 20))
+    for i in range(m.shape[0]):
+        x = list(score_matrix[i].values())
+        m[i] = x
+
+    # create Logo object
+    kinase_motif_df = pd.DataFrame(m).fillna(0)
+    kinase_motif_df.columns = aa_dic.keys()
+
+    return kinase_motif_df
 
 
 def sequence_logo(df, motif, file=None, rename_to_st=False):
@@ -65,8 +169,6 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
 
     """
 
-    # TODO: sequence_motif and name should be provided in 2 parameter
-
     def generate_sequence_logo(seq: list, outfile_path: str = None, sequence_motif: str = ""):
         """
         Draw a sequence logo plot for a sequence_motif.
@@ -86,33 +188,9 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
         -------
         None.
         """
-        aa_dic = dict(G=0, P=0, A=0, V=0, L=0, I=0, M=0, C=0, F=0, Y=0, W=0, H=0, K=0, R=0, Q=0, N=0, E=0, D=0, S=0,
-                      T=0)
 
-        seq = [i for i in seq if len(i) == 15]
-        seq_t = [''.join(s) for s in zip(*seq)]
-        score_matrix = []
-        for pos in seq_t:
-            d = aa_dic.copy()
-            for aa in pos:
-                aa = aa.upper()
-                if aa not in ['.', '-', '_', "X"]:
-                    d[aa] += 1
-            score_matrix.append(d)
+        kinase_motif_df = _generate_kinase_motif_df(seq)
 
-        for pos in score_matrix:
-            for k in pos.keys():
-                pos[k] /= len(seq)
-
-        # empty array -> (sequenceWindow, aa)
-        m = np.empty((15, 20))
-        for i in range(m.shape[0]):
-            x = list(score_matrix[i].values())
-            m[i] = x
-
-        # create Logo object
-        kinase_motif_df = pd.DataFrame(m).fillna(0)
-        kinase_motif_df.columns = aa_dic.keys()
         k_logo = logomaker.Logo(kinase_motif_df,
                                 font_name="Arial",
                                 color_scheme="dmslogo_funcgroup",
@@ -121,75 +199,19 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
 
         k_logo.highlight_position(p=7, color='purple', alpha=.5)
         plt.title(f"{sequence_motif} SequenceLogo")
-        k_logo.ax.set_xticklabels(labels=[-7, -7, -5, -3, -1, 1, 3, 5, 7])
+
+        # generate x labels corresponding to sequence indices
+        k_logo.ax.set_xticks([1, 3, 5, 7, 9, 11, 13, 15])
+        k_logo.ax.set_xticklabels(labels=[-7, -5, -3, -1, 1, 3, 5, 7])
         sns.despine()
         if outfile_path is not None:
             plt.savefig(outfile_path)
-
-    def find_motif(x: pd.DataFrame, sequence_motif: str, typ: str, rename_to_st=False):
-        """
-        Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
-
-        Parameters
-        ----------
-        x : pd.DataFrame
-            Dataframe containing the identified sequence windows.
-        sequence_motif : str
-            The kinase sequence_motif.
-        typ : str
-            The kinase sequence_motif.
-        rename_to_st : bool, optional
-            Look for S and T at the phosphorylation position.
-            The phoshorylated residue should be S or T, otherwise it is transformed
-            to S/T.
-            The default is False.
-
-        Raises
-        ------
-        ValueError
-            If not lowercase phospho residue is given.
-
-        Returns
-        -------
-        typ : str
-            The kinase sequence_motif.
-
-        """
-        import re
-        # identified sequence window
-        d = x["Sequence window"]
-        # In Sequence window the aa of interest is always at pos 15
-        # This loop will check if the sequence_motif we are interested in is
-        # centered with its phospho residue at pos 15 of the sequence window
-        pos1 = None
-        for j, i in enumerate(sequence_motif):
-            # the phospho residue in the sequence_motif is indicated by lowercase character
-            if i.islower():
-                # pos1 is position of the phospho site in the sequence_motif
-                pos1 = len(sequence_motif) - j
-        if pos1 is None:
-            raise ValueError("Phospho residue has to be lower case!")
-        if rename_to_st:
-            # insert the expression (S/T) on the position of the phospho site
-            exp = sequence_motif[:pos1 - 1] + "(S|T)" + sequence_motif[pos1:]
-        else:
-            # for finding pos2, the whole sequence_motif is uppercase
-            exp = sequence_motif.upper()
-
-        # pos2 is the last position of the matched sequence
-        # the MQ Sequence window is always 30 AAs long and centred on the modified
-        # amino acid. Hence, for a true hit, pos2-pos1 should be 15
-        if pos2 := re.search(exp.upper(), d):
-            pos2 = pos2.end()
-            pos = pos2 - pos1
-            if pos == 15:
-                return typ
 
     # init empty col corresponding to sequence sequence_motif
     df[motif[0]] = np.nan
     # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
     # window
-    df[motif[0]] = df.apply(lambda x: find_motif(x, motif[0], motif[0], rename_to_st), 1)
+    df[motif[0]] = df.apply(lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1)
 
     if file is not None:
         # consider only the +- 7 amino acids around the modified residue (x[8:23])
@@ -200,6 +222,70 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
         generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
                                sequence_motif="{} - {}".format(motif[0], motif[1]))
 
+
+def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
+    """
+    Plot interactive sequence logo
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataframe from which experimentally determined sequences are extracted.
+    motif : tuple of str
+        A tuple of the sequence_motif and its name.
+        The phospho site residue in the sequence_motif should be indicated by a
+        lowercase character.
+        Example ("..R.R..s.......", "MK_down").
+    rename_to_st : bool, optional
+        If true, the phospho residue will be considered to be
+        either S or T. The default is False.
+    ret_fig : bool, optional
+        Whether to return the figure object.
+
+    Returns
+    -------
+    plotly.figure: The interactive figure object
+    """
+
+    def interactive_sequence_logo(seq: list, sequence_motif: str = ""):
+        """
+        Draw a sequence logo plot for a sequence_motif.
+
+        Parameters
+        ----------
+        seq : list of str
+            List of experimentally determined sequences matching the sequence_motif.
+        sequence_motif : str, optional
+            The sequence_motif used to find the sequences.
+            The default is "".
+
+        Returns
+        -------
+        None.
+        """
+        kinase_motif_df = _generate_kinase_motif_df(seq)
+        interactive_logo = plogo.logo(kinase_motif_df, return_fig=True)
+        interactive_logo.update_layout(title=f"{sequence_motif} SequenceLogo",
+                                       margin=dict(t=50) # add margin to accommodate title
+                                       )
+
+        return interactive_logo
+
+    # init empty col corresponding to sequence sequence_motif
+    df[motif[0]] = np.nan
+    # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
+    # window
+    df[motif[0]] = df.apply(lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1)
+
+    fig = interactive_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+                                    sequence_motif="{} - {}".format(motif[0], motif[1]))
+
+    if ret_fig:
+        return fig
+    fig.show()
+
+
+# VISUALIZE PHOSPHO SITES
 
 def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10'):
     # noinspection PyUnresolvedReferences
