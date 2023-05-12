@@ -47,7 +47,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     The lower half of the correlogram shows a scatter plot comparing pairs of
     conditions while the upper part shows you the color coded correlation
     coefficients as well as the intersection of hits between both conditions.
-    In tiles corresponding to self-comparison (the same value on y and x axis)
+    In tiles corresponding to self-comparison (the same value on y and x-axis)
     a histogram of intensities is plotted.
 
     Parameters
@@ -1643,9 +1643,9 @@ def ivolcano(
 
 
 # Log Intensity Plots #
-def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=False,
+def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-                 figsize=(6, 6), ret_fig=False):
+                 figsize=(6, 6)):
     # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
@@ -1663,8 +1663,6 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
         The default is None.
     annot : str, optional
         Which column to use for plot annotation. The default is False.
-    interactive : bool, optional
-         The default is False.
     sig_col : str, optional
         Colour for significant points. The default is "green".
     bg_col : str, optional
@@ -1674,9 +1672,6 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
         The default is "Volcano Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    ret_fig : bool, optional
-        Whether or not to return the figure, can be used to further
-        customize it afterwards.. The default is False.
     Returns
     -------
     None.
@@ -1717,19 +1712,13 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
     selected and labelled.
 
     >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                   fct=2, annot=True, interactive=False, annot="Gene names")
+                   fct=2, annot=True,  annot="Gene names")
 
     .. plot::
         :context: close-figs
 
         vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                       fct=2, interactive=False, annot="Gene names")
-
-    And the plots can also be investigated interactively
-
-    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM",
-    ...                                   "log10_Intensity BC4_3", fct=0.7,
-    ...                                   figsize=(15,5), interactive=True)
+                       fct=2, annot="Gene names")
     """
     # TODO: Copy features from volcano function (highlight etc)
     # TODO also add option to not highlight anything
@@ -1742,109 +1731,119 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
     unsig = df[df["SigCat"] == "-"].index
     sig = df[df["SigCat"] == "*"].index
 
-    if not interactive:
-        # draw figure
-        plt.figure(figsize=figsize)
-        ax = plt.subplot()
-        plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
-                    label="background")
-        plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
+    # draw figure
+    plt.figure(figsize=figsize)
+    ax = plt.subplot()
+    plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
+                label="background")
+    plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
 
-        # draw threshold lines
-        if fct:
-            plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-            plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-        plt.axvline(0, 0, 1, ls="dashed", color="gray")
+    # draw threshold lines
+    if fct:
+        plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+        plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+    plt.axvline(0, 0, 1, ls="dashed", color="gray")
 
-        # remove of top and right plot boundary
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        # setting x and y labels and title
-        plt.ylabel("log Intensity")
-        plt.xlabel("log_fc")
-        plt.title(title, size=18)
+    # remove of top and right plot boundary
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    # setting x and y labels and title
+    plt.ylabel("log Intensity")
+    plt.xlabel("log_fc")
+    plt.title(title, size=18)
 
-        # add legend
-        plt.legend()
+    # add legend
+    plt.legend()
 
-        if annot:
-            # Annotation
-            # get x and y coordinates as well as strings to plot
-            xs = df[log_fc].loc[sig]
-            ys = df[log_intens_col].loc[sig]
-            ss = df[annot].loc[sig]
+    if annot:
+        # Annotation
+        # get x and y coordinates as well as strings to plot
+        xs = df[log_fc].loc[sig]
+        ys = df[log_intens_col].loc[sig]
+        ss = df[annot].loc[sig]
 
-            # annotation
-            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
-                if idx % 2 == 0:
-                    if x < 0:
-                        plt.plot([x, x - .2], [y, y - .2], color="gray")
-                        plt.text(x - .3, y - .25, s)
-                    else:
-                        plt.plot([x, x + .2], [y, y - .2], color="gray")
-                        plt.text(x + .2, y - .2, s)
-
-                elif x < 0:
-                    plt.plot([x, x - .2], [y, y + .2], color="gray")
-                    plt.text(x - .3, y + .25, s)
+        # annotation
+        for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
+            if idx % 2 == 0:
+                if x < 0:
+                    plt.plot([x, x - .2], [y, y - .2], color="gray")
+                    plt.text(x - .3, y - .25, s)
                 else:
-                    plt.plot([x, x + .2], [y, y + .2], color="gray")
-                    plt.text(x + .2, y + .2, s)
-    if interactive:
-        if annot:
-            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col, hover_name=annot,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
-        else:
-            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
+                    plt.plot([x, x + .2], [y, y - .2], color="gray")
+                    plt.text(x + .2, y - .2, s)
 
-        fig.update_yaxes(showgrid=False, zeroline=True)
-        fig.update_xaxes(showgrid=False, zeroline=False)
+            elif x < 0:
+                plt.plot([x, x - .2], [y, y + .2], color="gray")
+                plt.text(x - .3, y + .25, s)
+            else:
+                plt.plot([x, x + .2], [y, y + .2], color="gray")
+                plt.text(x + .2, y + .2, s)
 
-        fig.add_trace(
-            go.Scatter(
-                x=[0, 0],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="purple", dash="longdash"),
-                showlegend=False)
-        )
 
-        fig.add_trace(
-            go.Scatter(
-                x=[-fct, -fct],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
-        )
+def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
+    # noinspection PyUnresolvedReferences
+    # TODO: Copy features from volcano function (highlight etc)
+    # TODO also add option to not highlight anything
+    df = df.copy(deep=True)
 
-        fig.add_trace(
-            go.Scatter(
-                x=[fct, fct],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
-        )
+    df = df[~df[log_intens_col].isin([-np.inf, np.nan])]
+    df["SigCat"] = "-"
+    if fct is not None:
+        df.loc[abs(df[log_fc]) > fct, "SigCat"] = "*"
 
-        fig.update_layout({
-            'plot_bgcolor': 'rgba(70,70,70,1)',
-            'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-        })
+    if annot:
+        fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col, hover_name=annot,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
+    else:
+        fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
 
-        if ret_fig:
-            return fig
-        else:
-            fig.show()
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    fig.add_trace(
+        go.Scatter(
+            x=[0, 0],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="purple", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[-fct, -fct],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="teal", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[fct, fct],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="teal", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.update_layout({
+        'plot_bgcolor': 'rgba(70,70,70,1)',
+        'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
+    })
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
 
 
 # MA Plots #
-def ma_plot(df, x, y, interactive=False, fct=None,
-            title="MA Plot", figsize=(6, 6), annot=None):
-    # sourcery skip: assign-if-exp, extract-method
+def ma_plot(df, x, y, fct=None,
+            title="MA Plot", figsize=(6, 6)):
     # noinspection PyUnresolvedReferences
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
@@ -1864,9 +1863,6 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         Colname containing intensities of experiment1.
     y : str
         Colname containing intensities of experiment2.
-    interactive : bool, optional
-        Whether to return an interactive plotly plot.
-        The default is False.
     fct : numeric, optional
         The value in M to draw a horizontal line.
         The default is None.
@@ -1874,9 +1870,6 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         Title of the figure. The default is "MA Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    annot : str, optional
-        Colname to use for labels in interactive plot.
-        The default is None.
 
     Returns
     -------
@@ -1890,7 +1883,7 @@ def ma_plot(df, x, y, interactive=False, fct=None,
     The majority of intensities should be unchanged between conditions and
     therefore most points should lie on the y=0 line.
 
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
     .. plot::
         :context: close-figs
@@ -1908,12 +1901,12 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         x = "log10_Intensity BC4_3"
         y = "log10_Intensity BC36_1"
 
-        vis.ma_plot(prot, x, y, fct=2,interactive=False)
+        vis.ma_plot(prot, x, y, fct=2)
         plt.show()
 
     If this is not the case, a normalisation using e.g. LOESS should be applied
 
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
     .. plot::
         :context: close-figs
@@ -1921,7 +1914,7 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         twitch = "log10_Intensity H BC18_1"
         ctrl = "log10_Intensity L BC18_1"
 
-        vis.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+        vis.ma_plot(prot, twitch, ctrl, fct=2)
         plt.show()
     """
     df = df.copy(deep=True)
@@ -1932,56 +1925,99 @@ def ma_plot(df, x, y, interactive=False, fct=None,
     df["SigCat"] = False
     if fct is not None:
         df.loc[abs(df["M"]) > fct, "SigCat"] = True
-    if not interactive:
-        # draw figure
-        plt.figure(figsize=figsize)
-        sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
-        plt.axhline(0, 0, 1, color="black", ls="dashed")
-        plt.title(title)
-        plt.ylabel("M")
-        plt.xlabel("A")
 
-        if fct is not None:
-            plt.axhline(fct, 0, 1, color="gray", ls="dashed")
-            plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
+    # draw figure
+    plt.figure(figsize=figsize)
+    sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
+    plt.axhline(0, 0, 1, color="black", ls="dashed")
+    plt.title(title)
+    plt.ylabel("M")
+    plt.xlabel("A")
 
+    if fct is not None:
+        plt.axhline(fct, 0, 1, color="gray", ls="dashed")
+        plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
+
+
+def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
+    # sourcery skip: assign-if-exp, extract-method
+    # noinspection PyUnresolvedReferences
+    r"""
+    Plot log intensity ratios (M) vs. the average intensity (A).
+
+    Notes
+    -----
+    The MA plot is useful to determine whether a data normalization is needed.
+    The majority of proteins is considered to be unchanged between between
+    treatments and thereofore should lie on the y=0 line.
+    If this is not the case, a normalisation should be applied.
+
+    Parameters
+    ----------
+    df : pd.dataFrame
+        Input dataframe with log intensities.
+    x : str
+        Column name containing intensities of experiment1.
+    y : str
+        Column name containing intensities of experiment2.
+    fct : numeric, optional
+        The value in M to draw a horizontal line.
+        The default is None.
+    title : str, optional
+        Title of the figure. The default is "MA Plot".
+    annot : str, optional
+        Column name to use for labels in interactive plot.
+        The default is None.
+
+    Returns
+    -------
+    None.
+    """
+    df = df.copy(deep=True)
+    df["M"] = df[x] - df[y]
+    df["A"] = 1 / 2 * (df[x] + df[y])
+    df["M"].replace(-np.inf, np.nan, inplace=True)
+    df["A"].replace(-np.inf, np.nan, inplace=True)
+    df["SigCat"] = False
+    if fct is not None:
+        df.loc[abs(df["M"]) > fct, "SigCat"] = True
+
+    if annot:
+        fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
     else:
-        if annot:
-            fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
-        else:
-            fig = px.scatter(data_frame=df, x='A', y='M',
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
+        fig = px.scatter(data_frame=df, x='A', y='M',
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
 
-        fig.update_yaxes(showgrid=False, zeroline=True)
-        fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
 
-        if fct is not None:
-            fig.add_trace(
-                go.Scatter(
-                    y=[fct, fct],
-                    x=[df['A'].min(), df['A'].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
+    if fct is not None:
+        fig.add_trace(
+            go.Scatter(
+                y=[fct, fct],
+                x=[df['A'].min(), df['A'].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False)
+        )
 
-            fig.add_trace(
-                go.Scatter(
-                    y=[-fct, -fct],
-                    x=[df['A'].min(), df['A'].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
+        fig.add_trace(
+            go.Scatter(
+                y=[-fct, -fct],
+                x=[df['A'].min(), df['A'].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False)
+        )
 
-        fig.update_layout({
-            'plot_bgcolor': 'rgba(70,70,70,1)',
-            'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-        })
-        fig.show()
+    fig.update_layout({
+        'plot_bgcolor': 'rgba(70,70,70,1)',
+        'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
+    })
+    fig.show()
 
 
 # Mean SD plot #
