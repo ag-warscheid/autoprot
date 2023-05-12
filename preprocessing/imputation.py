@@ -9,23 +9,13 @@ Autoprot Preprocessing Functions.
 
 import numpy as np
 import pandas as pd
-from importlib import resources
-import re
 import os
-from subprocess import run, PIPE, STDOUT, CalledProcessError
+from subprocess import run, PIPE, STDOUT
+# noinspection PyUnresolvedReferences
 from autoprot.decorators import report
+# noinspection PyUnresolvedReferences
 from autoprot import r_helper
-import requests
-from Bio import pairwise2
-from Bio.pairwise2 import format_alignment
-from scipy.stats import pearsonr, spearmanr
-from scipy import stats
-from sklearn.metrics import auc
-from urllib import parse
-from ftplib import FTP
-import warnings
-from typing import Union
-
+# noinspection PyUnresolvedReferences
 import autoprot.preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
@@ -194,6 +184,7 @@ def imp_seq(df, cols, print_r=True):
 
 def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
          npat=20, performance_metric='RMSE', print_r=True):
+    # noinspection PyUnresolvedReferences
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
 

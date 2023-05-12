@@ -6,25 +6,19 @@ Autoprot Preprocessing Functions.
 
 @documentation: Julian
 """
+import os
+import re
+from importlib import resources
+from typing import Union, Tuple
 
 import numpy as np
 import pandas as pd
-from importlib import resources
-import re
-import os
-from subprocess import run, PIPE, STDOUT, CalledProcessError
-from autoprot.decorators import report
-from autoprot import r_helper
 import requests
-from Bio import pairwise2
-from Bio.pairwise2 import format_alignment
-from scipy.stats import pearsonr, spearmanr
-from scipy import stats
-from sklearn.metrics import auc
-from urllib import parse
-from ftplib import FTP
-import warnings
-from typing import Union
+from Bio import Align
+# noinspection PyUnresolvedReferences
+from autoprot import r_helper
+# noinspection PyUnresolvedReferences
+from autoprot.decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -39,6 +33,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 @report
 def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bool = True) \
         -> Union[pd.DataFrame, pd.Series]:
+    # noinspection PyUnresolvedReferences
     """
     Filter a list of experimentally determined gene names by GO annotation.
 
@@ -197,10 +192,10 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
             return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-                   df_to_merge["MOD_RSD"].fillna("").apply(
-                       lambda x: x.split('-')[0])
+                df_to_merge["MOD_RSD"].fillna("").apply(
+                    lambda x: x.split('-')[0])
         return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-               df_to_merge["SUB_MOD_RSD"].fillna("")
+            df_to_merge["SUB_MOD_RSD"].fillna("")
 
     with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
         ks = pd.read_csv(d, sep='\t', compression='zip')
@@ -221,7 +216,9 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
 
     return df
 
-def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
+
+def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, print_alignment=False):
+    # noinspection PyUnresolvedReferences
     """
     Convert phosphosites to "canonical" phosphosites.
 
@@ -238,6 +235,10 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
         'marmoset', 'turkey', 'cat', 'starfish', 'torpedo', 'SARSCoV1',
         'green monkey', 'ferret'. The default is "human".
     get_seq : "local" or "online"
+    uniprot : str, optional
+        Path to a gzipped uniprot.tsv file. Required if get_seq is 'local'
+    print_alignment: bool, optional
+        If True, alignments from which the new phosphosite information is derived are printed.
 
     Notes
     -----
@@ -257,23 +258,17 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
 
     >>> series=pd.Series(['PEX14', "VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE"], index=['Gene names', 'Sequence window'])
     >>> autoprot.preprocessing.to_canonical_ps(series, organism='human')
-    ('O75381', 282)
+    ['O75381', '282', '31.0']
     >>> series=pd.Series(['PEX14', "_____TSSSPGKEGHSPEGSTVTYHLLGP__"], index=['Gene names', 'Sequence window'])
     >>> autoprot.preprocessing.to_canonical_ps(series, organism='human')
-    ('O75381', 282)
+    ['O75381', '282', '31.0']
     """
 
-    # open the phosphosite plus phosphorylation dataset
+    # open the phospho site plus phosphorylation dataset
     with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
         ps = pd.read_csv(d, sep='\t', compression='zip')
 
-    if uniprot is None:
-        # open the uniprot datatable if not provided
-        with resources.open_binary('autoprot.data',
-                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cgene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
-            uniprot = pd.read_csv(e, sep='\t', compression='gzip')
-
-    def get_uniprot_accession(gene, organism):
+    def get_uniprot_accession(gene: str, organism: str) -> Union[str, None]:
         """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
          organism. """
         gene = gene.upper()
@@ -286,7 +281,7 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
             return uniprot_acc
 
         except:
-            return False
+            return None
 
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
@@ -295,8 +290,13 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
         seq = "".join(response.text.split('\n')[1:])
         return seq
 
-    def get_uniprot_sequence_locally(uniprot_acc, organism):
+    def get_uniprot_sequence_locally(uniprot_acc: str, organism: str, uniprot: str) -> str:
         """Get sequence from a locally stored uniprot file by UniProt ID."""
+
+        if (uniprot is None) or (not os.path.isfile(uniprot)):
+            raise ValueError('Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz).')
+        else:
+            uniprot = pd.read_csv(uniprot, sep='\t', compression='gzip')
 
         if organism == "mouse":
             uniprot_organism = "Mus musculus (Mouse)"
@@ -311,25 +311,25 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
             seq = False
         return seq
 
-    def get_canonical_psite(seq, ps_seq, aa_to_ps):
-        """Align an experimental phosphosite sequence window to the corresponding UniProt sequence."""
-        alignment = pairwise2.align.localms(sequenceA=seq, sequenceB=ps_seq, match=2, mismatch=-2, open=-1, extend=-1)
+    def get_canonical_psite(seq: str, ps_seq: str, aa_to_ps: int) -> Tuple[int, float]:
+        """Align an experimental phospho site sequence window to the corresponding UniProt sequence."""
+        aligner = Align.PairwiseAligner()
+        aligner.mode = 'local'  # generate local alignments
+        aligner.open_gap_score = -1
+        aligner.extend_gap_score = -1
+        alignment = aligner.align(seq, ps_seq)
 
-        form_align = format_alignment(*alignment[0])
-        start = int(form_align.lstrip(' ').split(' ')[0])
-        missmatched_aa = form_align.split('\n')[0].split(' ')[1].count("-")
+        t_aligned, q_aligned = alignment[0].aligned
+        score = alignment[0].score
 
-        try:
-            offset = int(form_align.split('\n')[2].lstrip(' ').split(' ')[0]) - 1
-        except:
-            offset = 0
-
-        canonical_psite = start + (aa_to_ps - missmatched_aa - offset)
-
-        # debugging
-        seq_window_alignment = form_align.split('\n')
-        score = form_align.split('\n')[3].split(' ')[2]
-        score = int(score[6:])
+        canonical_psite = None
+        for idx, (start, end) in enumerate(q_aligned):
+            if start <= aa_to_ps < end:  # is the query phospho site in the aligned subsequences
+                # start of the target subsequence + absolute position of the phospho site - absolute position of the
+                # subsequence
+                canonical_psite = t_aligned[idx][0] + aa_to_ps - start + 1
+                if print_alignment:
+                    print(alignment[0].format())
 
         return canonical_psite, score
 
@@ -349,7 +349,7 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
 
     for idx, g in enumerate(gene_list):
         uniprot_acc_ex = get_uniprot_accession(g, organism)
-        if not uniprot_acc_ex:
+        if uniprot_acc_ex is None:
             continue
         uniprot_acc_extr.append(uniprot_acc_ex)
         ps_seq_extr.append(ps_seq_list[idx])
@@ -360,13 +360,14 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     canonical_ps_list = []
     score_list = []
     for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
+        seq = False
 
         if get_seq == "local":
-            seq = get_uniprot_sequence_locally(uniprot_acc, organism)
+            seq = get_uniprot_sequence_locally(uniprot_acc, organism, uniprot)
         if get_seq == "online":
             seq = get_uniprot_sequence(uniprot_acc)
 
-        if seq == False:
+        if not seq:
             canonical_ps_list.append("no match")
         else:
             aa_to_ps = len(ps_seq[0:15].lstrip('_'))
@@ -378,8 +379,8 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None):
     return [(";".join(uniprot_acc_extr)), (";".join(canonical_ps_list)), (";".join(score_list))]
 
 
-
 def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
+    # noinspection PyUnresolvedReferences
     """
     Annotate the df with subcellular localization.
 

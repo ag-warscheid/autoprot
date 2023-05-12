@@ -1759,7 +1759,7 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
         # remove of top and right plot boundary
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        # seting x and y labels and title
+        # setting x and y labels and title
         plt.ylabel("log Intensity")
         plt.xlabel("log_fc")
         plt.title(title, size=18)

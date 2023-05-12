@@ -9,23 +9,11 @@ Autoprot Preprocessing Functions.
 
 import numpy as np
 import pandas as pd
-from importlib import resources
-import re
 import os
-from subprocess import run, PIPE, STDOUT, CalledProcessError
-from autoprot.decorators import report
+from subprocess import run, PIPE, CalledProcessError
+# noinspection PyUnresolvedReferences
 from autoprot import r_helper
-import requests
-from Bio import pairwise2
-from Bio.pairwise2 import format_alignment
-from scipy.stats import pearsonr, spearmanr
-from scipy import stats
-from sklearn.metrics import auc
-from urllib import parse
-from ftplib import FTP
-import warnings
-from typing import Union
-
+# noinspection PyUnresolvedReferences
 import autoprot.preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
@@ -39,6 +27,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 
 def quantile_norm(df, cols, return_cols=False, backend="r"):
+    # noinspection PyUnresolvedReferences
     r""" 
     Perform quantile normalization.
 
@@ -165,6 +154,7 @@ def quantile_norm(df, cols, return_cols=False, backend="r"):
 
 
 def vsn(df, cols, return_cols=False, backend='r'):
+    # noinspection PyUnresolvedReferences
     r"""
     Perform Variance Stabilizing Normalization.
     VSN acts on raw intensities and returns the transformed intensities.
@@ -279,6 +269,7 @@ def vsn(df, cols, return_cols=False, backend='r'):
 
 
 def cyclic_loess(df, cols, return_cols=False, backend='r'):
+    # noinspection PyUnresolvedReferences
     r"""
     Perform cyclic Loess normalization.
 
