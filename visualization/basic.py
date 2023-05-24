@@ -164,6 +164,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         }
         return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
+    # noinspection PyShadowingNames
     def corrfunc(x, y):
         """Calculate correlation coefficient and add text to axis."""
         df = pd.DataFrame({"x": x, "y": y})
@@ -175,6 +176,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
 
+    # noinspection PyShadowingNames
     def heatmap(x, y):
         """Calculate correlation coefficient and add coloured tile to axis."""
         df = pd.DataFrame({"x": x, "y": y})
@@ -190,6 +192,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
 
+    # noinspection PyShadowingNames
     def lower_scatter(x, y):
         """Plot data points as scatter plot to axis."""
         data = pd.DataFrame({"x": x, "y": y})
@@ -198,11 +201,13 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax = plt.gca()
         ax.scatter(data['x'], data['y'], linewidth=0)
 
+    # noinspection PyShadowingNames
     def lower_hex_bin(x, y):
         """Plot data points as hexBin plot to axis."""
         plt.hexbin(x, y, cmap="Blues", bins=bins,
                    gridsize=50)
 
+    # noinspection PyShadowingNames
     def lower_hist_2D(x, y):
         """Plot data points as hist2d plot to axis."""
         df = pd.DataFrame({"x": x, "y": y})
@@ -211,6 +216,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         y = df["y"].values
         plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1)
 
+    # noinspection PyShadowingNames
     def proteins_found(x, y):
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
@@ -696,6 +702,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
 
 def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
     # noinspection PyUnresolvedReferences
+    # noinspection PyShadowingNames
     r"""
     Draw vennDiagrams.
 
@@ -915,6 +922,64 @@ def _prep_volcano_data(
     return df, score_colname, unsig, sig_fc, sig_p, sig_both
 
 
+def _set_default_kwargs(keyword_dict: dict, default_dict: dict):
+    """
+    Compares a default parameter dict with the user-provided and updates the latter if necessary.
+
+    Parameters
+    ----------
+    keyword_dict: dict
+        user-supplied kwargs dict
+    default_dict: dict
+        Standard settings that should be applied if not specified differently by the user.
+    """
+    if keyword_dict is None:
+        return default_dict
+    for k, v in default_dict.items():
+        if k not in keyword_dict.keys():
+            keyword_dict[k] = v
+
+    return keyword_dict
+
+
+# noinspection PyShadowingNames
+def _limit_density(xs, ys, ss, threshold):
+    """
+    Reduce the points for annotation through a point density threshold.
+
+    Parameters
+    ----------
+    xs: numpy.ndarray
+        x values
+    ys: numpy.ndarray
+        y values
+    ss: numpy.ndarray
+        labels
+    threshold: float
+        Probability threshold. Only points with 1/density above the value will be retained.
+    """
+    # if there is only one datapoint kernel density estimation with fail
+    if len(xs) < 3:
+        return xs, ys, ss
+    if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
+        nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
+        xs = xs[~nan_idx]
+        ys = ys[~nan_idx]
+        ss = ss[~nan_idx]
+    # Make some random Gaussian data
+    data = np.array(list(zip(xs, ys)))
+    # Compute KDE
+    kde = gaussian_kde(data.T)
+    # Choice probabilities are computed from inverse probability density in KDE
+    p = 1 / kde.pdf(data.T)
+    # Normalize choice probabilities
+    p /= np.sum(p)
+    # Make subsample using choice probabilities
+    idx = np.asarray(p > threshold).nonzero()
+
+    return xs[idx], ys[idx], ss[idx]
+
+
 def volcano(
         df: pd.DataFrame,
         log_fc_colname: str,
@@ -943,6 +1008,8 @@ def volcano(
         annotate_density: int = 100,
 ):
     # noinspection PyUnresolvedReferences
+    # noinspection PyShadowingNames
+    # noinspection PyPep8
     """
     Return static volcano plot.
 
@@ -1087,7 +1154,7 @@ def volcano(
 
         fig.show()
 
-    All points in the plot can be customised by supplying kwargs to the volcano function. These can be any arguments
+    All points in the plot can be customized by supplying kwargs to the volcano function. These can be any arguments
     accepted by matplotlib.pyplot.scatter.
 
     >>> non_sig_kwargs = dict(color="black", marker="x")
@@ -1195,7 +1262,8 @@ def volcano(
         fig.show()
 
     Custom points can also be highlighted by providing a pandas Index object of the corresponding rows as input to
-    the highlight kwarg. Note that the annotate kwarg must be updated if you want to also label your highlighted points.
+    the highlight kwarg. Note that the annotated kwarg must be updated if you want to also label your highlighted
+    points.
 
     >>> to_highlight = prot_limma[prot_limma['iBAQ'] > 10e8].index
     >>>
@@ -1240,61 +1308,6 @@ def volcano(
         ax = plt.subplot()  # for a bare minimum plot you do not need this line
     else:
         fig = ax.get_figure()
-
-    def _set_default_kwargs(keyword_dict: dict, default_dict: dict):
-        """
-        Compares a default parameter dict with the user-provided and updates the latter if necessary.
-
-        Parameters
-        ----------
-        keyword_dict: dict
-            user-supplied kwargs dict
-        default_dict: dict
-            Standard settings that should be applied if not specified differently by the user.
-        """
-        if keyword_dict is None:
-            return default_dict
-        for k, v in default_dict.items():
-            if k not in keyword_dict.keys():
-                keyword_dict[k] = v
-
-        return keyword_dict
-
-    def _limit_density(xs, ys, ss, threshold):
-        """
-        Reduce the points for annotation through a point density threshold.
-
-        Parameters
-        ----------
-        xs: numpy.ndarray
-            x values
-        ys: numpy.ndarray
-            y values
-        ss: numpy.ndarray
-            labels
-        threshold: float
-            Probability threshold. Only points with 1/density above the value will be retained.
-        """
-        # if there is only one datapoint kernel density estimation with fail
-        if len(xs) < 3:
-            return xs, ys, ss
-        if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
-            nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
-            xs = xs[~nan_idx]
-            ys = ys[~nan_idx]
-            ss = ss[~nan_idx]
-        # Make some random Gaussian data
-        data = np.array(list(zip(xs, ys)))
-        # Compute KDE
-        kde = gaussian_kde(data.T)
-        # Choice probabilities are computed from inverse probability density in KDE
-        p = 1 / kde.pdf(data.T)
-        # Normalize choice probabilities
-        p /= np.sum(p)
-        # Make subsample using choice probabilities
-        idx = np.asarray(p > threshold).nonzero()
-
-        return xs[idx], ys[idx], ss[idx]
 
     # PLOTTING
     if pointsize_colname is not None:
@@ -1532,7 +1545,7 @@ def ivolcano(
         Whether to plot a legend. The default is True.
     ret_fig : bool, optional
         Whether to return the figure, can be used to further
-        customize it afterwards. The default is False.
+        customize it afterward. The default is False.
 
     Returns
     -------
@@ -1640,6 +1653,247 @@ def ivolcano(
         return fig
     else:
         fig.show()
+
+
+# RATIO-RATIO PLOTS #
+# Preparing the dataset
+def _prep_ratio_data(
+        df, col_name1, col_name2, ratio_thresh):
+    # Work with a copy of the dataframe
+    df = df.copy()
+
+    if col_name1 is None or col_name2 is None:
+        raise ValueError("You have to provide column names for both ratios.")
+
+    # two groups of points are present in a ratio-ratio plot:
+    # (1) non-significant
+    df["SigCat"] = "NS"
+    # (2) significant by score
+    df.loc[(df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh), "SigCat"] = "ratio_thresh"
+    df.loc[(df[col_name1] < ratio_thresh * -1) & (df[col_name2] < ratio_thresh * -1), "SigCat"] = "ratio_thresh"
+
+    unsig = df[df["SigCat"] == "NS"].index
+    sig_ratio = df[df["SigCat"] == "ratio_thresh"].index
+
+    return df, col_name1, col_name2, unsig, sig_ratio
+
+
+def ratio_plot(
+        df: pd.DataFrame,
+        col_name1: str,
+        col_name2: str = None,
+        ratio_thresh: float = None,
+        xlabel: str = "Ratio col1",
+        ylabel: str = "Ratio col2",
+        pointsize_colname: str or float = None,
+        pointsize_scaler: float = 1,
+        highlight: pd.Index = None,
+        title: str = None,
+        show_legend: bool = True,
+        show_caption: bool = True,
+        show_thresh: bool = True,
+        ax: plt.axis = None,
+        ret_fig: bool = True,
+        figsize: tuple = (8, 8),
+        annotate: Union[Literal["highlight", "ratio_thresh"], None, pd.Index] = "ratio_thresh",
+        annotate_colname: str = "Gene names",
+        kwargs_ns: dict = None,
+        kwargs_r_sig: dict = None,
+        kwargs_highlight: dict = None,
+        annotate_density: int = 100):
+    """
+    Plot a ratio vs. ratio plot based on a pandas dataframe.
+
+    Parameters
+    ----------
+    df: pd.Dataframe
+    col_name1: str
+    col_name2: str, optional
+    ratio_thresh: float, optional
+    xlabel: str, optional
+    ylabel: str, optional
+    pointsize_colname: str or float, optional
+    pointsize_scaler: float, optional
+    highlight: pd.Index, optional
+    title: str, optional
+    show_legend: bool, optional
+    show_caption: bool, optional
+    show_thresh: bool, optional
+    ax: plt.axis, optional
+    ret_fig: bool, optional
+    figsize: tuple of int, optional
+    annotate: "highlight" or "ratio_thresh" or None or pd.Index, optional
+    annotate_colname: str, optional
+    kwargs_ns: dict, optional
+    kwargs_r_sig: dict, optional
+    kwargs_highlight: dict, optional
+    annotate_density: int, optional
+
+    Returns
+    -------
+    plotly.figure
+        The figure object.
+    """
+    # check for input correctness and make sure score is present in df for plot
+
+    df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
+
+    # draw figure
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = plt.subplot()  # for a bare minimum plot you do not need this line
+    else:
+        fig = ax.get_figure()
+
+    # PLOTTING
+    if pointsize_colname is not None:
+        if not is_numeric_dtype(df[pointsize_colname]):
+            raise ValueError(
+                "The column provided for point sizing should only contain numeric values"
+            )
+        # normalize the point sizes
+        df["s"] = (
+                pointsize_scaler
+                * 100
+                * (df[pointsize_colname] - df[pointsize_colname].min())
+                / df[pointsize_colname].max()
+        )
+
+    # Non-Significant
+    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    ax.scatter(
+        df.loc[df["SigCat"] == "NS", col_name1],
+        df.loc[df["SigCat"] == "NS", col_name2],
+        s=df.loc[df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
+        label="NS",
+        **kwargs_ns,
+    )
+
+    # Significant by ratio_thresh
+    kwargs_r_sig = _set_default_kwargs(
+        kwargs_r_sig,
+        dict(
+            color="#FF886D",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "ratio_thresh", "s"]
+            if pointsize_colname is not None
+            else None,
+            label="Significant based on ratio threshold",
+        ),
+    )
+    ax.scatter(
+        df.loc[df["SigCat"] == "ratio_thresh", col_name1],
+        df.loc[df["SigCat"] == "ratio_thresh", col_name2],
+        **kwargs_r_sig,
+    )
+
+    if highlight is not None:
+        if not isinstance(highlight, pd.Index):
+            raise ValueError("You must provide a pd.Index object for highlighting")
+        kwargs_highlight = _set_default_kwargs(
+            kwargs_highlight,
+            dict(
+                color="blue",
+                alpha=0.8,
+                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+            ),
+        )
+        ax.scatter(
+            df.loc[highlight, col_name1],
+            df.loc[highlight, col_name2],
+            **kwargs_highlight,
+        )
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    # ANNOTATION AND LABELING
+    to_label = pd.Index([])
+    if annotate is not None:
+        if isinstance(annotate, str):
+            if annotate == "highlight":
+                if highlight is None:
+                    raise ValueError(
+                        'You must provide input to the "highlight" kwarg before you can'
+                        " label the highlighted points"
+                    )
+                to_label = highlight
+            elif "ratio_thresh" in annotate:
+                to_label = df[df["SigCat"] == annotate].index
+        elif isinstance(annotate, pd.Index):
+            to_label = annotate
+        else:
+            raise ValueError(
+                'Annotate must be "highlight", "ratio_thresh" "None" or pd.Index'
+            )
+
+        xs = df[col_name1].loc[to_label].to_numpy()
+        ys = df[col_name2].loc[to_label].to_numpy()
+        ss = df[annotate_colname].loc[to_label].to_numpy()
+        # reduce the number of points annotated in dense areas of the plot
+        xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
+
+        texts = [
+            ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
+        ]
+        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+
+    # STYLING
+    if show_legend:
+        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
+                           bbox_transform=ax.transAxes)
+
+        # this fixes the legend points having the same size as the points in the scatter plot
+        for handle in legend.legendHandles:
+            handle._sizes = [30]
+        ax.add_artist(legend)
+
+        # shrink the plot so that the legend does not cover any points
+        lim = ax.get_ylim()
+        ax.set_ylim(lim[0], 1.25 * lim[1])
+
+        if pointsize_colname is not None:
+
+            mlabels = np.linspace(
+                start=df[pointsize_colname].max() / 5,
+                stop=df[pointsize_colname].max(),
+                num=4,
+            )
+
+            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
+
+            markers = []
+            for label, size in zip(mlabels, msizes):
+                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
+
+            legend2 = ax.legend(handles=markers, loc="lower left")
+            ax.add_artist(legend2)
+
+    if show_caption:
+        plt.figtext(
+            1,  # x position
+            -0.1,  # y position
+            f"total = {len(df)} entries",  # text
+            transform=plt.gca().transAxes,
+            wrap=True,
+            horizontalalignment="right"
+        )
+
+    if title is not None:
+        if show_legend:
+            ax.set_title(title, y=1.1, loc='left')
+        else:
+            ax.set_title(title, loc='left')
+
+    if show_thresh:
+        ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+        ax.axvline(x=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+        ax.axhline(y=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+        ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+        ax.axhline(y=0, color="black", linestyle="-")
+        ax.axvline(x=0, color="black", linestyle="-")
+    if ret_fig:
+        return fig
 
 
 # Log Intensity Plots #
