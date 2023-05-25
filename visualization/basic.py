@@ -27,6 +27,8 @@ from itertools import combinations
 from autoprot.dependencies.venn import venn
 # noinspection PyUnresolvedReferences
 from autoprot import visualization as vis
+# noinspection PyUnresolvedReferences
+from autoprot import common as com
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -164,14 +166,18 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         }
         return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
-    # noinspection PyShadowingNames
-    def corrfunc(x, y):
-        """Calculate correlation coefficient and add text to axis."""
+    def calculate_correlation(x, y):
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
         y = df["y"].values
         r, _ = stats.pearsonr(x, y)
+        return r
+
+    # noinspection PyShadowingNames
+    def corrfunc(x, y):
+        """Calculate correlation coefficient and add text to axis."""
+        r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
@@ -218,11 +224,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
     # noinspection PyShadowingNames
     def proteins_found(x, y):
-        df = pd.DataFrame({"x": x, "y": y})
-        df = df.dropna()
-        x = df["x"].values
-        y = df["y"].values
-        r, _ = stats.pearsonr(x, y)
+        r = calculate_correlation(x, y)
         ax = plt.gca()
         if file == "Phospho (STY)":
             ax.annotate(f"{len(y)} peptides identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
@@ -870,6 +872,131 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
             return fig
 
 
+# COMMON FOR ALL SCATTER PLOTS
+def _limit_density(xs, ys, ss, threshold):
+    """
+    Reduce the points for annotation through a point density threshold.
+
+    Parameters
+    ----------
+    xs: numpy.ndarray
+        x values
+    ys: numpy.ndarray
+        y values
+    ss: numpy.ndarray
+        labels
+    threshold: float
+        Probability threshold. Only points with 1/density above the value will be retained.
+    """
+    # if there is only one datapoint kernel density estimation with fail
+    if len(xs) < 3:
+        return xs, ys, ss
+    if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
+        nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
+        xs = xs[~nan_idx]
+        ys = ys[~nan_idx]
+        ss = ss[~nan_idx]
+    # Make some random Gaussian data
+    data = np.array(list(zip(xs, ys)))
+    # Compute KDE
+    kde = gaussian_kde(data.T)
+    # Choice probabilities are computed from inverse probability density in KDE
+    p = 1 / kde.pdf(data.T)
+    # Normalize choice probabilities
+    p /= np.sum(p)
+    # Make subsample using choice probabilities
+    idx = np.asarray(p > threshold).nonzero()
+
+    return xs[idx], ys[idx], ss[idx]
+
+
+def _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler):
+    # draw figure
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = plt.subplot()  # for a bare minimum plot you do not need this line
+    else:
+        fig = ax.get_figure()
+
+    # PLOTTING
+    if pointsize_colname is not None:
+        if not is_numeric_dtype(df[pointsize_colname]):
+            raise ValueError(
+                "The column provided for point sizing should only contain numeric values"
+            )
+        # normalize the point sizes
+        df["s"] = (
+                pointsize_scaler
+                * 100
+                * (df[pointsize_colname] - df[pointsize_colname].min())
+                / df[pointsize_colname].max()
+        )
+
+    return fig, ax, df
+
+
+def _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler):
+    if show_legend:
+        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
+                           bbox_transform=ax.transAxes)
+
+        # this fixes the legend points having the same size as the points in the scatter plot
+        for handle in legend.legendHandles:
+            handle._sizes = [30]
+        ax.add_artist(legend)
+
+        # shrink the plot so that the legend does not cover any points
+        lim = ax.get_ylim()
+        ax.set_ylim(lim[0], 1.25 * lim[1])
+
+        if pointsize_colname is not None:
+
+            mlabels = np.linspace(
+                start=df[pointsize_colname].max() / 5,
+                stop=df[pointsize_colname].max(),
+                num=4,
+            )
+
+            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
+
+            markers = []
+            for label, size in zip(mlabels, msizes):
+                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
+
+            legend2 = ax.legend(handles=markers, loc="lower left")
+            ax.add_artist(legend2)
+
+    if show_caption:
+        plt.figtext(
+            1,  # x position
+            -0.1,  # y position
+            f"total = {len(df)} entries",  # text
+            transform=plt.gca().transAxes,
+            wrap=True,
+            horizontalalignment="right"
+        )
+
+    if title is not None:
+        if show_legend:
+            ax.set_title(title, y=1.1, loc='left')
+        else:
+            ax.set_title(title, loc='left')
+
+
+def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: str, annotate_colname: str,
+                   labelling_index: pd.Index, annotate_density: int):
+    xs = df[x_colname].loc[labelling_index].to_numpy()
+    ys = df[y_colname].loc[labelling_index].to_numpy()
+    ss = df[annotate_colname].loc[labelling_index].to_numpy()
+    # reduce the number of points annotated in dense areas of the plot
+    xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
+
+    texts = [
+        ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
+    ]
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+
+
 # VOLCANO PLOTS #
 def _prep_volcano_data(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
@@ -920,64 +1047,6 @@ def _prep_volcano_data(
     sig_both = df[df["SigCat"] == "p-value and log2FC"].index
 
     return df, score_colname, unsig, sig_fc, sig_p, sig_both
-
-
-def _set_default_kwargs(keyword_dict: dict, default_dict: dict):
-    """
-    Compares a default parameter dict with the user-provided and updates the latter if necessary.
-
-    Parameters
-    ----------
-    keyword_dict: dict
-        user-supplied kwargs dict
-    default_dict: dict
-        Standard settings that should be applied if not specified differently by the user.
-    """
-    if keyword_dict is None:
-        return default_dict
-    for k, v in default_dict.items():
-        if k not in keyword_dict.keys():
-            keyword_dict[k] = v
-
-    return keyword_dict
-
-
-# noinspection PyShadowingNames
-def _limit_density(xs, ys, ss, threshold):
-    """
-    Reduce the points for annotation through a point density threshold.
-
-    Parameters
-    ----------
-    xs: numpy.ndarray
-        x values
-    ys: numpy.ndarray
-        y values
-    ss: numpy.ndarray
-        labels
-    threshold: float
-        Probability threshold. Only points with 1/density above the value will be retained.
-    """
-    # if there is only one datapoint kernel density estimation with fail
-    if len(xs) < 3:
-        return xs, ys, ss
-    if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
-        nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
-        xs = xs[~nan_idx]
-        ys = ys[~nan_idx]
-        ss = ss[~nan_idx]
-    # Make some random Gaussian data
-    data = np.array(list(zip(xs, ys)))
-    # Compute KDE
-    kde = gaussian_kde(data.T)
-    # Choice probabilities are computed from inverse probability density in KDE
-    p = 1 / kde.pdf(data.T)
-    # Normalize choice probabilities
-    p /= np.sum(p)
-    # Make subsample using choice probabilities
-    idx = np.asarray(p > threshold).nonzero()
-
-    return xs[idx], ys[idx], ss[idx]
 
 
 def volcano(
@@ -1084,7 +1153,7 @@ def volcano(
 
     Returns
     -------
-    plotly.figure
+    matplotlib.figure
         The figure object if ret_fig kwarg is True.
 
     Examples
@@ -1302,29 +1371,10 @@ def volcano(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
     )
 
-    # draw figure
-    if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = plt.subplot()  # for a bare minimum plot you do not need this line
-    else:
-        fig = ax.get_figure()
-
-    # PLOTTING
-    if pointsize_colname is not None:
-        if not is_numeric_dtype(df[pointsize_colname]):
-            raise ValueError(
-                "The column provided for point sizing should only contain numeric values"
-            )
-        # normalize the point sizes
-        df["s"] = (
-                pointsize_scaler
-                * 100
-                * (df[pointsize_colname] - df[pointsize_colname].min())
-                / df[pointsize_colname].max()
-        )
+    fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
-    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
     ax.scatter(
         df.loc[df["SigCat"] == "NS", log_fc_colname],
         df.loc[df["SigCat"] == "NS", "score"],
@@ -1334,7 +1384,7 @@ def volcano(
     )
 
     # Significant by p-value
-    kwargs_p_sig = _set_default_kwargs(
+    kwargs_p_sig = com.set_default_kwargs(
         kwargs_p_sig,
         dict(
             color="lightblue",
@@ -1352,7 +1402,7 @@ def volcano(
     )
 
     # significant by log fold-change
-    kwargs_log_fc_sig = _set_default_kwargs(
+    kwargs_log_fc_sig = com.set_default_kwargs(
         kwargs_log_fc_sig,
         dict(
             color="lightgreen",
@@ -1370,7 +1420,7 @@ def volcano(
     )
 
     # significant by both
-    kwargs_both_sig = _set_default_kwargs(
+    kwargs_both_sig = com.set_default_kwargs(
         kwargs_both_sig,
         dict(
             color="tomato",
@@ -1390,7 +1440,7 @@ def volcano(
     if highlight is not None:
         if not isinstance(highlight, pd.Index):
             raise ValueError("You must provide a pd.Index object for highlighting")
-        kwargs_highlight = _set_default_kwargs(
+        kwargs_highlight = com.set_default_kwargs(
             kwargs_highlight,
             dict(
                 color="orange",
@@ -1428,63 +1478,11 @@ def volcano(
                 'pd.Index"'
             )
 
-        xs = df[log_fc_colname].loc[to_label].to_numpy()
-        ys = df["score"].loc[to_label].to_numpy()
-        ss = df[annotate_colname].loc[to_label].to_numpy()
-        # reduce the number of points annotated in dense areas of the plot
-        xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
-
-        texts = [
-            ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
-        ]
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+        _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate_colname=annotate_colname,
+                       labelling_index=to_label, annotate_density=annotate_density)
 
     # STYLING
-    if show_legend:
-        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
-                           bbox_transform=ax.transAxes)
-
-        # this fixes the legend points having the same size as the points in the scatter plot
-        for handle in legend.legendHandles:
-            handle._sizes = [30]
-        ax.add_artist(legend)
-
-        # shrink the plot so that the legend does not cover any points
-        lim = ax.get_ylim()
-        ax.set_ylim(lim[0], 1.25 * lim[1])
-
-        if pointsize_colname is not None:
-
-            mlabels = np.linspace(
-                start=df[pointsize_colname].max() / 5,
-                stop=df[pointsize_colname].max(),
-                num=4,
-            )
-
-            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
-
-            markers = []
-            for label, size in zip(mlabels, msizes):
-                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
-
-            legend2 = ax.legend(handles=markers, loc="lower left")
-            ax.add_artist(legend2)
-
-    if show_caption:
-        plt.figtext(
-            1,  # x position
-            -0.1,  # y position
-            f"total = {len(df)} entries",  # text
-            transform=plt.gca().transAxes,
-            wrap=True,
-            horizontalalignment="right"
-        )
-
-    if title is not None:
-        if show_legend:
-            ax.set_title(title, y=1.1, loc='left')
-        else:
-            ax.set_title(title, loc='left')
+    _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
 
     if show_thresh:
         ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
@@ -1525,7 +1523,7 @@ def ivolcano(
         column of the dataframe containing -log10(p values) (provide score or p).
         The default is None.
     p_thresh : float, optional
-        p-value threshold under which a entry is deemed significantly regulated.
+        p-value threshold under which an entry is deemed significantly regulated.
         The default is 0.05.
     log_fc_thresh : float, optional
         fold change threshold at which an entry is deemed significant regulated.
@@ -1701,6 +1699,7 @@ def ratio_plot(
         kwargs_r_sig: dict = None,
         kwargs_highlight: dict = None,
         annotate_density: int = 100):
+    # noinspection PyUnresolvedReferences
     """
     Plot a ratio vs. ratio plot based on a pandas dataframe.
 
@@ -1733,34 +1732,55 @@ def ratio_plot(
     -------
     plotly.figure
         The figure object.
+
+    Examples
+    --------
+    Similar to the volcano plot function, the ratio plot takes a dataframe as input together with the two
+    column names to plot.
+
+    >>> fig = vis.ratio_plot(
+    >>>     prot,
+    >>>     col_name1='Ratio M/L BC18_1',
+    >>>     col_name2='Ratio M/L BC18_2',
+    >>>     ratio_thresh= 3,
+    >>>     annotate_colname='Gene names 1st',
+    >>>     xlabel= 'Ratio Rep1',
+    >>>     ylabel = 'Ratio Rep2',
+    >>>     annotate_density=20,
+    >>> )
+
+    fig.show()
+
+    .. plot::
+    :context: close-figs
+
+    prot = pd.read_csv("../docsrc/_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+    prot = pp.cleaning(prot, "proteinGroups")
+    protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+    prot = pp.log(prot, protRatio, base=2)
+    prot['Gene names 1st'] = prot['Gene names'].str.split(';').str[0]
+
+    fig = vis.ratio_plot(
+        prot,
+        col_name1='Ratio M/L BC18_1',
+        col_name2='Ratio M/L BC18_2',
+        ratio_thresh= 3,
+        annotate_colname='Gene names 1st',
+        xlabel= 'Ratio Rep1',
+        ylabel = 'Ratio Rep2',
+        annotate_density=20,
+    )
+
+    fig.show()
     """
     # check for input correctness and make sure score is present in df for plot
 
     df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
 
-    # draw figure
-    if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = plt.subplot()  # for a bare minimum plot you do not need this line
-    else:
-        fig = ax.get_figure()
-
-    # PLOTTING
-    if pointsize_colname is not None:
-        if not is_numeric_dtype(df[pointsize_colname]):
-            raise ValueError(
-                "The column provided for point sizing should only contain numeric values"
-            )
-        # normalize the point sizes
-        df["s"] = (
-                pointsize_scaler
-                * 100
-                * (df[pointsize_colname] - df[pointsize_colname].min())
-                / df[pointsize_colname].max()
-        )
+    fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
-    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
     ax.scatter(
         df.loc[df["SigCat"] == "NS", col_name1],
         df.loc[df["SigCat"] == "NS", col_name2],
@@ -1770,7 +1790,7 @@ def ratio_plot(
     )
 
     # Significant by ratio_thresh
-    kwargs_r_sig = _set_default_kwargs(
+    kwargs_r_sig = com.set_default_kwargs(
         kwargs_r_sig,
         dict(
             color="#FF886D",
@@ -1790,7 +1810,7 @@ def ratio_plot(
     if highlight is not None:
         if not isinstance(highlight, pd.Index):
             raise ValueError("You must provide a pd.Index object for highlighting")
-        kwargs_highlight = _set_default_kwargs(
+        kwargs_highlight = com.set_default_kwargs(
             kwargs_highlight,
             dict(
                 color="blue",
@@ -1827,63 +1847,11 @@ def ratio_plot(
                 'Annotate must be "highlight", "ratio_thresh" "None" or pd.Index'
             )
 
-        xs = df[col_name1].loc[to_label].to_numpy()
-        ys = df[col_name2].loc[to_label].to_numpy()
-        ss = df[annotate_colname].loc[to_label].to_numpy()
-        # reduce the number of points annotated in dense areas of the plot
-        xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
-
-        texts = [
-            ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
-        ]
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+        _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate_colname=annotate_colname,
+                       labelling_index=to_label, annotate_density=annotate_density)
 
     # STYLING
-    if show_legend:
-        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
-                           bbox_transform=ax.transAxes)
-
-        # this fixes the legend points having the same size as the points in the scatter plot
-        for handle in legend.legendHandles:
-            handle._sizes = [30]
-        ax.add_artist(legend)
-
-        # shrink the plot so that the legend does not cover any points
-        lim = ax.get_ylim()
-        ax.set_ylim(lim[0], 1.25 * lim[1])
-
-        if pointsize_colname is not None:
-
-            mlabels = np.linspace(
-                start=df[pointsize_colname].max() / 5,
-                stop=df[pointsize_colname].max(),
-                num=4,
-            )
-
-            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
-
-            markers = []
-            for label, size in zip(mlabels, msizes):
-                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
-
-            legend2 = ax.legend(handles=markers, loc="lower left")
-            ax.add_artist(legend2)
-
-    if show_caption:
-        plt.figtext(
-            1,  # x position
-            -0.1,  # y position
-            f"total = {len(df)} entries",  # text
-            transform=plt.gca().transAxes,
-            wrap=True,
-            horizontalalignment="right"
-        )
-
-    if title is not None:
-        if show_legend:
-            ax.set_title(title, y=1.1, loc='left')
-        else:
-            ax.set_title(title, loc='left')
+    _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
 
     if show_thresh:
         ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
@@ -1892,6 +1860,7 @@ def ratio_plot(
         ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
         ax.axhline(y=0, color="black", linestyle="-")
         ax.axvline(x=0, color="black", linestyle="-")
+
     if ret_fig:
         return fig
 
@@ -2096,6 +2065,20 @@ def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=Fal
 
 
 # MA Plots #
+
+def _init_ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int]):
+    df = df.copy(deep=True)
+    df["M"] = df[x] - df[y]
+    df["A"] = 1 / 2 * (df[x] + df[y])
+    df["M"].replace(-np.inf, np.nan, inplace=True)
+    df["A"].replace(-np.inf, np.nan, inplace=True)
+    df["SigCat"] = False
+    if fct is not None:
+        df.loc[abs(df["M"]) > fct, "SigCat"] = True
+
+    return df
+
+
 def ma_plot(df, x, y, fct=None,
             title="MA Plot", figsize=(6, 6)):
     # noinspection PyUnresolvedReferences
@@ -2105,9 +2088,9 @@ def ma_plot(df, x, y, fct=None,
     Notes
     -----
     The MA plot is useful to determine whether a data normalization is needed.
-    The majority of proteins is considered to be unchanged between between
+    The majority of proteins is considered to be unchanged between
     treatments and thereofore should lie on the y=0 line.
-    If this is not the case, a normalisation should be applied.
+    If this is not the case, a normalization should be applied.
 
     Parameters
     ----------
@@ -2132,7 +2115,7 @@ def ma_plot(df, x, y, fct=None,
     Examples
     --------
     The MA plot allows to easily visualize difference in intensities between
-    experiments or replicates and therefore to judge if data normalisation is
+    experiments or replicates and therefore to judge if data normalization is
     required for further analysis.
     The majority of intensities should be unchanged between conditions and
     therefore most points should lie on the y=0 line.
@@ -2158,7 +2141,7 @@ def ma_plot(df, x, y, fct=None,
         vis.ma_plot(prot, x, y, fct=2)
         plt.show()
 
-    If this is not the case, a normalisation using e.g. LOESS should be applied
+    If this is not the case, a normalization using e.g. LOESS should be applied
 
     >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
@@ -2171,14 +2154,7 @@ def ma_plot(df, x, y, fct=None,
         vis.ma_plot(prot, twitch, ctrl, fct=2)
         plt.show()
     """
-    df = df.copy(deep=True)
-    df["M"] = df[x] - df[y]
-    df["A"] = 1 / 2 * (df[x] + df[y])
-    df["M"].replace(-np.inf, np.nan, inplace=True)
-    df["A"].replace(-np.inf, np.nan, inplace=True)
-    df["SigCat"] = False
-    if fct is not None:
-        df.loc[abs(df["M"]) > fct, "SigCat"] = True
+    df = _init_ma_plot(df, x, y, fct)
 
     # draw figure
     plt.figure(figsize=figsize)
@@ -2202,9 +2178,9 @@ def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
     Notes
     -----
     The MA plot is useful to determine whether a data normalization is needed.
-    The majority of proteins is considered to be unchanged between between
-    treatments and thereofore should lie on the y=0 line.
-    If this is not the case, a normalisation should be applied.
+    The majority of proteins is considered to be unchanged between
+    treatments and therefore should lie on the y=0 line.
+    If this is not the case, a normalization should be applied.
 
     Parameters
     ----------
@@ -2227,14 +2203,7 @@ def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
     -------
     None.
     """
-    df = df.copy(deep=True)
-    df["M"] = df[x] - df[y]
-    df["A"] = 1 / 2 * (df[x] + df[y])
-    df["M"].replace(-np.inf, np.nan, inplace=True)
-    df["A"].replace(-np.inf, np.nan, inplace=True)
-    df["SigCat"] = False
-    if fct is not None:
-        df.loc[abs(df["M"]) > fct, "SigCat"] = True
+    df = _init_ma_plot(df, x, y, fct)
 
     if annot:
         fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
@@ -2349,10 +2318,10 @@ def mean_sd_plot(df, reps):
 
 
 # Traces #
-def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
-                xlabel="", ylabel="log_fc", title="", ax=None,
-                plot_summary=False, plot_summary_only=False, summary_color="red",
-                summary_type="Mean", summary_style="solid", **kwargs):
+def plot_traces(df, cols: list, labels: list[str] = None, colors: list[str] = None, z_score: int = None,
+                xlabel: str = "", ylabel: str = "log_fc", title: str = "", ax: plt.axis = None,
+                plot_summary: bool = False, plot_summary_only: bool = False, summary_color: str = "red",
+                summary_type: Literal["Mean", "Median"] = "Mean", summary_style: str = "solid", **kwargs):
     # noinspection PyUnresolvedReferences
     r"""
     Plot numerical data such as fold changes vs. columns (e.g. conditions).
@@ -2375,9 +2344,9 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
         Must be between 0 and 1 for True.
         The default is None.
     xlabel : str, optional
-        Label for the x axis. The default is "".
+        Label for the x-axis. The default is "".
     ylabel : str, optional
-        Label for the y axis.
+        Label for the y-axis.
         The default is "log_fc".
     title : str, optional
         Title of the plot.
