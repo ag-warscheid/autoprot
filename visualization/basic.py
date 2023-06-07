@@ -1865,6 +1865,115 @@ def ratio_plot(
         return fig
 
 
+def iratio_plot(df: pd.DataFrame,
+                col_name1: str,
+                col_name2: str = None,
+                ratio_thresh: float = None,
+                xlabel: str = "Ratio col1",
+                ylabel: str = "Ratio col2",
+                pointsize_colname: str or float = None,
+                highlight: pd.Index = None,
+                title: str = None,
+                show_legend: bool = True,
+                ret_fig: bool = True,
+                annotate_colname: str = "Gene names"):
+
+    df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
+
+    categories = ["NS", "ratio_thresh"]
+
+    if highlight is not None:
+        if not isinstance(highlight, pd.Index):
+            raise ValueError("You must provide a pd.Index object for highlighting")
+        df["SigCat"] = "-"
+        df.loc[highlight, "SigCat"] = "*"
+        fig = (
+            px.scatter(
+                data_frame=df,
+                x=col_name1,
+                y=col_name2,
+                hover_name=annotate_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+            if annotate_colname is not None
+            else px.scatter(
+                data_frame=df,
+                x=col_name1,
+                y=col_name2,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+        )
+
+    elif annotate_colname is not None:
+        fig = px.scatter(
+            data_frame=df,
+            x=col_name1,
+            y=col_name2,
+            hover_name=annotate_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+    else:
+        fig = px.scatter(
+            data_frame=df,
+            x=col_name1,
+            y=col_name2,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    # horizontal threshold
+    fig.add_trace(
+        go.Scatter(
+            x=[df[col_name1].min(), df[col_name1].max()],
+            y=[ratio_thresh, ratio_thresh],
+            mode="lines",
+            line=go.scatter.Line(color="grey", dash="longdash"),
+            showlegend=False,
+        )
+    )
+
+    # vertical threshold
+    fig.add_trace(
+        go.Scatter(
+            y=[df[col_name2].min(), df[col_name2].max()],
+            x=[ratio_thresh, ratio_thresh],
+            mode="lines",
+            line=go.scatter.Line(color="grey", dash="longdash"),
+            showlegend=False,
+        )
+    )
+
+    fig.update_layout(
+        template="simple_white",
+        showlegend=show_legend,
+        xaxis_title=xlabel,
+        yaxis_title=ylabel
+    )
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
+
+
 # Log Intensity Plots #
 def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
