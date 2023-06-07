@@ -166,12 +166,12 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         }
         return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
-    def calculate_correlation(x, y):
-        df = pd.DataFrame({"x": x, "y": y})
-        df = df.dropna()
-        x = df["x"].values
-        y = df["y"].values
-        r, _ = stats.pearsonr(x, y)
+    def calculate_correlation(a, b):
+        d = pd.DataFrame({"x": a, "y": b})
+        d = d.dropna()
+        a = d["x"].values
+        b = d["y"].values
+        r, _ = stats.pearsonr(a, b)
         return r
 
     # noinspection PyShadowingNames
@@ -214,7 +214,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                    gridsize=50)
 
     # noinspection PyShadowingNames
-    def lower_hist_2D(x, y):
+    def lower_hist_2d(x, y):
         """Plot data points as hist2d plot to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
@@ -256,7 +256,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     elif lower_triang == "hexBin":
         g.map_lower(lower_hex_bin)
     elif lower_triang == "hist2d":
-        g.map_lower(lower_hist_2D)
+        g.map_lower(lower_hist_2d)
     # histograms on the diagonal
     g.map_diag(sns.histplot)
     # coloured tiles for the upper triangle
@@ -533,6 +533,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
                    ylabel="log_fc")
     """
+
     if labels is None:
         labels = []
     # check if inputs make sense
@@ -949,35 +950,7 @@ def _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler):
 
 def _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler):
     if show_legend:
-        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
-                           bbox_transform=ax.transAxes)
-
-        # this fixes the legend points having the same size as the points in the scatter plot
-        for handle in legend.legendHandles:
-            handle._sizes = [30]
-        ax.add_artist(legend)
-
-        # shrink the plot so that the legend does not cover any points
-        lim = ax.get_ylim()
-        ax.set_ylim(lim[0], 1.25 * lim[1])
-
-        if pointsize_colname is not None:
-
-            mlabels = np.linspace(
-                start=df[pointsize_colname].max() / 5,
-                stop=df[pointsize_colname].max(),
-                num=4,
-            )
-
-            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
-
-            markers = []
-            for label, size in zip(mlabels, msizes):
-                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
-
-            legend2 = ax.legend(handles=markers, loc="lower left")
-            ax.add_artist(legend2)
-
+        _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler)
     if show_caption:
         plt.figtext(
             1,  # x position
@@ -993,6 +966,37 @@ def _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname
             ax.set_title(title, y=1.1, loc='left')
         else:
             ax.set_title(title, loc='left')
+
+
+def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
+    legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
+                       bbox_transform=ax.transAxes)
+
+    # this fixes the legend points having the same size as the points in the scatter plot
+    for handle in legend.legendHandles:
+        handle._sizes = [30]
+    ax.add_artist(legend)
+
+    # shrink the plot so that the legend does not cover any points
+    lim = ax.get_ylim()
+    ax.set_ylim(lim[0], 1.25 * lim[1])
+
+    if pointsize_colname is not None:
+
+        mlabels = np.linspace(
+            start=df[pointsize_colname].max() / 5,
+            stop=df[pointsize_colname].max(),
+            num=4,
+        )
+
+        msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
+
+        markers = [
+            plt.scatter([], [], c="grey", s=size, label=int(label))
+            for label, size in zip(mlabels, msizes)
+        ]
+        legend2 = ax.legend(handles=markers, loc="lower left")
+        ax.add_artist(legend2)
 
 
 def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: str, annotate_colname: str,
@@ -1866,15 +1870,18 @@ def ratio_plot(
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
 
     if show_thresh:
-        ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-        ax.axvline(x=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-        ax.axhline(y=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-        ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-        ax.axhline(y=0, color="black", linestyle="-")
-        ax.axvline(x=0, color="black", linestyle="-")
-
+        _ratio_plot_style_axes(ax, ratio_thresh)
     if ret_fig:
         return fig
+
+
+def _ratio_plot_style_axes(ax, ratio_thresh):
+    ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axvline(x=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=0, color="black", linestyle="-")
+    ax.axvline(x=0, color="black", linestyle="-")
 
 
 def iratio_plot(df: pd.DataFrame,
@@ -1995,6 +2002,8 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
 
     Parameters
     ----------
+    ret_fig : bool
+        Whether to return the figrue object, optional.
     ax : plt.axis
         The axis to plot on, optional.
     df : pd.DataFrame
@@ -2570,7 +2579,7 @@ def plot_traces(df, cols: list, labels: list[str] = None, colors: list[str] = No
     # TODO xlabels from colnames
     x = range(len(cols))
     y = df[cols].T.values
-    if z_score is not None and z_score in [0, 1]:
+    if z_score is not None and z_score in {0, 1}:
         y = zscore(y, axis=z_score)
 
     if ax is None:
@@ -2874,17 +2883,16 @@ class UpSetGrouped(upsetplot.UpSet):
 
                 label_found = []
                 for label in label_substrings:
-                    tests = []
-                    for s in subset:
-                        tests.append(label in s)
+                    tests = [label in s for s in subset]
                     label_found.append(any(tests))
 
-                if mode == 'intersection':
-                    if all(label_found):
-                        self.style_subsets(present=subset, **kwargs)
-                else:
-                    if any(label_found):
-                        self.style_subsets(present=subset, **kwargs)
+                if (
+                    mode == 'intersection'
+                    and all(label_found)
+                    or mode != 'intersection'
+                    and any(label_found)
+                ):
+                    self.style_subsets(present=subset, **kwargs)
 
     def replot_totals(self, specs, color):
         """

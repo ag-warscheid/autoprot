@@ -1,6 +1,5 @@
 # generated using pipreqs
 adjustText==0.7.3
-adjustText==0.8
 biopython==1.78
 gprofiler_official==1.0.0
 logomaker==0.8
@@ -10,10 +9,10 @@ missingno==0.4.2
 numpy==1.22.3
 pandas==1.4.2
 plotly==5.8.0
-Requests==2.31.0
+Requests==2.27.1
 scikit_learn==1.0.1
 scipy==1.7.3
 seaborn==0.11.2
-setuptools==61.2.0
+setuptools==67.8.0
 statsmodels==0.13.2
 UpSetPlot==0.8.0
