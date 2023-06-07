@@ -362,7 +362,7 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
             plt.savefig(f"{save_dir}/{save_name}.png")
 
 
-def prob_plot(df, col, dist="norm", figsize=(6, 6)):
+def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
     # noinspection PyUnresolvedReferences
     r"""
     Plot a QQ_plot of the provided column.
@@ -371,6 +371,8 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6)):
 
     Parameters
     ----------
+    ax : plt.axis
+        Axis to plot on, optional.
     df : pd.DataFrame
         Input dataframe.
     col : list of str
@@ -429,19 +431,22 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6)):
     for i in np.linspace(min(t[0][0]), max(t[0][0]), 100):
         y.append(t[1][0] * i + t[1][1])
         x.append(i)
-    plt.figure(figsize=figsize)
-    plt.scatter(t[0][0], t[0][1], alpha=.3, color="purple",
-                label=label)
-    plt.plot(x, y, color="teal")
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    ax.scatter(t[0][0], t[0][1], alpha=.3, color="purple",
+               label=label)
+    ax.plot(x, y, color="teal")
     sns.despine()
-    plt.title(f"Probability Plot\n{col}")
-    plt.xlabel("Theorectical Quantiles")
-    plt.ylabel("Sample Quantiles")
+    ax.set_title(f"Probability Plot\n{col}")
+    ax.set_xlabel("Theorectical Quantiles")
+    ax.set_ylabel("Sample Quantiles")
     plt.legend()
 
 
 def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None, compare: bool = False,
             ylabel: str = "log_fc", file: str = None, ret_fig: bool = False, figsize: tuple = (15, 5),
+            ax: plt.axis = None,
             **kwargs: object) -> plt.figure:
     # noinspection PyUnresolvedReferences
     r"""
@@ -449,6 +454,8 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
 
     Parameters
     ----------
+    ax : plt.axis
+        Axis to plot on, optional.
     df : pd.Dataframe
         INput dataframe.
     reps : list
@@ -533,6 +540,8 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         raise ValueError("You want to compare two sets, provide two sets.")
 
     if compare:
+        if ax is not None:
+            raise ValueError('You cannot use compare and specify an axis. Do either.')
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
@@ -555,7 +564,10 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
             ax[0].set_xticklabels([str(i + 1) for i in range(len(reps[0]))])
             ax[1].set_xticklabels([str(i + 1) for i in range(len(reps[1]))])
     else:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+        if ax is None:
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+        else:
+            fig = ax.get_figure()
 
         df[reps].boxplot(**kwargs)
         ax.grid(False)
@@ -702,7 +714,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
         plt.savefig(fr"{file}/RankPlot.pdf")
 
 
-def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
+def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = False, proportional: bool = True):
     # noinspection PyUnresolvedReferences
     # noinspection PyShadowingNames
     r"""
@@ -1877,7 +1889,6 @@ def iratio_plot(df: pd.DataFrame,
                 show_legend: bool = True,
                 ret_fig: bool = True,
                 annotate_colname: str = "Gene names"):
-
     df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
 
     categories = ["NS", "ratio_thresh"]
@@ -1977,13 +1988,15 @@ def iratio_plot(df: pd.DataFrame,
 # Log Intensity Plots #
 def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-                 figsize=(6, 6)):
+                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
     Parameters
     ----------
+    ax : plt.axis
+        The axis to plot on, optional.
     df : pd.DataFrame
         Input dataframe.
     log_fc : str
@@ -2064,8 +2077,11 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
     sig = df[df["SigCat"] == "*"].index
 
     # draw figure
-    plt.figure(figsize=figsize)
-    ax = plt.subplot()
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.get_figure()
+
     plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
                 label="background")
     plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
@@ -2110,6 +2126,11 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
             else:
                 plt.plot([x, x + .2], [y, y + .2], color="gray")
                 plt.text(x + .2, y + .2, s)
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
 
 
 def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
@@ -2188,8 +2209,8 @@ def _init_ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int]):
     return df
 
 
-def ma_plot(df, x, y, fct=None,
-            title="MA Plot", figsize=(6, 6)):
+def ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int] = None,
+            title: str = "MA Plot", ax: plt.axis = None, ret_fig: bool = False, figsize: tuple = (6, 6)):
     # noinspection PyUnresolvedReferences
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
@@ -2203,6 +2224,10 @@ def ma_plot(df, x, y, fct=None,
 
     Parameters
     ----------
+    ret_fig: bool
+        Whether to return the figure or show it directly
+    ax : plt.axis
+        The axis to plot on
     df : pd.dataFrame
         Input dataframe with log intensities.
     x : str
@@ -2266,7 +2291,11 @@ def ma_plot(df, x, y, fct=None,
     df = _init_ma_plot(df, x, y, fct)
 
     # draw figure
-    plt.figure(figsize=figsize)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.get_figure()
+
     sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
     plt.axhline(0, 0, 1, color="black", ls="dashed")
     plt.title(title)
@@ -2276,6 +2305,11 @@ def ma_plot(df, x, y, fct=None,
     if fct is not None:
         plt.axhline(fct, 0, 1, color="gray", ls="dashed")
         plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
 
 
 def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
