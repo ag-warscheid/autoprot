@@ -2004,7 +2004,9 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
     ----------
     ret_fig : bool
         Whether to return the figrue object, optional.
-    ax : plt.axis
+    ret_fig :  bool
+        Whether to return the figure object.
+    ax : plt.Axes
         The axis to plot on, optional.
     df : pd.DataFrame
         Input dataframe.
