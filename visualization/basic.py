@@ -172,8 +172,9 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         return r
 
     # noinspection PyShadowingNames
-    def corrfunc(x, y):
-        """Calculate correlation coefficient and add text to axis."""
+    def corrfunc(x, y, **kwargs):
+        """Function for seaborn PairGrid to calculate correlation coefficient and add text to axis."""
+        _ = kwargs  # seaborn adds the kwargs color and label to every call to pair grid (see https://seaborn.pydata.org/generated/seaborn.PairGrid.map_lower.html)
         r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
