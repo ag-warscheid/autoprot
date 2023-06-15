@@ -8,38 +8,18 @@ Autoprot Analysis Functions.
 """
 import os
 from subprocess import run, PIPE
-from importlib import resources
-from typing import Union, Literal
-from datetime import date
-
 import pandas as pd
 import numpy as np
-import matplotlib
 import matplotlib.pylab as plt
-import matplotlib.colors as clrs
 import pylab as pl
 import seaborn as sns
 
 from statsmodels.stats import multitest as mt
 from scipy.stats import ttest_1samp, ttest_ind
-from scipy.stats import zscore
-from scipy.spatial import distance
-from scipy import cluster as clst
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
-from sklearn import cluster as clstsklearn
-from sklearn.decomposition import PCA
 
-from operator import itemgetter
+from .. import r_helper
+from .. import preprocessing as pp
 
-# noinspection PyUnresolvedReferences
-from autoprot import visualization as vis
-# noinspection PyUnresolvedReferences
-from autoprot import r_helper
-# noinspection PyUnresolvedReferences
-from autoprot import preprocessing as pp
-
-import warnings
-import missingno as msn
 from gprofiler import GProfiler
 
 gp = GProfiler(

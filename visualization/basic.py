@@ -23,10 +23,9 @@ from adjustText import adjust_text
 import matplotlib.patches as patches
 from itertools import combinations
 
-# noinspection PyUnresolvedReferences
-from autoprot.dependencies.venn import venn
-# noinspection PyUnresolvedReferences
-from autoprot import visualization as vis
+from ..dependencies.venn import venn
+from .. import visualization as vis
+from .. import common as com
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -47,7 +46,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     The lower half of the correlogram shows a scatter plot comparing pairs of
     conditions while the upper part shows you the color coded correlation
     coefficients as well as the intersection of hits between both conditions.
-    In tiles corresponding to self-comparison (the same value on y and x axis)
+    In tiles corresponding to self-comparison (the same value on y and x-axis)
     a histogram of intensities is plotted.
 
     Parameters
@@ -164,17 +163,23 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         }
         return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
 
+    def calculate_correlation(a, b):
+        d = pd.DataFrame({"x": a, "y": b})
+        d = d.dropna()
+        a = d["x"].values
+        b = d["y"].values
+        r, _ = stats.pearsonr(a, b)
+        return r
+
+    # noinspection PyShadowingNames
     def corrfunc(x, y):
         """Calculate correlation coefficient and add text to axis."""
-        df = pd.DataFrame({"x": x, "y": y})
-        df = df.dropna()
-        x = df["x"].values
-        y = df["y"].values
-        r, _ = stats.pearsonr(x, y)
+        r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
 
+    # noinspection PyShadowingNames
     def heatmap(x, y):
         """Calculate correlation coefficient and add coloured tile to axis."""
         df = pd.DataFrame({"x": x, "y": y})
@@ -190,6 +195,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
 
+    # noinspection PyShadowingNames
     def lower_scatter(x, y):
         """Plot data points as scatter plot to axis."""
         data = pd.DataFrame({"x": x, "y": y})
@@ -198,12 +204,14 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax = plt.gca()
         ax.scatter(data['x'], data['y'], linewidth=0)
 
+    # noinspection PyShadowingNames
     def lower_hex_bin(x, y):
         """Plot data points as hexBin plot to axis."""
         plt.hexbin(x, y, cmap="Blues", bins=bins,
                    gridsize=50)
 
-    def lower_hist_2D(x, y):
+    # noinspection PyShadowingNames
+    def lower_hist_2d(x, y):
         """Plot data points as hist2d plot to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
@@ -211,12 +219,9 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         y = df["y"].values
         plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1)
 
+    # noinspection PyShadowingNames
     def proteins_found(x, y):
-        df = pd.DataFrame({"x": x, "y": y})
-        df = df.dropna()
-        x = df["x"].values
-        y = df["y"].values
-        r, _ = stats.pearsonr(x, y)
+        r = calculate_correlation(x, y)
         ax = plt.gca()
         if file == "Phospho (STY)":
             ax.annotate(f"{len(y)} peptides identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
@@ -248,7 +253,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     elif lower_triang == "hexBin":
         g.map_lower(lower_hex_bin)
     elif lower_triang == "hist2d":
-        g.map_lower(lower_hist_2D)
+        g.map_lower(lower_hist_2d)
     # histograms on the diagonal
     g.map_diag(sns.histplot)
     # coloured tiles for the upper triangle
@@ -354,7 +359,7 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
             plt.savefig(f"{save_dir}/{save_name}.png")
 
 
-def prob_plot(df, col, dist="norm", figsize=(6, 6)):
+def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
     # noinspection PyUnresolvedReferences
     r"""
     Plot a QQ_plot of the provided column.
@@ -363,6 +368,8 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6)):
 
     Parameters
     ----------
+    ax : plt.axis
+        Axis to plot on, optional.
     df : pd.DataFrame
         Input dataframe.
     col : list of str
@@ -421,19 +428,22 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6)):
     for i in np.linspace(min(t[0][0]), max(t[0][0]), 100):
         y.append(t[1][0] * i + t[1][1])
         x.append(i)
-    plt.figure(figsize=figsize)
-    plt.scatter(t[0][0], t[0][1], alpha=.3, color="purple",
-                label=label)
-    plt.plot(x, y, color="teal")
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    ax.scatter(t[0][0], t[0][1], alpha=.3, color="purple",
+               label=label)
+    ax.plot(x, y, color="teal")
     sns.despine()
-    plt.title(f"Probability Plot\n{col}")
-    plt.xlabel("Theorectical Quantiles")
-    plt.ylabel("Sample Quantiles")
+    ax.set_title(f"Probability Plot\n{col}")
+    ax.set_xlabel("Theorectical Quantiles")
+    ax.set_ylabel("Sample Quantiles")
     plt.legend()
 
 
 def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None, compare: bool = False,
             ylabel: str = "log_fc", file: str = None, ret_fig: bool = False, figsize: tuple = (15, 5),
+            ax: plt.axis = None,
             **kwargs: object) -> plt.figure:
     # noinspection PyUnresolvedReferences
     r"""
@@ -441,6 +451,8 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
 
     Parameters
     ----------
+    ax : plt.axis
+        Axis to plot on, optional.
     df : pd.Dataframe
         INput dataframe.
     reps : list
@@ -518,6 +530,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
                    ylabel="log_fc")
     """
+
     if labels is None:
         labels = []
     # check if inputs make sense
@@ -525,6 +538,8 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         raise ValueError("You want to compare two sets, provide two sets.")
 
     if compare:
+        if ax is not None:
+            raise ValueError('You cannot use compare and specify an axis. Do either.')
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
@@ -547,7 +562,10 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
             ax[0].set_xticklabels([str(i + 1) for i in range(len(reps[0]))])
             ax[1].set_xticklabels([str(i + 1) for i in range(len(reps[1]))])
     else:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+        if ax is None:
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+        else:
+            fig = ax.get_figure()
 
         df[reps].boxplot(**kwargs)
         ax.grid(False)
@@ -694,8 +712,9 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
         plt.savefig(fr"{file}/RankPlot.pdf")
 
 
-def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
+def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = False, proportional: bool = True):
     # noinspection PyUnresolvedReferences
+    # noinspection PyShadowingNames
     r"""
     Draw vennDiagrams.
 
@@ -863,6 +882,134 @@ def venn_diagram(df, figsize=(10, 10), ret_fig=False, proportional=True):
             return fig
 
 
+# COMMON FOR ALL SCATTER PLOTS
+def _limit_density(xs, ys, ss, threshold):
+    """
+    Reduce the points for annotation through a point density threshold.
+
+    Parameters
+    ----------
+    xs: numpy.ndarray
+        x values
+    ys: numpy.ndarray
+        y values
+    ss: numpy.ndarray
+        labels
+    threshold: float
+        Probability threshold. Only points with 1/density above the value will be retained.
+    """
+    # if there is only one datapoint kernel density estimation with fail
+    if len(xs) < 3:
+        return xs, ys, ss
+    if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
+        nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
+        xs = xs[~nan_idx]
+        ys = ys[~nan_idx]
+        ss = ss[~nan_idx]
+    # Make some random Gaussian data
+    data = np.array(list(zip(xs, ys)))
+    # Compute KDE
+    kde = gaussian_kde(data.T)
+    # Choice probabilities are computed from inverse probability density in KDE
+    p = 1 / kde.pdf(data.T)
+    # Normalize choice probabilities
+    p /= np.sum(p)
+    # Make subsample using choice probabilities
+    idx = np.asarray(p > threshold).nonzero()
+
+    return xs[idx], ys[idx], ss[idx]
+
+
+def _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler):
+    # draw figure
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = plt.subplot()  # for a bare minimum plot you do not need this line
+    else:
+        fig = ax.get_figure()
+
+    # PLOTTING
+    if pointsize_colname is not None:
+        if not is_numeric_dtype(df[pointsize_colname]):
+            raise ValueError(
+                "The column provided for point sizing should only contain numeric values"
+            )
+        # normalize the point sizes
+        df["s"] = (
+                pointsize_scaler
+                * 100
+                * (df[pointsize_colname] - df[pointsize_colname].min())
+                / df[pointsize_colname].max()
+        )
+
+    return fig, ax, df
+
+
+def _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler):
+    if show_legend:
+        _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler)
+    if show_caption:
+        plt.figtext(
+            1,  # x position
+            -0.1,  # y position
+            f"total = {len(df)} entries",  # text
+            transform=plt.gca().transAxes,
+            wrap=True,
+            horizontalalignment="right"
+        )
+
+    if title is not None:
+        if show_legend:
+            ax.set_title(title, y=1.1, loc='left')
+        else:
+            ax.set_title(title, loc='left')
+
+
+def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
+    legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
+                       bbox_transform=ax.transAxes)
+
+    # this fixes the legend points having the same size as the points in the scatter plot
+    for handle in legend.legendHandles:
+        handle._sizes = [30]
+    ax.add_artist(legend)
+
+    # shrink the plot so that the legend does not cover any points
+    lim = ax.get_ylim()
+    ax.set_ylim(lim[0], 1.25 * lim[1])
+
+    if pointsize_colname is not None:
+
+        mlabels = np.linspace(
+            start=df[pointsize_colname].max() / 5,
+            stop=df[pointsize_colname].max(),
+            num=4,
+        )
+
+        msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
+
+        markers = [
+            plt.scatter([], [], c="grey", s=size, label=int(label))
+            for label, size in zip(mlabels, msizes)
+        ]
+        legend2 = ax.legend(handles=markers, loc="lower left")
+        ax.add_artist(legend2)
+
+
+def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: str, annotate_colname: str,
+                   labelling_index: pd.Index, annotate_density: int):
+    xs = df[x_colname].loc[labelling_index].to_numpy()
+    ys = df[y_colname].loc[labelling_index].to_numpy()
+    ss = df[annotate_colname].loc[labelling_index].to_numpy()
+    # reduce the number of points annotated in dense areas of the plot
+    xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
+
+    texts = [
+        ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
+    ]
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+
+
 # VOLCANO PLOTS #
 def _prep_volcano_data(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
@@ -943,6 +1090,8 @@ def volcano(
         annotate_density: int = 100,
 ):
     # noinspection PyUnresolvedReferences
+    # noinspection PyShadowingNames
+    # noinspection PyPep8
     """
     Return static volcano plot.
 
@@ -1017,7 +1166,7 @@ def volcano(
 
     Returns
     -------
-    plotly.figure
+    matplotlib.figure
         The figure object if ret_fig kwarg is True.
 
     Examples
@@ -1087,7 +1236,7 @@ def volcano(
 
         fig.show()
 
-    All points in the plot can be customised by supplying kwargs to the volcano function. These can be any arguments
+    All points in the plot can be customized by supplying kwargs to the volcano function. These can be any arguments
     accepted by matplotlib.pyplot.scatter.
 
     >>> non_sig_kwargs = dict(color="black", marker="x")
@@ -1195,7 +1344,8 @@ def volcano(
         fig.show()
 
     Custom points can also be highlighted by providing a pandas Index object of the corresponding rows as input to
-    the highlight kwarg. Note that the annotate kwarg must be updated if you want to also label your highlighted points.
+    the highlight kwarg. Note that the annotated kwarg must be updated if you want to also label your highlighted
+    points.
 
     >>> to_highlight = prot_limma[prot_limma['iBAQ'] > 10e8].index
     >>>
@@ -1234,84 +1384,10 @@ def volcano(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
     )
 
-    # draw figure
-    if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = plt.subplot()  # for a bare minimum plot you do not need this line
-    else:
-        fig = ax.get_figure()
-
-    def _set_default_kwargs(keyword_dict: dict, default_dict: dict):
-        """
-        Compares a default parameter dict with the user-provided and updates the latter if necessary.
-
-        Parameters
-        ----------
-        keyword_dict: dict
-            user-supplied kwargs dict
-        default_dict: dict
-            Standard settings that should be applied if not specified differently by the user.
-        """
-        if keyword_dict is None:
-            return default_dict
-        for k, v in default_dict.items():
-            if k not in keyword_dict.keys():
-                keyword_dict[k] = v
-
-        return keyword_dict
-
-    def _limit_density(xs, ys, ss, threshold):
-        """
-        Reduce the points for annotation through a point density threshold.
-
-        Parameters
-        ----------
-        xs: numpy.ndarray
-            x values
-        ys: numpy.ndarray
-            y values
-        ss: numpy.ndarray
-            labels
-        threshold: float
-            Probability threshold. Only points with 1/density above the value will be retained.
-        """
-        # if there is only one datapoint kernel density estimation with fail
-        if len(xs) < 3:
-            return xs, ys, ss
-        if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
-            nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
-            xs = xs[~nan_idx]
-            ys = ys[~nan_idx]
-            ss = ss[~nan_idx]
-        # Make some random Gaussian data
-        data = np.array(list(zip(xs, ys)))
-        # Compute KDE
-        kde = gaussian_kde(data.T)
-        # Choice probabilities are computed from inverse probability density in KDE
-        p = 1 / kde.pdf(data.T)
-        # Normalize choice probabilities
-        p /= np.sum(p)
-        # Make subsample using choice probabilities
-        idx = np.asarray(p > threshold).nonzero()
-
-        return xs[idx], ys[idx], ss[idx]
-
-    # PLOTTING
-    if pointsize_colname is not None:
-        if not is_numeric_dtype(df[pointsize_colname]):
-            raise ValueError(
-                "The column provided for point sizing should only contain numeric values"
-            )
-        # normalize the point sizes
-        df["s"] = (
-                pointsize_scaler
-                * 100
-                * (df[pointsize_colname] - df[pointsize_colname].min())
-                / df[pointsize_colname].max()
-        )
+    fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
-    kwargs_ns = _set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
     ax.scatter(
         df.loc[df["SigCat"] == "NS", log_fc_colname],
         df.loc[df["SigCat"] == "NS", "score"],
@@ -1321,7 +1397,7 @@ def volcano(
     )
 
     # Significant by p-value
-    kwargs_p_sig = _set_default_kwargs(
+    kwargs_p_sig = com.set_default_kwargs(
         kwargs_p_sig,
         dict(
             color="lightblue",
@@ -1339,7 +1415,7 @@ def volcano(
     )
 
     # significant by log fold-change
-    kwargs_log_fc_sig = _set_default_kwargs(
+    kwargs_log_fc_sig = com.set_default_kwargs(
         kwargs_log_fc_sig,
         dict(
             color="lightgreen",
@@ -1357,7 +1433,7 @@ def volcano(
     )
 
     # significant by both
-    kwargs_both_sig = _set_default_kwargs(
+    kwargs_both_sig = com.set_default_kwargs(
         kwargs_both_sig,
         dict(
             color="tomato",
@@ -1377,7 +1453,7 @@ def volcano(
     if highlight is not None:
         if not isinstance(highlight, pd.Index):
             raise ValueError("You must provide a pd.Index object for highlighting")
-        kwargs_highlight = _set_default_kwargs(
+        kwargs_highlight = com.set_default_kwargs(
             kwargs_highlight,
             dict(
                 color="orange",
@@ -1415,63 +1491,11 @@ def volcano(
                 'pd.Index"'
             )
 
-        xs = df[log_fc_colname].loc[to_label].to_numpy()
-        ys = df["score"].loc[to_label].to_numpy()
-        ss = df[annotate_colname].loc[to_label].to_numpy()
-        # reduce the number of points annotated in dense areas of the plot
-        xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
-
-        texts = [
-            ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
-        ]
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
+        _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate_colname=annotate_colname,
+                       labelling_index=to_label, annotate_density=annotate_density)
 
     # STYLING
-    if show_legend:
-        legend = ax.legend(loc='upper left', bbox_to_anchor=(0, 0.9, 1, 0.1), mode="expand", ncol=3,
-                           bbox_transform=ax.transAxes)
-
-        # this fixes the legend points having the same size as the points in the scatter plot
-        for handle in legend.legendHandles:
-            handle._sizes = [30]
-        ax.add_artist(legend)
-
-        # shrink the plot so that the legend does not cover any points
-        lim = ax.get_ylim()
-        ax.set_ylim(lim[0], 1.25 * lim[1])
-
-        if pointsize_colname is not None:
-
-            mlabels = np.linspace(
-                start=df[pointsize_colname].max() / 5,
-                stop=df[pointsize_colname].max(),
-                num=4,
-            )
-
-            msizes = pointsize_scaler * 100 * np.linspace(start=0.2, stop=1, num=4)
-
-            markers = []
-            for label, size in zip(mlabels, msizes):
-                markers.append(plt.scatter([], [], c="grey", s=size, label=int(label)))
-
-            legend2 = ax.legend(handles=markers, loc="lower left")
-            ax.add_artist(legend2)
-
-    if show_caption:
-        plt.figtext(
-            1,  # x position
-            -0.1,  # y position
-            f"total = {len(df)} entries",  # text
-            transform=plt.gca().transAxes,
-            wrap=True,
-            horizontalalignment="right"
-        )
-
-    if title is not None:
-        if show_legend:
-            ax.set_title(title, y=1.1, loc='left')
-        else:
-            ax.set_title(title, loc='left')
+    _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
 
     if show_thresh:
         ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
@@ -1512,7 +1536,7 @@ def ivolcano(
         column of the dataframe containing -log10(p values) (provide score or p).
         The default is None.
     p_thresh : float, optional
-        p-value threshold under which a entry is deemed significantly regulated.
+        p-value threshold under which an entry is deemed significantly regulated.
         The default is 0.05.
     log_fc_thresh : float, optional
         fold change threshold at which an entry is deemed significant regulated.
@@ -1532,7 +1556,7 @@ def ivolcano(
         Whether to plot a legend. The default is True.
     ret_fig : bool, optional
         Whether to return the figure, can be used to further
-        customize it afterwards. The default is False.
+        customize it afterward. The default is False.
 
     Returns
     -------
@@ -1642,16 +1666,345 @@ def ivolcano(
         fig.show()
 
 
+# RATIO-RATIO PLOTS #
+# Preparing the dataset
+def _prep_ratio_data(
+        df, col_name1, col_name2, ratio_thresh):
+    # Work with a copy of the dataframe
+    df = df.copy()
+
+    if col_name1 is None or col_name2 is None:
+        raise ValueError("You have to provide column names for both ratios.")
+
+    # two groups of points are present in a ratio-ratio plot:
+    # (1) non-significant
+    df["SigCat"] = "NS"
+    # (2) significant by score
+    df.loc[(df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh), "SigCat"] = "ratio_thresh"
+    df.loc[(df[col_name1] < ratio_thresh * -1) & (df[col_name2] < ratio_thresh * -1), "SigCat"] = "ratio_thresh"
+
+    unsig = df[df["SigCat"] == "NS"].index
+    sig_ratio = df[df["SigCat"] == "ratio_thresh"].index
+
+    return df, col_name1, col_name2, unsig, sig_ratio
+
+
+def ratio_plot(
+        df: pd.DataFrame,
+        col_name1: str,
+        col_name2: str = None,
+        ratio_thresh: float = None,
+        xlabel: str = "Ratio col1",
+        ylabel: str = "Ratio col2",
+        pointsize_colname: str or float = None,
+        pointsize_scaler: float = 1,
+        highlight: pd.Index = None,
+        title: str = None,
+        show_legend: bool = True,
+        show_caption: bool = True,
+        show_thresh: bool = True,
+        ax: plt.axis = None,
+        ret_fig: bool = True,
+        figsize: tuple = (8, 8),
+        annotate: Union[Literal["highlight", "ratio_thresh"], None, pd.Index] = "ratio_thresh",
+        annotate_colname: str = "Gene names",
+        kwargs_ns: dict = None,
+        kwargs_r_sig: dict = None,
+        kwargs_highlight: dict = None,
+        annotate_density: int = 100):
+    # noinspection PyUnresolvedReferences
+    """
+    Plot a ratio vs. ratio plot based on a pandas dataframe.
+
+    Parameters
+    ----------
+    df: pd.Dataframe
+    col_name1: str
+    col_name2: str, optional
+    ratio_thresh: float, optional
+    xlabel: str, optional
+    ylabel: str, optional
+    pointsize_colname: str or float, optional
+    pointsize_scaler: float, optional
+    highlight: pd.Index, optional
+    title: str, optional
+    show_legend: bool, optional
+    show_caption: bool, optional
+    show_thresh: bool, optional
+    ax: plt.axis, optional
+    ret_fig: bool, optional
+    figsize: tuple of int, optional
+    annotate: "highlight" or "ratio_thresh" or None or pd.Index, optional
+    annotate_colname: str, optional
+    kwargs_ns: dict, optional
+    kwargs_r_sig: dict, optional
+    kwargs_highlight: dict, optional
+    annotate_density: int, optional
+
+    Returns
+    -------
+    plotly.figure
+        The figure object.
+
+    Examples
+    --------
+    Similar to the volcano plot function, the ratio plot takes a dataframe as input together with the two
+    column names to plot.
+
+    >>> fig = vis.ratio_plot(
+    >>>     prot,
+    >>>     col_name1='Ratio M/L BC18_1',
+    >>>     col_name2='Ratio M/L BC18_2',
+    >>>     ratio_thresh= 3,
+    >>>     annotate_colname='Gene names 1st',
+    >>>     xlabel= 'Ratio Rep1',
+    >>>     ylabel = 'Ratio Rep2',
+    >>>     annotate_density=20,
+    >>> )
+
+    fig.show()
+
+    .. plot::
+    :context: close-figs
+
+    prot = pd.read_csv("../docsrc/_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+    prot = pp.cleaning(prot, "proteinGroups")
+    protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+    prot = pp.log(prot, protRatio, base=2)
+    prot['Gene names 1st'] = prot['Gene names'].str.split(';').str[0]
+
+    fig = vis.ratio_plot(
+        prot,
+        col_name1='Ratio M/L BC18_1',
+        col_name2='Ratio M/L BC18_2',
+        ratio_thresh= 3,
+        annotate_colname='Gene names 1st',
+        xlabel= 'Ratio Rep1',
+        ylabel = 'Ratio Rep2',
+        annotate_density=20,
+    )
+
+    fig.show()
+    """
+    # check for input correctness and make sure score is present in df for plot
+
+    df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
+
+    fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
+
+    # Non-Significant
+    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    ax.scatter(
+        df.loc[df["SigCat"] == "NS", col_name1],
+        df.loc[df["SigCat"] == "NS", col_name2],
+        s=df.loc[df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
+        label="NS",
+        **kwargs_ns,
+    )
+
+    # Significant by ratio_thresh
+    kwargs_r_sig = com.set_default_kwargs(
+        kwargs_r_sig,
+        dict(
+            color="#FF886D",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "ratio_thresh", "s"]
+            if pointsize_colname is not None
+            else None,
+            label="Significant based on ratio threshold",
+        ),
+    )
+    ax.scatter(
+        df.loc[df["SigCat"] == "ratio_thresh", col_name1],
+        df.loc[df["SigCat"] == "ratio_thresh", col_name2],
+        **kwargs_r_sig,
+    )
+
+    if highlight is not None:
+        if not isinstance(highlight, pd.Index):
+            raise ValueError("You must provide a pd.Index object for highlighting")
+        kwargs_highlight = com.set_default_kwargs(
+            kwargs_highlight,
+            dict(
+                color="blue",
+                alpha=0.8,
+                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+            ),
+        )
+        ax.scatter(
+            df.loc[highlight, col_name1],
+            df.loc[highlight, col_name2],
+            **kwargs_highlight,
+        )
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    # ANNOTATION AND LABELING
+    to_label = pd.Index([])
+    if annotate is not None:
+        if isinstance(annotate, str):
+            if annotate == "highlight":
+                if highlight is None:
+                    raise ValueError(
+                        'You must provide input to the "highlight" kwarg before you can'
+                        " label the highlighted points"
+                    )
+                to_label = highlight
+            elif "ratio_thresh" in annotate:
+                to_label = df[df["SigCat"] == annotate].index
+        elif isinstance(annotate, pd.Index):
+            to_label = annotate
+        else:
+            raise ValueError(
+                'Annotate must be "highlight", "ratio_thresh" "None" or pd.Index'
+            )
+
+        _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate_colname=annotate_colname,
+                       labelling_index=to_label, annotate_density=annotate_density)
+
+    # STYLING
+    _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
+
+    if show_thresh:
+        _ratio_plot_style_axes(ax, ratio_thresh)
+    if ret_fig:
+        return fig
+
+
+def _ratio_plot_style_axes(ax, ratio_thresh):
+    ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axvline(x=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+    ax.axhline(y=0, color="black", linestyle="-")
+    ax.axvline(x=0, color="black", linestyle="-")
+
+
+def iratio_plot(df: pd.DataFrame,
+                col_name1: str,
+                col_name2: str = None,
+                ratio_thresh: float = None,
+                xlabel: str = "Ratio col1",
+                ylabel: str = "Ratio col2",
+                pointsize_colname: str or float = None,
+                highlight: pd.Index = None,
+                title: str = None,
+                show_legend: bool = True,
+                ret_fig: bool = True,
+                annotate_colname: str = "Gene names"):
+    df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
+
+    categories = ["NS", "ratio_thresh"]
+
+    if highlight is not None:
+        if not isinstance(highlight, pd.Index):
+            raise ValueError("You must provide a pd.Index object for highlighting")
+        df["SigCat"] = "-"
+        df.loc[highlight, "SigCat"] = "*"
+        fig = (
+            px.scatter(
+                data_frame=df,
+                x=col_name1,
+                y=col_name2,
+                hover_name=annotate_colname,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+            if annotate_colname is not None
+            else px.scatter(
+                data_frame=df,
+                x=col_name1,
+                y=col_name2,
+                size=pointsize_colname,
+                color="SigCat",
+                opacity=0.5,
+                category_orders={"SigCat": ["-", "*"]},
+                title=title,
+            )
+        )
+
+    elif annotate_colname is not None:
+        fig = px.scatter(
+            data_frame=df,
+            x=col_name1,
+            y=col_name2,
+            hover_name=annotate_colname,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+    else:
+        fig = px.scatter(
+            data_frame=df,
+            x=col_name1,
+            y=col_name2,
+            size=pointsize_colname,
+            color="SigCat",
+            opacity=0.5,
+            category_orders={"SigCat": categories},
+            title=title,
+        )
+
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    # horizontal threshold
+    fig.add_trace(
+        go.Scatter(
+            x=[df[col_name1].min(), df[col_name1].max()],
+            y=[ratio_thresh, ratio_thresh],
+            mode="lines",
+            line=go.scatter.Line(color="grey", dash="longdash"),
+            showlegend=False,
+        )
+    )
+
+    # vertical threshold
+    fig.add_trace(
+        go.Scatter(
+            y=[df[col_name2].min(), df[col_name2].max()],
+            x=[ratio_thresh, ratio_thresh],
+            mode="lines",
+            line=go.scatter.Line(color="grey", dash="longdash"),
+            showlegend=False,
+        )
+    )
+
+    fig.update_layout(
+        template="simple_white",
+        showlegend=show_legend,
+        xaxis_title=xlabel,
+        yaxis_title=ylabel
+    )
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
+
+
 # Log Intensity Plots #
-def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=False,
+def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-                 figsize=(6, 6), ret_fig=False):
+                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
     Parameters
     ----------
+    ret_fig : bool
+        Whether to return the figrue object, optional.
+    ret_fig :  bool
+        Whether to return the figure object.
+    ax : plt.Axes
+        The axis to plot on, optional.
     df : pd.DataFrame
         Input dataframe.
     log_fc : str
@@ -1663,8 +2016,6 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
         The default is None.
     annot : str, optional
         Which column to use for plot annotation. The default is False.
-    interactive : bool, optional
-         The default is False.
     sig_col : str, optional
         Colour for significant points. The default is "green".
     bg_col : str, optional
@@ -1674,9 +2025,6 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
         The default is "Volcano Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    ret_fig : bool, optional
-        Whether or not to return the figure, can be used to further
-        customize it afterwards.. The default is False.
     Returns
     -------
     None.
@@ -1717,19 +2065,13 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
     selected and labelled.
 
     >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                   fct=2, annot=True, interactive=False, annot="Gene names")
+                   fct=2, annot=True,  annot="Gene names")
 
     .. plot::
         :context: close-figs
 
         vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                       fct=2, interactive=False, annot="Gene names")
-
-    And the plots can also be investigated interactively
-
-    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM",
-    ...                                   "log10_Intensity BC4_3", fct=0.7,
-    ...                                   figsize=(15,5), interactive=True)
+                       fct=2, annot="Gene names")
     """
     # TODO: Copy features from volcano function (highlight etc)
     # TODO also add option to not highlight anything
@@ -1742,109 +2084,141 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, interactive=
     unsig = df[df["SigCat"] == "-"].index
     sig = df[df["SigCat"] == "*"].index
 
-    if not interactive:
-        # draw figure
-        plt.figure(figsize=figsize)
-        ax = plt.subplot()
-        plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
-                    label="background")
-        plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
+    # draw figure
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.get_figure()
 
-        # draw threshold lines
-        if fct:
-            plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-            plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-        plt.axvline(0, 0, 1, ls="dashed", color="gray")
+    plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
+                label="background")
+    plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
 
-        # remove of top and right plot boundary
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        # seting x and y labels and title
-        plt.ylabel("log Intensity")
-        plt.xlabel("log_fc")
-        plt.title(title, size=18)
+    # draw threshold lines
+    if fct:
+        plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+        plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+    plt.axvline(0, 0, 1, ls="dashed", color="gray")
 
-        # add legend
-        plt.legend()
+    # remove of top and right plot boundary
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    # setting x and y labels and title
+    plt.ylabel("log Intensity")
+    plt.xlabel("log_fc")
+    plt.title(title, size=18)
 
-        if annot:
-            # Annotation
-            # get x and y coordinates as well as strings to plot
-            xs = df[log_fc].loc[sig]
-            ys = df[log_intens_col].loc[sig]
-            ss = df[annot].loc[sig]
+    # add legend
+    plt.legend()
 
-            # annotation
-            for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
-                if idx % 2 == 0:
-                    if x < 0:
-                        plt.plot([x, x - .2], [y, y - .2], color="gray")
-                        plt.text(x - .3, y - .25, s)
-                    else:
-                        plt.plot([x, x + .2], [y, y - .2], color="gray")
-                        plt.text(x + .2, y - .2, s)
+    if annot:
+        # Annotation
+        # get x and y coordinates as well as strings to plot
+        xs = df[log_fc].loc[sig]
+        ys = df[log_intens_col].loc[sig]
+        ss = df[annot].loc[sig]
 
-                elif x < 0:
-                    plt.plot([x, x - .2], [y, y + .2], color="gray")
-                    plt.text(x - .3, y + .25, s)
+        # annotation
+        for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
+            if idx % 2 == 0:
+                if x < 0:
+                    plt.plot([x, x - .2], [y, y - .2], color="gray")
+                    plt.text(x - .3, y - .25, s)
                 else:
-                    plt.plot([x, x + .2], [y, y + .2], color="gray")
-                    plt.text(x + .2, y + .2, s)
-    if interactive:
-        if annot:
-            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col, hover_name=annot,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
-        else:
-            fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
+                    plt.plot([x, x + .2], [y, y - .2], color="gray")
+                    plt.text(x + .2, y - .2, s)
 
-        fig.update_yaxes(showgrid=False, zeroline=True)
-        fig.update_xaxes(showgrid=False, zeroline=False)
+            elif x < 0:
+                plt.plot([x, x - .2], [y, y + .2], color="gray")
+                plt.text(x - .3, y + .25, s)
+            else:
+                plt.plot([x, x + .2], [y, y + .2], color="gray")
+                plt.text(x + .2, y + .2, s)
 
-        fig.add_trace(
-            go.Scatter(
-                x=[0, 0],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="purple", dash="longdash"),
-                showlegend=False)
-        )
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
 
-        fig.add_trace(
-            go.Scatter(
-                x=[-fct, -fct],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
-        )
 
-        fig.add_trace(
-            go.Scatter(
-                x=[fct, fct],
-                y=[0, df[log_intens_col].max()],
-                mode="lines",
-                line=go.scatter.Line(color="teal", dash="longdash"),
-                showlegend=False)
-        )
+def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
+    # noinspection PyUnresolvedReferences
+    # TODO: Copy features from volcano function (highlight etc)
+    # TODO also add option to not highlight anything
+    df = df.copy(deep=True)
 
-        fig.update_layout({
-            'plot_bgcolor': 'rgba(70,70,70,1)',
-            'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-        })
+    df = df[~df[log_intens_col].isin([-np.inf, np.nan])]
+    df["SigCat"] = "-"
+    if fct is not None:
+        df.loc[abs(df[log_fc]) > fct, "SigCat"] = "*"
 
-        if ret_fig:
-            return fig
-        else:
-            fig.show()
+    if annot:
+        fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col, hover_name=annot,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
+    else:
+        fig = px.scatter(data_frame=df, x=log_fc, y=log_intens_col,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title="Volcano plot")
+
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    fig.add_trace(
+        go.Scatter(
+            x=[0, 0],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="purple", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[-fct, -fct],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="teal", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[fct, fct],
+            y=[0, df[log_intens_col].max()],
+            mode="lines",
+            line=go.scatter.Line(color="teal", dash="longdash"),
+            showlegend=False)
+    )
+
+    fig.update_layout({
+        'plot_bgcolor': 'rgba(70,70,70,1)',
+        'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
+    })
+
+    if ret_fig:
+        return fig
+    else:
+        fig.show()
 
 
 # MA Plots #
-def ma_plot(df, x, y, interactive=False, fct=None,
-            title="MA Plot", figsize=(6, 6), annot=None):
-    # sourcery skip: assign-if-exp, extract-method
+
+def _init_ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int]):
+    df = df.copy(deep=True)
+    df["M"] = df[x] - df[y]
+    df["A"] = 1 / 2 * (df[x] + df[y])
+    df["M"].replace(-np.inf, np.nan, inplace=True)
+    df["A"].replace(-np.inf, np.nan, inplace=True)
+    df["SigCat"] = False
+    if fct is not None:
+        df.loc[abs(df["M"]) > fct, "SigCat"] = True
+
+    return df
+
+
+def ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int] = None,
+            title: str = "MA Plot", ax: plt.axis = None, ret_fig: bool = False, figsize: tuple = (6, 6)):
     # noinspection PyUnresolvedReferences
     r"""
     Plot log intensity ratios (M) vs. the average intensity (A).
@@ -1852,21 +2226,22 @@ def ma_plot(df, x, y, interactive=False, fct=None,
     Notes
     -----
     The MA plot is useful to determine whether a data normalization is needed.
-    The majority of proteins is considered to be unchanged between between
+    The majority of proteins is considered to be unchanged between
     treatments and thereofore should lie on the y=0 line.
-    If this is not the case, a normalisation should be applied.
+    If this is not the case, a normalization should be applied.
 
     Parameters
     ----------
+    ret_fig: bool
+        Whether to return the figure or show it directly
+    ax : plt.axis
+        The axis to plot on
     df : pd.dataFrame
         Input dataframe with log intensities.
     x : str
         Colname containing intensities of experiment1.
     y : str
         Colname containing intensities of experiment2.
-    interactive : bool, optional
-        Whether to return an interactive plotly plot.
-        The default is False.
     fct : numeric, optional
         The value in M to draw a horizontal line.
         The default is None.
@@ -1874,9 +2249,6 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         Title of the figure. The default is "MA Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
-    annot : str, optional
-        Colname to use for labels in interactive plot.
-        The default is None.
 
     Returns
     -------
@@ -1885,12 +2257,12 @@ def ma_plot(df, x, y, interactive=False, fct=None,
     Examples
     --------
     The MA plot allows to easily visualize difference in intensities between
-    experiments or replicates and therefore to judge if data normalisation is
+    experiments or replicates and therefore to judge if data normalization is
     required for further analysis.
     The majority of intensities should be unchanged between conditions and
     therefore most points should lie on the y=0 line.
 
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
     .. plot::
         :context: close-figs
@@ -1908,12 +2280,12 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         x = "log10_Intensity BC4_3"
         y = "log10_Intensity BC36_1"
 
-        vis.ma_plot(prot, x, y, fct=2,interactive=False)
+        vis.ma_plot(prot, x, y, fct=2)
         plt.show()
 
-    If this is not the case, a normalisation using e.g. LOESS should be applied
+    If this is not the case, a normalization using e.g. LOESS should be applied
 
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
     .. plot::
         :context: close-figs
@@ -1921,67 +2293,105 @@ def ma_plot(df, x, y, interactive=False, fct=None,
         twitch = "log10_Intensity H BC18_1"
         ctrl = "log10_Intensity L BC18_1"
 
-        vis.ma_plot(prot, twitch, ctrl, fct=2,interactive=False)
+        vis.ma_plot(prot, twitch, ctrl, fct=2)
         plt.show()
     """
-    df = df.copy(deep=True)
-    df["M"] = df[x] - df[y]
-    df["A"] = 1 / 2 * (df[x] + df[y])
-    df["M"].replace(-np.inf, np.nan, inplace=True)
-    df["A"].replace(-np.inf, np.nan, inplace=True)
-    df["SigCat"] = False
-    if fct is not None:
-        df.loc[abs(df["M"]) > fct, "SigCat"] = True
-    if not interactive:
-        # draw figure
-        plt.figure(figsize=figsize)
-        sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
-        plt.axhline(0, 0, 1, color="black", ls="dashed")
-        plt.title(title)
-        plt.ylabel("M")
-        plt.xlabel("A")
+    df = _init_ma_plot(df, x, y, fct)
 
-        if fct is not None:
-            plt.axhline(fct, 0, 1, color="gray", ls="dashed")
-            plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
-
+    # draw figure
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
     else:
-        if annot:
-            fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
-        else:
-            fig = px.scatter(data_frame=df, x='A', y='M',
-                             color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
-                             opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
+        fig = ax.get_figure()
 
-        fig.update_yaxes(showgrid=False, zeroline=True)
-        fig.update_xaxes(showgrid=False, zeroline=False)
+    sns.scatterplot(data=df, x='A', y='M', linewidth=0, hue="SigCat")
+    plt.axhline(0, 0, 1, color="black", ls="dashed")
+    plt.title(title)
+    plt.ylabel("M")
+    plt.xlabel("A")
 
-        if fct is not None:
-            fig.add_trace(
-                go.Scatter(
-                    y=[fct, fct],
-                    x=[df['A'].min(), df['A'].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
+    if fct is not None:
+        plt.axhline(fct, 0, 1, color="gray", ls="dashed")
+        plt.axhline(-fct, 0, 1, color="gray", ls="dashed")
 
-            fig.add_trace(
-                go.Scatter(
-                    y=[-fct, -fct],
-                    x=[df['A'].min(), df['A'].max()],
-                    mode="lines",
-                    line=go.scatter.Line(color="teal", dash="longdash"),
-                    showlegend=False)
-            )
-
-        fig.update_layout({
-            'plot_bgcolor': 'rgba(70,70,70,1)',
-            'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
-        })
+    if ret_fig:
+        return fig
+    else:
         fig.show()
+
+
+def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
+    # sourcery skip: assign-if-exp, extract-method
+    # noinspection PyUnresolvedReferences
+    r"""
+    Plot log intensity ratios (M) vs. the average intensity (A).
+
+    Notes
+    -----
+    The MA plot is useful to determine whether a data normalization is needed.
+    The majority of proteins is considered to be unchanged between
+    treatments and therefore should lie on the y=0 line.
+    If this is not the case, a normalization should be applied.
+
+    Parameters
+    ----------
+    df : pd.dataFrame
+        Input dataframe with log intensities.
+    x : str
+        Column name containing intensities of experiment1.
+    y : str
+        Column name containing intensities of experiment2.
+    fct : numeric, optional
+        The value in M to draw a horizontal line.
+        The default is None.
+    title : str, optional
+        Title of the figure. The default is "MA Plot".
+    annot : str, optional
+        Column name to use for labels in interactive plot.
+        The default is None.
+
+    Returns
+    -------
+    None.
+    """
+    df = _init_ma_plot(df, x, y, fct)
+
+    if annot:
+        fig = px.scatter(data_frame=df, x='A', y='M', hover_name=annot,
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
+    else:
+        fig = px.scatter(data_frame=df, x='A', y='M',
+                         color="SigCat", color_discrete_sequence=["cornflowerblue", "mistyrose"],
+                         opacity=0.5, category_orders={"SigCat": ["*", "-"]}, title=title)
+
+    fig.update_yaxes(showgrid=False, zeroline=True)
+    fig.update_xaxes(showgrid=False, zeroline=False)
+
+    if fct is not None:
+        fig.add_trace(
+            go.Scatter(
+                y=[fct, fct],
+                x=[df['A'].min(), df['A'].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False)
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                y=[-fct, -fct],
+                x=[df['A'].min(), df['A'].max()],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False)
+        )
+
+    fig.update_layout({
+        'plot_bgcolor': 'rgba(70,70,70,1)',
+        'paper_bgcolor': 'rgba(128, 128, 128, 0.25)',
+    })
+    fig.show()
 
 
 # Mean SD plot #
@@ -2059,10 +2469,10 @@ def mean_sd_plot(df, reps):
 
 
 # Traces #
-def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
-                xlabel="", ylabel="log_fc", title="", ax=None,
-                plot_summary=False, plot_summary_only=False, summary_color="red",
-                summary_type="Mean", summary_style="solid", **kwargs):
+def plot_traces(df, cols: list, labels: list[str] = None, colors: list[str] = None, z_score: int = None,
+                xlabel: str = "", ylabel: str = "log_fc", title: str = "", ax: plt.axis = None,
+                plot_summary: bool = False, plot_summary_only: bool = False, summary_color: str = "red",
+                summary_type: Literal["Mean", "Median"] = "Mean", summary_style: str = "solid", **kwargs):
     # noinspection PyUnresolvedReferences
     r"""
     Plot numerical data such as fold changes vs. columns (e.g. conditions).
@@ -2085,9 +2495,9 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
         Must be between 0 and 1 for True.
         The default is None.
     xlabel : str, optional
-        Label for the x axis. The default is "".
+        Label for the x-axis. The default is "".
     ylabel : str, optional
-        Label for the y axis.
+        Label for the y-axis.
         The default is "log_fc".
     title : str, optional
         Title of the plot.
@@ -2168,7 +2578,7 @@ def plot_traces(df, cols: list, labels=None, colors=None, z_score=None,
     # TODO xlabels from colnames
     x = range(len(cols))
     y = df[cols].T.values
-    if z_score is not None and z_score in [0, 1]:
+    if z_score is not None and z_score in {0, 1}:
         y = zscore(y, axis=z_score)
 
     if ax is None:
@@ -2472,17 +2882,16 @@ class UpSetGrouped(upsetplot.UpSet):
 
                 label_found = []
                 for label in label_substrings:
-                    tests = []
-                    for s in subset:
-                        tests.append(label in s)
+                    tests = [label in s for s in subset]
                     label_found.append(any(tests))
 
-                if mode == 'intersection':
-                    if all(label_found):
-                        self.style_subsets(present=subset, **kwargs)
-                else:
-                    if any(label_found):
-                        self.style_subsets(present=subset, **kwargs)
+                if (
+                    mode == 'intersection'
+                    and all(label_found)
+                    or mode != 'intersection'
+                    and any(label_found)
+                ):
+                    self.style_subsets(present=subset, **kwargs)
 
     def replot_totals(self, specs, color):
         """

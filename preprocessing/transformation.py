@@ -10,20 +10,12 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 from importlib import resources
-import re
-import os
-from subprocess import run, PIPE, STDOUT, CalledProcessError
-from autoprot import r_helper
+from .. import r_helper
 import requests
-from Bio import pairwise2
-from Bio.pairwise2 import format_alignment
 from scipy.stats import pearsonr, spearmanr
 from scipy import stats
 from sklearn.metrics import auc
-from urllib import parse
-from ftplib import FTP
 import warnings
-from typing import Union
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
