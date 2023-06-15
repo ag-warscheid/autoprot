@@ -11,12 +11,10 @@ import numpy as np
 import pandas as pd
 import os
 from subprocess import run, PIPE, STDOUT
-# noinspection PyUnresolvedReferences
-from autoprot.decorators import report
-# noinspection PyUnresolvedReferences
-from autoprot import r_helper
-# noinspection PyUnresolvedReferences
-import autoprot.preprocessing as pp
+from typing import Union
+from ..decorators import report
+from .. import r_helper
+from .. import preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -28,12 +26,12 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-
 # =============================================================================
 # IMPUTATION ALGORITHMS
 # =============================================================================
 @report
-def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
+def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], max_missing: int = None,
+                 downshift: Union[int, float] = 1.8, width: Union[int, float] = .3):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
@@ -112,7 +110,7 @@ def imp_min_prob(df, cols_to_impute, max_missing=None, downshift=1.8, width=.3):
     return df
 
 
-def imp_seq(df, cols, print_r=True):
+def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 

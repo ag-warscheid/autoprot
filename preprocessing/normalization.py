@@ -11,10 +11,9 @@ import numpy as np
 import pandas as pd
 import os
 from subprocess import run, PIPE, CalledProcessError
-# noinspection PyUnresolvedReferences
-from autoprot import r_helper
-# noinspection PyUnresolvedReferences
-import autoprot.preprocessing as pp
+from typing import Union
+from .. import r_helper
+from .. import preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -26,7 +25,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def quantile_norm(df, cols, return_cols=False, backend="r"):
+def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backend="r"):
     # noinspection PyUnresolvedReferences
     r""" 
     Perform quantile normalization.
@@ -153,7 +152,7 @@ def quantile_norm(df, cols, return_cols=False, backend="r"):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols, return_cols=False, backend='r'):
+def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
     # noinspection PyUnresolvedReferences
     r"""
     Perform Variance Stabilizing Normalization.
@@ -166,13 +165,11 @@ def vsn(df, cols, return_cols=False, backend='r'):
     df : pd.DataFrame
         Input dataframe.
     cols : list of str
-        Colnames to perform normalisation on.
+        Colnames to perform normalization on.
         Should correspond to columns with raw intensities/iBAQs (the VSN will transform them eventually).
     return_cols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
-    backend : str, optional
-        Only 'r' is implemented. The default is "r".
 
     Returns
     -------
@@ -268,7 +265,7 @@ def vsn(df, cols, return_cols=False, backend='r'):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclic_loess(df, cols, return_cols=False, backend='r'):
+def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Perform cyclic Loess normalization.
@@ -282,8 +279,6 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
     return_cols : bool, optional
         Whether to return a list of names corresponding to the columns added
         to the dataframe. The default is False.
-    backend : str, optional
-        Only 'r' is implemented. The default is "r".
 
     Returns
     -------
@@ -370,8 +365,7 @@ def cyclic_loess(df, cols, return_cols=False, backend='r'):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-
-def norm_to_prot(entry, prot_df, to_normalize):
+def norm_to_prot(entry: pd.Series, prot_df: pd.DataFrame, to_normalize: list[str]):
     """
     Normalize phospho data to total protein level.
 
@@ -423,4 +417,3 @@ def norm_to_prot(entry, prot_df, to_normalize):
         # TODO Does this work? isnt poi[toNormalize] a df and entry a series?
         corrected = entry[to_normalize] - poi[to_normalize]
     return pd.Series(corrected.values[0])
-

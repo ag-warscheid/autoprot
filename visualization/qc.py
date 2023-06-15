@@ -12,13 +12,7 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib.ticker as ticker
 import pylab as pl
-
 import plotly.express as px
-
-# noinspection PyUnresolvedReferences
-from autoprot.dependencies.venn import venn
-# noinspection PyUnresolvedReferences
-from autoprot import visualization as vis
 from typing import Literal, Union
 
 

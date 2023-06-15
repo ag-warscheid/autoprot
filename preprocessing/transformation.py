@@ -10,7 +10,7 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 from importlib import resources
-from autoprot import r_helper
+from .. import r_helper
 import requests
 from scipy.stats import pearsonr, spearmanr
 from scipy import stats

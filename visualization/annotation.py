@@ -11,18 +11,12 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
+import plotly.graph_objects as go
 
 import logomaker
 import matplotlib.patches as patches
 
-# noinspection PyUnresolvedReferences
-from autoprot.dependencies.venn import venn
-# noinspection PyUnresolvedReferences
-from autoprot import visualization as vis
-from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
-
-import plotly.graph_objects as go
-
+from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 # SEQUENCE LOGO
 

@@ -9,8 +9,8 @@ Autoprot Preprocessing Functions.
 
 import numpy as np
 import pandas as pd
-from autoprot.decorators import report
-from autoprot import r_helper
+from ..decorators import report
+from .. import r_helper
 
 
 RFUNCTIONS, R = r_helper.return_r_path()

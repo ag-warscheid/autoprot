@@ -23,12 +23,9 @@ from adjustText import adjust_text
 import matplotlib.patches as patches
 from itertools import combinations
 
-# noinspection PyUnresolvedReferences
-from autoprot.dependencies.venn import venn
-# noinspection PyUnresolvedReferences
-from autoprot import visualization as vis
-# noinspection PyUnresolvedReferences
-from autoprot import common as com
+from ..dependencies.venn import venn
+from .. import visualization as vis
+from .. import common as com
 
 import plotly.express as px
 import plotly.graph_objects as go

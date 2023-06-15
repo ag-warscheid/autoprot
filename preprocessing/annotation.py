@@ -15,10 +15,8 @@ import numpy as np
 import pandas as pd
 import requests
 from Bio import Align
-# noinspection PyUnresolvedReferences
-from autoprot import r_helper
-# noinspection PyUnresolvedReferences
-from autoprot.decorators import report
+from .. import r_helper
+from ..decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -51,7 +49,8 @@ def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bo
     only_prots : bool, optional
         Whether to return dataframe or only list of gene names annotated with terms. The default is False.
     exact : bool, optional
-        whether go term must match exactly. i.e. MAPK activity <-> regulation of MAPK acitivity etc. The default is True.
+        Whether the go term must match exactly. i.e. MAPK activity <-> regulation of MAPK acitivity etc.
+        The default is True.
 
     Returns
     -------
@@ -132,7 +131,6 @@ def motif_annot(df, motif, col="Sequence window"):
         seq = x[col]
         seqs = seq.split(';') if ";" in seq else [seq]
         for seq in seqs:
-            pos = 0
             pos2 = re.finditer(motif, seq)
             if pos2:
                 # iterate over re match objects
