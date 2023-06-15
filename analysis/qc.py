@@ -310,6 +310,7 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
     df_evidence : cleaned pandas DataFrame from Maxquant analysis
     typ : str,
           Give type of enrichment for analysis. The default is "Phospho".
+          ("Phospho", "AHA-Phosphonate", "CPT", "AHA-Biotin")
     save : bool,
         While True table and fig will be saved in active filepath.
 
@@ -348,9 +349,9 @@ def enrichment_specifity(df_evidence, typ="Phospho", save=True):
     elif typ == "Phospho":
         colname = 'Phospho (STY)'
     elif typ == "AHA-Biotin":
-        colname = 'Met--> Biotin'
+        colname = 'Met --> Biotin'
     else:
-        raise TypeError("Invalid type specified. Must be 'AHA-Phosphonate', 'CPT', or 'Phospho'")
+        raise TypeError("Invalid type specified. Must be 'AHA-Phosphonate', 'AHA-Biotin', 'CPT', or 'Phospho'")
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
 
@@ -582,7 +583,7 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     return df_labeling_eff_summary
 
 
-def dimethyl_labeling_efficieny(df_evidence, label):
+def dimethyl_labeling_efficieny(df_evidence, label, save=True):
     """
     Parameters
     ----------
@@ -621,9 +622,13 @@ def dimethyl_labeling_efficieny(df_evidence, label):
         s_relative_binned = s_binned / count * 100
         df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
 
-    df_labeling_eff.columns = experiments
-    print(df_labeling_eff)
-    df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
+    try:
+        df_missed_cleavage_summary.columns = experiments
+    except Exception as e:
+        print(f"unexpected error in col [Experiment]: {e}")
+    
+    if save:
+        df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
 
     # plot labeling efficiency overview
     x_ax = len(experiments) + 1
@@ -637,7 +642,8 @@ def dimethyl_labeling_efficieny(df_evidence, label):
     ax1.set_ylabel("{} labeling [%]".format(label), size=12)
 
     plt.tight_layout()
-    plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
+    if save:
+        plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
 
     # plot labeling efficiency Lys for each experiment separately
     # columns and rows from number of experiments in df_evidence
@@ -669,9 +675,12 @@ def dimethyl_labeling_efficieny(df_evidence, label):
         ax1.set_ylim(0, 100)
         ax1.axhline(95, linestyle="--", c="k")
 
+
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
     plt.tight_layout()
-    plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
+    
+    if save:
+        plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
 
     return df_labeling_eff
 
