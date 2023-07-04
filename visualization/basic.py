@@ -980,7 +980,6 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
     ax.set_ylim(lim[0], 1.25 * lim[1])
 
     if pointsize_colname is not None:
-
         mlabels = np.linspace(
             start=df[pointsize_colname].max() / 5,
             stop=df[pointsize_colname].max(),
@@ -1072,7 +1071,7 @@ def volcano(
         log_fc_thresh: float = np.log2(2),
         pointsize_colname: str or float = None,
         pointsize_scaler: float = 1,
-        highlight: pd.Index = None,
+        highlight: Union[pd.Index, list[pd.Index], None] = None,
         title: str = None,
         show_legend: bool = True,
         show_caption: bool = True,
@@ -1087,7 +1086,7 @@ def volcano(
         kwargs_p_sig: dict = None,
         kwargs_log_fc_sig: dict = None,
         kwargs_both_sig: dict = None,
-        kwargs_highlight: dict = None,
+        kwargs_highlight: Union[dict, list[dict], None] = None,
         annotate_density: int = 100,
 ):
     # noinspection PyUnresolvedReferences
@@ -1120,7 +1119,7 @@ def volcano(
     pointsize_scaler: float, optional
         Value to scale all point sizes.
         Default is 1.
-    highlight : pd.Index, optional
+    highlight : pd.Index or list of pd.Index, optional
         Rows to highlight in the plot.
         The default is None.
     title : str, optional
@@ -1160,7 +1159,7 @@ def volcano(
     kwargs_both_sig : dict, optional
         Custom kwargs to pass to matplotlib.pyplot.scatter when generating the overall significant points.
         The default is None.
-    kwargs_highlight : dict, optional
+    kwargs_highlight : dict or list of dict, optional
         Custom kwargs to pass to plt.scatter when generating the highlighted points.
         Only relevant if highlight is not None.
         The default is None.
@@ -1452,21 +1451,46 @@ def volcano(
     )
 
     if highlight is not None:
-        if not isinstance(highlight, pd.Index):
-            raise ValueError("You must provide a pd.Index object for highlighting")
-        kwargs_highlight = com.set_default_kwargs(
-            kwargs_highlight,
-            dict(
-                color="orange",
-                alpha=0.8,
-                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
-            ),
-        )
-        ax.scatter(
-            df.loc[highlight, log_fc_colname],
-            df.loc[highlight, "score"],
-            **kwargs_highlight,
-        )
+        # highlight and kwargs_highlight are not both lists
+        if not isinstance(highlight, list) and not isinstance(kwargs_highlight, list):
+            # if highlight is a pd.Index kwargs_highlight can be either dict or None
+            if not (isinstance(highlight, pd.Index) and
+                    (isinstance(kwargs_highlight, dict) or kwargs_highlight is None)):
+                raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length or pd.Index and "
+                                 "dict.")
+            else:  # all good. highlight is index and kwargs is dict or None
+                kwargs_highlight = com.set_default_kwargs(
+                    kwargs_highlight,
+                    dict(
+                        color="orange",
+                        alpha=0.8,
+                        s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+                    ),
+                )
+
+                ax.scatter(
+                    df.loc[highlight, log_fc_colname],
+                    df.loc[highlight, "score"],
+                    **kwargs_highlight,
+                )
+        else:  # highlight and kwargs_highlight are lists
+            if len(highlight) != len(kwargs_highlight):
+                raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length.")
+            else:
+                for h, k in zip(highlight, kwargs_highlight):
+                    k = com.set_default_kwargs(
+                        k,
+                        dict(
+                            color="orange",
+                            alpha=0.8,
+                            s=df.loc[h, "s"] if pointsize_colname is not None else None,
+                        ),
+                    )
+                    ax.scatter(
+                        df.loc[h, log_fc_colname],
+                        df.loc[h, "score"],
+                        **k,
+                    )
 
     ax.set_xlabel(r"$\mathregular{log_2 fold-change}$")
     ax.set_ylabel(r"$\mathregular{-log_{10} P}$")
@@ -2887,10 +2911,10 @@ class UpSetGrouped(upsetplot.UpSet):
                     label_found.append(any(tests))
 
                 if (
-                    mode == 'intersection'
-                    and all(label_found)
-                    or mode != 'intersection'
-                    and any(label_found)
+                        mode == 'intersection'
+                        and all(label_found)
+                        or mode != 'intersection'
+                        and any(label_found)
                 ):
                     self.style_subsets(present=subset, **kwargs)
 
