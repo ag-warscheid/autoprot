@@ -364,7 +364,7 @@ class AutoPCA:
 
         Notes
         -----
-        This will return a scatterplot with as many points as there are
+        This will return a scatter plot with as many points as there are
         entries (i.e. protein IDs).
         The scores for each PC are the original protein ratios multiplied with
         the loading weights.
@@ -402,7 +402,8 @@ class AutoPCA:
         if file is not None:
             plt.savefig(fr"{file}/ScorePlot.pdf")
 
-    def loading_plot(self, pc1=1, pc2=2, labeling=False, figsize=(5, 5)):
+    def loading_plot(self, pc1: int = 1, pc2: int = 2, labeling: bool = False, ax: plt.axis = None,
+                     figsize: tuple[int] = (5, 5)):
         """
         Generate a PCA loading plot.
 
@@ -416,14 +417,16 @@ class AutoPCA:
             If True, points are labelled with the corresponding
             column labels. The default is False.
         figsize : tuple of int, optional
-            The size of the figure object.
+            The size of the figure object. Will be ignored if ax is not None.
             The default is (5,5).
+        ax: plt.axis, optional.
+            The axis to plot on. Default is None.
 
         Notes
         -----
-        This will return a scatterplot with as many points as there are
+        This will return a scatter plot with as many points as there are
         components (i.e. conditions) in the dataset.
-        For each component a load magnitude for two PCs will be printedd
+        For each component a load magnitude for two PCs will be printed
         that describes how much each condition influences the magnitude
         of the respective PC.
 
@@ -432,25 +435,26 @@ class AutoPCA:
         None.
 
         """
-        plt.figure(figsize=figsize)
+        if ax is None:
+            fig, ax = plt.subplots(1, figsize=figsize)
         if self.batch is None or len(self.batch) != self.forVis.shape[0]:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
-                            y=f"PC{pc2}", edgecolor=None)
+                            y=f"PC{pc2}", edgecolor=None, ax=ax)
         else:
             sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
-                            y=f"PC{pc2}", edgecolor=None, hue=self.batch)
+                            y=f"PC{pc2}", edgecolor=None, hue=self.batch, ax=ax)
         sns.despine()
 
-        plt.title("Loadings plot")
-        plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
-        plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
+        ax.set_title("Loadings plot")
+        ax.set_xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
+        ax.set_ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
 
         if labeling is True:
             ss = self.forVis["label"]
             xx = self.forVis[f"PC{pc1}"]
             yy = self.forVis[f"PC{pc2}"]
             for x, y, s in zip(xx, yy, ss):
-                plt.text(x, y, s)
+                ax.text(x, y, s)
 
     def bi_plot(self, pc1=1, pc2=2, num_load="all", figsize=(5, 5), **kwargs):
         """
