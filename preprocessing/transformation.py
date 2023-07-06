@@ -16,6 +16,8 @@ from scipy.stats import pearsonr, spearmanr
 from scipy import stats
 from sklearn.metrics import auc
 import warnings
+from typing import Union, Literal
+from decorators import deprecated
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -221,7 +223,50 @@ def expand_site_table(df, cols, replace_zero=True):
     return temp
 
 
-def exp_semi_col(df, scCol, newCol, castTo=None):
+def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: callable = np.nanmedian,
+                  delimiter: str = ';'):
+    """
+    Merge rows of data frames based on values of column(s).
+    Non-numeric values are concatenated and numeric values are treated with specific function.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Input dataframe
+    columns: list or str
+        Column name(s) to collapse on
+    numeric_func: callable, optional
+        Function to aggregate the numeric columns. Default is np.nanmedian.
+    delimiter: str, optional
+        Str to concatenate the non-numeric values. Default is semicolon.
+
+    Returns
+    -------
+    collapsed: pd.DataFrame
+    """
+
+    if not isinstance(columns, list):
+        columns = [columns, ]
+
+    numeric_columns = df.select_dtypes(include='number').columns.tolist()
+    non_numeric_columns = [c for c in df.columns if c not in numeric_columns]
+
+    for col in columns:
+        for split_cols in [numeric_columns, non_numeric_columns]:
+            if col not in split_cols:
+                split_cols.append(col)
+
+    numeric = df[numeric_columns].groupby(columns).agg(numeric_func)
+    non_numeric = df[non_numeric_columns].astype(str).groupby(columns).agg(delimiter.join)
+
+    collapsed = pd.concat([non_numeric, numeric], axis=1).reset_index()
+    # this resets the columns order
+    collapsed = collapsed[df.columns]
+    return collapsed
+
+
+def exp_semi_col(df: pd.DataFrame, columns: Union[list, str], suffix: str = '_exploded', delimiter: str = ';',
+                 cast_to: object = None):
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
@@ -229,11 +274,13 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     ----------
     df : pd.dataframe
         Dataframe to expant columns.
-    scCol : str
-        Colname of a column containing semicolon-separated values.
-    newCol : str
-        Name for the newly generated column.
-    castTo : dtype, optional
+    columns : str or list
+        Colname of column(s) containing semicolon-separated values.
+    suffix : str
+        Will be appended to the newly generated split column.
+    delimiter: str, optional
+        the delimiter to split the strings on. Default is semicolon.
+    cast_to : dtype, optional
         If provided new column will be set to the provided dtype. The default is None.
 
     Returns
@@ -251,7 +298,7 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     1    Q6XZL8;F7CVL0;F6SJX8
     1    Q6XZL8;F7CVL0;F6SJX8
     Name: Proteins, dtype: object
-    >>> expSemi = autoprot.preprocessing.expSemiCol(expSemi, "Proteins", "SingleProts")
+    >>> expSemi = autoprot.preprocessing.exp_semi_col(expSemi, "Proteins", "SingleProts")
     >>> expSemi["SingleProts"].head()
     0    P61255
     0    B1ARA3
@@ -260,25 +307,39 @@ def exp_semi_col(df, scCol, newCol, castTo=None):
     1    F7CVL0
     Name: SingleProts, dtype: object
     """
+
+    def split_row_by_delimiter(row):
+        for col in row.index:
+            if col in columns:
+                cell = row[col]
+                if not pd.isnull(cell):
+                    row[col + suffix] = cell.split(delimiter)
+            else:
+                continue
+        return row
+
     df = df.copy(deep=True)
-    df = df.reset_index(drop=True)
+
+    if not isinstance(columns, list):
+        columns = [columns, ]
+    if not isinstance(cast_to, list) and cast_to is not None:
+        cast_to = [cast_to, ]
+    new_columns = [c + suffix for c in columns]
 
     # make temp df with expanded columns
-    temp = df[scCol].str.split(";", expand=True)
-    # use stack to bring it into long format series and directly convert back to df
-    temp = pd.DataFrame(temp.stack(), columns=[newCol])
-    # get first level of multiindex (corresponds to original index)
-    temp.index = temp.index.get_level_values(0)
-    # join on idex
-    df = df.join(temp)
-
-    if castTo is not None:
-        df[newCol] = df[newCol].astype(castTo)
+    df = df.apply(split_row_by_delimiter, axis=1).explode(new_columns)
+    if cast_to is not None:
+        if len(cast_to) == 1:
+            df[new_columns] = df[new_columns].astype(cast_to)
+        else:
+            for t, col in zip(cast_to, new_columns):
+                df[col] = df[col].astype(t)
 
     return df
 
 
-def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, semicolon_col2: str = None):
+def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, semicolon_col2: str = None,
+                    how: Literal['left', 'right', 'outer', 'inner'] = 'left'):
     """
     Merge two dataframes on a semicolon separated column.
 
@@ -297,6 +358,8 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
         Colname of a column containing semicolon-separated values in m2.
         If sCol2 is None it is assumed to be the same as sCol1.
         The default is None.
+    how: 'left', 'right', 'outer', 'inner'
+        How to perform the merge
 
     Returns
     -------
@@ -330,7 +393,7 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
     # helper functions
     def _form_merge_pairs(s):
         """
-        Group the data back on the main data identifier and create the appropiate matching entries of the other data.
+        Group the data back on the main data identifier and create the appropriate matching entries of the other data.
 
         Parameters
         ----------
@@ -347,7 +410,7 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
         return ids or [np.nan]
 
     def _aggregate_duplicates(s):
-        # this might be a oversimplification but there should only be
+        # this might be an oversimplification but there should only be
         # object columns and numerical columns in the data
 
         if s.name == "mergeID_m1":
@@ -371,16 +434,17 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
         m2.rename(columns={semicolon_col2: semicolon_col1}, inplace=True)
 
     # expand the semicol columns and name the new col sUID
-    m1_exp = expSemiCol(m1, semicolon_col1, "sUID")
-    m2_exp = expSemiCol(m2, semicolon_col1, "sUID")
+    m1_exp = exp_semi_col(m1, semicolon_col1)
+    m2_exp = exp_semi_col(m2, semicolon_col1)
 
     # add the appropriate original row indices of m2 to the corresponding rows
     # of m1_exp
     # here one might want to consider other kind of merges
-    merge = pd.merge(m1_exp, m2_exp[["mergeID_m2", "sUID"]], on="sUID", how='left')
+    merge = pd.merge(m1_exp, m2_exp[["mergeID_m2", semicolon_col1 + '_exploded']], on=semicolon_col1 + '_exploded',
+                     how=how)
 
     merge_pairs = merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_form_merge_pairs)
-    # This is neccessary if there are more than one matching columns
+    # This is necessary if there are more than one matching columns
     merge_pairs = merge_pairs.explode("mergeID_m2")
 
     # merge of m2 columns
@@ -586,4 +650,3 @@ def make_sim_score(m1, m2, corr="pearson"):
     p_comp = calc_corr(m1, m2)
     m_comp = calc_magnitude(m1, m2)
     return -10 * np.log10(p_comp * m_comp)
-
