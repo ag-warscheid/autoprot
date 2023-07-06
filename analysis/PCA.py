@@ -245,7 +245,7 @@ class AutoPCA:
         plt.xticks(range(1, len(eig_val) + 1))
         _set_labels("explained cumulative variance", "Explained variance")
 
-    def corr_comp(self, annot=False):
+    def corr_comp(self, annot=False, ax: plt.axis = None):
         """
         Plot heatmap of PCA weights vs. variables.
 
@@ -257,6 +257,8 @@ class AutoPCA:
             to annotate the heatmap instead of the data.
             Note that DataFrames will match on position, not index.
             The default is False.
+        ax: plt.axis, optional
+            axis to plot on. Default is None.
 
         Notes
         -----
@@ -268,11 +270,12 @@ class AutoPCA:
         None.
 
         """
-        plt.figure()
-        sns.heatmap(self.forVis.filter(regex="^PC"), cmap=sns.color_palette("PuOr", 10), annot=annot)
+        if ax is None:
+            fig, ax = plt.subplots(1)
+        sns.heatmap(self.forVis.filter(regex="^PC"), cmap=sns.color_palette("PuOr", 10), annot=annot, ax=ax)
         yp = [i + 0.5 for i in range(len(self.label))]
-        plt.yticks(yp, self.forVis["label"], rotation=0)
-        plt.title("")
+        ax.set_yticks(yp, self.forVis["label"], rotation=0)
+        ax.set_title("")
 
     def bar_load(self, pc=1, n=25):
         """
