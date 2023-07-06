@@ -1,9 +1,6 @@
 import os
-from subprocess import check_output, STDOUT, run
+from subprocess import check_output
 
-# global var that stores the paths to the config files
-global config_dir
-# noinspection PyRedeclaration
 config_dir = {}
 
 
@@ -17,9 +14,10 @@ def check_r_install():
     else:
         with open(os.path.join(base_path, 'autoprot.conf'), 'r') as rf:
             for line in rf:
-                splitline = [x.strip() for x in line.split('=')]
-                if len(splitline) == 2:
+                split_line = [x.strip() for x in line.split('=')]
+                if len(split_line) == 2:
                     k, v = [x.strip() for x in line.split('=')]
+                    global config_dir  # we want to change config_dir in the global scope
                     config_dir[k] = v
 
     if 'RSCRIPT' in config_dir.keys():
@@ -30,7 +28,7 @@ def check_r_install():
             'The R variable should point to the Rscript executable. Make sure that it is not the R executable.')
 
     if not os.path.isfile(config_dir['RFUNCTIONS']):
-        raise OSError(f'The FUNCTIONS variable should point to the RFunctions.R file in your local autoprot '
+        raise OSError(f'The RFUNCTIONS variable should point to the RFunctions.R file in your local autoprot '
                       f'directory and not to {config_dir["RFUNCTIONS"]}')
 
     check_output([config_dir['R'],
