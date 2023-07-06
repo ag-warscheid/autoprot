@@ -17,7 +17,6 @@ from scipy import stats
 from sklearn.metrics import auc
 import warnings
 from typing import Union, Literal
-from decorators import deprecated
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -30,6 +29,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 
 def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
+    # noinspection PyUnresolvedReferences
     """
     Perform log transformation.
 
@@ -115,6 +115,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
 
 
 def expand_site_table(df, cols, replace_zero=True):
+    # noinspection PyUnresolvedReferences
     r"""
     Convert a phosphosite table into a phosphopeptide table.
 
@@ -267,6 +268,7 @@ def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: cal
 
 def exp_semi_col(df: pd.DataFrame, columns: Union[list, str], suffix: str = '_exploded', delimiter: str = ';',
                  cast_to: object = None):
+    # noinspection PyUnresolvedReferences
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
@@ -573,7 +575,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
         sequence = get_uniprot_sequence(uniprot_acc)
     if get_seq == "offline":
         sequence = get_uniprot_sequence_locally(uniprot_acc, organism)
-        if sequence == False:
+        if not sequence:
             sequence = get_uniprot_sequence(uniprot_acc)
 
     iBAQ_pep_count = count_tryptic_peptides(sequence)
@@ -583,6 +585,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
 
 
 def make_sim_score(m1, m2, corr="pearson"):
+    # noinspection PyUnresolvedReferences
     """
     Calculate similarity score.
 

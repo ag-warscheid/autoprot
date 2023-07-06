@@ -16,6 +16,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
+import matplotlib.ticker as mticker
 
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
@@ -574,8 +575,9 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         plt.ylabel(ylabel)
 
         if labels:
+            ticks_loc = ax.get_xticks().tolist()
+            ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
             temp = ax.set_xticklabels(labels)
-            ax.set_xticklabels(labels)
             for i, label in enumerate(temp):
                 label.set_y(label.get_position()[1] - (i % 2) * .05)
         else:
