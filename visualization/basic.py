@@ -569,19 +569,20 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         else:
             fig = ax.get_figure()
 
-        df[reps].boxplot(**kwargs)
+        df[reps].boxplot(ax=ax, **kwargs)
         ax.grid(False)
         plt.title(title)
         plt.ylabel(ylabel)
 
+        ticks_loc = ax.get_xticks().tolist()
+        ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
+
         if labels:
-            ticks_loc = ax.get_xticks().tolist()
-            ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
             temp = ax.set_xticklabels(labels)
             for i, label in enumerate(temp):
                 label.set_y(label.get_position()[1] - (i % 2) * .05)
         else:
-            ax.set_xticklabels(str(i + 1) for i in range(len(reps)))
+            ax.set_ticklabels(str(i + 1) for i in range(len(reps)))
         if ylabel == "log_fc":
             ax.axhline(0, 0, 1, color="gray", ls="dashed")
     sns.despine()
