@@ -181,7 +181,14 @@ limmaFunction <- function(dfv) {
     design <- data.frame(coef)
     print(design)
   }
-  
+
+  # Test if the matrix is full rank
+  if (is.fullrank(design) == FALSE) {
+    print(noquote('Matrix is not full rank!'))
+    print(noquote('The following coefficients cannot be estimated:')
+    print(nonEstimable(design))
+  }
+
   # Fit linear model for each protein
   fit <- lmFit(dfv, design)
   
