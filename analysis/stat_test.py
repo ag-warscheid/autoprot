@@ -341,7 +341,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
 
     # limma handles fold-change calculation opposite to all other autoprot tools
     # this changes the order for function consistency
-    if isinstance(reps[0], list) and len(reps) == 2:
+    if isinstance(reps[0], list) and len(reps)  == 2:
         reps = reps[::-1]
 
     if "UID" not in df.columns:

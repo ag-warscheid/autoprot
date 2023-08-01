@@ -1477,7 +1477,9 @@ def volcano(
                     **kwargs_highlight,
                 )
         else:  # highlight and kwargs_highlight are lists
-            if len(highlight) != len(kwargs_highlight):
+            if kwargs_highlight is None:  # if no kwargs are given nothing is changed for the whole list
+                kwargs_highlight = [None, ] * len(highlight)
+            elif len(highlight) != len(kwargs_highlight):
                 raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length.")
             else:
                 for h, k in zip(highlight, kwargs_highlight):
