@@ -25,7 +25,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backend="r"):
+def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backend="r", print_r: bool = False):
     # noinspection PyUnresolvedReferences
     r""" 
     Perform quantile normalization.
@@ -43,6 +43,8 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
         'py' or 'r'. The default is "r".
         While the python implementation is much faster than r (since R is executed in a subroutine), the
         R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)
+    print_r : bool
+        Whether to return output from the R command line. Default is False.
 
     Returns
     -------
@@ -133,10 +135,7 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
                    output_loc  # output file
                    ]
 
-        try:
-            run(command, stdout=PIPE, check=True, stderr=PIPE, universal_newlines=True)
-        except CalledProcessError as err:
-            raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
+        r_helper.run_r_command(command, print_r)
 
         res = pp.read_csv(output_loc)
         res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
@@ -152,7 +151,7 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
+def vsn(df, cols: Union[list[str], pd.Index], return_cols=False, print_r: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Perform Variance Stabilizing Normalization.
@@ -170,6 +169,8 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
     return_cols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
+    print_r : bool
+        Whether to return output from the R command line. Default is False.
 
     Returns
     -------
@@ -207,7 +208,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
     Until now this was only preprocessing for the normalisation. We will also log2-transform the intensity data to
     show that VSN normalisation results in values of similar scale than log2 transformation.
 
-    >>> phos_lfq = pp.vsn(phos_lfq, intens_cols)
+    >>> phos_lfq = pp.vsn(phos_lfq,intens_cols)
     >>> norm_cols = phos_lfq.filter(regex="_norm").columns
     >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
     >>> vis.boxplot(phos_lfq, [log_cols, norm_cols], data='Intensity', compare=True)
@@ -248,10 +249,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
                output_loc  # output file
                ]
 
-    try:
-        run(command, stdout=PIPE, check=True, stderr=PIPE, universal_newlines=True)
-    except CalledProcessError as err:
-        raise Exception(f'Error during execution of R function:\n{err.stderr}') from err
+    r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
     res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
@@ -265,7 +263,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False):
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False):
+def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False, print_r: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Perform cyclic Loess normalization.
@@ -279,6 +277,8 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
     return_cols : bool, optional
         Whether to return a list of names corresponding to the columns added
         to the dataframe. The default is False.
+    print_r : bool
+        Whether to return output from the R command line. Default is False.
 
     Returns
     -------
@@ -351,7 +351,7 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
                output_loc  # output file
                ]
 
-    run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
     res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]

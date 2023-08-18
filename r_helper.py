@@ -1,5 +1,5 @@
 import os
-from subprocess import check_output
+from subprocess import check_output, run
 
 config_dir = {}
 
@@ -45,3 +45,13 @@ def check_r_install():
 def return_r_path():
     check_r_install()
     return config_dir['RFUNCTIONS'], config_dir['R']
+
+
+def run_r_command(command, print_r):
+    p = run(command,
+            capture_output=True,
+            text=True,
+            universal_newlines=True)
+    if print_r:
+        print(p.stdout)
+        print(p.stderr)

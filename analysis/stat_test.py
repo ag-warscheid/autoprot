@@ -395,13 +395,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
 
     command = [R, '--vanilla', RFUNCTIONS, "limma", data_loc, output_loc, test, design_loc, coef or ""]
 
-    p = run(command,
-            stdout=PIPE,
-            stderr=PIPE,
-            universal_newlines=True)
-
-    if print_r:
-        print(p.stdout)
+    r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
     res.columns = [i + cond if i != "UID" else i for i in res.columns]
@@ -485,13 +479,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
                ','.join([str(x) for x in class_labels]),
                ]
 
-    p = run(command,
-            stdout=PIPE,
-            stderr=PIPE,
-            universal_newlines=True)
-
-    if print_r:
-        print(p.stdout)
+    r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
     res.columns = [i + cond if i != "UID" else i for i in res.columns]
