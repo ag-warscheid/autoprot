@@ -6,9 +6,9 @@ Autoprot Basic Plotting Functions.
 
 @documentation: Julian
 """
-
 from scipy import stats
 from scipy.stats import zscore, gaussian_kde
+from scipy.linalg import LinAlgError
 import pandas as pd
 # noinspection PyProtectedMember
 from pandas.api.types import is_numeric_dtype
@@ -175,7 +175,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     # noinspection PyShadowingNames
     def corrfunc(x, y, **kwargs):
         """Function for seaborn PairGrid to calculate correlation coefficient and add text to axis."""
-        _ = kwargs  # seaborn adds the kwargs color and label to every call to pair grid (see https://seaborn.pydata.org/generated/seaborn.PairGrid.map_lower.html)
+        _ = kwargs  # seaborn adds the kwargs color and label to every call to pair grid (see
+        # https://seaborn.pydata.org/generated/seaborn.PairGrid.map_lower.html)
         r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
@@ -443,10 +444,9 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
     plt.legend()
 
 
-def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None, compare: bool = False,
-            ylabel: str = "log_fc", file: str = None, ret_fig: bool = False, figsize: tuple = (15, 5),
-            ax: plt.axis = None,
-            **kwargs: object) -> plt.figure:
+def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str]] = None, labels: list = None,
+            compare: bool = False, ylabel: str = "log_fc", file: str = None, ret_fig: bool = False,
+            figsize: tuple = (15, 5), ax: plt.axis = None, **kwargs: object) -> plt.figure:
     # noinspection PyUnresolvedReferences
     r"""
     Plot intensity boxplots.
@@ -459,8 +459,8 @@ def boxplot(df: pd.DataFrame, reps: list, title: str = None, labels: list = None
         INput dataframe.
     reps : list
         Colnames of replicates.
-    title : str, optional
-        Title of the plot. The default is None.
+    title : str or list of str, optional
+        Title(s) of the plot. List of two if compare is True. The default is None.
     labels : list of str, optional
         List with labels for the axis.
         The default is [].
@@ -912,8 +912,12 @@ def _limit_density(xs, ys, ss, threshold):
         ss = ss[~nan_idx]
     # Make some random Gaussian data
     data = np.array(list(zip(xs, ys)))
-    # Compute KDE
-    kde = gaussian_kde(data.T)
+    try:
+        # Compute KDE
+        kde = gaussian_kde(data.T)
+    except LinAlgError:
+        print("Couldn't compute KDE. Return original point cloud.")
+        return xs, ys, ss
     # Choice probabilities are computed from inverse probability density in KDE
     p = 1 / kde.pdf(data.T)
     # Normalize choice probabilities
@@ -1478,7 +1482,7 @@ def volcano(
                 )
         else:  # highlight and kwargs_highlight are lists
             if kwargs_highlight is None:  # if no kwargs are given nothing is changed for the whole list
-                kwargs_highlight = [None, ] * len(highlight)
+                pass
             elif len(highlight) != len(kwargs_highlight):
                 raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length.")
             else:
