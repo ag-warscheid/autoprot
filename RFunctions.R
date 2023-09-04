@@ -51,7 +51,7 @@ DTpkgTest <- function(x){
 
 ## DEPENDENCIES ##
 # autoprot depends on these R packages and will test their installation on runtime
-CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager", "devtools")
+CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager", "devtools", "glue")
 for (package in CRAN_packages){
   CRANpkgTest(package)
 }
@@ -67,6 +67,9 @@ devtool_packages <- c("cran/DMwR", "kreutz-lab/DIMAR")
 for (package in devtool_packages){
   DTpkgTest(package)
 }
+
+## LIBS
+library(glue)
 
 ## ARGS
 # read the args coming form Python
@@ -113,19 +116,8 @@ dimaFunction <- function(dfv) {
   npat <- args[6]
   group <- strsplit(x = args[4], split = ',')[[1]]
   performanceMetric <- args[7]
-  
-  #(paste0('args: ', format(args)))
-  
+
   mtx <- as.matrix(dfv)
-  #print(noquote('mtx:'))
-  #print(summary(mtx))
-  
-  #print(noquote('colnames:'))
-  #print(format(colnames(mtx)))
-
-  #print(noquote('group :'))
-  #print(format(group))
-
   # from here: copied from
   # https://github.com/kreutz-lab/DIMAR/blob/b8e9497cd490a464bf46ebc177efd7e34f064723/R/dimar.R
   
@@ -136,12 +128,8 @@ dimaFunction <- function(dfv) {
     group <- groupidx
   }
   
-  # TODO: change nacut back to 2 once the error in the source code is fixed
   mtx <- DIMAR::dimarMatrixPreparation(mtx, nacut = 2)
-  
-  #print(noquote('mtx:'))
-  #print(format(mtx))
-  
+
   coef <- DIMAR::dimarLearnPattern(mtx)
   ref <- DIMAR::dimarConstructReferenceData(mtx)
   sim <- DIMAR::dimarAssignPattern(ref, coef, mtx, npat)
@@ -184,8 +172,8 @@ limmaFunction <- function(dfv) {
 
   # Test if the matrix is full rank
   if (is.fullrank(design) == FALSE) {
-    print(noquote('Matrix is not full rank!'))
-    print(noquote('The following coefficients cannot be estimated:')
+    glue::glue('Matrix is not full rank!')
+    glue::glue('The following coefficients cannot be estimated:')
     print(nonEstimable(design))
   }
 
@@ -193,7 +181,7 @@ limmaFunction <- function(dfv) {
   fit <- lmFit(dfv, design)
   
   if (args[6] != "") {
-    print(args[6])
+    glue::glue(args[6])
     contrast <- limma::makeContrasts(contrasts=args[6],levels=design)
     fit2 <- limma::contrasts.fit(fit, contrast)
     eb <- eBayes(fit2)
