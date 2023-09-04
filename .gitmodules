@@ -1,6 +1,8 @@
 [submodule "dependencies/venn"]
 	path = dependencies/venn
 	url = https://github.com/tctianchi/pyvenn
+	update = rebase
 [submodule "dependencies/plotlylogo"]
 	path = dependencies/plotlylogo
 	url = https://github.com/aretaon/PlotlyLogo
+	update = rebase
