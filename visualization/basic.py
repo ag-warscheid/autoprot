@@ -173,17 +173,15 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         return r
 
     # noinspection PyShadowingNames
-    def corrfunc(x, y, **kwargs):
+    def corrfunc(x, y, color=None, label=None):
         """Function for seaborn PairGrid to calculate correlation coefficient and add text to axis."""
-        _ = kwargs  # seaborn adds the kwargs color and label to every call to pair grid (see
-        # https://seaborn.pydata.org/generated/seaborn.PairGrid.map_lower.html)
         r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
 
     # noinspection PyShadowingNames
-    def heatmap(x, y):
+    def heatmap(x, y, color=None, label=None):
         """Calculate correlation coefficient and add coloured tile to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.replace(-np.inf, np.nan).dropna()
@@ -192,38 +190,49 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         r, _ = stats.pearsonr(x, y)
         ax = plt.gca()
         ax.add_patch(mpl.patches.Rectangle((0, 0), 5, 5,
-                                           color=get_color(r),
-                                           transform=ax.transAxes))
+                                           color=get_color(r) if color is None else color,
+                                           transform=ax.transAxes,
+                                           label=label))
         ax.tick_params(axis="both", which="both", length=0)
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
 
     # noinspection PyShadowingNames
-    def lower_scatter(x, y):
+    def lower_scatter(x, y, color=None, label=None):
         """Plot data points as scatter plot to axis."""
         data = pd.DataFrame({"x": x, "y": y})
         if sample_frac is not None:
             data = data.sample(int(data.shape[0] * sample_frac))
         ax = plt.gca()
-        ax.scatter(data['x'], data['y'], linewidth=0)
+        ax.scatter(data['x'], data['y'], linewidth=0,
+                   color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0] if color is None else color,
+                   label=label)
 
     # noinspection PyShadowingNames
-    def lower_hex_bin(x, y):
+    def lower_hex_bin(x, y, color=None, label=None):
         """Plot data points as hexBin plot to axis."""
-        plt.hexbin(x, y, cmap="Blues", bins=bins,
-                   gridsize=50)
+        # only fall back to default if no colormap is given or the given string is no colormap
+        if (color is None) or (color not in plt.colormaps()):
+            plt.hexbin(x, y, cmap="Blues", bins=bins, gridsize=50, label=label)
+        else:
+            plt.hexbin(x, y, cmap=color, bins=bins, gridsize=50, label=label)
 
     # noinspection PyShadowingNames
-    def lower_hist_2d(x, y):
+    def lower_hist_2d(x, y, color=None, label=None):
         """Plot data points as hist2d plot to axis."""
         df = pd.DataFrame({"x": x, "y": y})
         df = df.dropna()
         x = df["x"].values
         y = df["y"].values
-        plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1)
+
+        # only fall back to default if no colormap is given or the given string is no colormap
+        if (color is None) or (color not in plt.colormaps()):
+            plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1, label=label)
+        else:
+            plt.hist2d(x, y, bins=bins, cmap=color, vmin=0, vmax=1, label=label)
 
     # noinspection PyShadowingNames
-    def proteins_found(x, y):
+    def proteins_found(x, y, **kwargs):  # kwargs required to catch seaborn calling kwargs color and label
         r = calculate_correlation(x, y)
         ax = plt.gca()
         if file == "Phospho (STY)":
