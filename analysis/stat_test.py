@@ -7,11 +7,10 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 import os
-from subprocess import run, PIPE
 import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
-import pylab as pl
+from matplotlib import pylab as pl
 import seaborn as sns
 
 from statsmodels.stats import multitest as mt
@@ -341,7 +340,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
 
     # limma handles fold-change calculation opposite to all other autoprot tools
     # this changes the order for function consistency
-    if isinstance(reps[0], list) and len(reps)  == 2:
+    if isinstance(reps[0], list) and len(reps) == 2:
         reps = reps[::-1]
 
     if "UID" not in df.columns:
@@ -487,9 +486,10 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
 
     if correct_fc:
         if isinstance(reps[0], list) and len(reps) == 2:
-            df['log_fc' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
+            # Column must be called logFC as this is also the column name returned by RankProd
+            df['logFC' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
         else:
-            df['log_fc' + cond] = df[reps].mean(axis=1)
+            df['logFC' + cond] = df[reps].mean(axis=1, skipna=True)
 
     os.remove(data_loc)
     os.remove(output_loc)
