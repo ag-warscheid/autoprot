@@ -17,6 +17,7 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as mticker
+import matplotlib
 
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
@@ -138,32 +139,6 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     if columns is None:
         columns = []
 
-    def get_color(r):
-        colors = {
-            0.8: "#d67677",
-            0.81: "#d7767c",
-            0.82: "#d87681",
-            0.83: "#da778c",
-            0.84: "#dd7796",
-            0.85: "#df78a1",
-            0.86: "#e179ad",
-            0.87: "#e379b8",
-            0.88: "#e57ac4",
-            0.89: "#e77ad0",
-            0.90: "#ea7bdd",
-            0.91: "#ec7bea",
-            0.92: "#e57cee",
-            0.93: "#dc7cf0",
-            0.94: "#d27df2",
-            0.95: "#c87df4",
-            0.96: "#be7df6",
-            0.97: "#b47ef9",
-            0.98: "#a97efb",
-            0.99: "#9e7ffd",
-            1: "#927fff"
-        }
-        return "#D63D40" if r <= 0.8 else colors[np.round(r, 2)]
-
     def calculate_correlation(a, b):
         d = pd.DataFrame({"x": a, "y": b})
         d = d.dropna()
@@ -173,8 +148,9 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         return r
 
     # noinspection PyShadowingNames
-    def corrfunc(x, y, color=None, label=None):
+    def corrfunc(x, y, **kwargs):
         """Function for seaborn PairGrid to calculate correlation coefficient and add text to axis."""
+        _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
         r = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
@@ -189,8 +165,15 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         y = df["y"].values
         r, _ = stats.pearsonr(x, y)
         ax = plt.gca()
+
+        # normalize the values so that the lowest value of the cmap is reach at R=0.8
+        norm = matplotlib.colors.Normalize(vmin=0.8, vmax=1)
+        if (color is None) or (color not in plt.colormaps()):
+            cmap = matplotlib.cm.get_cmap('Blues')
+        else:
+            cmap = matplotlib.cm.get_cmap(color)
         ax.add_patch(mpl.patches.Rectangle((0, 0), 5, 5,
-                                           color=get_color(r) if color is None else color,
+                                           color=cmap(norm(r)),
                                            transform=ax.transAxes,
                                            label=label))
         ax.tick_params(axis="both", which="both", length=0)
@@ -232,7 +215,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
             plt.hist2d(x, y, bins=bins, cmap=color, vmin=0, vmax=1, label=label)
 
     # noinspection PyShadowingNames
-    def proteins_found(x, y, **kwargs):  # kwargs required to catch seaborn calling kwargs color and label
+    def proteins_found(x, y, **kwargs):
+        _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
         r = calculate_correlation(x, y)
         ax = plt.gca()
         if file == "Phospho (STY)":
@@ -1083,8 +1067,8 @@ def volcano(
         log_fc_colname: str,
         p_colname: str = None,
         score_colname: str = None,
-        p_thresh: float = 0.05,
-        log_fc_thresh: float = np.log2(2),
+        p_thresh: float or None = 0.05,
+        log_fc_thresh: float or None = np.log2(2),
         pointsize_colname: str or float = None,
         pointsize_scaler: float = 1,
         highlight: Union[pd.Index, list[pd.Index], None] = None,
@@ -1123,10 +1107,10 @@ def volcano(
     score_colname : str, optional
         column of the dataframe containing -log10(p values) (provide score or p).
         The default is None.
-    p_thresh : float, optional
+    p_thresh : float or None, optional
         p-value threshold under which a entry is deemed significantly regulated.
         The default is 0.05.
-    log_fc_thresh : float, optional
+    log_fc_thresh : float or None, optional
         fold change threshold at which an entry is deemed significant regulated.
         The default is log2(2).
     pointsize_colname: str or float, optional
@@ -1541,9 +1525,11 @@ def volcano(
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
 
     if show_thresh:
-        ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
-        ax.axvline(x=-log_fc_thresh, color="black", linestyle="--")
-        ax.axhline(y=-np.log10(p_thresh), color="black", linestyle="--")
+        if log_fc_thresh is not None:
+            ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
+            ax.axvline(x=-log_fc_thresh, color="black", linestyle="--")
+        if p_thresh is not None:
+            ax.axhline(y=-np.log10(p_thresh), color="black", linestyle="--")
 
     if ret_fig:
         return fig
@@ -1554,8 +1540,8 @@ def ivolcano(
         log_fc_colname: str,
         p_colname: str = None,
         score_colname: str = None,
-        p_thresh: float = 0.05,
-        log_fc_thresh: float = None,
+        p_thresh: float or None = 0.05,
+        log_fc_thresh: float or None = None,
         annotate_colname: str = None,
         pointsize_colname: str or float = None,
         highlight: pd.Index = None,
@@ -1578,10 +1564,10 @@ def ivolcano(
     score_colname : str, optional
         column of the dataframe containing -log10(p values) (provide score or p).
         The default is None.
-    p_thresh : float, optional
+    p_thresh: float or None, optional
         p-value threshold under which an entry is deemed significantly regulated.
         The default is 0.05.
-    log_fc_thresh : float, optional
+    log_fc_thresh : float or None, optional
         fold change threshold at which an entry is deemed significant regulated.
         The default is None
     annotate_colname : str, optional
@@ -1668,15 +1654,16 @@ def ivolcano(
     fig.update_yaxes(showgrid=False, zeroline=True)
     fig.update_xaxes(showgrid=False, zeroline=False)
 
-    fig.add_trace(
-        go.Scatter(
-            x=[df[log_fc_colname].min(), df[log_fc_colname].max()],
-            y=[-np.log10(p_thresh), -np.log10(p_thresh)],
-            mode="lines",
-            line=go.scatter.Line(color="teal", dash="longdash"),
-            showlegend=False,
+    if p_thresh is not None:
+        fig.add_trace(
+            go.Scatter(
+                x=[df[log_fc_colname].min(), df[log_fc_colname].max()],
+                y=[-np.log10(p_thresh), -np.log10(p_thresh)],
+                mode="lines",
+                line=go.scatter.Line(color="teal", dash="longdash"),
+                showlegend=False,
+            )
         )
-    )
     if log_fc_thresh is not None:
         # add fold change visualization
         fig.add_trace(
