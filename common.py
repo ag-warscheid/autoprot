@@ -1,5 +1,4 @@
-import inspect
-import sys
+import subprocess
 from typing import Union
 
 try:
@@ -31,7 +30,6 @@ def set_default_kwargs(keyword_dict: Union[dict, None], default_dict: dict):
 
 
 def generate_environment_txt():
-    pkgs = freeze.freeze()
-
     with open("environment.txt", 'w') as env_:
-        env_.write('\n'.join(pkgs))
+        subprocess.call(['pip', 'list'], stdout=env_)
+
