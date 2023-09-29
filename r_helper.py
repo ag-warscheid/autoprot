@@ -41,6 +41,17 @@ def check_r_install():
                   ''  # design location
                   ])
 
+    write_description()
+
+
+def write_description():
+    """
+    This functions writes a summary of the installed R packages to file.
+    """
+    p = run([config_dir['R'], "-e", "write.csv(as.data.frame(installed.packages()), 'R_environment.csv', "
+                                    "row.names = FALSE)"],
+            capture_output=False)
+
 
 def return_r_path():
     check_r_install()
