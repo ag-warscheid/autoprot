@@ -126,7 +126,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True, rati
             if i < 0:
                 mapper[col] = re.sub(ratio_identifier, ratio_replace, col)
         # this changes the column headers
-        df.rename(mapper, axis='columns')
+        df.rename(mapper, axis='columns', inplace=True)
         # this changes the returned column list
         new_cols = [mapper[x] if x in mapper.keys() else x for x in new_cols]
 
