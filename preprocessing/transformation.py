@@ -17,6 +17,7 @@ from scipy import stats
 from sklearn.metrics import auc
 import warnings
 from typing import Union, Literal
+import re
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -28,7 +29,8 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
+def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True, ratio_identifier=r"(\w)(/)(\w)",
+        ratio_replace=r"\3\2\1"):
     # noinspection PyUnresolvedReferences
     """
     Perform log transformation.
@@ -50,6 +52,12 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
         to the dfframe. The default is False.
     replace_inf : bool, optional
         Whether to replace inf and -inf values by np.nan
+    ratio_identifier: str, optional
+        Regular expression to find ratios and invert the labels if invert is True
+    ratio_replace: str, optional
+        Regular expression to reinsert the ratio identifier after transformation.
+        Default is the inversion along a divide sign (i.e H/L -> L/H)
+
 
     Returns
     -------
@@ -110,8 +118,19 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True):
 
     new_cols = [f"log{base}_{c}" for c in cols]
     if invert is not None:
+        # invert the underlying data
         df[new_cols] = df[new_cols] * invert
-    return (df, new_cols) if return_cols == True else df
+        # create a dict mapper to rename the column headers
+        mapper = dict()
+        for i, col in zip(invert, new_cols):
+            if i < 0:
+                mapper[col] = re.sub(ratio_identifier, ratio_replace, col)
+        # this changes the column headers
+        df.rename(mapper, axis='columns')
+        # this changes the returned column list
+        new_cols = [mapper[x] if x in mapper.keys() else x for x in new_cols]
+
+    return (df, new_cols) if return_cols is True else df
 
 
 def expand_site_table(df, cols, replace_zero=True):
