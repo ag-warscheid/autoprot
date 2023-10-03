@@ -2120,26 +2120,26 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
     else:
         fig = ax.get_figure()
 
-    plt.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
+    ax.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
                 label="background")
-    plt.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
+    ax.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
 
     # draw threshold lines
     if fct:
-        plt.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-        plt.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-    plt.axvline(0, 0, 1, ls="dashed", color="gray")
+        ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
+        ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
+    ax.axvline(0, 0, 1, ls="dashed", color="gray")
 
     # remove of top and right plot boundary
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     # setting x and y labels and title
-    plt.ylabel("log Intensity")
-    plt.xlabel("log_fc")
-    plt.title(title, size=18)
+    ax.set_ylabel("log Intensity")
+    ax.set_xlabel("log_fc")
+    ax.set_title(title, size=18)
 
     # add legend
-    plt.legend()
+    ax.legend()
 
     if annot:
         # Annotation
@@ -2152,23 +2152,21 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
         for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
             if idx % 2 == 0:
                 if x < 0:
-                    plt.plot([x, x - .2], [y, y - .2], color="gray")
-                    plt.text(x - .3, y - .25, s)
+                    ax.plot([x, x - .2], [y, y - .2], color="gray")
+                    ax.text(x - .3, y - .25, s)
                 else:
-                    plt.plot([x, x + .2], [y, y - .2], color="gray")
-                    plt.text(x + .2, y - .2, s)
+                    ax.plot([x, x + .2], [y, y - .2], color="gray")
+                    ax.text(x + .2, y - .2, s)
 
             elif x < 0:
-                plt.plot([x, x - .2], [y, y + .2], color="gray")
-                plt.text(x - .3, y + .25, s)
+                ax.plot([x, x - .2], [y, y + .2], color="gray")
+                ax.text(x - .3, y + .25, s)
             else:
-                plt.plot([x, x + .2], [y, y + .2], color="gray")
-                plt.text(x + .2, y + .2, s)
+                ax.plot([x, x + .2], [y, y + .2], color="gray")
+                ax.text(x + .2, y + .2, s)
 
     if ret_fig:
         return fig
-    else:
-        fig.show()
 
 
 def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
@@ -2346,8 +2344,6 @@ def ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int] = None,
 
     if ret_fig:
         return fig
-    else:
-        fig.show()
 
 
 def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
