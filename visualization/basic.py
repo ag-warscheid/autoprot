@@ -2022,7 +2022,7 @@ def iratio_plot(df: pd.DataFrame,
 # Log Intensity Plots #
 def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False):
+                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False, legend: bool=True):
     # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
@@ -2055,6 +2055,8 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
         The default is "Volcano Plot".
     figsize : tuple of int, optional
         Size of the figure. The default is (6,6).
+    legend: bool, optional
+        Whether to add a legend. Default is True.
     Returns
     -------
     None.
@@ -2138,8 +2140,9 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
     ax.set_xlabel("log_fc")
     ax.set_title(title, size=18)
 
-    # add legend
-    ax.legend()
+    if legend:
+        # add legend
+        ax.legend()
 
     if annot:
         # Annotation
