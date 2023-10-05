@@ -1710,8 +1710,9 @@ def _prep_ratio_data(
     # (1) non-significant
     df["SigCat"] = "NS"
     # (2) significant by score
-    df.loc[(df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh), "SigCat"] = "ratio_thresh"
-    df.loc[(df[col_name1] < ratio_thresh * -1) & (df[col_name2] < ratio_thresh * -1), "SigCat"] = "ratio_thresh"
+    if ratio_thresh is not None:
+        df.loc[(df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh), "SigCat"] = "ratio_thresh"
+        df.loc[(df[col_name1] < ratio_thresh * -1) & (df[col_name2] < ratio_thresh * -1), "SigCat"] = "ratio_thresh"
 
     unsig = df[df["SigCat"] == "NS"].index
     sig_ratio = df[df["SigCat"] == "ratio_thresh"].index
