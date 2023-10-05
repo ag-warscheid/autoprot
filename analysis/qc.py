@@ -19,6 +19,7 @@ import missingno as msn
 from .. import r_helper
 
 from gprofiler import GProfiler
+
 gp = GProfiler(
     user_agent="autoprot",
     return_dataframe=True)
@@ -26,7 +27,6 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
-
 
 
 def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
@@ -162,7 +162,6 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
             allines += f"{data[i][0]} has {data[i][2]} of {data[i][1]} entries missing ({round(data[i][3], 2)}%)."
             allines += '\n'
             # line separator
-            allines += '-' * 80
 
         if save_dir:
             with open(f"{save_dir}/missAnalysis_text.txt", 'w') as f:
@@ -603,7 +602,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         df_missed_cleavage_summary.columns = experiments
     except Exception as e:
         print(f"unexpected error in col [Experiment]: {e}")
-    
+
     if save:
         df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
 
@@ -652,10 +651,9 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         ax1.set_ylim(0, 100)
         ax1.axhline(95, linestyle="--", c="k")
 
-
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
     plt.tight_layout()
-    
+
     if save:
         plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
 
@@ -759,7 +757,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
         df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-            df_efficiency.loc[raw, ["fully labeled"]].values
+                                                        df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 
