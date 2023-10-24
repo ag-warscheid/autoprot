@@ -1387,12 +1387,20 @@ def volcano(
     fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
-    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    kwargs_ns = com.set_default_kwargs(
+        kwargs_ns,
+        dict(
+            color="lightgrey",
+            alpha=0.5,
+            s=df.loc[df["SigCat"] == "NS", "s"]
+            if pointsize_colname is not None
+            else None,
+            label="NS",
+        )
+    )
     ax.scatter(
         df.loc[df["SigCat"] == "NS", log_fc_colname],
         df.loc[df["SigCat"] == "NS", "score"],
-        s=df.loc[df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
-        label="NS",
         **kwargs_ns,
     )
 
@@ -2023,7 +2031,7 @@ def iratio_plot(df: pd.DataFrame,
 # Log Intensity Plots #
 def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
                  sig_col="green", bg_col="lightgray", title="LogFC Intensity Plot",
-                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False, legend: bool=True):
+                 figsize=(6, 6), ax: plt.axis = None, ret_fig: bool = False, legend: bool = True):
     # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
@@ -2124,7 +2132,7 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
         fig = ax.get_figure()
 
     ax.scatter(df[log_fc].loc[unsig], df[log_intens_col].loc[unsig], color=bg_col, alpha=.75, s=5,
-                label="background")
+               label="background")
     ax.scatter(df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI")
 
     # draw threshold lines
