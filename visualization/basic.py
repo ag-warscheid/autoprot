@@ -1832,12 +1832,16 @@ def ratio_plot(
     fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
-    kwargs_ns = com.set_default_kwargs(kwargs_ns, dict(color="lightgrey", alpha=0.5))
+    kwargs_ns = com.set_default_kwargs(kwargs_ns,
+                                       dict(color="lightgrey",
+                                            alpha=0.5,
+                                            s=df.loc[
+                                                df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
+                                            label="NS",
+                                            ))
     ax.scatter(
         df.loc[df["SigCat"] == "NS", col_name1],
         df.loc[df["SigCat"] == "NS", col_name2],
-        s=df.loc[df["SigCat"] == "NS", "s"] if pointsize_colname is not None else None,
-        label="NS",
         **kwargs_ns,
     )
 
