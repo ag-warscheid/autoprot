@@ -7,20 +7,11 @@ Autoprot Preprocessing Functions.
 @documentation: Julian
 """
 
-import numpy as np
 import pandas as pd
-from importlib import resources
-import re
 import os
-from subprocess import run, PIPE, STDOUT, CalledProcessError
 import requests
-
 from urllib import parse
 from ftplib import FTP
-import warnings
-from typing import Union
-
-from autoprot.decorators import report
 
 
 def read_csv(file, sep='\t', low_memory=False, **kwargs):
