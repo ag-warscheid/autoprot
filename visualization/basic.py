@@ -39,7 +39,8 @@ from typing import Literal, Union
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                 save_type="pdf", save_name="pairPlot", lower_triang="scatter",
-                sample_frac=None, bins=100, ret_fig=False):
+                sample_frac=None, bins=100, ret_fig=False, correlation_colorrange: tuple[float] = (0.8, 1),
+                figsize: Union(bool, tuple) = None):
     # noinspection PyUnresolvedReferences
     r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
 
@@ -82,6 +83,10 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         The default is 100.
     ret_fig : bool, optional
         Wether to return the seaborn figure object
+    correlation_colorrange : tuple, optional
+        Sets the colormap range for the upper-right correlation tiles. Default is (0.8, 1)
+    figsize : tuple, optional
+        The figure size in x and y direction.
 
     Raises
     ------
@@ -167,7 +172,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
         ax = plt.gca()
 
         # normalize the values so that the lowest value of the cmap is reach at R=0.8
-        norm = matplotlib.colors.Normalize(vmin=0.8, vmax=1)
+        norm = matplotlib.colors.Normalize(vmin=correlation_colorrange[0], vmax=correlation_colorrange[1])
         if (color is None) or (color not in plt.colormaps()):
             cmap = matplotlib.cm.get_cmap('Blues')
         else:
@@ -241,6 +246,8 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
     # maps each pairwise combination of column onto an axis grid
     g = sns.PairGrid(y)
+    if figsize is not None:
+        g.fig.set_size_inches(*figsize)
     # accesses the lower triangle
     g.map_lower(corrfunc)
     # plot the data points on the lower triangle
