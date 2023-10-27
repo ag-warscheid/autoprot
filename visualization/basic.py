@@ -40,7 +40,7 @@ from typing import Literal, Union
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                 save_type="pdf", save_name="pairPlot", lower_triang="scatter",
                 sample_frac=None, bins=100, ret_fig=False, correlation_colorrange: tuple[float] = (0.8, 1),
-                figsize: Union(bool, tuple) = None):
+                figsize: Union[bool, tuple] = None):
     # noinspection PyUnresolvedReferences
     r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
 
