@@ -144,19 +144,27 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     if columns is None:
         columns = []
 
-    def calculate_correlation(a, b):
+    def calculate_correlation(a: np.array, b: np.array) -> tuple[float, pd.DataFrame]:
+        """
+        Calculate the correlation between two lists of values.
+
+        Returns
+        -------
+        r (float): Pearson correlation coefficient
+        d (pd.DataFrame): The dataframe with the matched values
+        """
         d = pd.DataFrame({"x": a, "y": b})
-        d = d.dropna()
+        d = d.dropna(how='any')
         a = d["x"].values
         b = d["y"].values
         r, _ = stats.pearsonr(a, b)
-        return r
+        return r, d
 
     # noinspection PyShadowingNames
     def corrfunc(x, y, **kwargs):
         """Function for seaborn PairGrid to calculate correlation coefficient and add text to axis."""
         _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
-        r = calculate_correlation(x, y)
+        r, _ = calculate_correlation(x, y)
         ax = plt.gca()
         ax.annotate("r = {:.2f}".format(r),
                     xy=(.1, .9), xycoords=ax.transAxes)
@@ -222,15 +230,16 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     # noinspection PyShadowingNames
     def proteins_found(x, y, **kwargs):
         _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
-        r = calculate_correlation(x, y)
+        r, d = calculate_correlation(x, y)
         ax = plt.gca()
-        if file == "Phospho (STY)":
-            ax.annotate(f"{len(y)} peptides identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
-            ax.annotate(f"R: {str(round(r, 2))}", xy=(0.25, 0.5), size=18, xycoords=ax.transAxes)
 
-        elif file == "proteinGroups":
-            ax.annotate(f"{len(y)} proteins identified", xy=(0.1, 0.9), xycoords=ax.transAxes)
-            ax.annotate(f"R: {str(round(r, 2))}", xy=(0.25, 0.5), size=18, xycoords=ax.transAxes)
+        if file == "Phospho (STY)":
+            to_count = 'peptides'
+        else:
+            to_count = 'proteins'
+
+        ax.annotate(f"{len(d)} {to_count}", xy=(0.1, 0.9), xycoords=ax.transAxes)
+        ax.annotate(f"R: {str(round(r, 2))}", xy=(0.25, 0.5), size=18, xycoords=ax.transAxes)
 
     if len(columns) == 0:
         raise ValueError("No columns provided!")
