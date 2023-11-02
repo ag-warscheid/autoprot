@@ -6,11 +6,13 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
+from functools import reduce
 from importlib import resources
+from typing import Union, Literal
+
 import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
-import pylab as pl
 import seaborn as sns
 
 from .. import visualization as vis
@@ -27,7 +29,8 @@ RFUNCTIONS, R = r_helper.return_r_path()
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def go_analysis(gene_list, organism="hsapiens"):
+def go_analysis(gene_list: list[str], organism: str = "hsapiens", background: Union[list[str], str, None] = None,
+                significance_threshold_method: Literal["g_SCS", "bonferroni", "fdr"] = "bonferroni", **kwargs):
     # noinspection PyUnresolvedReferences
     """
     Perform go Enrichment analysis (also KEGG and REAC).
@@ -40,6 +43,13 @@ def go_analysis(gene_list, organism="hsapiens"):
         identifier for the organism.
         See https://biit.cs.ut.ee/gprofiler/page/organism-list for details.
         The default is "hsapiens".
+    background: list of str or None, optional
+        Gene set against which the enrichment is calculated.
+    significance_threshold_method: One of "g_SCS"|"bonferroni"|"fdr".
+        The method to correct for multiple testing. Default is "bonferroni".
+        See https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold.
+    keyword arguments:
+        Passed to GProfiler.profile. See https://biit.cs.ut.ee/gprofiler
 
     Raises
     ------
@@ -60,11 +70,23 @@ def go_analysis(gene_list, organism="hsapiens"):
     2  GO:BP  GO:0036250  peroxisome transport along microtubule
     """
     if not isinstance(gene_list, list):
-        try:
-            gene_list = list(gene_list)
-        except Exception:
+        if isinstance(gene_list, str):
+            gene_list = [gene_list]
+        else:
             raise ValueError("Please provide a list of gene names")
-    return gp.profile(organism=organism, query=gene_list, no_evidences=False)
+
+    if background is None:
+        return gp.profile(organism=organism, query=gene_list, no_evidences=False,
+                          significance_threshold_method=significance_threshold_method, **kwargs)
+    else:
+        if isinstance(background, list):
+            background = ' '.join(background)
+        else:
+            if not isinstance(background, str):
+                raise ValueError("Please provide a list of gene names as argument for 'background'")
+
+        return gp.profile(organism=organism, query=gene_list, background=background, no_evidences=False,
+                          significance_threshold_method=significance_threshold_method, **kwargs)
 
 
 class KSEA:
@@ -738,7 +760,7 @@ class KSEA:
 
             # merge all row indices and use them to create a sub-df containing
             # only the kinases of interest
-            df_filter = df.loc[pl.flatten(idx)]
+            df_filter = df.loc[reduce(lambda x, y: x.union(y), idx)]
         elif isinstance(kinase, str):
             df_filter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == kinase.upper()]
         else:
@@ -755,14 +777,14 @@ class KSEA:
                              how="left")
         return df_filter
 
-    def annotate_df(self, kinases=None):
+    def annotate_df(self, kinases: Union[list[str], None] = None):
         """
         Annotate the provided dataframe with boolean columns for given kinases.
 
         Parameters
         ----------
-        kinases : list of str, optional
-            List of kinases. The default is [].
+        kinases : list of str or None, optional
+            List of kinases. The default is None.
 
         Returns
         -------
