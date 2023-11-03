@@ -1026,6 +1026,68 @@ def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: st
     adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
 
 
+def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
+                             kwargs_highlight: Union[dict, list[dict], None],
+                             df: pd.DataFrame,
+                             ax: plt.axis,
+                             x_colname: str,
+                             y_colname: str,
+                             pointsize_colname: str,
+                             ):
+    if isinstance(highlight, list):  # highlight is a list
+        if kwargs_highlight is None:  # if no kwargs are given, generate a matching length kwarg list with Nones
+            kwargs_highlight = [None, ] * len(highlight)
+        elif isinstance(kwargs_highlight, list) and len(kwargs_highlight) == 1 and \
+                isinstance(kwargs_highlight[0], dict):  # one-element list
+            kwargs_highlight = [kwargs_highlight[0], ] * len(highlight)
+        elif isinstance(kwargs_highlight, dict):  # single dictionary to propagate to all highlights
+            kwargs_highlight = [kwargs_highlight, ] * len(highlight)
+        elif len(highlight) != len(kwargs_highlight):
+            raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length.")
+
+        for h, k in zip(highlight, kwargs_highlight):
+            k = com.set_default_kwargs(
+                k,
+                dict(
+                    color="orange",
+                    alpha=0.8,
+                    s=df.loc[h, "s"] if pointsize_colname is not None else None,
+                ),
+            )
+            ax.scatter(
+                df.loc[h, x_colname],
+                df.loc[h, y_colname],
+                **k,
+            )
+    elif isinstance(highlight, pd.Index):  # highlight is an index
+        if isinstance(kwargs_highlight, list) and len(kwargs_highlight) == 1 and \
+                isinstance(kwargs_highlight[0], dict):  # kwargs is one-element list
+            kwargs_highlight = kwargs_highlight[0]
+        elif isinstance(kwargs_highlight, dict):  # kwargs is single dict
+            pass
+        else:
+            raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length or pd.Index and "
+                             "dict.")
+
+        kwargs_highlight = com.set_default_kwargs(
+            kwargs_highlight,
+            dict(
+                color="orange",
+                alpha=0.8,
+                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
+            ),
+        )
+
+        ax.scatter(
+            df.loc[highlight, x_colname],
+            df.loc[highlight, y_colname],
+            **kwargs_highlight,
+        )
+    else:
+        raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length or pd.Index and "
+                         "dict.")
+
+
 # VOLCANO PLOTS #
 def _prep_volcano_data(
         df, log_fc_colname, score_colname, p_colname, p_thresh, log_fc_thresh
@@ -1475,48 +1537,9 @@ def volcano(
     )
 
     if highlight is not None:
-        # highlight and kwargs_highlight are not both lists
-        if not isinstance(highlight, list) and not isinstance(kwargs_highlight, list):
-            # if highlight is a pd.Index kwargs_highlight can be either dict or None
-            if not (isinstance(highlight, pd.Index) and
-                    (isinstance(kwargs_highlight, dict) or kwargs_highlight is None)):
-                raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length or pd.Index and "
-                                 "dict.")
-            else:  # all good. highlight is index and kwargs is dict or None
-                kwargs_highlight = com.set_default_kwargs(
-                    kwargs_highlight,
-                    dict(
-                        color="orange",
-                        alpha=0.8,
-                        s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
-                    ),
-                )
-
-                ax.scatter(
-                    df.loc[highlight, log_fc_colname],
-                    df.loc[highlight, "score"],
-                    **kwargs_highlight,
-                )
-        else:  # highlight and kwargs_highlight are lists
-            if kwargs_highlight is None:  # if no kwargs are given nothing is changed for the whole list
-                pass
-            elif len(highlight) != len(kwargs_highlight):
-                raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length.")
-            else:
-                for h, k in zip(highlight, kwargs_highlight):
-                    k = com.set_default_kwargs(
-                        k,
-                        dict(
-                            color="orange",
-                            alpha=0.8,
-                            s=df.loc[h, "s"] if pointsize_colname is not None else None,
-                        ),
-                    )
-                    ax.scatter(
-                        df.loc[h, log_fc_colname],
-                        df.loc[h, "score"],
-                        **k,
-                    )
+        _plot_highlights_scatter(highlight=highlight, kwargs_highlight=kwargs_highlight, df=df,
+                                 x_colname=log_fc_colname, y_colname="score", ax=ax,
+                                 pointsize_colname=pointsize_colname)
 
     ax.set_xlabel(r"$\mathregular{log_2 fold-change}$")
     ax.set_ylabel(r"$\mathregular{-log_{10} P}$")
@@ -1753,7 +1776,7 @@ def ratio_plot(
         ylabel: str = "Ratio col2",
         pointsize_colname: str or float = None,
         pointsize_scaler: float = 1,
-        highlight: pd.Index = None,
+        highlight: Union[list, pd.Index, None] = None,
         title: str = None,
         show_legend: bool = True,
         show_caption: bool = True,
@@ -1765,7 +1788,7 @@ def ratio_plot(
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_r_sig: dict = None,
-        kwargs_highlight: dict = None,
+        kwargs_highlight: Union[list, dict, None] = None,
         annotate_density: int = 100):
     # noinspection PyUnresolvedReferences
     """
@@ -1781,7 +1804,7 @@ def ratio_plot(
     ylabel: str, optional
     pointsize_colname: str or float, optional
     pointsize_scaler: float, optional
-    highlight: pd.Index, optional
+    highlight: pd.Index or list of pd.Index, optional
     title: str, optional
     show_legend: bool, optional
     show_caption: bool, optional
@@ -1793,7 +1816,7 @@ def ratio_plot(
     annotate_colname: str, optional
     kwargs_ns: dict, optional
     kwargs_r_sig: dict, optional
-    kwargs_highlight: dict, optional
+    kwargs_highlight: dict or list of dict, optional
     annotate_density: int, optional
 
     Returns
@@ -1880,21 +1903,9 @@ def ratio_plot(
     )
 
     if highlight is not None:
-        if not isinstance(highlight, pd.Index):
-            raise ValueError("You must provide a pd.Index object for highlighting")
-        kwargs_highlight = com.set_default_kwargs(
-            kwargs_highlight,
-            dict(
-                color="blue",
-                alpha=0.8,
-                s=df.loc[highlight, "s"] if pointsize_colname is not None else None,
-            ),
-        )
-        ax.scatter(
-            df.loc[highlight, col_name1],
-            df.loc[highlight, col_name2],
-            **kwargs_highlight,
-        )
+        _plot_highlights_scatter(highlight=highlight, kwargs_highlight=kwargs_highlight, df=df,
+                                 x_colname=col_name1, y_colname=col_name2, ax=ax,
+                                 pointsize_colname=pointsize_colname)
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
