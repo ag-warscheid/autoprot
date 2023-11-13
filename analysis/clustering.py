@@ -8,6 +8,7 @@ Autoprot Analysis Functions.
 """
 import os
 from typing import Union, Literal
+from numpy.typing import ArrayLike
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -39,8 +40,9 @@ class _Cluster:
     Base class for clustering pipelines.
     """
 
-    def __init__(self, data, clabels=None, rlabels=None, zs=None,
-                 linkage=None):
+    def __init__(self, data: Union[np.array, pd.DataFrame], clabels: Union[None, list] = None,
+                 rlabels: Union[None, list] = None, zs: Union[None, int] = None,
+                 linkage: Union[None, ArrayLike] = None):
         """
         Initialise the class.
 
@@ -48,10 +50,10 @@ class _Cluster:
         ----------
         data : np.array or pd.DataFrame
             The data to be clustered.
-        clabels : list
+        clabels : list or None
             Column labels. Must be present in the in input df.
             Defaulting to RangeIndex(0, 1, 2, …, n). 
-        rlabels : list
+        rlabels : list or None
             Row labels. Must be present in the in input df.
             Will default to RangeIndex if no indexing information part of
             input data and no index provided.
@@ -69,7 +71,7 @@ class _Cluster:
         """
 
         def _sanitize_data(data: Union[np.ndarray, pd.DataFrame], clabels: list, rlabels: list,
-                           zs: Union[int, None]) -> tuple[np.ndarray, list, list]:
+                           zs: Union[int, None]) -> tuple[ArrayLike, list, list]:
             """
             Check if data contains missing values and remove them.
 
@@ -105,9 +107,9 @@ class _Cluster:
             # if the zscore is to be calculated (i.e. if zs != None)
             # a dataframe with zscores instead of values is calculated
             if zs is not None:
-                temp = dataframe.copy(deep=True).values
+                temp = dataframe.copy(deep=True).to_numpy()
                 temp_transformed = zscore(temp, axis=zs)
-                dataframe = pd.DataFrame(temp_transformed, index=rlabels, columns=clabels)
+                dataframe = pd.DataFrame(temp_transformed, index=dataframe.index, columns=dataframe.columns)
 
             print(f'Removed {dataframe.isnull().values.sum()} NaN values from the dataframe to prepare for clustering.')
             # no NA values should remain during cluster analysis
@@ -115,7 +117,8 @@ class _Cluster:
 
             return dataframe.values, dataframe.index.tolist(), dataframe.columns.tolist()
 
-        self.data, self.rlabels, self.clabels = _sanitize_data(data, clabels, rlabels, zs)
+        # noinspection PyTupleAssignmentBalance
+        self.data, self.rlabels, self.clabels = _sanitize_data(data=data, clabels=clabels, rlabels=rlabels, zs=zs)
 
         # the linkage object for hierarchical clustering
         self.linkage = linkage
@@ -491,7 +494,7 @@ class HCA(_Cluster):
             ...     [.9,   .3,  .6,  .5,  .3],
             ...     [.34, .75, .91, .19, .21]
             ...      ]
-            >>> np.corrcoef(a)
+            >>> np.corrcoef(np.array(a))
             array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],
                    [-0.35153114,  1.        ,  0.23810227,  0.15958285],
                    [-0.74736506,  0.23810227,  1.        , -0.03960706],
