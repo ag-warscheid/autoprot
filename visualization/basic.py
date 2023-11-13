@@ -453,9 +453,9 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
     plt.legend()
 
 
-def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str]] = None, labels: list = None,
-            compare: bool = False, ylabel: str = "log_fc", file: str = None, ret_fig: bool = False,
-            figsize: tuple = (15, 5), ax: plt.axis = None, **kwargs: object) -> plt.figure:
+def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = None, labels: Union[list, None] = None,
+            compare: bool = False, ylabel: str = "log_fc", file: Union[None, str] = None, ret_fig: bool = False,
+            figsize: tuple = (15, 5), ax: Union[plt.axis, None] = None, **kwargs: object) -> plt.figure:
     # noinspection PyUnresolvedReferences
     r"""
     Plot intensity boxplots.
@@ -544,13 +544,19 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str]] = None, l
 
     if labels is None:
         labels = []
-    # check if inputs make sense
-    if compare and len(reps) != 2:
-        raise ValueError("You want to compare two sets, provide two sets.")
 
     if compare:
+        # check if inputs make sense
+        if len(reps) != 2:
+            raise ValueError("You want to compare two replicates, please provide two lists of column names.")
+        if (labels is not None) and (len(labels) != 2):
+            raise ValueError("You want to compare two replicates, please provide two lists of row labels.")
+        if (title is not None) and (len(title) != 2):
+            raise ValueError("You want to compare two replicates, please provide two titles.")
+
         if ax is not None:
             raise ValueError('You cannot use compare and specify an axis. Do either.')
+
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
@@ -564,10 +570,10 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str]] = None, l
             if ylabel == "log_fc":
                 ax[idx].axhline(0, 0, 1, color="gray", ls="dashed")
 
-        if labels:
-            for idx in [0, 1]:
-                tlabel = ax[idx].get_xticklabels()
-                for i, label in enumerate(tlabel):
+        if labels is not None:
+            for idx, l in zip([0, 1], labels):
+                temp = ax[idx].set_xticklabels(l)
+                for i, label in enumerate(temp):
                     label.set_y(label.get_position()[1] - (i % 2) * .05)
         else:
             ax[0].set_xticklabels([str(i + 1) for i in range(len(reps[0]))])
@@ -586,7 +592,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str]] = None, l
         ticks_loc = ax.get_xticks().tolist()
         ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
 
-        if labels:
+        if labels is not None:
             temp = ax.set_xticklabels(labels)
             for i, label in enumerate(temp):
                 label.set_y(label.get_position()[1] - (i % 2) * .05)
