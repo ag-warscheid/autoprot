@@ -219,7 +219,7 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
 
     Returns
     -------
-    None.
+    labelling_summary : pd.DataFrame
     """
     # set plot style
     plt.style.use('seaborn-whitegrid')
@@ -275,7 +275,7 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
         # save df missed cleavage summery as .csv
         df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
 
-    print(df_missed_cleavage_summary, ax1)
+    return df_missed_cleavage_summary
 
 
 def enrichment_specifity(df_evidence, typ="Phospho", save=True):
@@ -578,50 +578,71 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
     today = date.today().isoformat()
 
     df_evidence.sort_values(["Raw file"], inplace=True)
-    try:
+    if "Experiment" in df_evidence.columns:
         experiments = list((df_evidence["Experiment"].unique()))
-    except KeyError:
+        groupby_keyword = "Experiment"
+    elif "Raw file" in df_evidence.columns:
         experiments = list((df_evidence["Raw file"].unique()))
+        groupby_keyword = "Raw file"
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
+    else:
+        raise Exception("Could not find column name 'Experiment' or 'Raw file' in the dataframe")
 
-    df_labeling_eff = pd.DataFrame()
+    df_labeling_eff = []
 
+    # remove rows without intensity information
     df_evidence.dropna(subset=["Intensity"], inplace=True)
-    df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence[
+    # calculate relative labelling per row
+    df_evidence[f"Ratio Intensity {label}/total"] = df_evidence["Intensity {}".format(label)] / df_evidence[
         "Intensity"] * 100
 
-    # build label ratio and count labeled Arg and Lys
-    for raw, df_group in df_evidence.groupby("Raw file"):
-        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0, 101, 10), sort=False)
-        count = df_group["Ratio Intensity {}/total".format(label)].count()
+    # collect the file names for the plot
+    rawfile_names = []
+    for raw, df_group in df_evidence.groupby(groupby_keyword):
+        # count the number of values with labelling efficiency in the 10 0-100% bins
+        s_binned = df_group[f"Ratio Intensity {label}/total"].value_counts(bins=range(0, 101, 10), sort=False)
+        # count the number of valid values (ignores nan)
+        count = df_group[f"Ratio Intensity {label}/total"].count()
+        # normalise binned counts by total counts
         s_relative_binned = s_binned / count * 100
-        df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
+        # rename the bins
+        s_relative_binned.index = [f"{(iv.left):.0f}-{(iv.right):.0f}%" for iv in s_relative_binned.index]
+        # set the rawfile name as column header
+        s_relative_binned.name = raw
+        # collect the binned dfs in a list
+        df_labeling_eff.append(s_relative_binned)
 
-    try:
-        df_missed_cleavage_summary.columns = experiments
-    except Exception as e:
-        print(f"unexpected error in col [Experiment]: {e}")
+    # concat the binned dataframes
+    df_labeling_eff = pd.concat(df_labeling_eff, axis=1)
 
     if save:
-        df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
+        df_labeling_eff.to_csv(f"{today}_labeling_eff_{label}_summary.csv", sep='\t')
 
     # plot labeling efficiency overview
-    x_ax = len(experiments) + 1
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax * 2, 4))
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 4))
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), fontdict=None,
                  horizontalalignment='center', size=14
-                 # ,fontweight="bold"
                  )
-    df_labeling_eff.plot(kind="bar", ax=ax1)
-    ax1.set_xlabel("bins", size=12)
-    ax1.set_ylabel("{} labeling [%]".format(label), size=12)
+    df_labeling_eff.plot(kind="bar", ax=ax, rot=0)
+    ax.set_xlabel("bins", size=12)
+    ax.set_ylabel("{} labeling [%]".format(label), size=12)
+
+    # Shrink current axis's height by 10% on the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.2,
+                 box.width, box.height * 0.8])
+
+    # Put a legend below current axis
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),
+          fancybox=True, shadow=True, ncol=5)
 
     plt.tight_layout()
-    if save:
-        plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
 
-    # plot labeling efficiency Lys for each experiment separately
+    if save:
+        plt.savefig(f"{today}_BoxPlot_Lab-eff-{label}_overview.pdf", bbox_inches='tight', dpi=600)
+
+    # plot labeling efficiency for each experiment separately
     # columns and rows from number of experiments in df_evidence
     number_of_subplots = len(experiments)
 
@@ -640,22 +661,22 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
                               2.925 * number_of_rows))
 
     for col_name, plot in zip(experiments, range(number_of_subplots)):
-        ax1 = fig.add_subplot(number_of_rows, number_of_columns, plot + 1)
+        ax = fig.add_subplot(number_of_rows, number_of_columns, plot + 1)
 
         # filter for bins with low values: set 1%
-        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum() > 1].plot(kind="bar", ax=ax1)
+        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum() > 1].plot(kind="bar", ax=ax)
 
-        ax1.set_title(col_name)
-        ax1.set_xlabel("bins", size=8)
-        ax1.set_ylabel("{} Dimethyl incorporation [%]".format(label), size=8)
-        ax1.set_ylim(0, 100)
-        ax1.axhline(95, linestyle="--", c="k")
+        ax.set_title(col_name)
+        ax.set_xlabel("bins", size=8)
+        ax.set_ylabel(f"{label} Dimethyl incorporation [%]", size=8)
+        ax.set_ylim(0, 100)
+        ax.axhline(95, linestyle="--", c="k")
 
-    fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
+    fig.suptitle(f"Dimethyl Labeling efficiency {label}", horizontalalignment='center')
     plt.tight_layout()
 
     if save:
-        plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
+        plt.savefig(f"{today}_BoxPlot_Lab-eff-{label}-seperately.pdf",  bbox_inches='tight', dpi=1200)
 
     return df_labeling_eff
 
