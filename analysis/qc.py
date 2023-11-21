@@ -6,7 +6,7 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
-from typing import Union, Literal
+from typing import Literal
 from datetime import date
 
 import pandas as pd
@@ -565,6 +565,8 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
     ----------
     df_evidence : MQ evidence table as pandas.Dataframe
     label : string, set label to MQ intensity column header "L", "M", "H"
+    save: bool
+        Whether to save a plot for the labelling efficiency
 
     Returns
     -------
@@ -598,7 +600,6 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         "Intensity"] * 100
 
     # collect the file names for the plot
-    rawfile_names = []
     for raw, df_group in df_evidence.groupby(groupby_keyword):
         # count the number of values with labelling efficiency in the 10 0-100% bins
         s_binned = df_group[f"Ratio Intensity {label}/total"].value_counts(bins=range(0, 101, 10), sort=False)
@@ -607,7 +608,8 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         # normalise binned counts by total counts
         s_relative_binned = s_binned / count * 100
         # rename the bins
-        s_relative_binned.index = [f"{(iv.left):.0f}-{(iv.right):.0f}%" for iv in s_relative_binned.index]
+        iv: pd.IntervalIndex  # type hint for the list comprehension
+        s_relative_binned.index = [f"{iv.left :.0f}-{iv.right :.0f}%" for iv in s_relative_binned.index]
         # set the rawfile name as column header
         s_relative_binned.name = raw
         # collect the binned dfs in a list
@@ -631,11 +633,11 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
     # Shrink current axis's height by 10% on the bottom
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.2,
-                 box.width, box.height * 0.8])
+                     box.width, box.height * 0.8])
 
     # Put a legend below current axis
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),
-          fancybox=True, shadow=True, ncol=5)
+              fancybox=True, shadow=True, ncol=5)
 
     plt.tight_layout()
 
@@ -676,7 +678,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
     plt.tight_layout()
 
     if save:
-        plt.savefig(f"{today}_BoxPlot_Lab-eff-{label}-seperately.pdf",  bbox_inches='tight', dpi=1200)
+        plt.savefig(f"{today}_BoxPlot_Lab-eff-{label}-seperately.pdf", bbox_inches='tight', dpi=1200)
 
     return df_labeling_eff
 
@@ -778,7 +780,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
         df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+            df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 
