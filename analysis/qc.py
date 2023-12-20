@@ -317,10 +317,7 @@ def enrichment_specifity(df_evidence, typ='Phospho (STY)', save=True):
     if not typ:
         print("Error: Choose type of enrichment")
 
-    # include modifications with there column name from MD output in evidence.txt
-    # has to be updated and adjusted to the modification name from MQ 
     yp = colname 
-
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
     
