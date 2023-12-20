@@ -1,0 +1,40 @@
+################################################################################
+# 15-color palette for deuteranopia color blindness
+# 18:05:29 Tue 19 May 2020
+# Martin Krzywinski martink@bcgsc.ca
+# Methods and details: http://mkweb.bcgsc.ca/colorblind
+# Color names: http://mkweb.bcgsc.ca/colornames
+################################################################################
+# Main palette colors are N-main with N-alt being (one of many) alternatives
+# that are indistinguishable to deuteranopes.
+################################################################################
+ 1-main 68023F merlot
+ 1-alt  00463C aquamarine
+ 2-main 008169 elf green
+ 2-alt  C00B6F magenta
+ 3-main EF0096 fluorescent pink
+ 3-alt  00A090 teal
+ 4-main 00DCB5 aquamarine
+ 4-alt  FF95BA flamingo pink
+ 5-main FFCFE2 light pink
+ 5-alt  5FFFDE laqua
+ 6-main 003C86 flat medium blue, royal blue, bay of many, bondi blue, congress blue, cobalt, elvis, darkish blue, submerge, yale blue
+ 6-alt  590A87 purple, indigo, pigment indigo, kingfisher daisy, daisy bush, dark slate blue, dark orchid, windsor, seance, pixie powder
+ 7-main 9400E6 vivid purple, violet, purple, veronica, purple, electric purple, purple, vivid mulberry, vivid purple, vivid violet
+ 7-alt  0063E5 cerulean blue, flat medium blue, royal blue, deep sky blue, blue, royal blue, brandeis blue, brilliant phthalo blue, clear blue, ultramarine blue
+ 8-main 009FFA azure, luminous vivid cornflower blue, vivid cornflower blue, brilliant azure, bleu de france, dark sky blue, brilliant azure, united nations blue, light brilliant cobalt blue, cornflower
+ 8-alt  ED0DFD famous, fuchsia, luminous vivid magenta, magenta, magenta / fuchsia, luminous vivid heliotrope, phlox, psychedelic purple, magenta, vivid magenta
+ 9-main FF71FD blush pink, shocking pink, ultra pink, pink flamingo, fuchsia pink, light brilliant orchid, pink flamingo, candy pink, light brilliant magenta, light magenta
+ 9-alt  00C7F9 vivid sky blue, bright sky blue, cyan, spiro disco ball, brilliant cerulean, capri, deep sky blue, luminous vivid cerulean, sky blue deep, light brilliant cerulean
+10-main 7CFFFA light brilliant cyan, electric blue, dark slate grey, very light cyan, very light opal, bright cyan, dark slate grey, brilliant cyan, light brilliant opal, bright light blue
+10-alt  FFD5FD pale mauve, very light purple, shampoo, french lilac, pale lavender, classic rose, thistle, thistle, very pale magenta, pink lace
+11-main 6A0213 burnt crimson, rosewood, claret, venetian red, dark tan, persian plum, prune, deep amaranth, deep reddish brown, crown of thorns
+11-alt  3D3C04 dark olive, waiouru, camouflage, bronze olive, bronzetone, clover, madras, thatch green, turtle green, punga
+12-main 008607 india green, ao, green, office green, web green, green, emerald green, islamic green, forest green, forest green
+12-alt  C80B2A amaranth red, fire engine red, cherry, vivid crimson, red pepper, flame red, monza, lipstick red, firebrick, red
+13-main F60239 american rose, red, carmine, electric crimson, luminous vivid crimson, neon red, carmine red, scarlet, torch red, tractor red
+13-alt  00A51C strong emerald green, strong malachite green, kelly green, green, strong sap green, strong green, strong harlequin, true green, islamic green, strong pistachio
+14-main 00E307 vivid sap green, vivid emerald green, vivid green, vibrant green, vivid green, vivid harlequin, green, radioactive green, vivid malachite green, vivid pistachio
+14-alt  FFA035 deep saffron
+15-main FFDC3D gargoyle gas
+15-alt  9BFF2D french lime
