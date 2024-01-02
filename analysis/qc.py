@@ -313,9 +313,6 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
     if len(experiments) != len(rawfiles):
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
-
-    if not typ:
-        print("Error: Choose type of enrichment")
  
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
