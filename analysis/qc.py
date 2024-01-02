@@ -279,13 +279,13 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     print(df_missed_cleavage_summary, ax1)
 
 
-def enrichment_specifity(df_evidence, typ='Phospho (STY)', save=True):
+def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
     """
 
     Parameters
     ----------
     df_evidence : cleaned pandas DataFrame from Maxquant analysis
-    typ : str,
+    mod_col : str,
           Give type of enrichment for analysis. The default is 'Phospho (STY)'.
           ('Met--> Phosphonate', 'Cys--> Phosphonate', 'Met --> Biotin')
     save : bool,
@@ -316,15 +316,14 @@ def enrichment_specifity(df_evidence, typ='Phospho (STY)', save=True):
 
     if not typ:
         print("Error: Choose type of enrichment")
-
-    yp = colname 
+ 
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
     
     try:
         for name, group in df_evidence.groupby("Experiment"):
-            nonmod = round(((group[colname] == 0).sum() / group.shape[0] * 100), 2)
-            mod = round(((group[colname] > 0).sum() / group.shape[0] * 100), 2)
+            nonmod = round(((group[mod_col] == 0).sum() / group.shape[0] * 100), 2)
+            mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
 
             df.loc[name, "Modified peptides [%]"] = mod
             df.loc[name, "Non-modified peptides [%]"] = nonmod
@@ -335,7 +334,7 @@ def enrichment_specifity(df_evidence, typ='Phospho (STY)', save=True):
 
     # make barchart
     fig, ax = plt.subplots()
-    fig.suptitle('Enrichment specificty [%]', fontdict=None,
+    fig.suptitle(f'Enrichment specificty [%] for {mod_col}', fontdict=None,
                  horizontalalignment='center', size=14
                  # ,fontweight="bold"
                  )
