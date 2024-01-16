@@ -917,14 +917,18 @@ def _limit_density(xs, ys, ss, threshold):
     threshold: float
         Probability threshold. Only points with 1/density above the value will be retained.
     """
-    # if there is only one datapoint kernel density estimation with fail
-    if len(xs) < 3:
-        return xs, ys, ss
+    # Remove NaNs
     if np.isnan(np.array(xs)).any() or np.isnan(np.array(ys)).any():
         nan_idx = np.isnan(np.array(xs)) | np.isnan(np.array(ys))
         xs = xs[~nan_idx]
         ys = ys[~nan_idx]
         ss = ss[~nan_idx]
+
+    # if there is only one datapoint kernel density estimation with fail
+    if len(xs) < 3 or len(ys) < 3:
+        print("Not enough data points for KDE. Return original point cloud.")
+        return xs, ys, ss
+
     # Make some random Gaussian data
     data = np.array(list(zip(xs, ys)))
     try:
