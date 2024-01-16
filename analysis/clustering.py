@@ -131,12 +131,15 @@ class _Cluster:
         self.cmap = matplotlib.cm.viridis
 
     def vis_cluster(self, col_cluster=False, make_traces=False, make_heatmap=False, file=None, row_colors=None,
-                    colors: list = None, ytick_labels="", **kwargs):
+                    colors: list = None, ytick_labels="", ret_figs: bool = False, make_clustermap: bool = True,
+                    **kwargs):
         """
         Visualise the clustering.
 
         Parameters
         ----------
+        make_clustermap : bool, optional
+            Whether to make a clustermap. The default is True.
         col_cluster : bool, optional
             Whether to cluster the columns. The default is False.
         make_traces : bool, optional
@@ -159,6 +162,8 @@ class _Cluster:
             The default is None.
         ytick_labels : list of str, optional
             Labels for the y ticks. The default is "".
+        ret_figs : bool, optional
+            Whether to return the figure. The default is False.
         **kwargs :
             passed to seaborn.clustermap.
             See https://seaborn.pydata.org/generated/seaborn.clustermap.html
@@ -167,11 +172,11 @@ class _Cluster:
 
         Returns
         -------
-        None.
+        figs : list of matplotlib.figure.Figure or seaborn.matrix.ClusterGrid or None
 
         """
 
-        def make_cluster_traces(file, colors: list, zs=None):
+        def make_cluster_traces(file, colors: list, zs=None, ret_fig: bool = False):
             """
             Plot RMSD vs colname line plots.
 
@@ -188,13 +193,15 @@ class _Cluster:
             zs : int or None, optional
                 Axis along which to standardise the data by z-score transformation.
                 The default is None.
+            ret_fig : bool, optional
+                Whether to return the figure. The default is False.
 
             Returns
             -------
-            None.
+            fig : matplotlib.figure.Figure or None
 
             """
-            plt.figure(figsize=(5, 5 * self.nclusters))
+            fig = plt.figure(figsize=(5, 5 * self.nclusters))
             temp = pd.DataFrame(self.data.copy())
             if zs is not None:
                 temp = pd.DataFrame(zscore(temp, axis=1 - zs))
@@ -239,7 +246,12 @@ class _Cluster:
                     filet = f"{name}_traces.{ext}"
                     plt.savefig(filet)
 
-        def make_cluster_heatmap(file=None):
+            if ret_fig:
+                return fig
+            else:
+                return None
+
+        def make_cluster_heatmap(file=None, ret_fig: bool = False):
             """
             Make summary heatmap of clustering.
 
@@ -247,10 +259,12 @@ class _Cluster:
             ----------
             file : str
                 Path to write summary.
+            ret_fig : bool, optional
+                Whether to return the figure. The default is False.
 
             Returns
             -------
-            None.
+            fig : matplotlib.figure.Figure or None
             """
             temp = pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels)
             temp["cluster"] = self.clusterId
@@ -258,7 +272,7 @@ class _Cluster:
             ylabel = [f"Cluster{i + 1} (n={j})" for i, j in
                       enumerate(temp.groupby("cluster").count().iloc[:, 0].values)]
 
-            plt.figure()
+            fig = plt.figure()
             plt.title("Summary Of Clustering")
             sns.heatmap(grouped, cmap=self.cmap)
             plt.yticks([i + 0.5 for i in range(len(ylabel))], ylabel, rotation=0)
@@ -267,6 +281,16 @@ class _Cluster:
                 name, ext = file.split('.')
                 filet = f"{name}_summary.{ext}"
                 plt.savefig(filet)
+
+            if ret_fig:
+                return fig
+            else:
+                return None
+
+        # initialise the figure variables
+        clustermap = None
+        traces = None
+        heatmap = None
 
         norm = clrs.Normalize(vmin=self.clusterId.min(), vmax=self.clusterId.max())
         if colors is not None and len(colors) == self.nclusters:
@@ -285,20 +309,26 @@ class _Cluster:
         else:
             row_colors_df = pd.DataFrame(cluster_colors, columns=['Cluster'], index=self.rlabels)
 
-        value_type = 'z-score' if "z_score" in kwargs else 'value'
-        sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels), row_linkage=self.linkage,
-                       row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
-                       cbar_kws={'label': value_type}, **kwargs)
+        if make_clustermap:
+            value_type = 'z-score' if "z_score" in kwargs else 'value'
+            clustermap = sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
+                                        row_linkage=self.linkage,
+                                        row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
+                                        cbar_kws={'label': value_type}, **kwargs)
 
         if file is not None:
             plt.savefig(file)
         if make_traces:
             if "z_score" in kwargs:
-                make_cluster_traces(file, zs=kwargs["z_score"], colors=colors)
+                traces = make_cluster_traces(file, zs=kwargs["z_score"], colors=colors, ret_fig=ret_figs)
             else:
-                make_cluster_traces(file, colors=colors)
+                traces = make_cluster_traces(file, colors=colors, ret_fig=ret_figs)
         if make_heatmap:
-            make_cluster_heatmap(file)
+            heatmap = make_cluster_heatmap(file, ret_fig=ret_figs)
+
+        if ret_figs:
+            figs = [x for x in [clustermap, traces, heatmap] if x is not None]
+            return figs[0] if len(figs) == 1 else figs
 
     def return_cluster(self):
         """Return dataframe with clustered data."""
@@ -443,10 +473,10 @@ class HCA(_Cluster):
 
     def make_linkage(self, method='single',
                      metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-                                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
-                                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
-                                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-                                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
+                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
+                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
+                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
 
         """
         Perform hierarchical clustering on the data.
