@@ -849,6 +849,7 @@ class KMeans(_Cluster):
         elif algo == 'sklearn':
             # initialise model
             model = clstsklearn.KMeans(n_clusters=self.nclusters,
+                                       n_init='auto',
                                        **kwargs)
             model.fit(self.data)
             self.clusterId = model.labels_

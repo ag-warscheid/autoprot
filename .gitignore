@@ -166,3 +166,5 @@ docsrc/_build
 /db/**
 # old database neednt be synced
 /data/old_database/
+/examples/environment.txt
+/examples/R_environment.csv
