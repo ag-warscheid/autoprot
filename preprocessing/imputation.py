@@ -87,21 +87,22 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         plt.show()
     """
     df = df.copy(deep=True)
-
-    #if max_missing is None:
-    #    max_missing = len(cols_to_impute)
-    ## idxs of all rows in which imputation will be performed
-    #idx_no_ctrl = df[df[cols_to_impute].isnull().sum(1) >= max_missing].index
-    #df["Imputed"] = False
-    #df.loc[idx_no_ctrl, "Imputed"] = True
+    
+    #idxs of rows imputation will be excluded
+    if max_missing is not None:
+        s_nan = df[cols_to_impute].isnull().sum(axis=1)
+        s_nan = s_nan[s_nan <= max_missing]
+        filter_idx = s_nan.index
 
     for col in cols_to_impute:
         count_na = df[col].isna().sum()
         na_index = df[df[col].isna()].index
-
+        if max_missing is not None:
+            na_index = na_index.difference(filter_idx)
+            count_na = len(na_index)
         #define values before imputation
-        mean = df_merge[col].mean()
-        var  = df_merge[col].std()
+        mean = df[col].mean()
+        var  = df[col].std()
         #new mean, val for imputation
         minimp_mean = mean - downshift*var
         minimp_var = var*width
