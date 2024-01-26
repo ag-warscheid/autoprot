@@ -109,7 +109,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         rnd = np.random.normal(minimp_mean, minimp_var, size=count_na)
         imputed_s = pd.Series(data=rnd, index=na_index)
         
-        col_new = col + "_min.imputed"
+        col_new = col + "_min_imputed"
         df[col_new] = df[col].fillna(imputed_s)
     
     return df
