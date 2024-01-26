@@ -118,6 +118,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     return df
 
 
+
 def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
