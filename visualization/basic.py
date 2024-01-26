@@ -1046,6 +1046,7 @@ def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
                              ):
     if isinstance(highlight, list):  # highlight is a list
         if kwargs_highlight is None:  # if no kwargs are given, generate a matching length kwarg list with Nones
+            print("No kwargs provided for highlights. Using default values.")
             kwargs_highlight = [None, ] * len(highlight)
         elif isinstance(kwargs_highlight, list) and len(kwargs_highlight) == 1 and \
                 isinstance(kwargs_highlight[0], dict):  # one-element list
@@ -1070,8 +1071,11 @@ def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
                 **k,
             )
     elif isinstance(highlight, pd.Index):  # highlight is an index
-        if isinstance(kwargs_highlight, list) and len(kwargs_highlight) == 1 and \
+        if kwargs_highlight is None:  # if no kwargs are given, generate a matching length kwarg list with Nones
+            print("No kwargs provided for highlights. Using default values.")
+        elif isinstance(kwargs_highlight, list) and len(kwargs_highlight) == 1 and \
                 isinstance(kwargs_highlight[0], dict):  # kwargs is one-element list
+            print("Only one kwargs provided for highlights. Using this for all highlights.")
             kwargs_highlight = kwargs_highlight[0]
         elif isinstance(kwargs_highlight, dict):  # kwargs is single dict
             pass
@@ -1095,7 +1099,8 @@ def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
         )
     else:
         raise ValueError("'highlight' and 'kwargs_highlight' must be lists of the same length or pd.Index and "
-                         "dict.")
+                         f"dict. However 'highlight' was {type(highlight)} and 'kwargs_highlight' "
+                         f"was {type(kwargs_highlight)}")
 
 
 # VOLCANO PLOTS #
