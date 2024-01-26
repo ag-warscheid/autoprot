@@ -87,27 +87,34 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         plt.show()
     """
     df = df.copy(deep=True)
-
-    if max_missing is None:
-        max_missing = len(cols_to_impute)
-    # idxs of all rows in which imputation will be performed
-    idx_no_ctrl = df[df[cols_to_impute].isnull().sum(1) >= max_missing].index
-    df["Imputed"] = False
-    df.loc[idx_no_ctrl, "Imputed"] = True
+    
+    #idxs of rows imputation will be excluded
+    if max_missing is not None:
+        s_nan = df[cols_to_impute].isnull().sum(axis=1)
+        s_nan = s_nan[s_nan <= max_missing]
+        filter_idx = s_nan.index
 
     for col in cols_to_impute:
-        df[col + '_imputed'] = df[col]
+        count_na = df[col].isna().sum()
+        na_index = df[df[col].isna()].index
+        if max_missing is not None:
+            na_index = na_index.difference(filter_idx)
+            count_na = len(na_index)
+        #define values before imputation
         mean = df[col].mean()
-        var = df[col].std()
-        mean_ = mean - downshift * var
-        var_ = var * width
+        var  = df[col].std()
+        #new mean, val for imputation
+        minimp_mean = mean - downshift*var
+        minimp_var = var*width
 
-        # generate random numbers matching the target dist
-        rnd = np.random.normal(mean_, var_, size=len(idx_no_ctrl))
-        for i, idx in enumerate(idx_no_ctrl):
-            df.loc[idx, col + '_imputed'] = rnd[i]
-
+        rnd = np.random.normal(minimp_mean, minimp_var, size=count_na)
+        imputed_s = pd.Series(data=rnd, index=na_index)
+        
+        col_new = col + "_min_imputed"
+        df[col_new] = df[col].fillna(imputed_s)
+    
     return df
+
 
 
 def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
