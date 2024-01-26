@@ -87,12 +87,14 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         plt.show()
     """
     df = df.copy(deep=True)
-    
-    #idxs of rows imputation will be excluded
+
+    # idxs of rows imputation will be excluded
     if max_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
         s_nan = s_nan[s_nan <= max_missing]
         filter_idx = s_nan.index
+    else:
+        filter_idx = pd.Index([])
 
     for col in cols_to_impute:
         count_na = df[col].isna().sum()
@@ -100,21 +102,20 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         if max_missing is not None:
             na_index = na_index.difference(filter_idx)
             count_na = len(na_index)
-        #define values before imputation
+        # define values before imputation
         mean = df[col].mean()
-        var  = df[col].std()
-        #new mean, val for imputation
-        minimp_mean = mean - downshift*var
-        minimp_var = var*width
+        var = df[col].std()
+        # new mean, val for imputation
+        minimp_mean = mean - downshift * var
+        minimp_var = var * width
 
         rnd = np.random.normal(minimp_mean, minimp_var, size=count_na)
         imputed_s = pd.Series(data=rnd, index=na_index)
-        
+
         col_new = col + "_min_imputed"
         df[col_new] = df[col].fillna(imputed_s)
-    
-    return df
 
+    return df
 
 
 def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
