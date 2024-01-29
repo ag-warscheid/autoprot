@@ -88,7 +88,7 @@ output <- args[3]
 # args[4]
 # limma:  design/kind of test for limma
 # rankProd: class labels of the samples
-# DIMA:   list of column headers for comparison of t statistic (joined with ;)
+# DIMA:   list of column headers for comparison of t statistic (joined with ,)
 # args[5]
 # limma:  location of design file for limma
 # DIMA:   methods to use for imputations benchmark
@@ -97,6 +97,8 @@ output <- args[3]
 # DIMA:   npat -> number of patterns to simulate
 # args[7]
 # DIMA:   Performance Metric to use for selection of best algorithm
+# args[8]
+# DIMA:   min_values_for_imputation -> minimum number of non-missing values in a row to perform imputation
 
 ## READ DATA
 # Data for processing is written to file from Python and
@@ -111,15 +113,40 @@ dfv <- df[,-which(names(df) %in% c("UID"))]
 # Data driven imputation selection DIMA
 dimaFunction <- function(dfv) {
 
+    # This function performs optimal imputation on a given matrix using a specified method.
+    # The imputation is only performed on the rows with less than `min_values_for_imputation` non-missing values.
+    # @param mtx The matrix on which the imputation is to be performed.
+    # @param method The imputation method to be used.
+    # @param min_values_for_imputation The minimum number of non-missing values in a row to perform imputation.
+    # @return A list containing the imputed matrix and the method used.
+    dimarDoOptimalImputation <- function(mtx, method, min_values_for_imputation) {
+      m <- 1
+      Imp <- NULL
+      mtx_copy <- mtx  # Create a copy of the original matrix
+
+      # Identify the rows to impute based on the number of non-missing values
+      rows_to_impute <- which(rowSums(!is.na(mtx)) >= min_values_for_imputation)
+
+      eval(parse(text = paste('require(', DIMAR::dimarGetLib(method[m]), ')')))
+      Imp <- DIMAR::dimarDoImputationsR(mtx[rows_to_impute, ], method[m], DIMAR::dimarGetLib(method[m]))
+
+      # Replace the corresponding rows in the original matrix with the imputed rows
+      mtx_copy[rows_to_impute, ] <- Imp[, 1:ncol(mtx)]
+
+      print(paste('Imputation of input data with algorithm', method[m], 'is performed.'))
+
+      Imp <- list(Imputation = mtx_copy, method = method[m])
+      return(Imp)
+    }
+
   # default args
   methods <- strsplit(x = args[5], split = ',')[[1]]
   npat <- args[6]
   group <- strsplit(x = args[4], split = ',')[[1]]
   performanceMetric <- args[7]
+  min_values_for_imputation <- args[8]
 
   mtx <- as.matrix(dfv)
-  # from here: copied from
-  # https://github.com/kreutz-lab/DIMAR/blob/b8e9497cd490a464bf46ebc177efd7e34f064723/R/dimar.R
   
   if (!group[1] == 'cluster') {
     groupidx <- rep(0L,ncol(mtx))
@@ -127,16 +154,56 @@ dimaFunction <- function(dfv) {
     groupidx[grepl(group[2],colnames(mtx))] <- 2
     group <- groupidx
   }
-  
   mtx <- DIMAR::dimarMatrixPreparation(mtx, nacut = 2)
+  # print the number of missing values
+  glue::glue('Number of missing values: {sum(is.na(mtx))}')
 
+  # Learn the pattern of missing values in the matrix using DIMAR's dimarLearnPattern function.
+  # @param mtx A matrix with missing values.
+  # @return A vector of coefficients that represent the pattern of missing values in the matrix.
   coef <- DIMAR::dimarLearnPattern(mtx)
+
+  # This function uses the learned pattern of missing values to construct a reference data set.
+  # @param mtx A matrix with missing values.
+  # @return A reference data set.
   ref <- DIMAR::dimarConstructReferenceData(mtx)
+
+  # This function uses the learned pattern and the reference data set to assign the pattern to the data set.
+  # @param ref The reference data set.
+  # @param coef The learned pattern of missing values.
+  # @param mtx The matrix with missing values.
+  # @param npat The number of patterns to simulate.
+  # @return A matrix with the pattern of missing values assigned.
   sim <- DIMAR::dimarAssignPattern(ref, coef, mtx, npat)
-  
+
+  # Perform imputations on the simulated data using the specified methods.
+  # The DIMAR::dimarDoImputations function takes the simulated data and the methods as input.
+  # @param sim The simulated data.
+  # @param methods The methods to use for imputation.
+  # @return A list of imputed data sets.
   Imputations <- DIMAR::dimarDoImputations(sim, methods)
+
+  # Evaluate the performance of the imputations.
+  # The function takes the imputed data sets, the reference data set, the simulated data, the performance metric,
+  # a boolean indicating whether to use parallel processing, and the column labels for the t-test as input.
+  # @description Evaluates performance of imputation algorithms.
+  # @return Data frame containing the following performance measures for
+  # each imputation method: Deviation, RMSE, RSR, p-Value_F-test, Accuracy, PCC, and in case
+  # of RMSEttest=TRUE the RMSE t-test result
+  # @param Imputations Imputed data set(s)
+  # @param ref Reference data
+  # @param sim Simulated patterns of MVs
+  # @param performanceMetric Performance measure which should serve as rank criterion
+  # @param RMSEttest flag if RMSE of ttest should be calculated
+  # @param group indices for ttest
   Performance <- DIMAR::dimarEvaluatePerformance(Imputations, ref, sim, performanceMetric, TRUE, group)
-  Imp <- DIMAR::dimarDoOptimalImputation(mtx, rownames(Performance))
+
+  # Perform the optimal imputation on the original data.
+  # The function takes the original data and the row names of the performance data frame as input.
+  # @param mtx The original data.
+  # @param method Optimal imputation method. Here the the row names of the performance data frame (i.e. all tested methods) are used.
+  # @return The optimally imputed data set.
+  Imp <- dimarDoOptimalImputation(mtx, rownames(Performance), min_values_for_imputation)
 
   dfv <- as.data.frame(Imp)
   dfv$UID <- rownames(dfv)
