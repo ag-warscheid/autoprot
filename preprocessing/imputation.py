@@ -189,8 +189,8 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
     return df
 
 
-def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast',
-         npat=20, performance_metric='RMSE', print_r=True):
+def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_substr='cluster', methods='fast',
+         npat=20, performance_metric='RMSE', print_r=True, min_values_for_imputation=0):
     # noinspection PyUnresolvedReferences
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
@@ -199,12 +199,16 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     ----------
     df : pd.DataFrame
         Input dataframe.
-    cols : list of str
+    cols : list of str or pd.Index
         Colnames to perform imputation on.
         NOTE: if used on intensities, use log-transformed values.
     selection_substr : str
         pattern to extract columns for processing during DIMA run.
     ttest_substr : 2-element list or str
+        For statistical interpretation based on the t-test, the RMSEt ≔ RMSE(tR, tI) serves as rank criterion,
+        where t is the t-test statistics calculated from the observed data R and the imputed data O.Todefine the null
+        hypothesis H0, the group assignments of the samples have to be specified by the user.
+
         If string, two elements need to be separated by ','
         If list, concatenation will be done automatically.
         The two elements must be substrings of the columns to compare.
@@ -219,6 +223,9 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     performance_metric : str, optional
         Metric used to select the best algorithm. Possible values are
         Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.
+    min_values_for_imputation : int, optional
+        Minimum number of non-missing values for imputation.
+        Default is 0, which means that all values will be imputed.
     print_r : bool
         Whether to print the R output to the Python console.
 
@@ -264,10 +271,20 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
     missForest   0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783
     imputePCA    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656
     ppca         0.377638  0.500354  0.249424        0.933919  95.000000  0.997721   0.199830
-    
+
+
+    It is also possible to specify the minimum number of non-missing values that are required for imputation.
+
+    >>> for col in iris.columns:
+    ...     iris.loc[iris.sample(frac=0.4).index, col] = np.nan
+    >>> imp, perf = pp.dima(
+    ...     iris, iris.columns, performance_metric="RMSEt", min_values_for_imputation=2
+    ... )
+
     References
     ----------
-    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm. Journal of Proteome Research 20, 3489–3496 (2021-06).
+    Egert, J., Brombacher, E., Warscheid, B. & Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm.
+        Journal of Proteome Research 20, 3489–3496 (2021-06).
     """
     if not df.isnull().values.any():
         raise ValueError('Your dataframe does not contain missing values. Will return as is.')
@@ -288,7 +305,7 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
         # UID is basically a row index starting at 1
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if not isinstance(cols, list):
+    if isinstance(cols, pd.Index):
         cols = cols.to_list()
     pp.to_csv(df[["UID"] + cols], data_loc)
 
@@ -306,7 +323,8 @@ def dima(df, cols, selection_substr=None, ttest_substr='cluster', methods='fast'
                ttest_substr,  # substring for ttesting
                methods,  # method(s) aka algorithms to benchmark
                str(npat),  # number of patterns
-               performance_metric  # to select the best algorithm
+               performance_metric,  # to select the best algorithm
+               str(min_values_for_imputation)  # minimum number of non-missing values for imputation
                ]
 
     p = run(command,
