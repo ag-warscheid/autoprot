@@ -1025,7 +1025,7 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
 
 
 def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y_colname: str,
-                   annotate: Union[str, None], highlight: Union[List[int], None],
+                   annotate: Union[str, None], highlight: Union[pd.Index, List[pd.Index], None],
                    annotate_colname: str, annotate_density: float) -> None:
     """
     Add labels to a scatter plot based on certain conditions.
@@ -1043,7 +1043,7 @@ def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y
     annotate : str or None
        The condition to determine which points to label. Can be "highlight", "p-value and log2FC", "p-value",
        "log2FC" or None.
-    highlight : list of int or None
+    highlight : pd.Index, list of pd.Index or None
        A list of indices to highlight if annotate is "highlight".
     annotate_colname : str
        The name of the column in df to use for the labels of the scatter plot.
@@ -1067,7 +1067,12 @@ def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y
     if annotate == "highlight":
         if highlight is None:
             raise ValueError("Highlight is None, but 'highlight' was passed to 'annotate'.")
-        to_label = reduce(lambda x, y: x.union(y), highlight)
+        elif isinstance(highlight, list):
+            to_label = reduce(lambda x, y: x.union(y), highlight)
+        elif isinstance(highlight, pd.Index):
+            to_label = highlight
+        else:
+            raise ValueError("'highlight' must be a list of pd.Index or a pd.Index or None.")
     # If annotation is set to one of the other allowed values, determine the points to label based on the condition
     elif annotate in ["p-value and log2FC", "p-value", "log2FC", "ratio_thresh"]:
         to_label = df[df["SigCat"] == annotate].index
