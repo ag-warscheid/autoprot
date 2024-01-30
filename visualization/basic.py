@@ -6,6 +6,8 @@ Autoprot Basic Plotting Functions.
 
 @documentation: Julian
 """
+from functools import reduce
+
 from scipy import stats
 from scipy.stats import zscore, gaussian_kde
 from scipy.linalg import LinAlgError
@@ -34,7 +36,7 @@ import plotly.graph_objects as go
 
 import upsetplot
 
-from typing import Literal, Union
+from typing import Literal, Union, List
 
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
@@ -1022,17 +1024,68 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
         ax.add_artist(legend2)
 
 
-def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: str, annotate_colname: str,
-                   labelling_index: pd.Index, annotate_density: int):
-    xs = df[x_colname].loc[labelling_index].to_numpy()
-    ys = df[y_colname].loc[labelling_index].to_numpy()
-    ss = df[annotate_colname].loc[labelling_index].to_numpy()
-    # reduce the number of points annotated in dense areas of the plot
-    xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
+def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y_colname: str,
+                   annotate: Union[str, None], highlight: Union[List[int], None],
+                   annotate_colname: str, annotate_density: float) -> None:
+    """
+    Add labels to a scatter plot based on certain conditions.
 
+    Parameters
+    ----------
+    df : pd.DataFrame
+       The dataframe containing the data to be plotted.
+    ax : matplotlib.axes.Axes
+       The axes object on which to add the labels.
+    x_colname : str
+       The name of the column in df to use for the x-values of the scatter plot.
+    y_colname : str
+       The name of the column in df to use for the y-values of the scatter plot.
+    annotate : str or None
+       The condition to determine which points to label. Can be "highlight", "p-value and log2FC", "p-value",
+       "log2FC" or None.
+    highlight : list of int or None
+       A list of indices to highlight if annotate is "highlight".
+    annotate_colname : str
+       The name of the column in df to use for the labels of the scatter plot.
+    annotate_density : float
+       The density of the annotations. Used to limit the number of annotations if there are too many points.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+       If annotate is "highlight" but highlight is None, or if annotate is not one of the allowed values.
+    """
+    # If no annotation is required, return without doing anything
+    if annotate is None:
+        return
+
+    # If annotation is set to "highlight", check if highlight indices are provided
+    if annotate == "highlight":
+        if highlight is None:
+            raise ValueError("Highlight is None, but 'highlight' was passed to 'annotate'.")
+        to_label = reduce(lambda x, y: x.union(y), highlight)
+    # If annotation is set to one of the other allowed values, determine the points to label based on the condition
+    elif annotate in ["p-value and log2FC", "p-value", "log2FC", "ratio_thresh"]:
+        to_label = df[df["SigCat"] == annotate].index
+    # If annotation is not one of the allowed values, raise an error
+    else:
+        raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC" or None')
+
+    # Limit the number of annotations if there are too many points
+    xs, ys, ss = _limit_density(df.loc[to_label, x_colname].to_numpy(),
+                                df.loc[to_label, y_colname].to_numpy(),
+                                df.loc[to_label, annotate_colname].to_numpy(),
+                                1 / annotate_density)
+
+    # Add the labels to the scatter plot
     texts = [
         ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
     ]
+    # adjust the label positions so that they do not overlap
     adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
 
 
@@ -1172,8 +1225,8 @@ def volcano(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None, pd.Index] = "p-value "
-                                                                                                           "and log2FC",
+        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
+                                                                                                 "and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_p_sig: dict = None,
@@ -1560,28 +1613,8 @@ def volcano(
     ax.set_ylabel(r"$\mathregular{-log_{10} P}$")
 
     # ANNOTATION AND LABELING
-    to_label = pd.Index([])
-    if annotate is not None:
-        if isinstance(annotate, str):
-            if annotate == "highlight":
-                if highlight is None:
-                    raise ValueError(
-                        'You must provide input to the "highlight" kwarg before you can'
-                        " label the highlighted points"
-                    )
-                to_label = highlight
-            elif ("p-value" in annotate) or ("log2FC" in annotate):
-                to_label = df[df["SigCat"] == annotate].index
-        elif isinstance(annotate, pd.Index):
-            to_label = annotate
-        else:
-            raise ValueError(
-                'Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", None or '
-                'pd.Index"'
-            )
-
-        _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate_colname=annotate_colname,
-                       labelling_index=to_label, annotate_density=annotate_density)
+    _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate=annotate, highlight=highlight,
+                   annotate_colname=annotate_colname, annotate_density=annotate_density)
 
     # STYLING
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
@@ -1799,7 +1832,7 @@ def ratio_plot(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "ratio_thresh"], None, pd.Index] = "ratio_thresh",
+        annotate: Union[Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_r_sig: dict = None,
@@ -1926,27 +1959,8 @@ def ratio_plot(
     ax.set_ylabel(ylabel)
 
     # ANNOTATION AND LABELING
-    to_label = pd.Index([])
-    if annotate is not None:
-        if isinstance(annotate, str):
-            if annotate == "highlight":
-                if highlight is None:
-                    raise ValueError(
-                        'You must provide input to the "highlight" kwarg before you can'
-                        " label the highlighted points"
-                    )
-                to_label = highlight
-            elif "ratio_thresh" in annotate:
-                to_label = df[df["SigCat"] == annotate].index
-        elif isinstance(annotate, pd.Index):
-            to_label = annotate
-        else:
-            raise ValueError(
-                'Annotate must be "highlight", "ratio_thresh" "None" or pd.Index'
-            )
-
-        _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate_colname=annotate_colname,
-                       labelling_index=to_label, annotate_density=annotate_density)
+    _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate=annotate, highlight=highlight,
+                   annotate_colname=annotate_colname, annotate_density=annotate_density)
 
     # STYLING
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
