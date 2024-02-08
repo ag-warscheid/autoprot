@@ -37,6 +37,9 @@ import upsetplot
 
 from typing import Literal, Union, List
 
+from matplotlib import pyplot as plt
+import seaborn as sns
+
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
                 save_type="pdf", save_name="pairPlot", lower_triang="scatter",
@@ -609,10 +612,6 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         return fig
 
 
-from matplotlib import pyplot as plt
-import seaborn as sns
-
-
 def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: Union[int, None] = 5,
                    title="Rank Plot", figsize=(15, 7), file=None, hline=None,
                    ax=None, highlight=None, kwargs_highlight=None, ascending=True, **kwargs):
@@ -649,6 +648,8 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
     highlight : pd.Index, optional
         Index of the data to highlight.
         The default is None.
+    kwargs_highlight: dict, optional
+        Keyword arguments to be passed to the highlight plot.
     ascending : bool, optional
         Whether to sort the data in ascending order.
     **kwargs :
@@ -692,7 +693,7 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
         fig, ax = plt.subplots(figsize=figsize)
 
     # plot on the axis
-    sns.scatterplot(data,
+    sns.scatterplot(data=data,
                     x='# rank',
                     y=rank_col,
                     linewidth=0,
