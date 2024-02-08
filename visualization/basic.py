@@ -15,7 +15,6 @@ import pandas as pd
 # noinspection PyProtectedMember
 from pandas.api.types import is_numeric_dtype
 import numpy as np
-import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as mticker
@@ -610,9 +609,13 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         return fig
 
 
-def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+
+def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: Union[int, None] = 5,
                    title="Rank Plot", figsize=(15, 7), file=None, hline=None,
-                   ax=None, **kwargs):
+                   ax=None, highlight=None, kwargs_highlight=None, ascending=True, **kwargs):
     # noinspection PyUnresolvedReferences
     """
     Draw a rank plot.
@@ -624,7 +627,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
     rank_col : str, optional
         the column with the values to be ranked (e.g. Intensity values).
         The default is "log10_Intensity".
-    label : str, optional
+    annotate_colname : str, optional
         Colname of the column with the labels.
         The default is None.
     n : int, optional
@@ -643,6 +646,11 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
         The default is None.
     ax : matplotlib.axis
         Axis to plot on
+    highlight : pd.Index, optional
+        Index of the data to highlight.
+        The default is None.
+    ascending : bool, optional
+        Whether to sort the data in ascending order.
     **kwargs :
         Passed to seaborn.scatterplot.
 
@@ -657,7 +665,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
     Note that marker is passed to seaborn and results in points marked as diamonds.
 
     >>> autoprot.visualization.intensity_rank(data, rank_col="log10_Intensity",
-    ...                                      label="Gene names", n=15,
+    ...                                      annotate_colname="Gene names", n=15,
     ...                                      title="Rank Plot",
     ...                                      hline=8, marker="d")
 
@@ -672,61 +680,64 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
                          hline=8, marker="d")
 
     """
-    # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
-
     # remove NaNs
     data = data.copy().dropna(subset=[rank_col])
-
-    # if data has more columns than 1
-    if data.shape[1] > 1:
-        data = data.sort_values(by=rank_col, ascending=True)
-        y = data[rank_col]
-    else:
-        y = data.sort_values(by=data.columns[0], ascending=True)
-
-    x = range(data.shape[0])
+    # sort by rank
+    data = data.sort_values(by=rank_col, ascending=ascending)
+    # generate ranked index
+    data['# rank'] = np.arange(1, len(data) + 1)
 
     # new plot if no axis was given
     if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.gca()
+        fig, ax = plt.subplots(figsize=figsize)
 
     # plot on the axis
-    sns.scatterplot(x=x, y=y,
+    sns.scatterplot(data,
+                    x='# rank',
+                    y=rank_col,
                     linewidth=0,
                     ax=ax,
+                    legend=False,
                     **kwargs)
 
     if hline is not None:
         ax.axhline(hline, 0, 1, ls="dashed", color="lightgray")
 
-    if label is not None:
-        # high intensity labels labels
-        top_y = y.iloc[-1]
+    if annotate_colname is not None:
 
-        top_yy = np.linspace(top_y - n * 0.4, top_y, n)
-        top_oy = y[-n:]
-        top_xx = x[-n:]
-        top_ss = data[label].iloc[-n:]
+        if highlight is None:
+            if n is not None:
+                highlight = []
+                kwargs_highlight = []
+        else:
+            highlight = [highlight, ]
+            kwargs_highlight = [kwargs_highlight, ]
 
-        for ys, xs, ss, oy in zip(top_yy, top_xx, top_ss, top_oy):
-            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
-            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
+        # add the n largest and small ranks to the highlight
+        if n is not None:
+            highlight.append(data.nlargest(n, '# rank').index.union(data.nsmallest(n, '# rank').index))
+            kwargs_highlight.append({'color': 'salmon'})
 
-        # low intensity labels
-        low_y = y.iloc[0]
-        low_yy = np.linspace(low_y, low_y + n * 0.4, n)
-        low_oy = y[:n]
-        low_xx = x[:n]
-        low_ss = data[label].iloc[:n]
+        if highlight is not None:
+            _plot_highlights_scatter(highlight=highlight,
+                                     kwargs_highlight=kwargs_highlight,
+                                     df=data,
+                                     ax=ax,
+                                     x_colname='# rank',
+                                     y_colname=rank_col,
+                                     pointsize_colname=None)
 
-        for ys, xs, ss, oy in zip(low_yy, low_xx, low_ss, low_oy):
-            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
-            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
+            _label_scatter(df=data,
+                           ax=ax,
+                           x_colname="# rank",
+                           y_colname=rank_col,
+                           annotate="highlight",
+                           highlight=highlight,
+                           annotate_colname=annotate_colname,
+                           annotate_density=100)
+        else:
+            print("annotate colname provided but neither n nor highlight given. Skipping annotation.")
 
-    sns.despine()
-    ax.set_xlabel("# rank")
-    if ax is None:
         plt.title(title)
 
     if file is not None:
@@ -1100,7 +1111,7 @@ def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
                              ax: plt.axis,
                              x_colname: str,
                              y_colname: str,
-                             pointsize_colname: str,
+                             pointsize_colname: Union[str, None],
                              ):
     if isinstance(highlight, list):  # highlight is a list
         if kwargs_highlight is None:  # if no kwargs are given, generate a matching length kwarg list with Nones
