@@ -545,10 +545,6 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
                    ylabel="log_fc")
     """
-
-    if labels is None:
-        labels = []
-
     if compare:
         # check if inputs make sense
         if len(reps) != 2:
