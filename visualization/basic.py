@@ -681,8 +681,10 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
                          hline=8, marker="d")
 
     """
-    # remove NaNs
-    data = data.copy().dropna(subset=[rank_col])
+    # working copy
+    data = data.copy()
+    # remove NaNs and infs
+    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=[rank_col])
     # sort by rank
     data = data.sort_values(by=rank_col, ascending=ascending)
     # generate ranked index
