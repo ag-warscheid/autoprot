@@ -151,7 +151,8 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols: Union[list[str], pd.Index], return_cols=False, print_r: bool = False):
+def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert: Union[list[int], None] = None,
+        suffix: str = "_normalized", print_r: bool = False):
     # noinspection PyUnresolvedReferences
     r"""
     Perform Variance Stabilizing Normalization.
@@ -169,6 +170,11 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False, print_r: bool =
     return_cols : bool, optional
         if True also the column names of the normalized columns are returned.
         The default is False.
+    invert: list of int, optional
+        If the data is inverted (e.g. 1/x) the VSN will be performed on the inverted data.
+        The default is None.
+    suffix : str, optional
+        Suffix to be added to the column names of the normalized columns. The default is "_normalized".
     print_r : bool
         Whether to return output from the R command line. Default is False.
 
@@ -226,21 +232,31 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False, print_r: bool =
         phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
         intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
         phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
-        phos_lfq = pp.vsn(phos_lfq, intens_cols)
-        norm_cols = phos_lfq.filter(regex="_norm").columns.to_list()
+        phos_lfq, norm_cols = pp.vsn(phos_lfq, intens_cols, return_cols = True)
         phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
         vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
     """
+    # generate a unique identifier to merge the dataframes after the transformation
+    if "UID" not in df.columns:
+        df["UID"] = range(1, df.shape[0] + 1)
+
+    # copy the relevant columns to avoid changing the original dataframe
+    subset = df[cols + ["UID",]].copy()
+
+    # if invert is not None, apply the inversion to the columns
+    if invert is not None:
+        if len(invert) != len(cols):
+            raise ValueError("Length of invert does not match length of cols")
+        for i in range(len(invert)):
+            subset[cols[i]] = subset[cols[i]].apply(lambda x: x ** invert[i])
+
     d = os.getcwd()
     data_loc = d + "/input.csv"
     output_loc = d + "/output.csv"
 
-    if "UID" not in df.columns:
-        df["UID"] = range(1, df.shape[0] + 1)
-
     if not isinstance(cols, list):
         cols = cols.to_list()
-    pp.to_csv(df[["UID"] + cols], data_loc)
+    pp.to_csv(subset[["UID"] + cols], data_loc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
@@ -252,7 +268,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols=False, print_r: bool =
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
+    res_cols = [f"{i}{suffix}" if i != "UID" else i for i in res.columns]
     res.columns = res_cols
 
     df = df.merge(res, on="UID")

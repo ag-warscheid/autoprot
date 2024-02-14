@@ -557,7 +557,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         if ax is not None:
             raise ValueError('You cannot use compare and specify an axis. Do either.')
 
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize, sharey='row')
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
         if title:
