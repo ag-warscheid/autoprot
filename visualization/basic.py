@@ -589,15 +589,20 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         plt.title(title)
         plt.ylabel(ylabel)
 
-        ticks_loc = ax.get_xticks().tolist()
-        ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-
+        # Check if labels are provided
         if labels is not None:
-            temp = ax.set_xticklabels(labels)
-            for i, label in enumerate(temp):
-                label.set_y(label.get_position()[1] - (i % 2) * .05)
+            # If labels are provided, check if the number of labels matches the number of columns (reps)
+            if not len(labels) == len(reps):
+                # If the number of labels does not match the number of columns, raise a ValueError
+                raise ValueError("Number of labels does not match number of columns.")
+            # If the number of labels matches the number of columns, set the x-ticks of the boxplot to be the labels
+            # provided
+            ax.set_xticks(range(1, len(reps) + 1), labels)
         else:
-            ax.set_ticklabels(str(i + 1) for i in range(len(reps)))
+            # If labels are not provided, set the x-ticks to be a list of integers from 1 to the number of columns in
+            # reps
+            ax.set_xticks(range(1, len(reps) + 1), [str(i + 1) for i in range(len(reps))])
+
         if ylabel == "log_fc":
             ax.axhline(0, 0, 1, color="gray", ls="dashed")
     sns.despine()
