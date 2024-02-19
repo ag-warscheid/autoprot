@@ -118,14 +118,15 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     return df
 
 
-
-def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
+def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
-    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the
-    algorithm.
-    SEQimpute starts from a complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation, say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the observation x* is added to the complete data matrix and the algorithm continues with the next observation with missing values.
+    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the algorithm. SEQimpute starts from a
+    complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation,
+    say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x']. Then the
+    observation x* is added to the complete data matrix and the algorithm continues with the next observation with
+    missing values.
 
     Parameters
     ----------
@@ -134,7 +135,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=True):
     cols : list of str
         Colnames to perform imputation of.
     print_r : bool, optional
-        Whether to print the output of R, default is True.
+        Whether to print the output of R, default is False.
 
     Returns
     -------
