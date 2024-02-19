@@ -361,13 +361,17 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
     """
     corr = df[columns].corr()
     if cluster:
-        sns.clustermap(corr, cmap=cmap, annot=annot, **kwargs)
-
-    elif ax is None:
-        plt.figure(figsize=figsize)
-        sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, **kwargs)
+        if ax is None:
+            sns.clustermap(corr, cmap=cmap, annot=annot, **kwargs)
+        else:
+            raise ValueError("Seaborn clustermap works on figure level an therefore cannot be passed axis as argument.")
     else:
-        sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, ax=ax, **kwargs)
+        if ax is None:
+            plt.figure(figsize=figsize)
+            sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, **kwargs)
+        else:
+            sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, ax=ax, **kwargs)
+
     if save_dir is not None:
         if save_type == "pdf":
             plt.savefig(f"{save_dir}/{save_name}.pdf")
