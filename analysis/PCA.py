@@ -6,7 +6,7 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
-from typing import Union
+from typing import Union, Literal
 
 import pandas as pd
 import numpy as np
