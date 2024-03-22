@@ -6,6 +6,8 @@ Autoprot Basic Plotting Functions.
 
 @documentation: Julian
 """
+from functools import reduce
+
 from scipy import stats
 from scipy.stats import zscore, gaussian_kde
 from scipy.linalg import LinAlgError
@@ -13,7 +15,6 @@ import pandas as pd
 # noinspection PyProtectedMember
 from pandas.api.types import is_numeric_dtype
 import numpy as np
-import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib as mpl
 import matplotlib.ticker as mticker
@@ -34,7 +35,10 @@ import plotly.graph_objects as go
 
 import upsetplot
 
-from typing import Literal, Union
+from typing import Literal, Union, List
+
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
@@ -357,13 +361,17 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
     """
     corr = df[columns].corr()
     if cluster:
-        sns.clustermap(corr, cmap=cmap, annot=annot, **kwargs)
-
-    elif ax is None:
-        plt.figure(figsize=figsize)
-        sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, **kwargs)
+        if ax is None:
+            sns.clustermap(corr, cmap=cmap, annot=annot, **kwargs)
+        else:
+            raise ValueError("Seaborn clustermap works on figure level an therefore cannot be passed axis as argument.")
     else:
-        sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, ax=ax, **kwargs)
+        if ax is None:
+            plt.figure(figsize=figsize)
+            sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, **kwargs)
+        else:
+            sns.heatmap(corr, cmap=cmap, square=True, cbar=False, annot=annot, ax=ax, **kwargs)
+
     if save_dir is not None:
         if save_type == "pdf":
             plt.savefig(f"{save_dir}/{save_name}.pdf")
@@ -541,10 +549,6 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
                    ylabel="log_fc")
     """
-
-    if labels is None:
-        labels = []
-
     if compare:
         # check if inputs make sense
         if len(reps) != 2:
@@ -557,7 +561,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         if ax is not None:
             raise ValueError('You cannot use compare and specify an axis. Do either.')
 
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize)
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=figsize, sharey='row')
         ax[0].set_ylabel(ylabel)
         ax[1].set_ylabel(ylabel)
         if title:
@@ -589,15 +593,20 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         plt.title(title)
         plt.ylabel(ylabel)
 
-        ticks_loc = ax.get_xticks().tolist()
-        ax.xaxis.set_major_locator(mticker.FixedLocator(ticks_loc))
-
+        # Check if labels are provided
         if labels is not None:
-            temp = ax.set_xticklabels(labels)
-            for i, label in enumerate(temp):
-                label.set_y(label.get_position()[1] - (i % 2) * .05)
+            # If labels are provided, check if the number of labels matches the number of columns (reps)
+            if not len(labels) == len(reps):
+                # If the number of labels does not match the number of columns, raise a ValueError
+                raise ValueError("Number of labels does not match number of columns.")
+            # If the number of labels matches the number of columns, set the x-ticks of the boxplot to be the labels
+            # provided
+            ax.set_xticks(range(1, len(reps) + 1), labels)
         else:
-            ax.set_ticklabels(str(i + 1) for i in range(len(reps)))
+            # If labels are not provided, set the x-ticks to be a list of integers from 1 to the number of columns in
+            # reps
+            ax.set_xticks(range(1, len(reps) + 1), [str(i + 1) for i in range(len(reps))])
+
         if ylabel == "log_fc":
             ax.axhline(0, 0, 1, color="gray", ls="dashed")
     sns.despine()
@@ -608,9 +617,9 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
         return fig
 
 
-def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
+def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: Union[int, None] = 5,
                    title="Rank Plot", figsize=(15, 7), file=None, hline=None,
-                   ax=None, **kwargs):
+                   ax=None, highlight=None, kwargs_highlight=None, ascending=True, **kwargs):
     # noinspection PyUnresolvedReferences
     """
     Draw a rank plot.
@@ -622,7 +631,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
     rank_col : str, optional
         the column with the values to be ranked (e.g. Intensity values).
         The default is "log10_Intensity".
-    label : str, optional
+    annotate_colname : str, optional
         Colname of the column with the labels.
         The default is None.
     n : int, optional
@@ -641,6 +650,13 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
         The default is None.
     ax : matplotlib.axis
         Axis to plot on
+    highlight : pd.Index, optional
+        Index of the data to highlight.
+        The default is None.
+    kwargs_highlight: dict, optional
+        Keyword arguments to be passed to the highlight plot.
+    ascending : bool, optional
+        Whether to sort the data in ascending order.
     **kwargs :
         Passed to seaborn.scatterplot.
 
@@ -655,7 +671,7 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
     Note that marker is passed to seaborn and results in points marked as diamonds.
 
     >>> autoprot.visualization.intensity_rank(data, rank_col="log10_Intensity",
-    ...                                      label="Gene names", n=15,
+    ...                                      annotate_colname="Gene names", n=15,
     ...                                      title="Rank Plot",
     ...                                      hline=8, marker="d")
 
@@ -670,61 +686,66 @@ def intensity_rank(data, rank_col="log10_Intensity", label=None, n=5,
                          hline=8, marker="d")
 
     """
-    # ToDo: add option to highlight a set of datapoints could be alternative to topN labeling
-
-    # remove NaNs
-    data = data.copy().dropna(subset=[rank_col])
-
-    # if data has more columns than 1
-    if data.shape[1] > 1:
-        data = data.sort_values(by=rank_col, ascending=True)
-        y = data[rank_col]
-    else:
-        y = data.sort_values(by=data.columns[0], ascending=True)
-
-    x = range(data.shape[0])
+    # working copy
+    data = data.copy()
+    # remove NaNs and infs
+    data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=[rank_col])
+    # sort by rank
+    data = data.sort_values(by=rank_col, ascending=ascending)
+    # generate ranked index
+    data['# rank'] = np.arange(1, len(data) + 1)
 
     # new plot if no axis was given
     if ax is None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.gca()
+        fig, ax = plt.subplots(figsize=figsize)
 
     # plot on the axis
-    sns.scatterplot(x=x, y=y,
+    sns.scatterplot(data=data,
+                    x='# rank',
+                    y=rank_col,
                     linewidth=0,
                     ax=ax,
+                    legend=False,
                     **kwargs)
 
     if hline is not None:
         ax.axhline(hline, 0, 1, ls="dashed", color="lightgray")
 
-    if label is not None:
-        # high intensity labels labels
-        top_y = y.iloc[-1]
+    if annotate_colname is not None:
 
-        top_yy = np.linspace(top_y - n * 0.4, top_y, n)
-        top_oy = y[-n:]
-        top_xx = x[-n:]
-        top_ss = data[label].iloc[-n:]
+        if highlight is None:
+            if n is not None:
+                highlight = []
+                kwargs_highlight = []
+        else:
+            highlight = [highlight, ]
+            kwargs_highlight = [kwargs_highlight, ]
 
-        for ys, xs, ss, oy in zip(top_yy, top_xx, top_ss, top_oy):
-            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
-            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
+        # add the n largest and small ranks to the highlight
+        if n is not None:
+            highlight.append(data.nlargest(n, '# rank').index.union(data.nsmallest(n, '# rank').index))
+            kwargs_highlight.append({'color': 'salmon'})
 
-        # low intensity labels
-        low_y = y.iloc[0]
-        low_yy = np.linspace(low_y, low_y + n * 0.4, n)
-        low_oy = y[:n]
-        low_xx = x[:n]
-        low_ss = data[label].iloc[:n]
+        if highlight is not None:
+            _plot_highlights_scatter(highlight=highlight,
+                                     kwargs_highlight=kwargs_highlight,
+                                     df=data,
+                                     ax=ax,
+                                     x_colname='# rank',
+                                     y_colname=rank_col,
+                                     pointsize_colname=None)
 
-        for ys, xs, ss, oy in zip(low_yy, low_xx, low_ss, low_oy):
-            ax.plot([xs, xs + len(x) * .1], [oy, ys], color="gray")
-            ax.text(x=xs + len(x) * .1, y=ys, s=ss)
+            _label_scatter(df=data,
+                           ax=ax,
+                           x_colname="# rank",
+                           y_colname=rank_col,
+                           annotate="highlight",
+                           highlight=highlight,
+                           annotate_colname=annotate_colname,
+                           annotate_density=100)
+        else:
+            print("annotate colname provided but neither n nor highlight given. Skipping annotation.")
 
-    sns.despine()
-    ax.set_xlabel("# rank")
-    if ax is None:
         plt.title(title)
 
     if file is not None:
@@ -1022,17 +1043,73 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
         ax.add_artist(legend2)
 
 
-def _label_scatter(df: pd.DataFrame, ax: plt.axis, x_colname: str, y_colname: str, annotate_colname: str,
-                   labelling_index: pd.Index, annotate_density: int):
-    xs = df[x_colname].loc[labelling_index].to_numpy()
-    ys = df[y_colname].loc[labelling_index].to_numpy()
-    ss = df[annotate_colname].loc[labelling_index].to_numpy()
-    # reduce the number of points annotated in dense areas of the plot
-    xs, ys, ss = _limit_density(xs, ys, ss, threshold=1 / annotate_density)
+def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y_colname: str,
+                   annotate: Union[str, None], highlight: Union[pd.Index, List[pd.Index], None],
+                   annotate_colname: str, annotate_density: float) -> None:
+    """
+    Add labels to a scatter plot based on certain conditions.
 
+    Parameters
+    ----------
+    df : pd.DataFrame
+       The dataframe containing the data to be plotted.
+    ax : matplotlib.axes.Axes
+       The axes object on which to add the labels.
+    x_colname : str
+       The name of the column in df to use for the x-values of the scatter plot.
+    y_colname : str
+       The name of the column in df to use for the y-values of the scatter plot.
+    annotate : str or None
+       The condition to determine which points to label. Can be "highlight", "p-value and log2FC", "p-value",
+       "log2FC" or None.
+    highlight : pd.Index, list of pd.Index or None
+       A list of indices to highlight if annotate is "highlight".
+    annotate_colname : str
+       The name of the column in df to use for the labels of the scatter plot.
+    annotate_density : float
+       The density of the annotations. Used to limit the number of annotations if there are too many points.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+       If annotate is "highlight" but highlight is None, or if annotate is not one of the allowed values.
+    """
+    # If no annotation is required, return without doing anything
+    if annotate is None:
+        return
+
+    # If annotation is set to "highlight", check if highlight indices are provided
+    if annotate == "highlight":
+        if highlight is None:
+            raise ValueError("Highlight is None, but 'highlight' was passed to 'annotate'.")
+        elif isinstance(highlight, list):
+            to_label = reduce(lambda x, y: x.union(y), highlight)
+        elif isinstance(highlight, pd.Index):
+            to_label = highlight
+        else:
+            raise ValueError("'highlight' must be a list of pd.Index or a pd.Index or None.")
+    # If annotation is set to one of the other allowed values, determine the points to label based on the condition
+    elif annotate in ["p-value and log2FC", "p-value", "log2FC", "ratio_thresh"]:
+        to_label = df[df["SigCat"] == annotate].index
+    # If annotation is not one of the allowed values, raise an error
+    else:
+        raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC" or None')
+
+    # Limit the number of annotations if there are too many points
+    xs, ys, ss = _limit_density(df.loc[to_label, x_colname].to_numpy(),
+                                df.loc[to_label, y_colname].to_numpy(),
+                                df.loc[to_label, annotate_colname].to_numpy(),
+                                1 / annotate_density)
+
+    # Add the labels to the scatter plot
     texts = [
         ax.text(x, y, s, ha="center", va="center") for (x, y, s) in zip(xs, ys, ss)
     ]
+    # adjust the label positions so that they do not overlap
     adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black"), ax=ax)
 
 
@@ -1042,7 +1119,7 @@ def _plot_highlights_scatter(highlight: Union[pd.Index, list[pd.Index], None],
                              ax: plt.axis,
                              x_colname: str,
                              y_colname: str,
-                             pointsize_colname: str,
+                             pointsize_colname: Union[str, None],
                              ):
     if isinstance(highlight, list):  # highlight is a list
         if kwargs_highlight is None:  # if no kwargs are given, generate a matching length kwarg list with Nones
@@ -1172,8 +1249,8 @@ def volcano(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None, pd.Index] = "p-value "
-                                                                                                           "and log2FC",
+        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
+                                                                                                 "and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_p_sig: dict = None,
@@ -1560,28 +1637,8 @@ def volcano(
     ax.set_ylabel(r"$\mathregular{-log_{10} P}$")
 
     # ANNOTATION AND LABELING
-    to_label = pd.Index([])
-    if annotate is not None:
-        if isinstance(annotate, str):
-            if annotate == "highlight":
-                if highlight is None:
-                    raise ValueError(
-                        'You must provide input to the "highlight" kwarg before you can'
-                        " label the highlighted points"
-                    )
-                to_label = highlight
-            elif ("p-value" in annotate) or ("log2FC" in annotate):
-                to_label = df[df["SigCat"] == annotate].index
-        elif isinstance(annotate, pd.Index):
-            to_label = annotate
-        else:
-            raise ValueError(
-                'Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", None or '
-                'pd.Index"'
-            )
-
-        _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate_colname=annotate_colname,
-                       labelling_index=to_label, annotate_density=annotate_density)
+    _label_scatter(df=df, ax=ax, x_colname=log_fc_colname, y_colname='score', annotate=annotate, highlight=highlight,
+                   annotate_colname=annotate_colname, annotate_density=annotate_density)
 
     # STYLING
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)
@@ -1799,7 +1856,7 @@ def ratio_plot(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "ratio_thresh"], None, pd.Index] = "ratio_thresh",
+        annotate: Union[Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_r_sig: dict = None,
@@ -1926,27 +1983,8 @@ def ratio_plot(
     ax.set_ylabel(ylabel)
 
     # ANNOTATION AND LABELING
-    to_label = pd.Index([])
-    if annotate is not None:
-        if isinstance(annotate, str):
-            if annotate == "highlight":
-                if highlight is None:
-                    raise ValueError(
-                        'You must provide input to the "highlight" kwarg before you can'
-                        " label the highlighted points"
-                    )
-                to_label = highlight
-            elif "ratio_thresh" in annotate:
-                to_label = df[df["SigCat"] == annotate].index
-        elif isinstance(annotate, pd.Index):
-            to_label = annotate
-        else:
-            raise ValueError(
-                'Annotate must be "highlight", "ratio_thresh" "None" or pd.Index'
-            )
-
-        _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate_colname=annotate_colname,
-                       labelling_index=to_label, annotate_density=annotate_density)
+    _label_scatter(df=df, ax=ax, x_colname=col_name1, y_colname=col_name2, annotate=annotate, highlight=highlight,
+                   annotate_colname=annotate_colname, annotate_density=annotate_density)
 
     # STYLING
     _stylize_scatter(df, ax, show_legend, show_caption, title, pointsize_colname, pointsize_scaler)

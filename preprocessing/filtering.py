@@ -6,6 +6,7 @@ Autoprot Preprocessing Functions.
 
 @documentation: Julian
 """
+import functools
 
 import numpy as np
 import pandas as pd
@@ -190,15 +191,13 @@ def filter_vv(df, groups, n=2, valid_values=True):
     df = df.copy()  # make sure to keep the original dataframe unmodified
 
     if valid_values:
-        idxs = [set(df[df[group].notnull().sum(1) >= n].index) for group in groups]
-        # idxs = [set(df[(len(group)-df[group].isnull().sum(1)) >= n].index) for\
-        #        group in groups]
+        idxs = [df[df[group].notnull().sum(axis=1) >= n].index for group in groups]
     else:
-        idxs = [set(df[df[group].isnull().sum(1) <= n].index) for group in groups]
+        idxs = [df[df[group].isnull().sum(axis=1) <= n].index for group in groups]
 
     # indices that are valid in all groups
-    idx = list(set.intersection(*idxs))
-    df = df.loc[idx]
+    idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
+    df = df.loc[idx, :]
 
     return df
 

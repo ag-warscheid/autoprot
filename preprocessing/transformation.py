@@ -10,13 +10,13 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 from importlib import resources
-from .. import r_helper
+from .. import r_helper, common
 import requests
 from scipy.stats import pearsonr, spearmanr
 from scipy import stats
 from sklearn.metrics import auc
 import warnings
-from typing import Union, Literal
+from typing import Union, Literal, Sequence
 import re
 
 RFUNCTIONS, R = r_helper.return_r_path()
@@ -29,8 +29,9 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True, ratio_identifier=r"(\w)(/)(\w)",
-        ratio_replace=r"\3\2\1"):
+def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequence[int], None] = None,
+        return_cols: bool = False, replace_inf: bool = True, ratio_identifier: str = r"(\w)(/)(\w)",
+        ratio_replace: str = r"\3\2\1"):
     # noinspection PyUnresolvedReferences
     """
     Perform log transformation.
@@ -81,7 +82,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True, rati
     >>> invert = [-1., -1., 1., 1., -1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
     ...       1., 1., 1., 1., 1., 1., 1., -1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
     ...       1., -1.]
-    >>> prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert*2)
+    >>> prot2 = autoprot.preprocessing.log(prot, protRatio, base=2, invert=invert + invert)
     >>> phos2 = autoprot.preprocessing.log(phos, phosRatio, base=10)
 
     The resulting dfframe contains log ratios or NaN.
@@ -133,7 +134,7 @@ def log(df, cols, base=2, invert=None, return_cols=False, replace_inf=True, rati
     return (df, new_cols) if return_cols is True else df
 
 
-def expand_site_table(df, cols, replace_zero=True):
+def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = True):
     # noinspection PyUnresolvedReferences
     r"""
     Convert a phosphosite table into a phosphopeptide table.
@@ -142,7 +143,8 @@ def expand_site_table(df, cols, replace_zero=True):
     It converts the phosphosite table into a phosphopeptide table.
     After expansion peptides with no quantitative information are dropped.
     You might want to consider to remove some columns after the expansion.
-    For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones, or vice versa.
+    For example if you expanded on the normalized ratios it might be good to remove the non-normalized ones,
+    or vice versa.
 
     Parameters
     ----------
@@ -174,6 +176,15 @@ def expand_site_table(df, cols, replace_zero=True):
     47936 phosphosites in dataframe.
     47903 phosphopeptides in dataframe after expansion.
     """
+    # check the input
+    if len(cols) == 0:
+        raise ValueError("No columns provided to expand the dataframe on.")
+    if "id" not in df.columns:
+        raise ValueError("The dataframe does not contain an 'id' column.")
+    for col in cols:
+        if '___' not in col:
+            raise ValueError("The columns provided are not suitable for expansion.")
+
     df = df.copy(deep=True)
     print(f"{df.shape[0]} phosphosites in dataframe.")
     dfs = []
@@ -494,7 +505,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
         Integer with raw MS intensity for Transformation.
     gene_name : str
         Gene name of the protein related to the intensity given.
-    protein_id= str
+    protein_id: str
         Uniprot Protein ID of the protein related to the intensity given.
     organism : str, optional
         This conversion is based on Uniprot Identifier used in data.
@@ -532,45 +543,15 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
     if uniprot is None and get_seq == "offline":
         # open the uniprot datatable if not provided
         with resources.open_binary('autoprot.data',
-                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cgene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
+                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cg"
+                                   r"ene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
             uniprot = pd.read_csv(e, sep='\t', compression='gzip')
-
-    def get_uniprot_accession(gene_name, organism):
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
-        organism. """
-        gene_name = gene_name.upper()
-        try:
-            gene_in_GENE = (ps['GENE'].str.upper() == gene_name) & (ps['ORGANISM'] == organism)
-            gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene_name) & (ps['ORGANISM'] == organism)
-
-            uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
-
-            return uniprot_acc
-
-        except:
-            return False
 
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
         sequence = "".join(response.text.split('\n')[1:])
-        return sequence
-
-    def get_uniprot_sequence_locally(uniprot_acc, organism):
-        """Get sequence from a locally stored uniprot file by UniProt ID."""
-
-        if organism == "mouse":
-            uniprot_organism = "Mus musculus (Mouse)"
-        else:
-            uniprot_organism = "Homo sapiens (Human)"
-
-        sequence = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
-        try:
-            sequence = sequence.values.tolist()[0]
-        except IndexError:
-            print(f"no match found for {uniprot_acc}")
-            sequence = False
         return sequence
 
     def count_tryptic_peptides(sequence):
@@ -588,12 +569,15 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
                     peptide_counter = peptide_counter + 1
         return peptide_counter
 
+    # init variables
+    uniprot_acc = None
+    sequence = None
     if protein_id is None:
-        uniprot_acc = get_uniprot_accession(gene_name, organism)
+        uniprot_acc = common.get_uniprot_accession(df=ps, gene=gene_name, organism=organism)
     if get_seq == "online":
         sequence = get_uniprot_sequence(uniprot_acc)
     if get_seq == "offline":
-        sequence = get_uniprot_sequence_locally(uniprot_acc, organism)
+        sequence = common.get_uniprot_sequence_locally(uniprot_acc=uniprot_acc, organism=organism, uniprot=uniprot)
         if not sequence:
             sequence = get_uniprot_sequence(uniprot_acc)
 

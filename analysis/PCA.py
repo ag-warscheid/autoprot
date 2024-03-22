@@ -6,6 +6,8 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
+from typing import Union, Literal
+
 import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
@@ -157,7 +159,8 @@ class AutoPCA:
     # - Allow further customization of plots (e.g. figsize)
     # - Implement pair plot for multiple dimensions
     # =========================================================================
-    def __init__(self, dataframe: pd.DataFrame, rlabels: list, clabels: list, batch: list = None):
+    def __init__(self, dataframe: pd.DataFrame, clabels: Union[list[str],None], rlabels: Union[list[str], None] = None,
+                 batch: Union[list[str], None] = None):
         """
         Initialise PCA class.
 
@@ -165,10 +168,11 @@ class AutoPCA:
         ----------
         dataframe : pd.DataFrame
             Input dataframe.
-        rlabels : list
-            Row labels.
-        clabels : list
+        clabels : list or None
             Column labels.
+        rlabels : list or None, optional
+            Row labels.
+            The default is None.
         batch : list, optional
             Labels for distinct conditions used to colour dots in score plot.
             Must be the length of rlabels.
@@ -180,9 +184,12 @@ class AutoPCA:
 
         """
         if not isinstance(dataframe, pd.DataFrame):
-            dataframe = pd.DataFrame(dataframe)
+            raise TypeError("Provide a pandas dataframe.")
         # drop any rows in the dataframe containing missing values
-        self.X = dataframe.dropna()
+        if clabels is not None:
+            self.X = dataframe[clabels].dropna()
+        else:  # use all columns provided
+            self.X = dataframe.dropna()
         self.label = clabels
         self.rlabel = rlabels
         self.batch = batch
@@ -193,7 +200,7 @@ class AutoPCA:
         self.expVar = self.pca.explained_variance_ratio_
 
     @staticmethod
-    def _perform_pca(dataframe, label):
+    def _perform_pca(dataframe: pd.DataFrame, label: list[str]) -> tuple:
         """Perform pca and generate for_vis dataframe."""
         pca = PCA().fit(dataframe.dropna())
         # components_ is and ndarray of shape (n_components, n_features)
@@ -203,7 +210,7 @@ class AutoPCA:
         for_vis["label"] = label
         return pca, for_vis
 
-    def scree(self, figsize=(15, 5)):
+    def scree(self, figsize=(15, 5)) -> None:
         """
         Plot Scree plot and Explained variance vs number of components.
 
@@ -245,7 +252,7 @@ class AutoPCA:
         plt.xticks(range(1, len(eig_val) + 1))
         _set_labels("explained cumulative variance", "Explained variance")
 
-    def corr_comp(self, annot=False, ax: plt.axis = None):
+    def corr_comp(self, annot=False, ax: plt.axis = None) -> None:
         """
         Plot heatmap of PCA weights vs. variables.
 
@@ -277,7 +284,7 @@ class AutoPCA:
         ax.set_yticks(yp, self.forVis["label"], rotation=0)
         ax.set_title("")
 
-    def bar_load(self, pc=1, n=25):
+    def bar_load(self, pc: int = 1, n: int = 25) -> None:
         """
         Plot the loadings of a given component in a barplot.
 
@@ -307,7 +314,7 @@ class AutoPCA:
         ax.get_legend().remove()
         sns.despine()
 
-    def return_load(self, pc=1, n=25):
+    def return_load(self, pc: int = 1, n: int = 25) -> pd.DataFrame:
         """
         Return the load for a given principal component.
 
@@ -331,7 +338,7 @@ class AutoPCA:
         for_vis = for_vis.sort_values(by=f"{pc}_abs", ascending=False)[:n]
         return for_vis[[pc, "label"]]
 
-    def return_score(self):
+    def return_score(self) -> pd.DataFrame:
         """
         Return a dataframe of all scorings for all principal components.
 
@@ -347,7 +354,8 @@ class AutoPCA:
             scores["batch"] = self.batch
         return scores
 
-    def score_plot(self, pc1=1, pc2=2, labeling=False, file=None, figsize=(5, 5)):
+    def score_plot(self, pc1: int = 1, pc2: int = 2, labeling: bool = False, file: str = None,
+                   figsize: tuple = (5, 5)) -> None:
         """
         Generate a PCA score plot.
 
@@ -459,7 +467,8 @@ class AutoPCA:
             for x, y, s in zip(xx, yy, ss):
                 ax.text(x, y, s)
 
-    def bi_plot(self, pc1=1, pc2=2, num_load="all", figsize=(5, 5), **kwargs):
+    def bi_plot(self, pc1: int = 1, pc2: int = 2, num_load: Union[Literal["all"], int] = "all",
+                figsize: tuple[int, int] = (5, 5), **kwargs) -> None:
         """
         Generate a biplot, a combined loadings and score plot.
 
@@ -527,7 +536,7 @@ class AutoPCA:
         plt.ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
         sns.despine()
 
-    def pair_plot(self, n=0):
+    def pair_plot(self, n: int = 0) -> None:
         """
         Draw a pair plot of for pca for the given number of dimensions.
 

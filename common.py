@@ -1,6 +1,8 @@
 import subprocess
 from typing import Union
 
+import pandas as pd
+
 try:
     # noinspection PyProtectedMember
     from pip._internal.operations import freeze
@@ -33,3 +35,65 @@ def generate_environment_txt():
     with open("environment.txt", 'w') as env_:
         subprocess.call(['pip', 'list'], stdout=env_)
 
+
+def get_uniprot_accession(df: pd.DataFrame, gene: str, organism: str) -> Union[str, None]:
+    """
+    Finds the matching UniProt ID in a dataset given a gene name and a corresponding organism.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing UniProt IDs and gene names.
+    gene: str
+        Gene name.
+    organism: str
+        Organism name.
+
+    Returns
+    -------
+    str or None
+        UniProt ID if found, None otherwise.
+    """
+    gene = gene.upper()
+    try:
+        gene_in_GENE = (df['GENE'].str.upper() == gene) & (df['ORGANISM'] == organism)
+        gene_in_PROTEIN = (df['PROTEIN'].str.upper() == gene) & (df['ORGANISM'] == organism)
+
+        uniprot_acc = df.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+
+        return uniprot_acc
+
+    except IndexError:
+        return None
+
+
+def get_uniprot_sequence_locally(uniprot_acc: str, organism: str, uniprot: pd.DataFrame) -> str:
+    """
+    Get sequence from a locally stored uniprot file by UniProt ID.
+
+    Parameters
+    ----------
+    uniprot_acc: str
+        UniProt ID.
+    organism: str
+        Organism name.
+    uniprot: pd.DataFrame
+        DataFrame containing UniProt IDs, gene names and sequences.
+
+    Returns
+    -------
+    str or False
+        Sequence if found, False otherwise.
+    """
+    if organism == "mouse":
+        uniprot_organism = "Mus musculus (Mouse)"
+    else:
+        uniprot_organism = "Homo sapiens (Human)"
+
+    sequence = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
+    try:
+        sequence = sequence.values.tolist()[0]
+    except IndexError:
+        print(f"no match found for {uniprot_acc}")
+        sequence = False
+    return sequence

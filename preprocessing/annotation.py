@@ -14,8 +14,9 @@ from typing import Union, Tuple
 import numpy as np
 import pandas as pd
 import requests
+# noinspection PyPackageRequirements
 from Bio import Align
-from .. import r_helper
+from .. import r_helper, common
 from ..decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
@@ -266,47 +267,11 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
     with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
         ps = pd.read_csv(d, sep='\t', compression='zip')
 
-    def get_uniprot_accession(gene: str, organism: str) -> Union[str, None]:
-        """Find the matching UniProt ID in the phosphorylation_site_dataset given a gene name and a corresponding
-         organism. """
-        gene = gene.upper()
-        try:
-            gene_in_GENE = (ps['GENE'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-            gene_in_PROTEIN = (ps['PROTEIN'].str.upper() == gene) & (ps['ORGANISM'] == organism)
-
-            uniprot_acc = ps.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
-
-            return uniprot_acc
-
-        except:
-            return None
-
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
         seq = "".join(response.text.split('\n')[1:])
-        return seq
-
-    def get_uniprot_sequence_locally(uniprot_acc: str, organism: str, uniprot: str) -> str:
-        """Get sequence from a locally stored uniprot file by UniProt ID."""
-
-        if (uniprot is None) or (not os.path.isfile(uniprot)):
-            raise ValueError('Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz).')
-        else:
-            uniprot = pd.read_csv(uniprot, sep='\t', compression='gzip')
-
-        if organism == "mouse":
-            uniprot_organism = "Mus musculus (Mouse)"
-        else:
-            uniprot_organism = "Homo sapiens (Human)"
-
-        seq = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
-        try:
-            seq = seq.values.tolist()[0]
-        except IndexError:
-            print(f"no match found for {uniprot_acc}")
-            seq = False
         return seq
 
     def get_canonical_psite(seq: str, ps_seq: str, aa_to_ps: int) -> Tuple[int, float]:
@@ -346,7 +311,7 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
         ps_seq_list = ps_seq_list * len(gene_list)
 
     for idx, g in enumerate(gene_list):
-        uniprot_acc_ex = get_uniprot_accession(g, organism)
+        uniprot_acc_ex = common.get_uniprot_accession(ps, g, organism)
         if uniprot_acc_ex is None:
             continue
         uniprot_acc_extr.append(uniprot_acc_ex)
@@ -357,11 +322,17 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
 
     canonical_ps_list = []
     score_list = []
+    # get the local uniprot file
+    if get_seq == "local":
+        if (uniprot is None) or (not os.path.isfile(uniprot)):
+            raise ValueError('Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz).')
+        else:
+            uniprot = pd.read_csv(uniprot, sep='\t', compression='gzip')
+
     for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
         seq = False
-
         if get_seq == "local":
-            seq = get_uniprot_sequence_locally(uniprot_acc, organism, uniprot)
+            seq = common.get_uniprot_sequence_locally(uniprot_acc, organism, uniprot)
         if get_seq == "online":
             seq = get_uniprot_sequence(uniprot_acc)
 
@@ -430,7 +401,10 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
     >>> loc_df = autoprot.preprocessing.get_subcellular_loc(series)
     >>> sorted(loc_df.loc[loc_df[loc_df['SCORE'] == loc_df['SCORE'].max()].index,
     ...                   'LOCNAME'].tolist())
-    ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular', 'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody', 'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome', 'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
+    ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular',
+    'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody',
+    'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome',
+    'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']
 
     Get the score for PEX14 being peroxisomally localised
 
@@ -461,7 +435,8 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
         cols = "g,scl,scml,scal"
         # obtain protein atlas subset for the gene of interest
         html = requests.get(
-            f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&columns={cols}&compress=no").text
+            f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&"
+            f"columns={cols}&compress=no").text
         main_loc = html.split('Subcellular main location')[1].split(',"Subcellular additional location')[0].lstrip(
             '":[').split(',')
         alt_loc = html.split('Subcellular additional location')[1].split('}')[0].lstrip('":[').split(',')
