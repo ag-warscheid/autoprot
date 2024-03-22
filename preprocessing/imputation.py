@@ -87,7 +87,11 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         plt.show()
     """
     df = df.copy(deep=True)
-
+    
+    # test if cols_to_impute is list of columns
+    if type(cols_to_impute) != list():
+        cols_to_impute=[cols_to_impute]
+        
     # idxs of rows imputation will be excluded
     if max_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
