@@ -30,7 +30,7 @@ or [pip](https://packaging.python.org/en/latest/guides/installing-using-pip-and-
   - If you clone the repository, make sure to include the dependencies as submodules (example below)
 
 ```
-git clone --recurse-submodules  git://github.com/foo/bar.git
+git clone --recurse-submodules https://github.com/ag-warscheid/autoprot.git
 ```
 
 - Next you need to install R. Please follow the instructions at the [R manual](https://cran.r-project.org/index.html) and install R to a custom location
@@ -41,7 +41,7 @@ git clone --recurse-submodules  git://github.com/foo/bar.git
   - For this open your R console and start Functions.R with Rscript
 
 ```
-C:\Users\USer\Documents\R\R-4.1.3\bin\Rscript.exe RFunctions.R
+C:\Users\User\Documents\R\R-4.1.3\bin\Rscript.exe RFunctions.R
 ```
 
 - You can now start with e.g. with the example notebook [01_ap-ms.ipynb](examples%2F01_ap-ms.ipynb) provided with autoprot.
