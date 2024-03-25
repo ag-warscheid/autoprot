@@ -786,6 +786,8 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
     df_prot = df_prot.loc[np.isfinite(df_prot["log10("+columns["int"]+")"])]
     if len(df_prot) == 0:
         return df_prot, None
+    
+    return df_prot
 
 
 def i_lolli_plot(sty: pd.DataFrame, proteinid: str,
@@ -827,14 +829,12 @@ def i_lolli_plot(sty: pd.DataFrame, proteinid: str,
     plot = px.scatter(df_prot, x=columns["pos"], y="log10("+columns["int"]+")", size="size",
                       template="simple_white", title=proteinid,
                       hover_data=[columns["pos"], "log10("+columns["int"]+")", columns["prob"]],
-                      protein_length=[-20,max(df_prot[columns["pos"]])+20 if protein_length is None else protein_length])
+                      range_x=[-20,max(df_prot[columns["pos"]])+20 if protein_length is None else protein_length])
     
     # Add lollipop stalks
     for i,el in df_prot.iterrows():
         plot.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
                     y0=0, y1=el["log10("+columns["int"]+")"], line_width=1, opacity=0.5)
-    
-    fig.update_layout(font_size=10, width=900, height=400)
     
     return df_prot, plot
     fig.show()
@@ -863,8 +863,8 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     protein_length: int or None, default = None
         Optional maximum value for the x-axis. If None the maximum site position+20 is used.
     name: str, default =None
-        name for legend and hoverdata
-    columns: dict, default = MaxQuant sites table names
+        name for legend and hoverdata, name1 for upper graph, name2 for mirrowed graph
+    columns: dict, default = MaxQuant sites table names, seperate for sty1 and sty2
         Dictionary that defines the column names for:
           - ids: semicolon separated protein identifiers
           - pos: semicolon separated site positions
@@ -875,8 +875,8 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     
     Returns
     -------
-    a pandas DataFrame
-        contains filtered and transformed data used for plotting
+    a tuple of pandas DataFrame
+        contains filtered and transformed data used for plotting for sty1 and sty2 in a tuple
     a plotly Figure
         interactive lollipop plot
     """
@@ -890,43 +890,43 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
 
     
-    fig.add_trace(go.Scatter(x=df1[columns["pos"]], y=df1["log10("+columns["int"]+")"],
-                             mode='markers' ,marker=dict(size=df1["size"]*3)
-                             ,name=name1
-                             ,customdata=df1[columns['prob']]
-                             ,hovertemplate=("<b>Positions within proteins: %{x:i}<br>"+
+    fig.add_trace(go.Scatter(x=df1[columns1["pos"]], y=df1["log10("+columns1["int"]+")"],
+                             mode='markers', marker=dict(size=df1["size"]*3),
+                             name=name1,
+                             customdata=df1[columns1['prob']],
+                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>"+
                                              "<b>log10 intensity: %{y:.2f}<br>"+
                                              "<b>Localization prob: %{customdata:.2f}"
-                                            )
-                             ,x0=[-20,max(df1[columns["pos"]])+20 if range_max is None else range_max]
-                             ,meta=dict(label=name1)) 
+                                            ),
+                             x0=[-20,max(df1[columns1["pos"]])+20 if protein_length is None else protein_length],
+                             meta=dict(label=name1)) 
                   ,row=1, col=1)
 
     # Add lollipop stalks
     for i,el in df1.iterrows():
-        fig.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
-                    y0=0, y1=el["log10("+columns["int"]+")"], line_width=1, opacity=0.5)
+        fig.add_shape(x0=el[columns1["pos"]], x1=el[columns1["pos"]],
+                    y0=0, y1=el["log10("+columns1["int"]+")"], line_width=1, opacity=0.5)
 
     #invert intensity values to mirror data alongsite the x-axis
-    df2["log10("+columns["int"]+")"] = df2["log10("+columns["int"]+")"] * -1
+    df2["log10("+columns2["int"]+")"] = df2["log10("+columns2["int"]+")"] * -1
 
     # add 2nd plot
-    fig.add_trace(go.Scatter(x=df2[columns["pos"]], y=df2["log10("+columns["int"]+")"],
-                             mode='markers' ,marker=dict(size=df2["size"]*3)
-                             ,name=name2
-                             ,customdata=df2[columns['prob']]
-                             ,hovertemplate=("<b>Positions within proteins: %{x:i}<br>"+
+    fig.add_trace(go.Scatter(x=df2[columns2["pos"]], y=df2["log10("+columns2["int"]+")"],
+                             mode='markers', marker=dict(size=df2["size"]*3),
+                             name=name2,
+                             customdata=df2[columns2['prob']],
+                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>"+
                                              "<b>log10 intensity: %{y:.2f}<br>"+
                                              "<b>Localization prob: %{customdata:.2f}"
-                                            )
-                             ,x0=[-20,max(df2[columns["pos"]])+20 if range_max is None else range_max]
-                             ,meta=dict(label=name2))
+                                            ),
+                             x0=[-20,max(df2[columns2["pos"]])+20 if protein_length is None else protein_length],
+                             meta=dict(label=name2))
                   ,row=1, col=1)
 
     # Add lollipop stalks
     for i,el in df2.iterrows():
-        fig.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
-                    y0=0, y1=el["log10("+columns["int"]+")"], line_width=1, opacity=0.5)
+        fig.add_shape(x0=el[columns2["pos"]], x1=el[columns2["pos"]],
+                    y0=0, y1=el["log10("+columns2["int"]+")"], line_width=1, opacity=0.5)
     
     fig.add_hline(y=0, line_width=3)
     
@@ -934,11 +934,12 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                       template='simple_white',
                       font_family="Arial" ,font_size=12, 
                       title_text=gene,
-                      yaxis_title="log10("+columns["int"]+")")
+                      yaxis_title="log10("+columns1["int"]+")"
+                      )
 
-    fig.update_xaxes(title_text=columns['pos'], overwrite=True, tick0=200, showticklabels=True, row=1, col=1)
+    fig.update_xaxes(title_text=columns1['pos'], overwrite=True, tick0=200, showticklabels=True, row=1, col=1)
     
     fig.add_hline(y=0, line_width=3)
 
-    return fig
+    return (df1, df2), fig
     fig.show()
