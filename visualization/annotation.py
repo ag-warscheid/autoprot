@@ -768,7 +768,7 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
         contains filtered and transformed data used for plotting
     """
     # retrieve data
-    df_prot = df.loc[[proteinid in str(el) for el in df[columns["ids"]]], list(columns.values())]
+    df_prot = sty.loc[[proteinid in str(el) for el in sty[columns["ids"]]], list(columns.values())]
     
     # Select position for exact protein id match
     #df_prot[columns["pos"]] = df_prot[[columns["pos"], columns["ids"]]].apply(
