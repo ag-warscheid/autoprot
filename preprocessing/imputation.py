@@ -30,7 +30,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 @report
 def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], max_missing: int = None,
-                 downshift: Union[int, float] = 1.8, width: Union[int, float] = .3):
+                 downshift: Union[int, float] = 1.8, width: Union[int, float] = .3, return_cols: bool = False):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
@@ -53,11 +53,15 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         How many Stds to lower values the mean of the new population is shifted. The default is 1.8.
     width : float, optional
         How to scale the Std of the new distribution with respect to the original. The default is .3.
+    return_cols : bool, optional
+        Whether to return the columns that were imputed. The default is False.
 
     Returns
     -------
     pd.dataframe
         The dataframe with imputed values.
+    list of str
+        Columns that were imputed.
 
     Examples
     --------
@@ -101,6 +105,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     else:
         filter_idx = pd.Index([])
 
+    imputed_cols = []
     for col in cols_to_impute:
         count_na = df[col].isna().sum()
         na_index = df[df[col].isna()].index
@@ -120,11 +125,13 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
 
         col_new = col + "_min_imputed"
         df[col_new] = df[col].fillna(imputed_s)
+        imputed_cols.append(col_new)
 
-    return df
+    # return the imputed df and the imputed cols if requested
+    return (df, imputed_cols) if return_cols else df
 
 
-def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False):
+def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=False):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
@@ -142,6 +149,8 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False):
         Colnames to perform imputation of.
     print_r : bool, optional
         Whether to print the output of R, default is False.
+    return_cols : bool, optional
+        Whether to return the columns that were imputed. The default is False.
 
     Returns
     -------
@@ -149,6 +158,8 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False):
         Dataframe with imputed values.
         Cols with imputed values are named _imputed.
         Contains a col UID that was used for processing.
+    list of str
+        Columns that were imputed.
 
     """
     d = os.getcwd()
@@ -190,14 +201,12 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False):
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
-    # os.remove(dataLoc)
-    # os.remove(outputLoc)
-
-    return df
+    # return the imputed df and the imputed cols if requested
+    return (df, res_cols) if return_cols else df
 
 
 def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_substr='cluster', methods='fast',
-         npat=20, performance_metric='RMSE', print_r=True, min_values_for_imputation=0):
+         npat=20, performance_metric='RMSE', print_r=True, min_values_for_imputation=0, return_cols=False):
     # noinspection PyUnresolvedReferences
     """
     Perform Data-Driven Selection of an Imputation Algorithm.
@@ -235,6 +244,8 @@ def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_subs
         Default is 0, which means that all values will be imputed.
     print_r : bool
         Whether to print the R output to the Python console.
+    return_cols : bool, optional
+        Whether to return the columns that were imputed. The default is False.
 
     Returns
     -------
@@ -242,6 +253,8 @@ def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_subs
         Input dataframe with imputed values.
     pd.DataFrame
         Overview of performance metrices of the different algorithms.
+    list of str
+        Columns that were imputed.
 
     Examples
     --------
@@ -362,4 +375,5 @@ def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_subs
     os.remove(output_loc)
     os.remove(output_loc[:-4] + '_performance.csv')
 
-    return df, perf
+    # return the imputed df and the performance metrics
+    return (df, perf, res_cols) if return_cols else (df, perf)
