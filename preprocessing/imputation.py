@@ -6,7 +6,6 @@ Autoprot Preprocessing Functions.
 
 @documentation: Julian
 """
-
 import numpy as np
 import pandas as pd
 import os
@@ -87,11 +86,13 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         plt.show()
     """
     df = df.copy(deep=True)
-    
-    # test if cols_to_impute is list of columns
-    if type(cols_to_impute) != list():
-        cols_to_impute=[cols_to_impute]
-        
+
+    # test if cols_to_impute is iterable
+    try:
+        iter(cols_to_impute)
+    except TypeError:
+        cols_to_impute = [cols_to_impute]
+
     # idxs of rows imputation will be excluded
     if max_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
@@ -107,19 +108,19 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
             na_index = na_index.difference(filter_idx)
             count_na = len(na_index)
 
-        #define values before imputation
+        # define values before imputation
         mean = df[col].mean()
-        var  = df[col].std()
-        #new mean, val for imputation
-        minimp_mean = mean - downshift*var
-        minimp_var = var*width
+        var = df[col].std()
+        # new mean, val for imputation
+        minimp_mean = mean - downshift * var
+        minimp_var = var * width
 
         rnd = np.random.normal(minimp_mean, minimp_var, size=count_na)
         imputed_s = pd.Series(data=rnd, index=na_index)
-        
+
         col_new = col + "_min_imputed"
         df[col_new] = df[col].fillna(imputed_s)
-    
+
     return df
 
 
