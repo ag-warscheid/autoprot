@@ -100,7 +100,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     # idxs of rows imputation will be excluded
     if max_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
-        s_nan = s_nan[s_nan <= max_missing]
+        s_nan = s_nan[s_nan < max_missing]
         filter_idx = s_nan.index
     else:
         filter_idx = pd.Index([])
