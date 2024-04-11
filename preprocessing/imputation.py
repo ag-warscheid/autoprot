@@ -28,7 +28,6 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 # IMPUTATION ALGORITHMS
 # =============================================================================
-@report
 def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], max_missing: int = None,
                  downshift: Union[int, float] = 1.8, width: Union[int, float] = .3, return_cols: bool = False):
     r"""
