@@ -71,36 +71,33 @@ class _Cluster:
         """
 
         def _sanitize_data(data: Union[np.ndarray, pd.DataFrame], clabels: list, rlabels: list,
-                           zs: Union[int, None]) -> tuple[ArrayLike, list, list]:
+                           zs: Union[int, None]) -> tuple[np.ndarray, list, list]:
             """
             Check if data contains missing values and remove them.
 
             Parameters
             ----------
-            data : np.array or pd.DataFrame
+            data : np.ndarray or pd.DataFrame
                 The data to be clustered.
-            clabels : list-like, optional
-                Column labels. May not be present in the input df.
-            rlabels : list-like, optional. Row labels.
-                May not be present in the input df.
-            zs : int or None, optional
+            clabels : list
+                Column labels.
+            rlabels : list
+                Row labels.
+            zs : int or None
                 Axis along which to calculate the zscore.
+                The default is None.
+
+            Returns
+            -------
+            np.ndarray, list, list
+                The cleaned data, row labels and column labels.
 
             Raises
             ------
             ValueError
-                If the length of the labels does not fit the data size.
-
-            Returns
-            -------
-            data.values : np.ndarray
-                data without NaN or ztransformed depending on parameters
-            rlabels : list
-                row labels of the reduced dataset
-            clabels : list
-                column labels of the reduced dataset
-
+                If the data is not a DataFrame or np.ndarray.
             """
+
             # make sure this is a DataFrame
             dataframe = pd.DataFrame(data, index=rlabels, columns=clabels)
 
@@ -117,7 +114,7 @@ class _Cluster:
 
             return dataframe.values, dataframe.index.tolist(), dataframe.columns.tolist()
 
-        # noinspection PyTupleAssignmentBalance
+        #
         self.data, self.rlabels, self.clabels = _sanitize_data(data=data, clabels=clabels, rlabels=rlabels, zs=zs)
 
         # the linkage object for hierarchical clustering
@@ -127,8 +124,9 @@ class _Cluster:
         # list of len(data) with IDs of clusters corresponding to rows
         self.clusterId = None
         # the standard colormap
-        # self.cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
         self.cmap = matplotlib.cm.viridis
+        # type of clustering (base class is None)
+        self.type = None
 
     def vis_cluster(self, col_cluster=False, make_traces=False, make_heatmap=False, file=None, row_colors=None,
                     colors: list = None, ytick_labels="", ret_figs: bool = False, make_clustermap: bool = True,
@@ -311,10 +309,16 @@ class _Cluster:
 
         if make_clustermap:
             value_type = 'z-score' if "z_score" in kwargs else 'value'
-            clustermap = sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
-                                        row_linkage=self.linkage,
-                                        row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
-                                        cbar_kws={'label': value_type}, **kwargs)
+            if self.type == 'KMeans':
+                # KMeans does not have linkage should not be reclustered
+                clustermap = sns.clustermap(data=pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
+                                            row_colors=row_colors_df, row_cluster=False, col_cluster=False,
+                                            dendrogram_ratio=0.05, cbar_pos=None, yticklabels=ytick_labels, **kwargs)
+            else:
+                clustermap = sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
+                                            row_linkage=self.linkage,
+                                            row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
+                                            cbar_kws={'label': value_type}, **kwargs)
 
         if file is not None:
             plt.savefig(file)
@@ -471,12 +475,19 @@ class HCA(_Cluster):
             c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
         """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the subclass and set the type.
+        """
+        super().__init__(*args, **kwargs)
+        self.type = 'HCA'
+
     def make_linkage(self, method='single',
                      metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
-                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
-                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
+                                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
+                                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
+                                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
+                                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
 
         """
         Perform hierarchical clustering on the data.
@@ -550,6 +561,7 @@ class HCA(_Cluster):
             corr = pd.DataFrame(self.data).T.corr(metric).values
             dist = as_dist(1 - corr)
         else:
+            # noinspection PyTypeChecker
             dist = distance.pdist(X=self.data, metric=metric)
         # perform hierarchical clustering using the distance metric
         # the returned matrix self.linkage contains n-1 x 4 elements
@@ -750,6 +762,13 @@ class KMeans(_Cluster):
             c.make_cluster()
             c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
     """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the subclass and set the type.
+        """
+        super().__init__(*args, **kwargs)
+        self.type = 'KMeans'
 
     def find_nclusters(self, start=2, up_to=20, figsize=(15, 5), plot=True, algo='scipy'):
         """
