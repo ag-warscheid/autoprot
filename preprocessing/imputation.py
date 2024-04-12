@@ -28,7 +28,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 # IMPUTATION ALGORITHMS
 # =============================================================================
-def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], max_missing: int = None,
+def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], min_missing: int = None,
                  downshift: Union[int, float] = 1.8, width: Union[int, float] = .3, return_cols: bool = False):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
@@ -45,7 +45,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         Dataframe on which imputation is performed.
     cols_to_impute : list
         Columns to impute. Should correspond to a single condition (i.e. control).
-    max_missing : int, optional
+    min_missing : int, optional
         How many missing values have to be missing across all columns to perfom imputation
         If None all values have to be missing. The default is None.
     downshift : float, optional
@@ -97,9 +97,9 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
         cols_to_impute = [cols_to_impute]
 
     # idxs of rows imputation will be excluded
-    if max_missing is not None:
+    if min_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
-        s_nan = s_nan[s_nan < max_missing]
+        s_nan = s_nan[s_nan <= min_missing]
         filter_idx = s_nan.index
     else:
         filter_idx = pd.Index([])
@@ -108,7 +108,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     for col in cols_to_impute:
         count_na = df[col].isna().sum()
         na_index = df[df[col].isna()].index
-        if max_missing is not None:
+        if min_missing is not None:
             na_index = na_index.difference(filter_idx)
             count_na = len(na_index)
 
