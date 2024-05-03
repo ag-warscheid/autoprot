@@ -1,11 +1,12 @@
 import os
-from subprocess import check_output, run
-
+from subprocess import check_output, run, STDOUT
+# this is a pointer to the module object instance itself.
+module_pointer = __import__(__name__.split('.')[0])
 config_dir = {}
 
 
 def check_r_install():
-    base_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+    base_path = str(os.path.join(os.path.dirname(os.path.realpath(__file__))))
 
     if not os.path.isfile(os.path.join(base_path, 'autoprot.conf')):
         with open(os.path.join(base_path, 'autoprot.conf'), 'w') as wf:
@@ -31,17 +32,24 @@ def check_r_install():
         raise OSError(f'The RFUNCTIONS variable should point to the RFunctions.R file in your local autoprot '
                       f'directory and not to {config_dir["RFUNCTIONS"]}')
 
-    check_output([config_dir['R'],
-                  '--vanilla',
-                  config_dir['RFUNCTIONS'],
-                  'functest',
-                  '',  # data location
-                  '',  # output file,
-                  '',  # kind of test
-                  ''  # design location
-                  ])
-
-    write_description()
+    if module_pointer.check_r_install is False:
+        print('Checking R installation...')
+        output = check_output([config_dir['R'],
+                               '--vanilla',
+                               config_dir['RFUNCTIONS'],
+                               'functest',
+                               '',  # data location
+                               '',  # output file,
+                               '',  # kind of test
+                               ''  # design location
+                               ], stderr=STDOUT)
+        # return the output of the R script
+        print(output.decode('utf-8'))
+        # write out a description of the R environment
+        write_description()
+        # set the check_r_install to True to avoid running the R script again
+        module_pointer.check_r_install = True
+        print('R installation check complete.')
 
 
 def write_description():
