@@ -225,7 +225,7 @@ class _Cluster:
                     color = [colors[i]] * 5
                 color = color[::-1]
                 alpha = [0.1, 0.2, 0.25, 0.4, 0.6]
-                grouped = temp2.groupby("distance")
+                grouped = temp2.groupby("distance", observed=False)
                 ax.set_title(f"Cluster {i}")
                 if zs is None:
                     ax.set_ylabel("value")
