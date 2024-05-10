@@ -107,7 +107,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
                            })
         evalDF = ana.loess(df, "Xvalue", "Yvalue", alpha=0.7, poly_degree=2)
         fig, ax = plt.subplots(1,1)
-        sns.scatterplot(df["Xvalue"], df["Yvalue"], ax=ax)
+        sns.scatterplot(x=df["Xvalue"], y=df["Yvalue"], ax=ax)
         ax.plot(evalDF['v'], evalDF['g'], color='red', linewidth= 3, label="Test")
         plt.show()
     """
@@ -115,8 +115,6 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
     # separate the values again into x and y cols
     xvals, yvals = zip(*all_data)
-    # generate empty df for final fit
-    eval_df = pd.DataFrame(columns=['v', 'g'])
 
     n = len(xvals)
     m = n + 1
@@ -136,6 +134,9 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     for j in range(1, (poly_degree + 1)):
         xcols.append([i ** j for i in xvals])
     x_mtx = np.vstack(xcols).T
+
+    collect_dfs = []
+
     for i in v:
         iterval = i[1]
         iterdists = sorted([(j, np.abs(j - iterval)) for j in xvals], key=lambda x: x[1])
@@ -154,8 +155,10 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
             'v': [iterval],
             'g': [local_est]
         })
-        eval_df = pd.concat([eval_df, iter_df2])
-    eval_df = eval_df[['v', 'g']]
+
+        # collect all dataframes
+        collect_dfs.append(iter_df2)
+    eval_df = pd.concat(collect_dfs)
     return eval_df
 
 

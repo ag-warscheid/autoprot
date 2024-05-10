@@ -19,6 +19,7 @@ import missingno as msn
 from .. import r_helper
 
 from gprofiler import GProfiler
+
 gp = GProfiler(
     user_agent="autoprot",
     return_dataframe=True)
@@ -26,7 +27,6 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
-
 
 
 def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
@@ -81,19 +81,10 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
     arguments can be used to toggle the graphical output.
     In case of large data (a lot of columns) those might be better turned off.
 
-    >>> autoprot.analysis.miss_analysis(phos_expanded,
-    ...                                twitchVsctrl+twitchVsmild+mildVsctrl,
-    ...                                sort="descending",
-    ...                                extra_vis = True)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
@@ -313,10 +304,10 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
     if len(experiments) != len(rawfiles):
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
- 
+
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
-    
+
     try:
         for name, group in df_evidence.groupby("Experiment"):
             nonmod = round(((group[mod_col] == 0).sum() / group.shape[0] * 100), 2)
@@ -326,7 +317,7 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
             df.loc[name, "Non-modified peptides [%]"] = nonmod
     except:
         raise TypeError("Invalid type specified. Must be align with MQ modification annotation")
-    
+
     df_summary = pd.concat([df_summary, df], axis=0)
 
     # make barchart
@@ -591,7 +582,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         df_missed_cleavage_summary.columns = experiments
     except Exception as e:
         print(f"unexpected error in col [Experiment]: {e}")
-    
+
     if save:
         df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
 
@@ -640,10 +631,9 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         ax1.set_ylim(0, 100)
         ax1.axhline(95, linestyle="--", c="k")
 
-
     fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
     plt.tight_layout()
-    
+
     if save:
         plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
 
@@ -747,7 +737,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
         df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-            df_efficiency.loc[raw, ["fully labeled"]].values
+                                                        df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 

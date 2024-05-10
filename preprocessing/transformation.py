@@ -6,18 +6,21 @@ Autoprot Preprocessing Functions.
 
 @documentation: Julian
 """
+import collections
+import re
+import warnings
+from importlib import resources
+from typing import Union, Literal, Sequence
 
 import numpy as np
 import pandas as pd
-from importlib import resources
-from .. import r_helper, common
 import requests
-from scipy.stats import pearsonr, spearmanr
+from pandas.core.groupby import DataFrameGroupBy
 from scipy import stats
+from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import auc
-import warnings
-from typing import Union, Literal, Sequence
-import re
+
+from .. import r_helper, common
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
@@ -30,7 +33,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 
 def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequence[int], None] = None,
-        return_cols: bool = False, replace_inf: bool = True, ratio_identifier: str = r"(\w)(/)(\w)",
+        return_cols: bool = False, ratio_identifier: str = r"(\w)(/)(\w)",
         ratio_replace: str = r"\3\2\1"):
     # noinspection PyUnresolvedReferences
     """
@@ -51,8 +54,6 @@ def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequ
     return_cols : bool, optional
         Whether to return a list of names corresponding to the columns added
         to the dfframe. The default is False.
-    replace_inf : bool, optional
-        Whether to replace inf and -inf values by np.nan
     ratio_identifier: str, optional
         Regular expression to find ratios and invert the labels if invert is True
     ratio_replace: str, optional
@@ -95,29 +96,32 @@ def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequ
     3                    NaN
     4               1.236503
     """
-    df = df.copy()
-    with np.errstate(divide='ignore'):
-        if base == 2:
-            for c in cols:
-                if replace_inf:
-                    df[f"log2_{c}"] = np.nan_to_num(np.log2(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
-                else:
-                    df[f"log2_{c}"] = np.log2(df[c])
-        elif base == 10:
-            for c in cols:
-                if replace_inf:
-                    df[f"log10_{c}"] = np.nan_to_num(np.log10(df[c]), nan=np.nan, neginf=np.nan, posinf=np.nan)
-                else:
-                    df[f"log10_{c}"] = np.log10(df[c])
-        else:
-            for c in cols:
-                if replace_inf:
-                    df[f"log{base}_{c}"] = np.nan_to_num(np.log(df[c]) / np.log(base), nan=np.nan, neginf=np.nan,
-                                                         posinf=np.nan)
-                else:
-                    df[f"log{base}_{c}"] = np.log(df[c]) / np.log(base)
+    # check the input
+    if not (isinstance(cols, collections.Sequence) or isinstance(cols, pd.Index)):
+        raise ValueError("Columns must be provided as a sequence (e.g. list, tuple etc).")
+    if not all([c in df.columns for c in cols]):
+        raise ValueError("Not all columns are present in the dataframe.")
+    if base <= 0:
+        raise ValueError("Base must be greater than 0.")
 
+    df = df.copy()
+    # values to keep for log transformation
+    keep = df[cols] > 0
+
+    # Apply log transformation to all columns at once
+    log_values = np.log(df[cols].where(keep)) / np.log(base)
+
+    # Set non-transformed values to NaN
+    log_values[~keep] = np.nan
+
+    # Create new column names
     new_cols = [f"log{base}_{c}" for c in cols]
+    # Rename columns
+    log_values.columns = new_cols
+
+    # Concatenate new DataFrame with original DataFrame
+    df = pd.concat([df, log_values], axis=1)
+
     if invert is not None:
         # invert the underlying data
         df[new_cols] = df[new_cols] * invert
@@ -139,7 +143,7 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     r"""
     Convert a phosphosite table into a phosphopeptide table.
 
-    This functions is used for Phospho (STY)Sites.txt files.
+    These functions are used for Phospho (STY)Sites.txt files.
     It converts the phosphosite table into a phosphopeptide table.
     After expansion peptides with no quantitative information are dropped.
     You might want to consider to remove some columns after the expansion.
@@ -149,11 +153,11 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     Parameters
     ----------
     df : pd.DataFrame
-        Dataframe to be expanded. Must contain a column named "id.
+        Dataframe to be expanded. Must contain a column named "id".
     cols : list of str
         Cols which are going to be expanded (format: Ratio.*___.).
     replace_zero : bool
-        If true 0 values in the provided columns are replaced by np.nan (default).
+        If true 0 values in the provided columns are replaced by NaN (default).
         Set to False if you want explicitely to keep the 0 values after expansion.
 
     Raises
@@ -423,7 +427,7 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
     # =============================================================================
 
     # helper functions
-    def _form_merge_pairs(s):
+    def _form_merge_pairs(s: DataFrameGroupBy) -> list:
         """
         Group the data back on the main data identifier and create the appropriate matching entries of the other data.
 
@@ -434,14 +438,14 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
 
         Returns
         -------
-        pd.Series
-            A Series with the ids corresponding to m1 and the entries to the matching idcs in m2.
+        list
+            A list with the ids corresponding to m1 and the entries to the matching idcs in m2.
 
         """
         ids = list({i for i in s if not np.isnan(i)})
         return ids or [np.nan]
 
-    def _aggregate_duplicates(s):
+    def _aggregate_duplicates(s: pd.DataFrame) -> pd.DataFrame:
         # this might be an oversimplification but there should only be
         # object columns and numerical columns in the data
 
@@ -494,7 +498,8 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
     return merge_pairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
 
-def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human", get_seq="online", uniprot=None):
+def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human", get_seq="online",
+                   uniprot=None) -> float:
     """
     Convert raw intensities to ‘intensity-based absolute quantification’ or iBAQ intensities.
     Given intensities are divided by the number of theoretically observable tryptic peptides. 
@@ -522,7 +527,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
 
     Notes
     -----
-    This function gets the protein sequence online at UniProt.
+    This function gets the protein sequence online at UniProt. This can be slow.
     For batch processing it is advisable to provide local Sequence data or
     use the local copy of the UniProt in autoprot, be aware to keep it up to date.
 
@@ -532,7 +537,8 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
 
     Examples
     --------
-
+    >>> calculate_iBAQ(1000, gene_name="TP53")
+    0.000203376
     """
 
     if protein_id is None and get_seq == "online":
@@ -547,17 +553,17 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
                                    r"ene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
             uniprot = pd.read_csv(e, sep='\t', compression='gzip')
 
-    def get_uniprot_sequence(uniprot_acc):
+    def get_uniprot_sequence(uniprot_acc: str) -> str:
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
         sequence = "".join(response.text.split('\n')[1:])
         return sequence
 
-    def count_tryptic_peptides(sequence):
+    def count_tryptic_peptides(sequence: str) -> int:
         """count tryptic peptides 6<=pep<=30 after cleavage """
         peptide_counter = 0
-        # trypsin cuts after K and R, could be adjustet for different enzymes
+        # trypsin cuts after K and R, could be adjusted for different enzymes
         for peptide in sequence.split("K"):
             peptide = peptide + "K"
             pep = peptide.split("R")
@@ -587,7 +593,7 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
     return iBAQ
 
 
-def make_sim_score(m1, m2, corr="pearson"):
+def make_sim_score(m1: Sequence, m2: Sequence, corr: Literal['Pearson', 'Spearman'] = "pearson") -> float:
     # noinspection PyUnresolvedReferences
     """
     Calculate similarity score.

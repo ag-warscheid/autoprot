@@ -1,1 +1,0 @@
-autopca.bi_plot(pc1=1, pc2=2)

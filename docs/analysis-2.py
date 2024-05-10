@@ -1,1 +1,0 @@
-autopca.corr_comp(annot=False)

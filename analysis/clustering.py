@@ -7,24 +7,24 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 import os
-from typing import Union, Literal
-from numpy.typing import ArrayLike
-import pandas as pd
-import numpy as np
-import matplotlib
-import matplotlib.pylab as plt
-import matplotlib.colors as clrs
-import seaborn as sns
-from scipy.stats import zscore
-from scipy.spatial import distance
-from scipy import cluster as clst
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
-from sklearn import cluster as clstsklearn
 import warnings
+from typing import Union, Literal
+
+import matplotlib
+import matplotlib.colors as clrs
+import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from gprofiler import GProfiler
+from numpy.typing import ArrayLike
+from scipy import cluster as clst
+from scipy.spatial import distance
+from scipy.stats import zscore
+from sklearn import cluster as clstsklearn
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 from .. import r_helper
-
-from gprofiler import GProfiler
 
 gp = GProfiler(
     user_agent="autoprot",
@@ -124,7 +124,7 @@ class _Cluster:
         # list of len(data) with IDs of clusters corresponding to rows
         self.clusterId = None
         # the standard colormap
-        self.cmap = matplotlib.cm.viridis
+        self.cmap = matplotlib.colormaps['viridis']
         # type of clustering (base class is None)
         self.type = None
 
@@ -197,7 +197,6 @@ class _Cluster:
             Returns
             -------
             fig : matplotlib.figure.Figure or None
-
             """
             fig = plt.figure(figsize=(5, 5 * self.nclusters))
             temp = pd.DataFrame(self.data.copy())
@@ -297,7 +296,8 @@ class _Cluster:
         else:
             mapper = plt.cm.ScalarMappable(norm=norm, cmap=self.cmap)
         a = mapper.to_rgba(self.clusterId)
-        cluster_colors = np.apply_along_axis(clrs.to_hex, 1, a)
+        # noinspection PyTypeChecker
+        cluster_colors = np.apply_along_axis(func1d=clrs.to_hex, axis=1, arr=a)
         if "cmap" not in kwargs.keys():
             kwargs["cmap"] = self.cmap
         if row_colors is not None:
@@ -380,17 +380,17 @@ class _Cluster:
             plt.subplot(131)
             plt.title("Davies_boulding_score")
             plt.plot(pred[::, 0])
-            plt.xticks(range(up_to - start), range(start, up_to), rotation=90)
+            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
             plt.grid(axis='x')
             plt.subplot(132)
             plt.title("Silhouoette_score")
             plt.plot(pred[::, 1])
-            plt.xticks(range(up_to - start), range(start, up_to), rotation=90)
+            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
             plt.grid(axis='x')
             plt.subplot(133)
             plt.title("Harabasz score")
             plt.plot(pred[::, 2])
-            plt.xticks(range(up_to - start), range(start, up_to), rotation=90)
+            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
             plt.grid(axis='x')
 
 
@@ -413,41 +413,19 @@ class HCA(_Cluster):
     Extract the species labelling from the dataframe as it cannot be used for
     clustering and will be used later to evaluate the result.
 
-    >>> import seaborn as sns
-    >>> df = sns.load_dataset('iris')
-    >>> labels = df.pop('species')
-
     Initialise the clustering class with the data and find the optimum number of
     clusters and generate the final clustering with the autoRun method.
-
-    >>> from autoprot import analysis as ana
-    >>> c = ana.HCA(df)
-    Removed 0 NaN values from the dataframe to prepare for clustering.
-
-    >>> c.auto_run()
-    Best Davies Boulding at 2 with 0.38275284210068616
-    Best Silhouoette_score at 2 with 0.6867350732769781
-    Best Harabasz/Calinski at 2 with 502.82156350235897
-    Using Davies Boulding Score for setting # clusters: 2
-    You may manually overwrite this by setting self.nclusters
 
     .. plot::
         :context: close-figs
 
-        import seaborn as sns
-        import autoprot.clustering as clst
-
         df = sns.load_dataset('iris')
         labels = df.pop('species')
-        c = clst.HCA(df)
+        c = ana.HCA(df)
         c.auto_run()
 
-    Finally visualise the clustering using the visCluster method and include the
+    Finally, visualise the clustering using the vis_cluster method and include the
     previously extracted labeling column from the original dataframe.
-
-    >>> labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
-    >>> rc = {"species" : labels}
-    >>> c.vis_cluster(row_colors={'species': labels})
 
      .. plot::
          :context: close-figs
@@ -460,11 +438,6 @@ class HCA(_Cluster):
     When we manually pick true the number of clusters, HCA performs only slightly
     better von this dataset. Note that you can change the default cmap for the
     class by changing the cmap attribute.
-
-    >>> c.nclusters = 3
-    >>> c.make_cluster()
-    >>> c.cmap = 'coolwarm'
-    >>> c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
 
      .. plot::
          :context: close-figs
@@ -529,18 +502,11 @@ class HCA(_Cluster):
 
             Examples
             --------
-            >>> a = [
-            ...     [0.1, .32, .2,  0.4, 0.8],
-            ...     [.23, .18, .56, .61, .12],
-            ...     [.9,   .3,  .6,  .5,  .3],
-            ...     [.34, .75, .91, .19, .21]
-            ...      ]
-            >>> np.corrcoef(np.array(a))
-            array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],
-                   [-0.35153114,  1.        ,  0.23810227,  0.15958285],
-                   [-0.74736506,  0.23810227,  1.        , -0.03960706],
-                   [-0.48917666,  0.15958285, -0.03960706,  1.        ]])
-            >>> autoprot.autoHCA.as_dist(c)
+            >>> a = array([[ 1.        , -0.35153114, -0.74736506, -0.48917666],
+            ...            [-0.35153114,  1.        ,  0.23810227,  0.15958285],
+            ...            [-0.74736506,  0.23810227,  1.        , -0.03960706],
+            ...            [-0.48917666,  0.15958285, -0.03960706,  1.        ]])
+            >>> ana.autoHCA.as_dist(c)
             [-0.3515311393849671,
              -0.7473650573493561,
              -0.4891766567441463,
@@ -557,7 +523,8 @@ class HCA(_Cluster):
             return None
 
         # First calculate a distance metric between the points
-        if metric in {"pearson", "spearman"}:
+        if metric in {"pearson", "spearman", "kendall"}:
+            metric: Literal["pearson", "spearman", "kendall"]
             corr = pd.DataFrame(self.data).T.corr(metric).values
             dist = as_dist(1 - corr)
         else:
@@ -705,41 +672,20 @@ class KMeans(_Cluster):
     First grab a dataset that will be used for clustering such as the iris dataset.
     Extract the species labelling from the dataframe as it cannot be used for
     clustering and will be used later to evaluate the result.
-    
-    >>> import seaborn as sns
-    >>> df = sns.load_dataset('iris')
-    >>> labels = df.pop('species')
 
     Initialise the clustering class with the data and find the optimum number of
     clusters and generate the final clustering with the autoRun method.
-    
-    >>> from autoprot import analysis as ana
-    >>> c = ana.KMeans(df)
-    Removed 0 NaN values from the dataframe to prepare for clustering.
-    >>> c.auto_run()
-    Best Davies Boulding at 2 with 0.40429283717304343
-    Best Silhouette_score at 2 with 0.6810461692117465
-    Best Harabasz/Calinski at 3 with 561.5937320156642
-    Using Davies Boulding Score for setting # clusters: 2
-    You may manually overwrite this by setting self.nclusters
-    
+
     .. plot::
         :context: close-figs
 
-        import seaborn as sns
-        import autoprot.clustering as clst
-        
         df = sns.load_dataset('iris')
         labels = df.pop('species')
-        c = clst.KMeans(df)
+        c = ana.KMeans(df)
         c.auto_run()
     
-    Finally visualise the clustering using the visCluster method and include the
+    Finally, visualise the clustering using the visCluster method and include the
     previously extracted labeling column from the original dataframe.
-    
-    >>> labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
-    >>> rc = {"species" : labels}
-    >>> c.vis_cluster(row_colors={'species': labels})
 
      .. plot::
          :context: close-figs
@@ -750,11 +696,7 @@ class KMeans(_Cluster):
          
     As you can see can KMeans quite well separate setosa but virginica and versicolor are harder.
     When we manually pick the number of clusters, it gets a bit better
-    
-    >>> c.nclusters = 3
-    >>> c.make_cluster()
-    >>> c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
-    
+
      .. plot::
          :context: close-figs
 

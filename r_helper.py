@@ -1,8 +1,25 @@
 import os
 from subprocess import check_output, run, STDOUT
+
 # this is a pointer to the module object instance itself.
 module_pointer = __import__(__name__.split('.')[0])
 config_dir = {}
+
+
+def write_data_for_r(df, cols):
+    d = os.getcwd()
+    data_loc = d + "/input.csv"
+    output_loc = d + "/output.csv"
+
+    if "UID" not in df.columns:
+        # UID is basically a row index starting at 1
+        df["UID"] = range(1, df.shape[0] + 1)
+
+    if not isinstance(cols, list):
+        cols = cols.to_list()
+
+    df[["UID"] + cols].to_csv(data_loc, sep='\t', index=False)
+    return data_loc, output_loc
 
 
 def check_r_install():

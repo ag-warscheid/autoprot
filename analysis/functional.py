@@ -8,7 +8,7 @@ Autoprot Analysis Functions.
 """
 from functools import reduce
 from importlib import resources
-from typing import Union, Literal
+from typing import Union, Literal, List, Dict, Any, Tuple
 
 import pandas as pd
 import numpy as np
@@ -30,7 +30,8 @@ cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
 def go_analysis(gene_list: list[str], organism: str = "hsapiens", background: Union[list[str], str, None] = None,
-                significance_threshold_method: Literal["g_SCS", "bonferroni", "fdr"] = "bonferroni", **kwargs):
+                significance_threshold_method: Literal["g_SCS", "bonferroni", "fdr"] = "bonferroni",
+                **kwargs) -> List[Dict[str, Any]]:
     # noinspection PyUnresolvedReferences
     """
     Perform go Enrichment analysis (also KEGG and REAC).
@@ -63,7 +64,7 @@ def go_analysis(gene_list: list[str], organism: str = "hsapiens", background: Un
 
     Examples
     --------
-    >>> autoprot.analysis.go_analysis(['PEX14', 'PEX18']).iloc[:3,:3]
+    >>> ana.go_analysis(['PEX14', 'PEX18']).iloc[:3,:3]
     source      native                                   name
     0  CORUM  CORUM:1984                 PEX14 homodimer complex
     1  GO:CC  GO:1990429          peroxisomal importomer complex
@@ -110,51 +111,31 @@ class KSEA:
 
     In the first step of the analysis you have to generate a KSEA object.
 
-    >>> ksea = autoprot.analysis.KSEA(phos)
-
     Next, you can annotate the data with respective kinases.
     You can provide the function with a organism of your choice as well as
     toggle whether to screen for only in vivo determined substrate
     phosphorylation of the respective kinases.
 
-    >>> ksea.annotate(organism="mouse", only_in_vivo=True)
-
     After the annotation it is always a good idea to get an overview of the
-    kinases in the data an how many substrates the have. Based on this you
+    kinases in the data and how many substrates they have. Based on this you
     might want to adjust a cutoff specifying the minimum number of substrates
     per kinase.
-
-    >>> ksea.get_kinase_overview(kois=["Akt1","MKK4", "P38A", "Erk1"])
 
     Next, you can perform the actual kinase substrate enrichment analysis.
     The analysis is based on the log fold change of your data.
     Therefore, you have to provide the function with the appropiate column of
     your data and the minimum number of substrates per kinase.
 
-    >>> ksea.ksea(col="logFC_TvC", min_subs=5)
-
     After the ksea has finished, you can get information for further analysis
-    such as the substrates of a specific kinase (or a list of kinases)
-
-    >>> ksea.return_kinase_substrate(kinase=["Akt1", "MKK4"]).sample() # doctest: +SKIP
-
-    or a new dataframe with additional columns for every kinase showing if the
-    protein is a substrate of that kinase or not
-
-    >>> ksea.annotate_df(kinases=["Akt1", "MKK4"]).iloc[:2,-5:]
+    such as the substrates of a specific kinase (or a list of kinases) or a new dataframe with additional
+    columns for every kinase showing if the protein is a substrate of that kinase or not.
 
     Eventually, you can also generate plots of the enrichment analysis.
-
-    >>> ksea.plot_enrichment(up_col="salmon")
 
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
@@ -184,58 +165,46 @@ class KSEA:
     This is based on the autoprot volcano function.
     You can pass all the common parameters to this function.
 
-    >>> ksea.plot_volcano(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
-    ...               annot="Gene names", sig_col="gray")
-
     .. plot::
         :context: close-figs
 
-        ksea.volcanos(log_fc="logFC_TvC", p="pValue_TvC", kinases=["Akt1", "MKK4"],
-                      annot="Gene names", sig_col="gray")
+        ksea.plot_volcano(log_fc="logFC_TvC", p_colname="pValue_TvC", kinases=["Akt1", "mTOR"],
+                          annotate_colname="Gene names")
 
     Sometimes the enrichment is crowded by various kinase isoforms.
     In such cases it makes sense to simplify the annotation by grouping those
     isoforms together.
 
-    >>> simplify = {"ERK":["ERK1","ERK2"],
-    ...             "GSK3":["GSK3A", "GSK3B"]}
-    >>> ksea.ksea(col="logFC_TvC", min_subs=5, simplify=simplify)
-    >>> ksea.plot_enrichment()
-
     .. plot::
         :context: close-figs
 
         simplify = {"ERK":["ERK1","ERK2"],
-                    "GSK3":["GSK3A", "GSK3B"]}
+                    "GSK3":["GSK3A", "GSK3B"],
+                    "AMPKA":["AMPKA1","AMPKA2"]}
         ksea.ksea(col="logFC_TvC", min_subs=5, simplify=simplify)
         ksea.plot_enrichment()
 
     Of course, you can also get the ksea results as a dataframe to save or to further customize.
 
-    >>> ksea.return_enrichment()
+    .. code-block:: python
 
-    Of course is the database not exhaustive and you might want to add additional
+        ksea.return_enrichment()
+
+    Of course is the database not exhaustive, and you might want to add additional
     substrates manually. This can be done the following way.
     Manually added substrates are always added irrespective of the species used
     for the annotation.
 
-    >>> ksea = ana.KSEA(phos)
-    >>> genes = ["RPGR"]
-    >>> modRsds = ["S564"]
-    >>> kinases = ["mTOR"]
-    >>> ksea.add_substrate(kinase=kinases, substrate=genes, sub_mod_rsd=modRsds)
+    .. code-block:: python
 
-    >>> ksea.annotate(organism="mouse", only_in_vivo=True)
-    >>> ksea.ksea(col="logFC_TvC", min_subs=5)
-    >>> ksea.plot_enrichment(plot_bg=False)
-
-    >>> ksea.clear_manual_substrates()
-    >>> ksea.annotate(organism="mouse", only_in_vivo=True)
-    >>> ksea.ksea(col="logFC_TvC", min_subs=5)
-    >>> ksea.plot_enrichment(plot_bg=False)
+        ksea = ana.KSEA(phos)
+        genes = ["RPGR"]
+        modRsds = ["S564"]
+        kinases = ["mTOR"]
+        ksea.add_substrate(kinases=kinases, substrates=genes, sub_mod_rsd=modRsds)
     """
 
-    def __init__(self, data):
+    def __init__(self, data: pd.DataFrame) -> None:
         """
         Initialise the KSEA object.
 
@@ -252,6 +221,7 @@ class KSEA:
         None.
 
         """
+        # TODO: Fetch the Kinase substrate dataset from the web
         with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
             self.PSP_KS = pd.read_csv(d, sep='\t', compression='zip')
         # harmonize gene naming
@@ -260,6 +230,11 @@ class KSEA:
         self.PSP_KS["source"] = "PSP"
         with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
             self.PSP_regSits = pd.read_csv(d, sep='\t', compression='zip')
+
+        # Check that all necessary columns are present in the input data
+        if not all([i in data.columns for i in ["Gene names", "Position", "Amino acid"]]):
+            raise ValueError("Please provide a dataframe with columns 'Gene names', 'Position' and 'Amino acid'.")
+
         # Harmonize the input data and store them to the class
         self.data = self._preprocess(data.copy(deep=True))
         # init other class objects
@@ -269,7 +244,7 @@ class KSEA:
         self.simpleDf = None
 
     @staticmethod
-    def _preprocess(data):
+    def _preprocess(data: pd.DataFrame) -> pd.DataFrame:
         """Define MOD_RSD, ucGene and mergeID cols in the input dataset."""
         # New column containing the modified residue as Ser201
         data["MOD_RSD"] = data["Amino acid"] + data["Position"].fillna(0).astype(int).astype(str)
@@ -280,7 +255,7 @@ class KSEA:
         return data
 
     @staticmethod
-    def _enrichment(df, col, kinase):
+    def _enrichment(df: pd.DataFrame, col: str, kinase: str) -> Tuple[str, float]:
         """
         Calculate the enrichment score for a certain kinase.
 
@@ -297,7 +272,7 @@ class KSEA:
         Returns
         -------
         list
-            pair of kinase name and score.
+            a tuple of kinase name and score.
 
         """
         # get enrichment values for rows containing the kinase of interest
@@ -306,12 +281,12 @@ class KSEA:
         p = df[col].mean()  # mean FC of all substrates
         m = ks.shape[0]  # number of kinase substrates
         sig = df[col].std()  # standard dev of FC of all
-        score = ((s - p) * np.sqrt(m)) / sig
+        score = float(((s - p) * np.sqrt(m)) / sig)
 
-        return [kinase, score]
+        return kinase, score
 
     @staticmethod
-    def _extract_kois(df):
+    def _extract_kois(df) -> pd.DataFrame:
         """
         Count the number of substrates for each kinase in a merged df.
 
@@ -338,15 +313,15 @@ class KSEA:
         temp = [(k, koi.count(k)) for k in ks]
         return pd.DataFrame(temp, columns=["Kinase", "#Subs"])
 
-    def add_substrate(self, kinase: list, substrate: list, sub_mod_rsd: list):
+    def add_substrate(self, kinases: list, substrates: list, sub_mod_rsd: list) -> None:
         """
         Manually add a substrate to the database.
 
         Parameters
         ----------
-        kinase : list of str
-            Name of the kinase e.g. PAK2.
-        substrate : list of str
+        kinases : list of str
+            Name of the kinases e.g. PAK2.
+        substrates : list of str
             Name of the substrate e.g. Prkd1.
         sub_mod_rsd : list of str
             Phosphorylated residues e.g. S203.
@@ -359,30 +334,31 @@ class KSEA:
         Returns
         -------
         None.
-
         """
-        # a bit cumbersome way to check if all lists
-        # are of the same lengths
-        it = iter([kinase, substrate, sub_mod_rsd])
-        the_len = len(next(it))
-        if any(len(x) != the_len for x in it):
-            raise ValueError('not all lists have same length!')
+        # Get the length of the first list
+        the_len = len(kinases)
+        # Check if the lengths of all lists are equal
+        if any(len(lst) != the_len for lst in [substrates, sub_mod_rsd]):
+            raise ValueError('Not all lists have the same length!')
 
         # generate new empty df to fill in the new kinases
-        temp = pd.DataFrame(columns=self.PSP_KS.columns)
-        for i in range(len(kinase)):
-            temp.loc[i, "KINASE"] = kinase[i]
-            temp.loc[i, "SUB_GENE"] = substrate[i]
+        temp = pd.DataFrame(columns=["KINASE", "SUB_GENE", "SUB_MOD_RSD", "source"])
+        for i in range(len(kinases)):
+            temp.loc[i, "KINASE"] = kinases[i]
+            temp.loc[i, "SUB_GENE"] = substrates[i]
             temp.loc[i, "SUB_MOD_RSD"] = sub_mod_rsd[i]
             temp.loc[i, "source"] = "manual"
         # append to the original database from PSP
-        self.PSP_KS = self.PSP_KS.append(temp, ignore_index=True)
+        self.PSP_KS = pd.concat([self.PSP_KS, temp],
+                                ignore_index=True,  # reset the index
+                                join="outer"  # will add columns if they are not present in the temp df
+                                )
 
     def clear_manual_substrates(self):
         """Remove all manual entries from the PSP database."""
         self.PSP_KS = self.PSP_KS[self.PSP_KS["source"] == "PSP"]
 
-    def annotate(self, organism="human", only_in_vivo=False):
+    def annotate(self, organism: str = "human", only_in_vivo: bool = False) -> None:
         """
         Annotate with known kinase substrate pairs.
 
@@ -403,8 +379,7 @@ class KSEA:
         -------
         None.
         """
-        # return a kinase substrate dataframe including only entries of the
-        # target organism that were validated in vitro
+        # return a kinase substrate dataframe including only entries of the target organism that were validated in vitro
         if only_in_vivo:
             temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
                                 (self.PSP_KS["SUB_ORGANISM"] == organism) &
@@ -416,9 +391,7 @@ class KSEA:
 
         # merge the kinase substrate data tables with the input dataframe
         # include the multiplicity column in the merge if present in the
-        # input dataframe
-        # the substrate gene names and the modification position are used for
-        # merging
+        # input dataframe the substrate gene names and the modification position are used for merging
         if "Multiplicity" in self.data.columns:
             self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity", "mergeID"]],
                                     temp,
@@ -436,7 +409,7 @@ class KSEA:
         self.koi = self._extract_kois(self.annotDf)
 
     # noinspection PyBroadException
-    def get_kinase_overview(self, kois=None):
+    def get_kinase_overview(self, kois: Union[list[str], None] = None) -> None:
         """
         Plot a graphical overview of the kinases acting on the proteins in the dataset.
 
@@ -451,8 +424,7 @@ class KSEA:
         None.
 
         """
-        # ax[0] is a histogram of kinase substrate numbers and
-        # ax[1] is a table of top10 kinases
+        # ax[0] is a histogram of kinase substrate numbers and ax[1] is a table of top10 kinases
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15, 5))
 
         sns.histplot(self.koi["#Subs"], bins=50, ax=ax[0])
@@ -509,7 +481,7 @@ class KSEA:
                 ax[1].text(0.3, pos, ss)
                 pos -= 0.055
 
-    def ksea(self, col, min_subs=5, simplify=None):
+    def ksea(self, col: str, min_subs: int = 5, simplify: Union[Literal["auto"], Dict, None] = None) -> None:
         r"""
         Calculate Kinase Enrichment Score.
 
@@ -548,8 +520,7 @@ class KSEA:
         None.
 
         """
-        # TODO wouldn't it make more sense to perform simplification in the
-        # Annotate function?
+        # TODO wouldn't it make more sense to perform simplification in the annotate function?
         copy_annot_df = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
@@ -563,7 +534,7 @@ class KSEA:
                             "RSK": ["p90RSK", "RSK2"],
                             "P38": ["P38A", "P38B", "P38C", "P338D"]}
             for key in simplify:
-                copy_annot_df["KINASE"].replace(simplify[key], [key] * len(simplify[key]), inplace=True)
+                copy_annot_df["KINASE"] = copy_annot_df["KINASE"].replace(simplify[key], [key] * len(simplify[key]))
 
             # drop rows which are now duplicates
             if "Multiplicity" in copy_annot_df.columns:
@@ -606,8 +577,9 @@ class KSEA:
             # nans are dropped in ksea enrichment
             return self.kseaResults.dropna()
 
-    def plot_enrichment(self, up_col="orange", down_col="blue", bg_col="lightgray",
-                        plot_bg=True, ret_fig=False, title="", figsize=(5, 10), ax=None):
+    def plot_enrichment(self, up_col: str = "orange", down_col: str = "blue", bg_col: str = "lightgray",
+                        plot_bg: bool = True, ret_fig: bool = False, title: str = "",
+                        figsize: tuple[int, int] = (5, 10), ax: plt.axis = None) -> Union[None, plt.Figure]:
         """
         Plot the KSEA results.
 
@@ -620,7 +592,7 @@ class KSEA:
             Colour for deriched/downregulated kinases.
             The default is "blue".
         bg_col : str, optional
-            Colour for not kinases that did not change significantly.
+            Colour for kinases that did not change significantly.
             The default is "lightgray".
         plot_bg : bool, optional
             Whether to plot the unaffected kinases.
@@ -659,11 +631,13 @@ class KSEA:
             # only plot the unaffected substrates if plot_bg is True
             if plot_bg:
                 sns.barplot(data=self.kseaResults.dropna(), x="score", y="kinase",
-                            palette=self.kseaResults.dropna()["color"], ax=ax)
+                            hue="kinase", palette=self.kseaResults.dropna()["color"].tolist(), ax=ax, legend=False)
             else:
                 # else remove the unaffected substrates from the plotting df
                 sns.barplot(data=self.kseaResults[self.kseaResults["color"] != bg_col].dropna(), x="score", y="kinase",
-                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"], ax=ax)
+                            hue="kinase",
+                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"].tolist(),
+                            ax=ax, legend=False)
 
             # remove top and right spines/plot lines
             sns.despine()
@@ -678,7 +652,8 @@ class KSEA:
             else:
                 return None
 
-    def plot_volcano(self, log_fc, p_colname, kinases=None, ret_fig=False, **kwargs):
+    def plot_volcano(self, log_fc: str, p_colname: str, kinases: Union[list[str], None] = None, ret_fig: bool = False,
+                     **kwargs) -> Union[None, list]:
         """
         Plot volcano plots highlighting substrates of a given kinase.
 
@@ -714,6 +689,7 @@ class KSEA:
             # index for highlighting the selected kinase substrates
             idx = df[df[k] == 1].index
             fig = vis.volcano(df, log_fc, p_colname=p_colname, highlight=idx,
+                              annotate='highlight',  # annotate the highlighted substrates
                               kwargs_highlight={"label": f"{k} substrate"},
                               kwargs_both_sig={"alpha": .5},
                               **kwargs
@@ -725,7 +701,7 @@ class KSEA:
         if ret_fig:
             return volcano_returns
 
-    def return_kinase_substrate(self, kinase):
+    def return_kinase_substrate(self, kinase: Union[str, list[str]]) -> pd.DataFrame:
         """
         Return new dataframe with substrates of one or multiple kinase(s).
 
@@ -777,7 +753,7 @@ class KSEA:
                              how="left")
         return df_filter
 
-    def annotate_df(self, kinases: Union[list[str], None] = None):
+    def annotate_df(self, kinases: Union[list[str], None] = None) -> pd.DataFrame:
         """
         Annotate the provided dataframe with boolean columns for given kinases.
 

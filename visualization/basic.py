@@ -6,47 +6,45 @@ Autoprot Basic Plotting Functions.
 
 @documentation: Julian
 """
+import warnings
 from functools import reduce
-
-from scipy import stats
-from scipy.stats import zscore, gaussian_kde
-from scipy.linalg import LinAlgError
-import pandas as pd
-# noinspection PyProtectedMember
-from pandas.api.types import is_numeric_dtype
-import numpy as np
-import matplotlib.pylab as plt
-import matplotlib as mpl
-import matplotlib.ticker as mticker
-import matplotlib
-
-from matplotlib_venn import venn2
-from matplotlib_venn import venn3
-from adjustText import adjust_text
-import matplotlib.patches as patches
 from itertools import combinations
-
-from ..dependencies.venn import venn
-from .. import visualization as vis
-from .. import common as com
-
-import plotly.express as px
-import plotly.graph_objects as go
-
-import upsetplot
-
 from typing import Literal, Union, List
 
-from matplotlib import pyplot as plt
+import matplotlib
+import matplotlib as mpl
+import matplotlib.patches as patches
+import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 import seaborn as sns
+import upsetplot
+from adjustText import adjust_text
+from matplotlib import pyplot as plt
+from matplotlib_venn import venn2
+from matplotlib_venn import venn3
+from pandas.core.dtypes.common import is_numeric_dtype
+from scipy import stats
+from scipy.linalg import LinAlgError
+from scipy.stats import zscore, gaussian_kde
+
+from .. import common as com
+from ..dependencies.venn import venn
+
+# ignore FutureWarnings from upsetplot
+warnings.filterwarnings('ignore', module='upsetplot', category=FutureWarning)
 
 
-def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
-                save_type="pdf", save_name="pairPlot", lower_triang="scatter",
-                sample_frac=None, bins=100, ret_fig=False, correlation_colorrange: tuple[float] = (0.8, 1),
+def correlogram(df: pd.DataFrame, columns: Union[list[str], pd.Index] = None, file: str = "proteinGroups",
+                log: bool = True, save_dir: Union[str, None] = None, save_type: str = "pdf",
+                save_name: str = "pairPlot", lower_triang: Literal["scatter", "hexBin", "hist2d"] = "scatter",
+                sample_frac: Union[float, None] = None, bins: int = 100, ret_fig: bool = False,
+                correlation_colorrange: tuple[float] = (0.8, 1),
                 figsize: Union[bool, tuple] = None):
     # noinspection PyUnresolvedReferences
-    r"""Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
+    """Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
 
     Notes
     -----
@@ -58,7 +56,7 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
     Parameters
     ----------
-    df : pd.df
+    df : pd.DataFrame
         Dataframe from MaxQuant file.
     columns : list of strings, optional
         The columns to be visualized. The default is empty list.
@@ -106,23 +104,17 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
     You may for example plot the protein intensitites of a single condition of
     your experiment .
 
-    >>> autoprot.visualization.correlogram(prot,mildLogInt, file='proteinGroups', lower_triang="hist2d")
-
     .. plot::
         :context_: close-figs
 
-        import pandas as pd
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-
         twitchInt = ['Intensity H BC18_1','Intensity M BC18_2','Intensity H BC18_3',
-                     'Intensity H BC36_1','Intensity H BC36_2','Intensity M BC36_2']
+                     'Intensity H BC36_1','Intensity H BC36_2','Intensity M BC36_3']
         ctrlInt = ["Intensity L BC18_1","Intensity L BC18_2","Intensity L BC18_3",
-                   "Intensity L BC36_1", "Intensity L BC36_2","Intensity L BC36_2"]
+                   "Intensity L BC36_1", "Intensity L BC36_2","Intensity L BC36_3"]
         mildInt = ["Intensity M BC18_1","Intensity H BC18_2","Intensity M BC18_3",
-                   "Intensity M BC36_1","Intensity M BC36_2","Intensity H BC36_2"]
+                   "Intensity M BC36_1","Intensity M BC36_2","Intensity H BC36_3"]
 
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.log(prot, twitchInt+ctrlInt+mildInt, base=10)
         twitchLogInt = [f"log10_{i}" for i in twitchInt]
         mildLogInt = [f"log10_{i}" for i in mildInt]
@@ -132,12 +124,11 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
     You may want to change the plot type on the lower left triangle.
 
-    >>> autoprot.visualization.correlogram(prot,mildLogInt, file='proteinGroups', lower_triang="hexBin")
-
     .. plot::
         :context_: close-figs
 
         vis.correlogram(prot,mildLogInt, file='proteinGroups', lower_triang="hexBin")
+        plt.show()
 
     """
 
@@ -154,8 +145,10 @@ def correlogram(df, columns=None, file="proteinGroups", log=True, save_dir=None,
 
         Returns
         -------
-        r (float): Pearson correlation coefficient
-        d (pd.DataFrame): The dataframe with the matched values
+        r : float
+            Pearson correlation coefficient.
+        d : pd.DataFrame
+            The dataframe with the matched values.
         """
         d = pd.DataFrame({"x": a, "y": b})
         d = d.dropna(how='any')
@@ -332,15 +325,10 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
     --------
     To plot a heatmap with annotated values call corrMap directly:
 
-    >>> autoprot.visualization.corr_map(prot,mildLogInt, annot=True)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         mildInt = ["Intensity M BC18_1","Intensity H BC18_2","Intensity M BC18_3",
                    "Intensity M BC36_1","Intensity M BC36_2","Intensity H BC36_2"]
         prot = pp.log(prot, mildInt, base=10)
@@ -350,8 +338,6 @@ def corr_map(df, columns, cluster=False, annot=None, cmap="YlGn", figsize=(7, 7)
 
     If you want to plot the clustermap, set cluster to True.
     The correlation coefficients are colour-coded.
-
-    >>>  autoprot.visualization.corr_map(prot, mildLogInt, cmap="autumn", annot=None, cluster=True)
 
     .. plot::
         :context: close-figs
@@ -411,17 +397,11 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
     Plot to check if the experimental data points follow the distribution function
     indicated by dist.
 
-    >>> vis.prob_plot(prot,'log10_Intensity H BC18_1')
 
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protInt = prot.filter(regex='Intensity').columns
         prot = pp.log(prot, protInt, base=10)
@@ -429,10 +409,8 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
         vis.prob_plot(prot,'log10_Intensity H BC18_1')
         plt.show()
 
-    In contrast when the data does not follow the distribution, outliers from the
+    In contrast, when the data does not follow the distribution, outliers from the
     linear plot will be visible.
-
-    >>> vis.prob_plot(prot,'log10_Intensity H BC18_1', dist=stats.uniform)
 
     .. plot::
         :context: close-figs
@@ -513,18 +491,10 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
     To inspect unnormalised data, you can generate a boxplot comparing the
     fold-change differences between conditions or replicates
 
-    >>> autoprot.visualization.boxplot(df=prot,reps=protRatio, compare=False,
-    ...                                labels=labels, title="Unnormalized Ratios Boxplot",
-    ...                                ylabel="log_fc")
-
     .. plot::
         :context: close-figs
 
-        import pandas as pd
-        import autoprot.visualization as vis
-        import autoprot.preprocessing as pp
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protRatio = prot.filter(regex="Ratio .\/. BC.*_1").columns
         prot = pp.log(prot, protRatio, base=2)
@@ -539,15 +509,12 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
     If you have two datasets for comparison (e.g. normalised and non-normalised)
     fold-changes, you can use boxplot to plot them side-by-side.
 
-    >>> vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels,
-    ...             title=["unormalized", "normalized"], ylabel="log_fc")
-
     .. plot::
         :context: close-figs
 
         protRatioNorm = prot.filter(regex="log2_Ratio.*normalized").columns
-        vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=labels, title=["unormalized", "normalized"],
-                   ylabel="log_fc")
+        vis.boxplot(prot,[protRatio, protRatioNorm], compare=True, labels=[labels, labels],
+                    title=["unormalized", "normalized"], ylabel="log_fc")
     """
     if compare:
         # check if inputs make sense
@@ -669,11 +636,6 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
     Annotate a protein groups datafile with the proteins of highest and lowest
     intensity. The 15 most and least intense proteins will be labelled.
     Note that marker is passed to seaborn and results in points marked as diamonds.
-
-    >>> autoprot.visualization.intensity_rank(data, rank_col="log10_Intensity",
-    ...                                      annotate_colname="Gene names", n=15,
-    ...                                      title="Rank Plot",
-    ...                                      hline=8, marker="d")
 
     .. plot::
         :context: close-figs
@@ -802,17 +764,10 @@ def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = Fa
     You can specify up to 6 columns containing values and NaNs. Only rows showing
     values in two columns will be grouped together in the Venn diagram.
 
-    >>> data = prot[twitchVsmild[:3]]
-    >>> autoprot.visualization.venn_diagram(data, figsize=(5,5))
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protRatio = prot.filter(regex="Ratio .\/. BC.*").columns
         prot = pp.log(prot, protRatio, base=2)
@@ -828,8 +783,6 @@ def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = Fa
     Only up to three conditions can be compared in non-proportional Venn
     diagrams
 
-    >>> autoprot.visualization.venn_diagram(data, figsize=(5,5), proportional=False)
-
     .. plot::
         :context: close-figs
 
@@ -838,9 +791,6 @@ def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = Fa
 
     Copmaring up to 6 conditions is possible but the resulting Venn diagrams
     get quite messy.
-
-    >>> data = prot[twitchVsmild[:6]]
-    >>> vis.venn_diagram(data, figsize=(20,20))
 
     .. plot::
         :context: close-figs
@@ -978,6 +928,7 @@ def _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler):
 
     # PLOTTING
     if pointsize_colname is not None:
+        # check if the column provided for point sizing contains only numeric values
         if not is_numeric_dtype(df[pointsize_colname]):
             raise ValueError(
                 "The column provided for point sizing should only contain numeric values"
@@ -1043,7 +994,7 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
         ax.add_artist(legend2)
 
 
-def _label_scatter(df: pd.DataFrame, ax: matplotlib.axes.Axes, x_colname: str, y_colname: str,
+def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: str,
                    annotate: Union[str, None], highlight: Union[pd.Index, List[pd.Index], None],
                    annotate_colname: str, annotate_density: float) -> None:
     """
@@ -1344,21 +1295,10 @@ def volcano(
     The standard setting of volcano should be sufficient for getting a first glimpse on the data. Note that the
     point labels are automatically adjusted to prevent overlapping text.
 
-    >>> prot_limma['Gene names 1st'] = prot_limma['Gene names'].str.split(';').str[0]
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     title="Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>> )
-    >>>
-    >>> fig.show()
-
     .. plot::
         :context: close-figs
 
-         prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+         prot = pp.read_csv("../data/proteinGroups_minimal.zip")
          prot = pp.cleaning(prot, "proteinGroups")
          protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
          prot = pp.log(prot, protRatio, base=2)
@@ -1381,17 +1321,6 @@ def volcano(
 
     Thresholds can easily be modified using the log_fc_thresh and p_thresh kwargs:
 
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     p_thresh=0.01,
-    >>>     title="Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>> )
-    >>>
-    >>> fig.show()
-
     .. plot::
         :context: close-figs
 
@@ -1408,24 +1337,6 @@ def volcano(
 
     All points in the plot can be customized by supplying kwargs to the volcano function. These can be any arguments
     accepted by matplotlib.pyplot.scatter.
-
-    >>> non_sig_kwargs = dict(color="black", marker="x")
-    >>> sig_kwargs = dict(color="red", marker=7, s=100)
-    >>>
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     p_thresh=0.01,
-    >>>     title="Customised Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>>     kwargs_ns=non_sig_kwargs,
-    >>>     kwargs_p_sig=non_sig_kwargs,
-    >>>     kwargs_log_fc_sig=non_sig_kwargs,
-    >>>     kwargs_both_sig=sig_kwargs,
-    >>> )
-    >>>
-    >>> fig.show()
 
     .. plot::
         :context: close-figs
@@ -1451,20 +1362,6 @@ def volcano(
     All other elements of the plot can be customised by accessing the figure and axis objects. The axis can be extracted
     from the figure returned by volano.
 
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     title="Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>> )
-    >>>
-    >>> ax = fig.gca()
-    >>> ax.axhline(y=3, color="red", linestyle=":")
-    >>> ax.axhline(y=4, color="blue", linestyle=":")
-    >>>
-    >>> fig.show()
-
     .. plot::
         :context: close-figs
 
@@ -1486,18 +1383,6 @@ def volcano(
     numeric values will be noramlized between min and max and used for sizing the points. If the standard size is
     inconvenient, the point_scaler kwarg enables manual adjustemnt of the point sizes.
 
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     pointsize_colname='iBAQ',
-    >>>     pointsize_scaler=5,
-    >>>     title="Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>> )
-    >>>
-    >>> fig.show()
-
     .. plot::
         :context: close-figs
 
@@ -1516,20 +1401,6 @@ def volcano(
     Custom points can also be highlighted by providing a pandas Index object of the corresponding rows as input to
     the highlight kwarg. Note that the annotated kwarg must be updated if you want to also label your highlighted
     points.
-
-    >>> to_highlight = prot_limma[prot_limma['iBAQ'] > 10e8].index
-    >>>
-    >>> fig = vis.volcano(
-    >>>     df=prot_limma,
-    >>>     log_fc_colname="logFC_TvM",
-    >>>     p_colname="P.Value_TvM",
-    >>>     highlight=to_highlight,
-    >>>     annotate='highlight',
-    >>>     title="Volcano Plot",
-    >>>     annotate_colname="Gene names 1st",
-    >>> )
-    >>>
-    >>> fig.show()
 
     .. plot::
         :context: close-figs
@@ -1869,27 +1740,51 @@ def ratio_plot(
     Parameters
     ----------
     df: pd.Dataframe
+        The dataframe containing the data to be plotted.
     col_name1: str
+        The name of the column in df to use for the x-values of the scatter plot.
     col_name2: str, optional
+        The name of the column in df to use for the y-values of the scatter plot.
+        The default is None.
     ratio_thresh: float, optional
+        The threshold for the ratio plot. The default is None.
     xlabel: str, optional
+        Label for the x-axis. The default is "Ratio col1".
     ylabel: str, optional
+        Label for the y-axis. The default is "Ratio col2".
     pointsize_colname: str or float, optional
+        The name of the column in df to use for the point sizes. The default is None.
     pointsize_scaler: float, optional
+        The scaling factor for the point sizes. The default is 1.
     highlight: pd.Index or list of pd.Index, optional
+        The indices of the points to highlight. The default is None.
     title: str, optional
+        The title of the plot. The default is None.
     show_legend: bool, optional
+        Whether to show the legend. The default is True.
     show_caption: bool, optional
+        Whether to show the caption. The default is True.
     show_thresh: bool, optional
+        Whether to show the threshold lines. The default is True.
     ax: plt.axis, optional
+        The axis to plot on. The default is None.
     ret_fig: bool, optional
+        Whether to return the figure. The default is True.
     figsize: tuple of int, optional
+        The size of the figure. The default is (8, 8).
     annotate: "highlight" or "ratio_thresh" or None or pd.Index, optional
+        Whether to generate labels for the significant or highlighted points.
+        Default is "ratio_thresh".
     annotate_colname: str, optional
+        The column name to use for the annotation. The default is "Gene names".
     kwargs_ns: dict, optional
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the non-significant points.
     kwargs_r_sig: dict, optional
+        Custom kwargs to pass to matplotlib.pyplot.scatter when generating the significant points.
     kwargs_highlight: dict or list of dict, optional
+        Custom kwargs to pass to plt.scatter when generating the highlighted points.
     annotate_density: int, optional
+        The density (normalised to 1) below which points are ignored from labelling. The default is 100.
 
     Returns
     -------
@@ -1901,45 +1796,30 @@ def ratio_plot(
     Similar to the volcano plot function, the ratio plot takes a dataframe as input together with the two
     column names to plot.
 
-    >>> fig = vis.ratio_plot(
-    >>>     prot,
-    >>>     col_name1='Ratio M/L BC18_1',
-    >>>     col_name2='Ratio M/L BC18_2',
-    >>>     ratio_thresh= 3,
-    >>>     annotate_colname='Gene names 1st',
-    >>>     xlabel= 'Ratio Rep1',
-    >>>     ylabel = 'Ratio Rep2',
-    >>>     annotate_density=20,
-    >>> )
-
-    fig.show()
-
     .. plot::
-    :context: close-figs
+        :context: close-figs
 
-    prot = pd.read_csv("../docsrc/_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
-    prot = pp.cleaning(prot, "proteinGroups")
-    protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
-    prot = pp.log(prot, protRatio, base=2)
-    prot['Gene names 1st'] = prot['Gene names'].str.split(';').str[0]
+        prot = pp.read_csv("../docsrc/../data/proteinGroups_minimal.zip")
+        prot = pp.cleaning(prot, "proteinGroups")
+        protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+        prot = pp.log(prot, protRatio, base=2)
+        prot['Gene names 1st'] = prot['Gene names'].str.split(';').str[0]
 
-    fig = vis.ratio_plot(
-        prot,
-        col_name1='Ratio M/L BC18_1',
-        col_name2='Ratio M/L BC18_2',
-        ratio_thresh= 3,
-        annotate_colname='Gene names 1st',
-        xlabel= 'Ratio Rep1',
-        ylabel = 'Ratio Rep2',
-        annotate_density=20,
-    )
+        fig = vis.ratio_plot(
+            prot,
+            col_name1='Ratio M/L BC18_1',
+            col_name2='Ratio M/L BC18_2',
+            ratio_thresh= 3,
+            annotate_colname='Gene names 1st',
+            xlabel= 'Ratio Rep1',
+            ylabel = 'Ratio Rep2',
+            annotate_density=20)
 
-    fig.show()
+        fig.show()
+
     """
     # check for input correctness and make sure score is present in df for plot
-
     df, col_name1, col_name2, unsig, sig_ratio = _prep_ratio_data(df, col_name1, col_name2, ratio_thresh)
-
     fig, ax, df = _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler)
 
     # Non-Significant
@@ -2160,18 +2040,10 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
     during t-test or LIMMA analysis and (log) intensities to separate points
     on the y axis.
 
-    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM",
-    ...                                   "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
         prot = pp.log(prot, protRatio, base=2)
@@ -2188,9 +2060,6 @@ def log_int_plot(df, log_fc, log_intens_col, fct=None, annot=False,
 
     Similar to the visualization using a volcano plot, points of interest can be
     selected and labelled.
-
-    >>> autoprot.visualization.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                   fct=2, annot=True,  annot="Gene names")
 
     .. plot::
         :context: close-figs
@@ -2332,8 +2201,8 @@ def _init_ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int]):
     df = df.copy(deep=True)
     df["M"] = df[x] - df[y]
     df["A"] = 1 / 2 * (df[x] + df[y])
-    df["M"].replace(-np.inf, np.nan, inplace=True)
-    df["A"].replace(-np.inf, np.nan, inplace=True)
+    df["M"] = df["M"].replace(-np.inf, np.nan)
+    df["A"] = df["A"].replace(-np.inf, np.nan)
     df["SigCat"] = False
     if fct is not None:
         df.loc[abs(df["M"]) > fct, "SigCat"] = True
@@ -2386,17 +2255,10 @@ def ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int] = None,
     The majority of intensities should be unchanged between conditions and
     therefore most points should lie on the y=0 line.
 
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protInt = prot.filter(regex='Intensity').columns
         prot = pp.log(prot, protInt, base=10)
@@ -2408,8 +2270,6 @@ def ma_plot(df: pd.DataFrame, x: str, y: str, fct: Union[float, int] = None,
         plt.show()
 
     If this is not the case, a normalization using e.g. LOESS should be applied
-
-    >>> autoprot.visualization.ma_plot(prot, twitch, ctrl, fct=2)
 
     .. plot::
         :context: close-figs
@@ -2538,17 +2398,10 @@ def mean_sd_plot(df, reps):
     Visualise the intensity distirbutions of proteins depending on their
     total indensity.
 
-    >>> autoprot.visualization.mean_sd_plot(prot, twitchInt)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/proteinGroups.zip", sep='\t', low_memory=False)
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protInt = prot.filter(regex='Intensity').columns
         prot = pp.log(prot, protInt, base=10)
@@ -2654,20 +2507,10 @@ def plot_traces(df, cols: list, labels: list[str] = None, colors: list[str] = No
     --------
     Plot the log fold-changes of 10 phosphosites during three comparisons.
 
-    >>> idx = phos.sample(10).index
-    >>> test = phos.filter(regex="logFC_").loc[idx]
-    >>> label = phos.loc[idx, "Gene names"]
-    >>> vis.plot_traces(test, test.columns, labels=label, colors=["red", "green"]*5,
-    ...                xlabel='Column', z_score=None)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pp.read_csv("../data/Phospho (STY)Sites_minimal.zip")
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
@@ -2766,17 +2609,10 @@ def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
     The grey line indicates the provided alpha level. Values below it are considered
     significantly different.
 
-    >>> autoprot.visualization.bh_plot(phos,'pValue_TvC', 'adj.pValue_TvC', alpha=0.05, zoom=7)
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.analysis as ana
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pp.read_csv("../data/Phospho (STY)Sites_minimal.zip")
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phos = pp.log(phos, phosRatio, base=2)
@@ -2792,7 +2628,7 @@ def pval_hist(df, ps, adj_ps, title=None, alpha=0.05, zoom=20):
 
         phos = ana.ttest(df=phos_expanded, reps=mildVsctrl, cond="_MvC", return_fc=True)
 
-        vis.bh_plot(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
+        vis.pval_hist(phos,'pValue_MvC', 'adj.pValue_MvC', alpha=0.05, zoom=7)
     """
     n = len(df[ps][df[ps].notnull()])
     x = range(n)
@@ -2880,31 +2716,8 @@ class UpSetGrouped(upsetplot.UpSet):
     Also note that the replot_totals function can only be used after calling the plot-function as is requires the
     axis on which the original bar plot was drawn.
 
-    >>> upset = UpSetGrouped(example,
-    ...                      show_counts=True,
-    ...                      #show_percentages=True,
-    ...                      sort_by=None,
-    ...                      sort_categories_by='cardinality',
-    ...                      facecolor="gray")
-    >>> upset.styling_helper('up', facecolor='darkgreen', label='up regulated')
-    >>> upset.styling_helper('down', facecolor='darkblue', label='down regulated')
-    >>> upset.styling_helper(['up', 'down'], facecolor='darkred', label='reversibly regulated')
-    >>> specs = upset.plot()
-    >>> upset.replot_totals(specs=specs, color=['darkgreen',
-    ...                                         'darkgreen',
-    ...                                         'darkgreen',
-    ...                                         'darkgreen',
-    ...                                         'darkblue',
-    ...                                         'darkblue',
-    ...                                         'darkblue',
-    ...                                         'darkblue',])
-    >>> plt.show()
-
     .. plot::
         :context: close-figs
-
-        import pandas as pd
-        import autoprot.visualization as vis
 
         arrays = [(False,False,False,False,False,False,True,False),
                   (False,False,False,False,False,False,False,True),
@@ -2981,7 +2794,7 @@ class UpSetGrouped(upsetplot.UpSet):
         Helper function for styling upsetplot category plots.
 
         Parameters
-        --------
+        ----------
         label_substrings : str or list
             Substrings that are contained in the names of the row
             indices of the UpSet data (e.g. '_up')

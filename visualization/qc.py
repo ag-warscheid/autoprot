@@ -11,7 +11,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pylab as plt
 import matplotlib.ticker as ticker
-import pylab as pl
 import plotly.express as px
 from typing import Literal, Union
 
@@ -46,9 +45,8 @@ def _bar_plot_style(df, ax):
 
 
 # STY COUNT PLOT ##
-def sty_count_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
+def sty_count_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
                    ret_fig: bool = False, ax: Union[plt.axis, None] = None, **kwargs):
-    # sourcery skip: extract-method
     # noinspection PyUnresolvedReferences
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
@@ -58,7 +56,7 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Liter
     df : pd.DataFrame
         Input dataframe.
         Must contain a column "Number of Phospho (STY)".
-    figsize : tuple of int, optional
+    figsize : tuple of float, optional
         Figure size. The default is (12,8).
     chart_type : str, optional
         'bar' or 'pie'. The default is "bar".
@@ -87,26 +85,15 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Liter
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         vis.sty_count_plot(phos, chart_type="bar")
         plt.show()
 
     """
-    no_of_phos = [int(i) for i in
-                  list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
+    values, count, counts_perc = _count_values(df, column='Number of Phospho (STY)')
 
-    print("Number of phospho (STY) [total] - (count / # Phospho)")
-    print(count)
-    print("Percentage of phospho (STY) [total] - (% / # Phospho)")
-    print(counts_perc)
-    df = pd.DataFrame(no_of_phos, columns=["Number of Phospho (STY)"])
+    df = pd.DataFrame(values, columns=["Number of Phospho (STY)"])
 
     if ax is None:
         fig = plt.figure(figsize=figsize)
@@ -121,7 +108,7 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Liter
         _bar_plot_style(df, ax)
 
     elif chart_type == "pie":
-        ax.pie([i[0] for i in count], labels=[i[1] for i in count], **kwargs)
+        ax.pie([i[0] for i in count], labels=[str(i[1]) for i in count], **kwargs)
         ax.set_title("Number of Phosphosites")
     else:
         raise TypeError("typ must be either 'bar' or 'pie")
@@ -131,8 +118,6 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Liter
 
 
 def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", ret_fig: bool = False, **kwargs):
-    # sourcery skip: extract-method
-    # noinspection PyUnresolvedReferences
     r"""
     Draw an interactive overview of Number of Phospho (STY) of a Phospho(STY) file.
 
@@ -154,16 +139,9 @@ def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar",
         The figure object.
 
     """
-    no_of_phos = [int(i) for i in
-                  list(pl.flatten([str(i).split(';') for i in df["Number of Phospho (STY)"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
+    values, count, counts_perc = _count_values(df, column='Number of Phospho (STY)')
 
-    print("Number of phospho (STY) [total] - (count / # Phospho)")
-    print(count)
-    print("Percentage of phospho (STY) [total] - (% / # Phospho)")
-    print(counts_perc)
-    df = pd.DataFrame(no_of_phos, columns=["Count"]).value_counts().reset_index(name='Number of Phospho (STY)')
+    df = pd.DataFrame(values, columns=["Count"]).value_counts().reset_index(name='Number of Phospho (STY)')
     df = df.sort_index()
 
     if chart_type == "bar":
@@ -180,8 +158,48 @@ def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar",
 
 
 # CHARGE PLOT #
-# noinspection PyUnboundLocalVariable
-def charge_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
+def _count_values(df: pd.DataFrame, column: str = 'Charge') -> tuple[list[int], list[tuple[int, int]],
+                                                                     list[tuple[float, int]]]:
+    """
+    Perform calculations for charge_plot.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+        Must contain a column matchign the column kwarg (default: "Charge").
+    column : str
+        Column name of the column to count.
+        Should contain values separated by ";".
+
+    Returns
+    -------
+    values : list
+        List of unique values of column.
+    count : list
+        List of values states with their counts.
+        The list contains tuples of the form (count, value).
+    counts_perc : list
+        List of values with their percentages.
+        The list contains tuples of the form (percentage, value).
+    """
+    # check if column is in df
+    if column not in df.columns:
+        raise KeyError(f"Column '{column}' not found in dataframe.")
+
+    values = [int(i) for i in list(plt.flatten([str(i).split(';') for i in df[column].fillna(0)]))]
+    count = [(values.count(i), i) for i in set(values)]
+    counts_perc = [(round(values.count(i) / len(values) * 100, 2), i) for i in set(values)]
+
+    print(f"{column.lower()} [total] - (count / # {column})")
+    print(count)
+    print(f"Percentage of {column.lower()} [total] - (% / # {column})")
+    print(counts_perc)
+
+    return values, count, counts_perc
+
+
+def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
                 ret_fig: bool = False, ax: Union[plt.axis, None] = None, **kwargs):
     # noinspection PyUnresolvedReferences
     r"""
@@ -227,25 +245,13 @@ def charge_plot(df: pd.DataFrame, figsize: tuple = (12, 8), chart_type: Literal[
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         vis.charge_plot(phos, chart_type="pie")
         plt.show()
     """
+    no_of_phos, count, counts_perc = _count_values(df, column='Charge')
 
-    df = df.copy(deep=True)
-    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
-
-    print("charge [total] - (count / # charge)")
-    print(count)
-    print("Percentage of charge [total] - (% / # charge)")
-    print(counts_perc)
     df = pd.DataFrame(no_of_phos, columns=["charge"])
 
     if chart_type == "bar":
@@ -290,16 +296,7 @@ def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", re
     fig : plotly.figure
         The figure object.
     """
-
-    df = df.copy(deep=True)
-    no_of_phos = [int(i) for i in list(pl.flatten([str(i).split(';') for i in df["Charge"].fillna(0)]))]
-    count = [(no_of_phos.count(i), i) for i in set(no_of_phos)]
-    counts_perc = [(round(no_of_phos.count(i) / len(no_of_phos) * 100, 2), i) for i in set(no_of_phos)]
-
-    print("charge [total] - (count / # charge)")
-    print(count)
-    print("Percentage of charge [total] - (% / # charge)")
-    print(counts_perc)
+    no_of_phos, count, counts_perc = _count_values(df, column='Charge')
 
     df = pd.DataFrame(no_of_phos, columns=["charge"]).value_counts().reset_index(name='charge')
     df = df.sort_index()
@@ -319,7 +316,8 @@ def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", re
 
 
 # COUNT MODIFIED AMINO ACIDS #
-def count_mod_aa(df: pd.DataFrame, figsize: tuple = (6, 6), ret_fig: bool = False, ax: Union[plt.axis, None] = None,
+def count_mod_aa(df: pd.DataFrame, figsize: tuple[float, float] = (6, 6), ret_fig: bool = False,
+                 ax: Union[plt.axis, None] = None,
                  **kwargs):
     # noinspection PyUnresolvedReferences
     r"""
@@ -353,11 +351,7 @@ def count_mod_aa(df: pd.DataFrame, figsize: tuple = (6, 6), ret_fig: bool = Fals
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phos = pp.cleaning(phos, file = "Phospho (STY)")
         vis.count_mod_aa(phos)
         plt.show()

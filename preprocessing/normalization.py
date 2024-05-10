@@ -10,7 +10,6 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 import os
-from subprocess import run, PIPE, CalledProcessError
 from typing import Union
 from .. import r_helper
 from .. import preprocessing as pp
@@ -68,25 +67,10 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
 
     Examples
     --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-    >>> phosLog = pp.log(phos, phosRatio, base=2)
-    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-
-    Until now this was only preprocessing for the normalisation.
-
-    >>> phos_norm_r = pp.quantile_norm(phosLog, noNorm, backend='r')
-    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-    >>> plt.show() #doctest: +SKIP
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phosLog = pp.log(phos, phosRatio, base=2)
         noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
@@ -194,7 +178,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
     Notes
     -----
     The Vsn is a statistical method aiming at making the sample
-    variances nondependent from their mean intensities and bringing the
+    variances independent of their mean intensities and bringing the
     samples onto a same scale with a set of parametric transformations
     and maximum likelihood estimation.
     
@@ -204,44 +188,30 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
 
     Examples
     --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> import pandas as pd
-    >>> phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
-    >>> intens_cols = phos_lfq.filter(regex="Intensity .").columns
-    >>> phos_lfq[intens_cols] = phos_lfq[noNorm].replace(0, np.nan)
-
-    Until now this was only preprocessing for the normalisation. We will also log2-transform the intensity data to
-    show that VSN normalisation results in values of similar scale than log2 transformation.
-
-    >>> phos_lfq = pp.vsn(phos_lfq,intens_cols)
-    >>> norm_cols = phos_lfq.filter(regex="_norm").columns
-    >>> phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
-    >>> vis.boxplot(phos_lfq, [log_cols, norm_cols], data='Intensity', compare=True)
-    >>> plt.show() #doctest: +SKIP
-
-    Note how the VSN normalisation and the log2 transformation result in values of similar magnitude.
-    However, the exact variances of the two transformations are different.
+    We will log2-transform the intensity data to show that VSN normalization results in values of similar scale than
+    log2 transformation. Note how the VSN normalization and the log2 transformation result in values of
+    similar magnitude. However, the exact variances of the two transformations are different.
 
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos_lfq = pd.read_csv("_static/testdata/Phospho (STY)Sites_lfq.zip", sep="\t", low_memory=False)
+        phos_lfq = pd.read_csv("../data/Phospho (STY)Sites_lfq_minimal.zip", sep="\t", low_memory=False)
         intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
         phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
         phos_lfq, norm_cols = pp.vsn(phos_lfq, intens_cols, return_cols = True)
         phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
         vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)
+
     """
     # generate a unique identifier to merge the dataframes after the transformation
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
     # copy the relevant columns to avoid changing the original dataframe
-    subset = df[cols + ["UID",]].copy()
+    if isinstance(cols, pd.Index):
+        subset = df[cols.append(pd.Index(["UID"]))].copy()  # append UID to the columns pandas style
+    else:
+        subset = df[cols + ["UID", ]].copy()  # append UID to the columns list style
 
     # if invert is not None, apply the inversion to the columns
     if invert is not None:
@@ -305,7 +275,8 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
     ----------
     [1] https://doi.org/10.1093/bioinformatics/19.2.185
 
-    [2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by local fitting. J. Am. Stat. Assoc., 83, 596–610
+    [2] Cleveland,W.S. and Devlin,S.J. (1998) Locally-weighted regression: an approach to regression analysis by
+    local fitting. J. Am. Stat. Assoc., 83, 596–610
 
     [3] https://en.wikipedia.org/wiki/Local_regression
 
@@ -313,7 +284,7 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
     -----
     Cyclic loess normalization applies loess normalization to all possible pairs of arrays,
     usually cycling through all pairs several times.
-    Loess normalisation (also referred to as Savitzky-Golay filter) locally approximates
+    Loess normalization (also referred to as Savitzky-Golay filter) locally approximates
     the data around every point using low-order functions and giving less weight to distant
     data points.
 
@@ -322,43 +293,20 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
 
     Examples
     --------
-    >>> import autoprot.preprocessing as pp
-    >>> import autoprot.visualization as vis
-    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-    >>> phosLog = pp.log(phos, phosRatio, base=2)
-    >>> noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-
-    Until now this was only preprocessing for the normalisation.
-
-    >>> phos_norm_r = pp.cyclic_loess(phosLog,noNorm,backend='r')
-    >>> vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
-    >>> plt.show() #doctest: +SKIP
 
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
         phosLog = pp.log(phos, phosRatio, base=2)
         noNorm = phosLog.filter(regex="log2_Ratio ./. R.___").columns
-        phos_norm_r = pp.cyclic_loess(phosLog, noNorm, backend='r')
+        phos_norm_r = pp.cyclic_loess(phosLog, noNorm)
         vis.boxplot(phos_norm_r, [noNorm, phos_norm_r.filter(regex="_norm").columns], compare=True)
         plt.show()
 
     """
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
-
-    if "UID" not in df.columns:
-        df["UID"] = range(1, df.shape[0] + 1)
-
-    if not isinstance(cols, list):
-        cols = cols.to_list()
-    pp.to_csv(df[["UID"] + cols], data_loc)
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location

@@ -7,19 +7,17 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 import os
-import pandas as pd
+
 import numpy as np
-import matplotlib.pylab as plt
-from matplotlib import pylab as pl
+import pandas as pd
 import seaborn as sns
-
-from statsmodels.stats import multitest as mt
-from scipy.stats import ttest_1samp, ttest_ind
-
-from .. import r_helper
-from .. import preprocessing as pp
-
 from gprofiler import GProfiler
+from matplotlib import pylab as pl
+from scipy.stats import ttest_1samp, ttest_ind
+from statsmodels.stats import multitest as mt
+
+from .. import preprocessing as pp
+from .. import r_helper
 
 gp = GProfiler(
     user_agent="autoprot",
@@ -78,48 +76,23 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
 
     Examples
     --------
-    >>> twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
-    ...                 'log2_Ratio H/M normalized BC18_3',
-    ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
-    ...                 'log2_Ratio M/L normalized BC36_2']
-    >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
-    >>> protLog = autoprot.preprocessing.log(prot, protRatio, base=2)
-    >>> prot_tt = autoprot.analysis.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True,
-    ... adjust_p_vals=True)
-    >>> prot_tt["pValue_TvM"].hist(bins=50)
-    >>> plt.show()
-
     .. plot::
         :context: close-figs
 
-        import autoprot.analysis as ana
-        import autoprot.preprocessing as pp
-        import pandas as pd
         twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
                         'log2_Ratio H/M normalized BC18_3',
                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
                         'log2_Ratio M/L normalized BC36_2']
-        prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep='\\t', low_memory=False)
-        protRatio = prot.filter(regex="Ratio .\/. normalized")
+        prot = pd.read_csv("../data/proteinGroups_minimal.zip", sep='\\t', low_memory=False)
+        protRatio = prot.filter(regex="Ratio .\/. normalized").columns
         protLog = pp.log(prot, protRatio, base=2)
         prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
         prot_tt["pValue_TvM"].hist(bins=50)
         plt.show()
 
-    >>> dataframe = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
-    ...                           "a2":np.random.normal(loc=0, size=4000),
-    ...                           "a3":np.random.normal(loc=0, size=4000),
-    ...                           "b1":np.random.normal(loc=0.5, size=4000),
-    ...                           "b2":np.random.normal(loc=0.5, size=4000),
-    ...                           "b3":np.random.normal(loc=0.5, size=4000),})
-    >>> autoprot.analysis.ttest(df=dataframe, reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue"].hist(bins=50)
-    >>> plt.show()
-
     .. plot::
         :context: close-figs
 
-        import autoprot.analysis as ana
-        import pandas as pd
         df = pd.DataFrame({"a1":np.random.normal(loc=0, size=4000),
                   "a2":np.random.normal(loc=0, size=4000),
                   "a3":np.random.normal(loc=0, size=4000),
@@ -128,9 +101,7 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
                   "b3":np.random.normal(loc=0.5, size=4000),})
         ana.ttest(df=df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue"].hist(bins=50)
         plt.show()
-
     """
-
     def one_samp_ttest(x):
         # nan-containing/masked inputs with nan_policy='omit' are currently not supported by one-sided alternatives.
         x = x[~np.isnan(x)]
@@ -144,7 +115,11 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
         print("Performing two-sample t-Test")
         df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: two_samp_ttest(x), 1).astype(float)
 
-        df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
+        pvals = df[f"pValue{cond}"].values
+        # replace values <= 0 with nan to avoid division by zero
+        pvals[pvals <= 0] = np.nan
+        # calculate -log10 of p-values
+        df[f"score{cond}"] = -np.log10(pvals)
         if return_fc:
             if logged:
                 df[f"logFC{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
@@ -202,7 +177,7 @@ def adjust_p(df, p_col, method="fdr_bh"):
     ...                 'log2_Ratio H/M normalized BC18_3',
     ...                 'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
     ...                 'log2_Ratio M/L normalized BC36_2']
-    >>> prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep='\t', low_memory=False)
+    >>> prot = pd.read_csv("_static/testdata/03_proteinGroups_minimal.zip", sep='\t', low_memory=False)
     >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
     >>> protLog = pp.log(prot, protRatio, base=2)
     >>> prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="TvM", mean=True, adjust_p_vals=False)

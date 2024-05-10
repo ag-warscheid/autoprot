@@ -48,56 +48,33 @@ class AutoPCA:
 
     Examples
     --------
-    for PCA no missing values are allowed
-    filter those and store complete dataframe
-
-    >>> temp = prot[~prot.filter(regex="log2.*norm").isnull().any(1)]
-
-    get the matrix of quantitative values corresponding to conditions of interest
-    Here we only use the first replicate for clarity
-
-    >>> dataframe = temp.filter(regex="log2.*norm.*_1$")
-
-    generate appropiate names for the columns and rows of the matrix
-    for example here the columns represent the conditions and we are not interested in the rows (which are the genes)
-
-    >>> clabels = dataframe.columns
-    >>> rlabels = np.nan
-
-    generate autopca object
-
-    >>> autopca = autoprot.analysis.AutoPCA(dataframe, rlabels, clabels)
-
-    The scree plots describe how much of the total variance of the dataset is
-    explained ba the first n components. As you want to explain as variance as
-    possible with as little variables as possible, chosing the number of components
-    directly right to the steep descend of the plot is usually a good idea.
-
-    >>> autopca.scree()
+    For PCA no missing values are allowed in the dataset.
+    We first filter those and store complete dataframe.
+    Then get the matrix of quantitative values corresponding to conditions of interest
+    (here we only use the first replicate for clarity).
+    Next, generate appropiate names for the columns and rows of the matrix - in this example the columns represent
+    the conditions, but we are not interested in the rows (which are the genes).
+    The scree plots describe how much of the total variance of the dataset is explained ba the first n components.
+    As you want to explain as variance as possible with as little variables as possible, chosing the number
+    of components directly right to the steep descend of the plot is usually a good idea.
 
     .. plot::
         :context: close-figs
 
-        import autoprot.analysis as ana
-        import autoprot.preprocessing as pp
-        import pandas as pd
-
-        prot = pd.read_csv("_static/testdata/03_proteinGroups.zip", sep="\t", low_memory=False)
-        protRatio = prot.filter(regex="Ratio .\/. normalized")
+        prot = pd.read_csv("../data/proteinGroups_minimal.zip", sep="\t", low_memory=False)
+        protRatio = prot.filter(regex="Ratio .\/. normalized").columns
         protLog = pp.log(prot, protRatio, base=2)
-        temp = protLog[~protLog.filter(regex="log2.*norm").isnull().any(1)]
+        temp = protLog[~protLog.filter(regex="log2.*norm").isnull().any(axis=1)]
         dataframe = temp.filter(regex="log2.*norm.*_1$")
         clabels = dataframe.columns
-        rlabels = np.nan
-        autopca = ana.AutoPCA(dataframe, rlabels, clabels)
+        rlabels = None
+        autopca = ana.AutoPCA(dataframe=dataframe, clabels=clabels, rlabels=rlabels)
         autopca.scree()
 
     The corrComp heatmap shows the PCA loads (i.e. how much a principal component is
     influenced by a change in that variable) relative to the variables (i.e. the
     experiment conditions). If a weight (colorbar) is close to zero, the corresponding
     PC is barely influenced by it.
-
-    >>> autopca.corr_comp(annot=False)
 
     .. plot::
         :context: close-figs
@@ -107,9 +84,6 @@ class AutoPCA:
     The bar loading plot is a different way to represent the weights/loads for each
     condition and principal component. High values indicate a high influence of the
     variable/condition on the PC.
-
-    >>> autopca.bar_load(pc=1)
-    >>> autopca.bar_load(pc=2)
 
     .. plot::
         :context: close-figs
@@ -124,8 +98,6 @@ class AutoPCA:
     Usually they will separate more in the direction of PC1 as this component
     explains the largest share of the data variance
 
-    >>> autopca.score_plot(pc1=1, pc2=2)
-
     .. plot::
         :context: close-figs
 
@@ -133,8 +105,6 @@ class AutoPCA:
 
     The loading plot is the 2D representation of the barLoading plots and shows
     the weights how each variable influences the two PCs.
-
-    >>> autopca.loading_plot(pc1=1, pc2=2, labeling=True)
 
     .. plot::
         :context: close-figs
@@ -144,7 +114,6 @@ class AutoPCA:
     The Biplot is a combination of loading plot and score plot as it shows the
     scores for each protein as point and the weights for each variable as
     vectors.
-    >>> autopca.bi_plot(pc1=1, pc2=2)
 
     .. plot::
         :context: close-figs
@@ -159,7 +128,7 @@ class AutoPCA:
     # - Allow further customization of plots (e.g. figsize)
     # - Implement pair plot for multiple dimensions
     # =========================================================================
-    def __init__(self, dataframe: pd.DataFrame, clabels: Union[list[str],None], rlabels: Union[list[str], None] = None,
+    def __init__(self, dataframe: pd.DataFrame, clabels: Union[list[str], None], rlabels: Union[list[str], None] = None,
                  batch: Union[list[str], None] = None):
         """
         Initialise PCA class.
@@ -194,13 +163,13 @@ class AutoPCA:
         self.rlabel = rlabels
         self.batch = batch
         # PCA is performed with the df containing missing values
-        self.pca, self.forVis = self._perform_pca(dataframe, clabels)
+        self.pca, self.vis_df = self._perform_pca(dataframe, clabels)
         # generate scores from loadings
         self.Xt = self.pca.transform(self.X)
         self.expVar = self.pca.explained_variance_ratio_
 
     @staticmethod
-    def _perform_pca(dataframe: pd.DataFrame, label: list[str]) -> tuple:
+    def _perform_pca(dataframe: pd.DataFrame, label: list[str]) -> tuple[object, pd.DataFrame]:
         """Perform pca and generate for_vis dataframe."""
         pca = PCA().fit(dataframe.dropna())
         # components_ is and ndarray of shape (n_components, n_features)
@@ -279,9 +248,12 @@ class AutoPCA:
         """
         if ax is None:
             fig, ax = plt.subplots(1)
-        sns.heatmap(self.forVis.filter(regex="^PC"), cmap=sns.color_palette("PuOr", 10), annot=annot, ax=ax)
+        sns.heatmap(self.vis_df.filter(regex="^PC"),
+                    cmap=sns.color_palette(palette="PuOr", n_colors=10),
+                    annot=annot,
+                    ax=ax)
         yp = [i + 0.5 for i in range(len(self.label))]
-        ax.set_yticks(yp, self.forVis["label"], rotation=0)
+        ax.set_yticks(yp, self.vis_df["label"], rotation=0)
         ax.set_title("")
 
     def bar_load(self, pc: int = 1, n: int = 25) -> None:
@@ -302,7 +274,7 @@ class AutoPCA:
 
         """
         pc = f"PC{pc}"
-        for_vis = self.forVis.copy()
+        for_vis = self.vis_df.copy()
         for_vis[f"{pc}_abs"] = abs(for_vis[pc])
         for_vis["color"] = "negative"
         for_vis.loc[for_vis[pc] > 0, "color"] = "positive"
@@ -333,7 +305,7 @@ class AutoPCA:
 
         """
         pc = f"PC{pc}"
-        for_vis = self.forVis.copy()
+        for_vis = self.vis_df.copy()
         for_vis[f"{pc}_abs"] = abs(for_vis[pc])
         for_vis = for_vis.sort_values(by=f"{pc}_abs", ascending=False)[:n]
         return for_vis[[pc, "label"]]
@@ -355,7 +327,7 @@ class AutoPCA:
         return scores
 
     def score_plot(self, pc1: int = 1, pc2: int = 2, labeling: bool = False, file: str = None,
-                   figsize: tuple = (5, 5)) -> None:
+                   figsize: tuple[Union[int, float], Union[int, float]] = (5, 5)) -> None:
         """
         Generate a PCA score plot.
 
@@ -448,11 +420,11 @@ class AutoPCA:
         """
         if ax is None:
             fig, ax = plt.subplots(1, figsize=figsize)
-        if self.batch is None or len(self.batch) != self.forVis.shape[0]:
-            sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
+        if self.batch is None or len(self.batch) != self.vis_df.shape[0]:
+            sns.scatterplot(data=self.vis_df, x=f"PC{pc1}",
                             y=f"PC{pc2}", edgecolor=None, ax=ax)
         else:
-            sns.scatterplot(data=self.forVis, x=f"PC{pc1}",
+            sns.scatterplot(data=self.vis_df, x=f"PC{pc1}",
                             y=f"PC{pc2}", edgecolor=None, hue=self.batch, ax=ax)
         sns.despine()
 
@@ -461,9 +433,9 @@ class AutoPCA:
         ax.set_ylabel(f"PC{pc2}\n{round(self.expVar[pc2 - 1] * 100, 2)} %")
 
         if labeling is True:
-            ss = self.forVis["label"]
-            xx = self.forVis[f"PC{pc1}"]
-            yy = self.forVis[f"PC{pc2}"]
+            ss = self.vis_df["label"]
+            xx = self.vis_df[f"PC{pc1}"]
+            yy = self.vis_df[f"PC{pc2}"]
             for x, y, s in zip(xx, yy, ss):
                 ax.text(x, y, s)
 
@@ -501,7 +473,7 @@ class AutoPCA:
         plt.figure(figsize=figsize)
         plt.scatter(x, y, color="lightgray", alpha=0.5, linewidth=0, **kwargs)
 
-        temp = self.forVis[[f"PC{pc1}", f"PC{pc2}"]]
+        temp = self.vis_df[[f"PC{pc1}", f"PC{pc2}"]].copy()
         temp["label"] = self.label
         temp = temp.sort_values(by=f"PC{pc1}")
 

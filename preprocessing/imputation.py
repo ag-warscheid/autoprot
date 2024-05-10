@@ -11,7 +11,6 @@ import pandas as pd
 import os
 from subprocess import run, PIPE, STDOUT
 from typing import Union
-from ..decorators import report
 from .. import r_helper
 from .. import preprocessing as pp
 
@@ -34,7 +33,7 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
 
     The final distribution will be mean shifted and has a smaller variation.
-    Intensities should be log transformed before being supplied to this function.
+    Intensities should be log-transformed before being supplied to this function.
 
     Downsshift: mean - downshift*sigma
     Var: width*sigma
@@ -64,27 +63,21 @@ def imp_min_prob(df: pd.DataFrame, cols_to_impute: Union[list[str], pd.Index], m
 
     Examples
     --------
-    >>> forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
-    >>> impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns,
-    ...                         width=.4, downshift=2.5)
-    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50,
-    ...                                                                         label="not Imputed")
-    >>> impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50,
-    ...                                                                        label="Imputed")
-    >>> plt.legend()
-
     .. plot::
         :context: close-figs
 
-        import autoprot.preprocessing as pp
-        import autoprot.visualization as vis
-        import pandas as pd
-        phos = pd.read_csv("_static/testdata/Phospho (STY)Sites_mod.zip", sep="\t", low_memory=False)
+        phos = pd.read_csv("../data/Phospho (STY)Sites_minimal.zip", sep="\t", low_memory=False)
         forImp = np.log10(phos.filter(regex="Int.*R1").replace(0, np.nan))
         impProt = pp.imp_min_prob(forImp, phos.filter(regex="Int.*R1").columns, width=.4, downshift=2.5)
         fig, ax1 = plt.subplots(1)
-        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==False].mean(1).hist(density=True, bins=50, label="not Imputed", ax=ax1)
-        impProt.filter(regex="Int.*R1")[impProt["Imputed"]==True].mean(1).hist(density=True, bins=50, label="Imputed", ax=ax1)
+        imputed_values = impProt.filter(regex="Int.*R1$").isnull()
+        ax1.hist(impProt.filter(regex="Int.*R1_min_imputed").values[~imputed_values],
+                  density=True, bins=50, label="not Imputed", alpha=.5)
+        ax1.hist(impProt.filter(regex="Int.*R1_min_imputed").values[imputed_values],
+                  density=True, bins=50, label="Imputed", alpha=.5)
+        ax1.set_xlabel("log10 Intensity")
+        ax1.set_ylabel("Density")
+
         plt.legend()
         plt.show()
     """
@@ -161,17 +154,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         Columns that were imputed.
 
     """
-    d = os.getcwd()
-    dataLoc = d + "/input.csv"
-    outputLoc = d + "/output.csv"
-
-    if "UID" not in df.columns:
-        # UID is basically a row index starting at 1
-        df["UID"] = range(1, df.shape[0] + 1)
-
-    if not isinstance(cols, list):
-        cols = cols.to_list()
-    pp.to_csv(df[["UID"] + cols], dataLoc)
+    dataLoc, outputLoc = r_helper.write_data_for_r(df, cols)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
@@ -224,8 +207,8 @@ def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_subs
         where t is the t-test statistics calculated from the observed data R and the imputed data O.Todefine the null
         hypothesis H0, the group assignments of the samples have to be specified by the user.
 
-        If string, two elements need to be separated by ','
-        If list, concatenation will be done automatically.
+        If is string, two elements need to be separated by ','
+        If is list, concatenation will be done automatically.
         The two elements must be substrings of the columns to compare.
         Make sure that for each substring at least two matching colnames
         are present in the data.
