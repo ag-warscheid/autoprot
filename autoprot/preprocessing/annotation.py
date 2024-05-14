@@ -17,7 +17,7 @@ import requests
 # noinspection PyPackageRequirements
 from Bio import Align
 from .. import r_helper, common
-from ..decorators import report
+from autoprot.decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
 

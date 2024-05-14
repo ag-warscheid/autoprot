@@ -1,5 +1,5 @@
 import os
-from subprocess import check_output, run, STDOUT
+from subprocess import run, STDOUT, Popen, PIPE
 
 # this is a pointer to the module object instance itself.
 module_pointer = __import__(__name__.split('.')[0])
@@ -51,17 +51,25 @@ def check_r_install():
 
     if module_pointer.check_r_install is False:
         print('Checking R installation...')
-        output = check_output([config_dir['R'],
-                               '--vanilla',
-                               config_dir['RFUNCTIONS'],
-                               'functest',
-                               '',  # data location
-                               '',  # output file,
-                               '',  # kind of test
-                               ''  # design location
-                               ], stderr=STDOUT)
-        # return the output of the R script
-        print(output.decode('utf-8'))
+        cmd = ([config_dir['R'],
+                '--vanilla',
+                config_dir['RFUNCTIONS'],
+                'functest',
+                '',  # data location
+                '',  # output file,
+                '',  # kind of test
+                ''  # design location
+                ])
+
+        # this enables real-time output of the R script
+        with Popen(cmd, stdout=PIPE, stderr=STDOUT) as p:
+            while True:
+                output = p.stdout.readline().rstrip().decode('utf-8')
+                if output == '' and p.poll() is not None:
+                    break
+                if output:
+                    print(output.strip())
+
         # write out a description of the R environment
         write_description()
         # set the check_r_install to True to avoid running the R script again
@@ -73,9 +81,9 @@ def write_description():
     """
     This functions writes a summary of the installed R packages to file.
     """
-    p = run([config_dir['R'], "-e", "write.csv(as.data.frame(installed.packages()), 'R_environment.csv', "
-                                    "row.names = FALSE)"],
-            capture_output=False)
+    run([config_dir['R'], "-e", "write.csv(as.data.frame(installed.packages()), 'R_environment.csv', "
+                                "row.names = FALSE)"],
+        capture_output=False)
 
 
 def return_r_path():

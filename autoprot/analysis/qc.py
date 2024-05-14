@@ -6,7 +6,7 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
-from typing import Union, Literal
+from typing import Literal
 from datetime import date
 
 import pandas as pd
@@ -315,8 +315,8 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
             df.loc[name, "Modified peptides [%]"] = mod
             df.loc[name, "Non-modified peptides [%]"] = nonmod
-    except:
-        raise TypeError("Invalid type specified. Must be align with MQ modification annotation")
+    except KeyError:
+        raise TypeError("Invalid type specified. Name must match the MaxQuant experiment name.")
 
     df_summary = pd.concat([df_summary, df], axis=0)
 
@@ -539,17 +539,23 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     return df_labeling_eff_summary
 
 
-def dimethyl_labeling_efficieny(df_evidence, label, save=True):
+def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
     """
+    This function calculates the labeling efficiency of dimethyl labeled samples using a MaxQuant evidence table.
+
     Parameters
     ----------
-    df_evidence : MQ evidence table as pandas.Dataframe
-    label : string, set label to MQ intensity column header "L", "M", "H"
+    df_evidence : pd.DataFrame
+        MaxQuant evidence table as pandas.Dataframe
+    label : str
+        The label type used in the experiment ('L', 'M', 'H')
+    save : bool
+        If True table and fig will be saved in active filepath.
 
     Returns
     -------
-    labeling efficiency as pd.DataFrame, saves table as tab seperated .csv and overview labeling efficiency as .png
-
+    pd.DataFrame
+        Results from the analysis
     """
     # set plot style
     plt.style.use('seaborn-whitegrid')
@@ -579,7 +585,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True):
         df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
 
     try:
-        df_missed_cleavage_summary.columns = experiments
+        df_labeling_eff.columns = experiments
     except Exception as e:
         print(f"unexpected error in col [Experiment]: {e}")
 
@@ -736,8 +742,8 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                          '\_\(Acetyl \(Protein N\-term\)\)')) &
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() -\
+            df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 

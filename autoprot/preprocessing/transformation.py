@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Autoprot Preprocessing Functions.
+Module Name: transformation
+===========================
+This module contains functions for data transformation and preprocessing.
 
-@author: Wignand, Julian, Johannes
-
-@documentation: Julian
+Authors
+-------
+Wignand Mühlhäuser
+Julian Bender <julian.bender@uni-wuerzburg.de>
+Johannes Zimmermann <johannes.zimmermann@uni-wuerzburg.de>
 """
 import collections
 import re
@@ -97,7 +101,7 @@ def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequ
     4               1.236503
     """
     # check the input
-    if not (isinstance(cols, collections.Sequence) or isinstance(cols, pd.Index)):
+    if not (isinstance(cols, collections.abc.Sequence) or isinstance(cols, pd.Index)):
         raise ValueError("Columns must be provided as a sequence (e.g. list, tuple etc).")
     if not all([c in df.columns for c in cols]):
         raise ValueError("Not all columns are present in the dataframe.")

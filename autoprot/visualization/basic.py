@@ -31,7 +31,7 @@ from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
 
 from .. import common as com
-from ..dependencies.venn import venn
+from autoprot.dependencies.venn import venn
 
 # ignore FutureWarnings from upsetplot
 warnings.filterwarnings('ignore', module='upsetplot', category=FutureWarning)
@@ -1799,7 +1799,7 @@ def ratio_plot(
     .. plot::
         :context: close-figs
 
-        prot = pp.read_csv("../docsrc/../data/proteinGroups_minimal.zip")
+        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
         protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
         prot = pp.log(prot, protRatio, base=2)

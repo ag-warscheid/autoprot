@@ -1,79 +1,51 @@
-## R Functions for autoprot
-## @author: Wignand, Julian
+# Script Name: RFunctions.R
+# Description: This script contains the R functions that are called from the Python script.
+# Author: Wignand Mühlhäuser, Julian Bender <julian.bender@uni-wuerzburg.de>
 
-# Function to test installation status and install packages from CRAN
-CRANpkgTest <- function(x)
+# First install pak with the standard installation routine
+if (!require("pak", character.only = TRUE))
 {
-  if (!require(x,character.only = TRUE))
-  {
-    install.packages(x,dep=TRUE, repos='https://ftp.fau.de/cran/')
-    if(!require(x,character.only = TRUE)) stop("Package not found")
-  }
+  install.packages("pak", dep = TRUE, repos = c('https://ftp.fau.de/cran/', 'https://cloud.r-project.org'))
+  if (!require("pak", character.only = TRUE)) stop("Package not found")
 }
 
-# Function to test installation status and install packages from Bioconductor
-BCpkgTest <- function(x){
-  installedPackges <- rownames(installed.packages())
-  if (x %in% installedPackges){
-    require(x,character.only = TRUE)
-  }
-  else {
-    BiocManager::install(x)
-    require(x,character.only = TRUE)
-  }
-}
+#TODO Remove once the DESCRIPTION in the DIMAR package is fixed
+#TODO Add back the github_packages and URL_install to the pak::pkg_install function
+# Download packages
+download.file("https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz",
+              destfile = "imputation_1.3.tar.gz", mode = "wb")
+download.file("https://github.com/cran/DMwR/archive/refs/heads/master.zip",
+              destfile = "DMwR-master.zip", mode = "wb")
+download.file("https://github.com/kreutz-lab/DIMAR/archive/refs/heads/main.zip",
+              destfile = "DIMAR-main.zip", mode = "wb")
+# Install packages from local files
+install.packages("imputation_1.3.tar.gz", repos = NULL, type = "source")
+install.packages("DMwR-master.zip", repos = NULL, type = "source")
+install.packages("DIMAR-main.zip", repos = NULL, type = "source")
+# Clean up downloaded files (optional)
+file.remove(c("imputation_1.3.tar.gz", "DMwR-master.zip", "DIMAR-main.zip"))
 
-# Function to test installation status of the archived imputation package required
-# for DIMA
-ArchpkgTest <- function(){
-  installedPackges <- rownames(installed.packages())
-  if ("imputation" %in% installedPackges){
-    require("imputation",character.only = TRUE)
-  }
-  else {
-    install.packages("https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz",
-                     repos=NULL,
-                     type='source')
-  }
-}
-
-# Function to test installation status from github/devtools
-DTpkgTest <- function(x){
-  installedPackges <- rownames(installed.packages())
-  pkgName <- strsplit(x, "/")[[1]][[2]]
-  if (pkgName %in% installedPackges){
-    require(pkgName,character.only = TRUE)
-  }
-  else {
-    devtools::install_github(x)
-  }
-}
-
-## DEPENDENCIES ##
-# autoprot depends on these R packages and will test their installation on runtime
-CRAN_packages <- c("rrcovNA", "tidyverse", "BiocManager", "devtools", "glue")
-for (package in CRAN_packages){
-  CRANpkgTest(package)
-}
-
+# Collect all required packages as vectors and install with pak
+# see https://pak.r-lib.org/dev/reference/get-started.html
+CRAN_packages <- c("rrcovNA", "tidyverse", "tmvtnorm")
 BC_packages <- c("limma", "vsn", "RankProd", "pcaMethods", "impute", "SummarizedExperiment")
-for (package in BC_packages){
-  BCpkgTest(package)
+github_packages <- c("github::cran/DMwR", "github::kreutz-lab/DIMAR")
+URL_install <- c("imputation=url::https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz")
+
+# check if the packages are already installed and install them if not
+installedPackages <- rownames(installed.packages())
+for (package in c(CRAN_packages, BC_packages)) {
+  if (package %in% installedPackages) {
+    require(package, character.only = TRUE)
+  }
+  else {
+    pak::pkg_install(package)
+    require(package, character.only = TRUE)
+  }
 }
 
-ArchpkgTest()
-
-devtool_packages <- c("cran/DMwR", "kreutz-lab/DIMAR")
-for (package in devtool_packages){
-  DTpkgTest(package)
-}
-
-## LIBS
-library(glue)
-
-## ARGS
 # read the args coming form Python
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 
 # The functest argument only executes the installation tests and is
 # called e.g. during the checkRinstall routine in Python
@@ -103,41 +75,40 @@ output <- args[3]
 ## READ DATA
 # Data for processing is written to file from Python and
 # read here for R processing
-df <- read.table(input, sep='\t', header=TRUE)
+df <- read.table(input, sep = '\t', header = TRUE)
 # set the row names of the df to the UID columns
 rownames(df) <- df$UID
 # remove the column UID from the df and save as new var dfv
-dfv <- df[,-which(names(df) %in% c("UID"))]
+dfv <- df[, -which(names(df) %in% c("UID"))]
 
 ## FUNCTIONS
 # Data driven imputation selection DIMA
 dimaFunction <- function(dfv) {
 
-    # This function performs optimal imputation on a given matrix using a specified method.
-    # The imputation is only performed on the rows with less than `min_values_for_imputation` non-missing values.
-    # @param mtx The matrix on which the imputation is to be performed.
-    # @param method The imputation method to be used.
-    # @param min_values_for_imputation The minimum number of non-missing values in a row to perform imputation.
-    # @return A list containing the imputed matrix and the method used.
-    dimarDoOptimalImputation <- function(mtx, method, min_values_for_imputation) {
-      m <- 1
-      Imp <- NULL
-      mtx_copy <- mtx  # Create a copy of the original matrix
+  # This function performs optimal imputation on a given matrix using a specified method.
+  # The imputation is only performed on the rows with less than `min_values_for_imputation` non-missing values.
+  # @param mtx The matrix on which the imputation is to be performed.
+  # @param method The imputation method to be used.
+  # @param min_values_for_imputation The minimum number of non-missing values in a row to perform imputation.
+  # @return A list containing the imputed matrix and the method used.
+  dimarDoOptimalImputation <- function(mtx, method, min_values_for_imputation) {
+    m <- 1
+    mtx_copy <- mtx  # Create a copy of the original matrix
 
-      # Identify the rows to impute based on the number of non-missing values
-      rows_to_impute <- which(rowSums(!is.na(mtx)) >= min_values_for_imputation)
+    # Identify the rows to impute based on the number of non-missing values
+    rows_to_impute <- which(rowSums(!is.na(mtx)) >= min_values_for_imputation)
 
-      eval(parse(text = paste('require(', DIMAR::dimarGetLib(method[m]), ')')))
-      Imp <- DIMAR::dimarDoImputationsR(mtx[rows_to_impute, ], method[m], DIMAR::dimarGetLib(method[m]))
+    eval(parse(text = paste('require(', DIMAR::dimarGetLib(method[m]), ')')))
+    Imp <- DIMAR::dimarDoImputationsR(mtx[rows_to_impute,], method[m], DIMAR::dimarGetLib(method[m]))
 
-      # Replace the corresponding rows in the original matrix with the imputed rows
-      mtx_copy[rows_to_impute, ] <- Imp[, 1:ncol(mtx)]
+    # Replace the corresponding rows in the original matrix with the imputed rows
+    mtx_copy[rows_to_impute,] <- Imp[, 1:ncol(mtx)]
 
-      print(paste('Imputation of input data with algorithm', method[m], 'is performed.'))
+    print(paste('Imputation of input data with algorithm', method[m], 'is performed.'))
 
-      Imp <- list(Imputation = mtx_copy, method = method[m])
-      return(Imp)
-    }
+    Imp <- list(Imputation = mtx_copy, method = method[m])
+    return(Imp)
+  }
 
   # default args
   methods <- strsplit(x = args[5], split = ',')[[1]]
@@ -147,11 +118,11 @@ dimaFunction <- function(dfv) {
   min_values_for_imputation <- args[8]
 
   mtx <- as.matrix(dfv)
-  
+
   if (!group[1] == 'cluster') {
-    groupidx <- rep(0L,ncol(mtx))
-    groupidx[grepl(group[1],colnames(mtx))] <- 1
-    groupidx[grepl(group[2],colnames(mtx))] <- 2
+    groupidx <- rep(0L, ncol(mtx))
+    groupidx[grepl(group[1], colnames(mtx))] <- 1
+    groupidx[grepl(group[2], colnames(mtx))] <- 2
     group <- groupidx
   }
   mtx <- DIMAR::dimarMatrixPreparation(mtx, nacut = 2)
@@ -207,32 +178,32 @@ dimaFunction <- function(dfv) {
 
   dfv <- as.data.frame(Imp)
   dfv$UID <- rownames(dfv)
-  write.table(dfv, output, sep='\t')
-  write.table(Performance, paste(str_sub(output, end=-5), '_performance.csv', sep=""), sep='\t')
+  write.table(dfv, output, sep = '\t')
+  write.table(Performance, paste(str_sub(output, end = -5), '_performance.csv', sep = ""), sep = '\t')
 }
 
 # sequential imputation from rrcovNA
 impSeqFunction <- function(dfv) {
-    dfv <- as.data.frame(impSeq(dfv))
+  dfv <- as.data.frame(impSeq(dfv))
   dfv$UID <- rownames(dfv)
-  write.table(dfv, output, sep='\t')
+  write.table(dfv, output, sep = '\t')
 }
 
 # Linear Models Analysis with limma
 limmaFunction <- function(dfv) {
-  
+
   # the design is supplied during call
   design <- args[4]
   # two sample LIMMA
   if (design == "twoSample") {
-    design <- read.table(args[5], sep='\t', header=TRUE)
+    design <- read.table(args[5], sep = '\t', header = TRUE)
   }
   else if (design == "custom") {
-    design <- read.table(args[5], sep='\t', header=TRUE)
+    design <- read.table(args[5], sep = '\t', header = TRUE)
   }
-  else{
+  else {
     # Calculation of mean and STDERR of data points
-    coef <- rep(1,ncol(dfv))
+    coef <- rep(1, ncol(dfv))
     design <- data.frame(coef)
     print(design)
   }
@@ -246,85 +217,85 @@ limmaFunction <- function(dfv) {
 
   # Fit linear model for each protein
   fit <- lmFit(dfv, design)
-  
+
   if (args[6] != "") {
     glue::glue(args[6])
-    contrast <- limma::makeContrasts(contrasts=args[6],levels=design)
+    contrast <- limma::makeContrasts(contrasts = args[6], levels = design)
     fit2 <- limma::contrasts.fit(fit, contrast)
     eb <- eBayes(fit2)
-    
+
     # Extract a table of the top-ranked genes from a linear model fit.
-    res <- topTable(eb, coef=args[6], number=Inf, confint = TRUE)
+    res <- topTable(eb, coef = args[6], number = Inf, confint = TRUE)
   }
   else {
     # Compute moderated t-statistics, moderated F-statistic, and log-odds
     # of differential expression by empirical Bayes moderation of the standard
     # errors towards a global value.
     eb <- eBayes(fit)
-    
+
     # Extract a table of the top-ranked genes from a linear model fit.
-    res <- topTable(eb, coef="coef", number=Inf, confint = TRUE)
+    res <- topTable(eb, coef = "coef", number = Inf, confint = TRUE)
   }
 
   # add back the UID column from the row index
   res$UID <- rownames(res)
   # write out the table
-  write.table(res, output, sep='\t')
+  write.table(res, output, sep = '\t')
 }
 
 quantileNorm <- function(dfv) {
-  dfv <- normalizeBetweenArrays(dfv, method="quantile")
+  dfv <- normalizeBetweenArrays(dfv, method = "quantile")
   dfv <- as.data.frame(dfv)
   dfv$UID <- rownames(dfv)
-  write.table(dfv, output, sep='\t')
+  write.table(dfv, output, sep = '\t')
 }
 
 vsnNorm <- function(dfv) {
   dfv <- limma::normalizeVSN(dfv)
   dfv <- as.data.frame(dfv)
   dfv$UID <- rownames(dfv)
-  write.table(dfv, output, sep='\t')
+  write.table(dfv, output, sep = '\t')
 }
 
 cyclicLOESS <- function(dfv) {
   dfv <- normalizeCyclicLoess(dfv)
   dfv <- as.data.frame(dfv)
   dfv$UID <- rownames(dfv)
-  write.table(dfv, output, sep='\t')
+  write.table(dfv, output, sep = '\t')
 }
 
 rankprod <- function(dfv) {
-  data.cl.sub <-  unlist(strsplit(x = args[4], split = ','))
-  data.origin.sub <- rep(1,NCOL(dfv))
+  data.cl.sub <- unlist(strsplit(x = args[4], split = ','))
+  data.origin.sub <- rep(1, NCOL(dfv))
   data.sub <- as.matrix(dfv)
-  
-  RP.out <- RP.advance(data.sub, data.cl.sub, data.origin.sub, logged=TRUE,
-                       na.rm=TRUE, gene.names=df$`UID`, plot=FALSE, calculateProduct=FALSE,
-                       rand=1337)
-  
-  RS <- RP.out$RSs[,2]
+
+  RP.out <- RP.advance(data.sub, data.cl.sub, data.origin.sub, logged = TRUE,
+                       na.rm = TRUE, gene.names = df$`UID`, plot = FALSE, calculateProduct = FALSE,
+                       rand = 1337)
+
+  RS <- RP.out$RSs[, 2]
   logFC <- RP.out$AveFC
   pval <- RP.out$pval
   pfp <- RP.out$pfp
-  
+
   res <- data.frame(RS, logFC, pval, pfp)
   res$UID <- rownames(res)
-  
-  colnames(res) = c("RS", "logFC","PValue_class1<class2","PValue_class1>class2",
-                    "adj.P.Val_class1<class2","adj.P.Val_class1>class2","UID")
-  write.table(res, output, sep='\t')
+
+  colnames(res) <- c("RS", "logFC", "PValue_class1<class2", "PValue_class1>class2",
+                     "adj.P.Val_class1<class2", "adj.P.Val_class1>class2", "UID")
+  write.table(res, output, sep = '\t')
 }
 
 ## SWITCH
 # this witch directs the programme flow to one of the target functions depending
 # on which statement is provided from within Python
-result = switch(
+result <- switch(
   func,
-  "dima"     = dimaFunction(dfv),
-  "impSeq"   = impSeqFunction(dfv),
-  "limma"    = limmaFunction(dfv),
+  "dima" = dimaFunction(dfv),
+  "impSeq" = impSeqFunction(dfv),
+  "limma" = limmaFunction(dfv),
   "quantile" = quantileNorm(dfv),
-  "vsn"      = vsnNorm(dfv),
-  "cloess"   = cyclicLOESS(dfv),
+  "vsn" = vsnNorm(dfv),
+  "cloess" = cyclicLOESS(dfv),
   "rankProd" = rankprod(dfv)
 )

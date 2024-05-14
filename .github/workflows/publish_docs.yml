@@ -1,0 +1,63 @@
+name: publish docs
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+            r-version: '4.2.1' # The R version to download (if necessary) and use.
+      - name: Install R package requirements
+        # libcurl is required for r curl
+        run: |
+          sudo apt install tree
+          tree
+          sudo apt install -y libcurl4-openssl-dev
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install MS Fonts
+        run: |
+          echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+          sudo apt install -y msttcorefonts
+      - name: Generate autoprot.conf
+        run: |
+          PATH_TO_RSCRIPT=$(which Rscript)
+          RFUNCTIONS=$(realpath autoprot/RFunctions.R)
+          echo -e "R = $PATH_TO_RSCRIPT\nRFUNCTIONS = $RFUNCTIONS" > autoprot/autoprot.conf
+          cat autoprot/autoprot.conf
+      - name: Check R install
+        run: |
+          python -c "from autoprot import r_helper; r_helper.return_r_path()"
+          Rscript autoprot/RFunctions.R functest
+      - name: Sphinx build
+        run: |
+          sphinx-build docs docs/_build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

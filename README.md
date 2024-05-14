@@ -34,7 +34,7 @@ git clone --recurse-submodules https://github.com/ag-warscheid/autoprot.git
 ```
 
 - Next you need to install R. Please follow the instructions at the [R manual](https://cran.r-project.org/index.html) and install R to a custom location
-- Start autoprot by importing it from any Python console you like. It will generate an autoprot.conf file that you need to edit.
+- Start autoprot by importing it from any Python console you like. It will generate an autoprot.conf file in the autoprot package directory that you need to edit.
   - Insert the path to your Rscript executable that you just installed as value for the R variable
   - The RFunctions variable should point the RFunctions.R file from autoprot.
 - You can now either try to start using autoprot (it will automatically install required R packages) or manually trigger the install (recommended).

@@ -254,24 +254,22 @@ def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_
 
     df = pd.DataFrame(no_of_phos, columns=["charge"])
 
-    if chart_type == "bar":
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.gca()
+    else:
+        fig = ax.get_figure()
 
+    if chart_type == "bar":
         sns.countplot(x="charge", data=df, ax=ax, **kwargs)
         plt.title('charge')
         plt.xlabel('charge')
         _bar_plot_style(df, ax)
     elif chart_type == "pie":
-        if ax is None:
-            fig = plt.figure(figsize=figsize)
-            ax = fig.gca()
         ax.pie([i[0] for i in count], labels=[i[1] for i in count], **kwargs)
         ax.set_title("charge")
-    if not ret_fig:
-        return
-    return fig
+    if ret_fig:
+        return fig
 
 
 def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", ret_fig: bool = False, **kwargs):

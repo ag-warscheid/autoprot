@@ -6,6 +6,7 @@ Autoprot Annotation Functions.
 
 @documentation: Julian
 """
+from typing import Union
 
 import pandas as pd
 import numpy as np
@@ -13,13 +14,14 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import plotly.graph_objects as go
 import plotly.express as px
-import plotly.io as pio
+from pandas import DataFrame
+from plotly.graph_objs import Figure
 from plotly.subplots import make_subplots
 
 import logomaker
 import matplotlib.patches as patches
 
-from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
+from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 
 # SEQUENCE LOGO
@@ -292,7 +294,6 @@ def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
 
 
 # VISUALIZE PHOSPHO SITES
-
 def _vis_psites_init(domain_position, domain_color, length):
     if domain_position is None:
         domain_position = []
@@ -317,8 +318,10 @@ def _vis_psites_init(domain_position, domain_color, length):
     return lims, height, color, domain_position
 
 
-def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, pls=4, ax=None, domain_color='tab10',
-               ret_fig=False):
+def vis_psites(name: str, length: int, domain_position: Union[list[tuple[int]], None] = None,
+               ps: Union[list[int], None] = None, pl: Union[list[str], None] = None,
+               plc: Union[list[str], None] = None, pls: int = 4, ax: plt.Axes = None, domain_color: str = 'tab10',
+               ret_fig: bool = False):
     # noinspection PyUnresolvedReferences
     # noinspection PyShadowingNames
     """
@@ -373,8 +376,6 @@ def vis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, p
 
     .. plot::
         :context: close-figs
-
-        import autoprot.visualization as vis
 
         name = "AKT1S1"
         length = 256
@@ -513,12 +514,81 @@ def ivis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, 
     fig.show()
 
 
-def ptm_lolli_plot(sty, proteinid, protein_length,
-                   columns={"ids": "Proteins", "pos": "Positions within proteins",
-                            "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"},
-                   scale=False):
+def _prepare_df_and_adjust_bubble_size(df: pd.DataFrame, protein_length: int, columns: dict):
     """
-    This function generates a static lollipop plot representing PTM localization, intensity and localization probability.
+    Prepare the dataframe for the lollipop plot and adjust the bubble size according to the PTM localization
+    probability.
+
+    Parameters
+    ----------
+    df: pandas DataFrame
+        contains filtered and transformed data used for plotting
+    protein_length: int
+        Optional protein length for the x-axis. If None the maximum site position+20 is used.
+    columns: dict
+        Dictionary with the following keys:
+          - pos: semicolon separated site positions
+          - prob: single column containing localization probability
+    """
+    # prepare dataframe with size scaling to protein length
+    df_protein = pd.DataFrame()
+    df_protein[columns["pos"]] = range(1, protein_length + 1)
+
+    df_protein = pd.merge(df_protein, df, on=columns["pos"], how="left")
+
+    # bubble size parameter according PTM Localization probability
+    df_protein["scale"] = 1
+    df_protein["scale"][df_protein[columns["prob"]] > 0.50] = 2
+    df_protein["scale"][df_protein[columns["prob"]] > 0.75] = 3
+    df_protein["scale"][df_protein[columns["prob"]] > 0.95] = 5
+
+    return df_protein
+
+
+def _plot_lollies(df: pd.DataFrame, columns: dict, color: str = "deeppink", text_y_offset: float = 0.05) -> None:
+    """
+    This function plots the lollipops for the PTM sites.
+
+    Parameters
+    ----------
+    df: pandas DataFrame
+        contains filtered and transformed data used for plotting
+    columns: dict
+    color: str, default="deeppink"
+        Color of the lollipops
+    text_y_offset: float, default=0.05
+        Offset of the text annotation
+    """
+    plt.stem(df[columns["int"]],
+             markerfmt=' ', linefmt='grey', basefmt='black'
+             )
+
+    x_pos = np.arange(0, df.shape[0])
+    y_pos = df[columns["int"]]
+    psite = df[columns["aa"]] + df[columns["pos"]].astype(int).astype(str)
+    scale = df["scale"]
+
+    x_pos_new = x_pos[~np.isnan(y_pos)]
+    y_pos_new = y_pos.values[~np.isnan(y_pos)]
+    psite_new = psite[~np.isnan(y_pos)]
+    scale_new = scale[~np.isnan(y_pos)]
+
+    plt.scatter(
+        x_pos_new,
+        y_pos_new,
+        s=scale_new * 10,
+        color=color
+    )
+
+    for (x, y, ps) in zip(x_pos_new, y_pos_new, psite_new):
+        plt.text(x, y + text_y_offset, f"{ps}", fontsize=9, ha="center", rotation=45)
+
+
+def ptm_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, None],
+                   columns: Union[dict, None] = None, scale: bool = False):
+    """
+    This function generates a static lollipop plot representing PTM localization,
+    intensity and localization probability.
     
     Parameters
     ----------
@@ -547,85 +617,50 @@ def ptm_lolli_plot(sty, proteinid, protein_length,
         static lollipop plot
     """
 
+    if columns is None:
+        columns = {"ids": "Proteins", "pos": "Positions within proteins",
+                   "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
+
     df = sty[sty[columns["ids"]] == proteinid]
 
     df = df.sort_values(columns["pos"])
 
-    #if protein_length is None, the maximum site ptm position +20 is used
-    if protein_length == None:
+    # if protein_length is None, the maximum site ptm position +20 is used
+    if protein_length is None:
         protein_length = df[columns["pos"]].max() + 20
 
-    if scale == True:
-        #min max scale intensity column and add new column in column dic 
+    if scale:
+        # min max scale intensity column and add new column in column dic
         dmax = df[columns["int"]].max()
         dmin = df[columns["int"]].min()
         df["scaled " + columns["int"]] = (df[columns["int"]] - dmin) / (dmax - dmin)
         columns["int"] = "scaled " + columns["int"]
 
-    #prepare dataframe with size scaling to protein length
-    df_protein = pd.DataFrame()
-    df_protein[columns["pos"]] = range(1, protein_length + 1)
-    df_protein = pd.merge(df_protein, df, on=columns["pos"], how="left")
+    df_protein = _prepare_df_and_adjust_bubble_size(df, protein_length, columns)
 
-    #bubble size parameter according PTM Localization probability
-    df_protein["scale"] = 1
-    df_protein["scale"][df_protein[columns["prob"]] > 0.50] = 2
-    df_protein["scale"][df_protein[columns["prob"]] > 0.75] = 3
-    df_protein["scale"][df_protein[columns["prob"]] > 0.95] = 5
-
-    #make figure
-    fig, ax = plt.subplots(nrows=1, figsize=(12, 3))
-
-    plt.stem(df_protein[columns["int"]],
-             markerfmt=' ', linefmt='grey', basefmt='black'
-             )
-
-    x_pos = np.arange(0, df_protein.shape[0])
-    y_pos = df_protein[columns["int"]]
-    psite = df_protein[columns["aa"]] + df_protein[columns["pos"]].astype(int).astype(str)
-    scale = df_protein["scale"]
-
-    x_pos_new = x_pos[~np.isnan(y_pos)]
-    y_pos_new = y_pos.values[~np.isnan(y_pos)]
-    psite_new = psite[~np.isnan(y_pos)]
-    scale_new = scale[~np.isnan(y_pos)]
-
-    ax = plt.scatter(
-        x_pos_new,
-        y_pos_new,
-        s=scale_new * 10,
-        color="deeppink"
-    )
-
-    for (x, y, ps) in zip(x_pos_new, y_pos_new, psite_new):
-        plt.text(x, y + 0.05, f"{ps}", fontsize=9, ha="center", rotation=45)
+    fig, _ = plt.subplots(nrows=1, sharex=False, figsize=(12, 3))
+    _plot_lollies(df_protein, columns)
 
     plt.title(proteinid, fontdict=None, loc='left', fontsize=12)
 
     return df_protein, fig
-    fig.show()
 
 
 def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                           proteinid: str, protein_length: int or None = None,
-                          columns1: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                            "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"},
-                          columns2: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                            "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"},
-                          scale=False
+                          columns1: Union[dict, None] = None, columns2: Union[dict, None] = None, scale: bool = False
                           ):
     """
-    This function generates a static, mirror lollipop plot representing PTM localization, intensity and localization probability.
+    This function generates a static, mirror lollipop plot representing PTM localization, intensity and localization
+    probability.
     
     Parameters
     ----------
-    sty: pandas DataFrame
-        Loaded sites table
-    proteinid: str
-        Exact protein identifier to search in ids column (defined in columns dictionary).
-    protein_length: int or None, default = None
-        Optional protein length for the x-axis. If None the maximum site position+20 is used.
-    columns: dict, default = MaxQuant sites table names
+    sty1: pandas DataFrame
+        PTM sites table 1
+    sty2: pandas DataFrame
+        PTM sites table 2
+    columns1: dict or None, default = MaxQuant sites table names
         Dictionary that defines the column names for:
           - ids: semicolon separated protein identifiers
           - pos: semicolon separated site positions
@@ -635,6 +670,12 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                   This defines the relative size of the lollipop
           - aa: single column containing modified amino acid for annotation
                 this is used together with the "pos" for annotation of the PTM position
+    columns2: dict or None, default = MaxQuant sites table names
+        See columns1
+    proteinid: str
+        Exact protein identifier to search in ids column (defined in columns dictionary).
+    protein_length: int or None, default = None
+        Optional protein length for the x-axis. If None the maximum site position+20 is used.
     scale: bool, default=False
         Min-Max-Scaling of Intensity columns
     
@@ -646,18 +687,24 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
         static lollipop plot
     """
 
+    if columns1 is None:
+        columns1 = {"ids": "Proteins", "pos": "Positions within proteins",
+                    "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
+    if columns2 is None:
+        columns2 = {"ids": "Proteins", "pos": "Positions within proteins",
+                    "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
     df1 = sty1[sty1[columns1["ids"]] == proteinid]
     df2 = sty2[sty2[columns2["ids"]] == proteinid]
 
     df1 = df1.sort_values(columns1["pos"])
     df2 = df2.sort_values(columns2["pos"])
 
-    #if protein_length is None, the maximum site ptm position +20 is used
-    if protein_length == None:
+    # if protein_length is None, the maximum site ptm position +20 is used
+    if protein_length is None:
         protein_length = df1[columns1["pos"]].max() + 20
 
-    if scale == True:
-        #min max scale intensity column and add new column in column dic 
+    if scale:
+        # min max scale intensity column and add new column in column dic
         d1max = df1[columns1["int"]].max()
         d1min = df1[columns1["int"]].min()
         df1["scaled " + columns1["int"]] = (df1[columns1["int"]] - d1min) / (d1max - d1min)
@@ -668,90 +715,25 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
         df2["scaled " + columns2["int"]] = (df2[columns2["int"]] - d2min) / (d2max - d2min)
         columns2["int"] = "scaled " + columns2["int"]
 
-    #invers intensity of 2nd dataframe to mirror data along x-axis
+    # invers intensity of 2nd dataframe to mirror data along x-axis
     df2[columns2["int"]] = df2[columns2["int"]] * -1
 
-    #prepare dataframe with size scaling to protein length
-    df1_protein = pd.DataFrame()
-    df1_protein[columns1["pos"]] = np.arange(1, (protein_length + 1))
-    df1_protein = pd.merge(df1_protein, df1, on=columns1["pos"], how="left")
+    # prepare dataframe with size scaling to protein length
+    df1_protein = _prepare_df_and_adjust_bubble_size(df1, protein_length, columns1)
+    df2_protein = _prepare_df_and_adjust_bubble_size(df2, protein_length, columns2)
 
-    df2_protein = pd.DataFrame()
-    df2_protein[columns2["pos"]] = np.arange(1, (protein_length + 1))
-    df2_protein = pd.merge(df2_protein, df2, on=columns2["pos"], how="left")
-
-    #bubble size parameter according PTM Localization probability
-    df1_protein["scale"] = 1
-    df1_protein["scale"][df1_protein[columns1["prob"]] > 0.50] = 2
-    df1_protein["scale"][df1_protein[columns1["prob"]] > 0.75] = 3
-    df1_protein["scale"][df1_protein[columns1["prob"]] > 0.95] = 5
-
-    df2_protein["scale"] = 1
-    df2_protein["scale"][df2_protein[columns2["prob"]] > 0.50] = 2
-    df2_protein["scale"][df2_protein[columns2["prob"]] > 0.75] = 3
-    df2_protein["scale"][df2_protein[columns2["prob"]] > 0.95] = 5
-
-    #make figure with shared x-axis
+    # make figure with shared x-axis
     fig, ax = plt.subplots(nrows=1, sharex=True, figsize=(12, 6))
 
-    plt.stem(df1_protein[columns1["int"]],
-             markerfmt=' ', linefmt='grey', basefmt='black'
-             )
-    plt.stem(df2_protein[columns2["int"]],
-             markerfmt=' ', linefmt='grey', basefmt='black'
-             )
-
-    #scatter plot and text for upper plot
-    x_pos1 = np.arange(0, df1_protein.shape[0])
-    y_pos1 = df1_protein[columns1["int"]]
-    psite1 = df1_protein[columns1["aa"]] + df1_protein[columns1["pos"]].astype(int).astype(str)
-    scale1 = df1_protein["scale"]
-
-    x_pos1_new = x_pos1[~np.isnan(y_pos1)]
-    y_pos1_new = y_pos1.values[~np.isnan(y_pos1)]
-    psite1_new = psite1[~np.isnan(y_pos1)]
-    scale1_new = scale1[~np.isnan(y_pos1)]
-
-    ax = plt.scatter(
-        x_pos1_new,
-        y_pos1_new,
-        s=scale1_new * 10,
-        color="deeppink"
-    )
-
-    for (x, y, ps) in zip(x_pos1_new, y_pos1_new, psite1_new):
-        plt.text(x, y + 0.05, f"{ps}", fontsize=9, ha="center", rotation=45)
-
-    #scatter plot and text for upper plot
-    x_pos2 = np.arange(0, df2_protein.shape[0])
-    y_pos2 = df2_protein[columns2["int"]]
-    psite2 = df2_protein[columns2["aa"]] + df2_protein[columns2["pos"]].astype(int).astype(str)
-    scale2 = df2_protein["scale"]
-
-    x_pos2_new = x_pos2[~np.isnan(y_pos2)]
-    y_pos2_new = y_pos2.values[~np.isnan(y_pos2)]
-    psite2_new = psite2[~np.isnan(y_pos2)]
-    scale2_new = scale2[~np.isnan(y_pos2)]
-
-    ax = plt.scatter(
-        x_pos2_new,
-        y_pos2_new,
-        s=scale2_new * 10,
-        color="dodgerblue"
-    )
-
-    for (x, y, ps) in zip(x_pos2_new, y_pos2_new, psite2_new):
-        plt.text(x, y - 0.15, f"{ps}", fontsize=9, ha="center", rotation=45)
+    _plot_lollies(df1_protein, columns1)
+    _plot_lollies(df2_protein, columns2, color="dodgerblue", text_y_offset=-0.15)
 
     plt.title(proteinid, fontdict=None, loc='left', fontsize=12)
 
     return df1_protein, df2_protein, fig
-    fig.show()
 
 
-def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
-                       columns: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                        "int": "Intensity", "prob": "Localization prob"}):
+def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str, columns=None) -> Union[pd.DataFrame, None]:
     """
     This function prepares MaxQuant Phospho(STY) dataframes for interactive plotting.
     
@@ -761,7 +743,7 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
         Loaded sites table
     proteinid: str
         Exact protein identifier to search in ids column (defined in columns dictionary).
-    columns: dict, default = MaxQuant sites table names
+    columns: dict or None, default = MaxQuant sites table names
         Dictionary that defines the column names for:
           - ids: semicolon separated protein identifiers
           - pos: semicolon separated site positions
@@ -772,15 +754,15 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
     
     Returns
     -------
-    a pandas DataFrame
+    pd.DataFrame or None
         contains filtered and transformed data used for plotting
+        None if no data is available
     """
     # retrieve data
+    if columns is None:
+        columns = {"ids": "Proteins", "pos": "Positions within proteins",
+                   "int": "Intensity", "prob": "Localization prob"}
     df_prot = sty.loc[[proteinid in str(el) for el in sty[columns["ids"]]], list(columns.values())]
-
-    # Select position for exact protein id match
-    #df_prot[columns["pos"]] = df_prot[[columns["pos"], columns["ids"]]].apply(
-    #lambda x: int(x.values[0].split(";")[x.values[1].split(";").index(proteinid)]), axis=1)
 
     # Logarithmize Intensity
     df_prot[columns["int"]] = df_prot[columns["int"]].apply(np.log10)
@@ -793,22 +775,20 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str,
     # Drop 0 intensities
     df_prot = df_prot.loc[np.isfinite(df_prot["log10(" + columns["int"] + ")"])]
     if len(df_prot) == 0:
-        return df_prot, None
+        return None
 
     return df_prot
 
 
-def i_lolli_plot(sty: pd.DataFrame, proteinid: str,
-                 protein_length: int or None = None,
-                 columns: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                  "int": "Intensity", "prob": "Localization prob"}):
+def i_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, None] = None,
+                 columns: Union[dict, None] = None):
     """
     This function generates a lollipop plot representing PTM localization, intensity and localization probability.
     change the plotly io parameter if you have problems with rendering, see: pio.renderers.default = "jupyterlab"
     
     Parameters
     ----------
-    df: pandas DataFrame
+    sty: pandas DataFrame
         Loaded sites table
     proteinid: str
         Exact protein identifier to search in ids column (defined in columns dictionary).
@@ -831,6 +811,9 @@ def i_lolli_plot(sty: pd.DataFrame, proteinid: str,
         interactive lollipop plot
     """
     # retrieve data
+    if columns is None:
+        columns = {"ids": "Proteins", "pos": "Positions within proteins",
+                   "int": "Intensity", "prob": "Localization prob"}
     df_prot = _i_lolli_plot_init(sty, proteinid=proteinid, columns=columns)
 
     # df_protrate plot
@@ -845,19 +828,58 @@ def i_lolli_plot(sty: pd.DataFrame, proteinid: str,
                        y0=0, y1=el["log10(" + columns["int"] + ")"], line_width=1, opacity=0.5)
 
     return df_prot, plot
-    fig.show()
+
+
+def _plot_interactive_lollies(fig: go.Figure, df: pd.DataFrame, columns: dict, protein_length: Union[None, float],
+                              name: str):
+    """
+    This function adds interactive lollipops to a plotly figure.
+
+    Parameters
+    ----------
+    fig: plotly Figure
+        Figure object
+    df: pandas DataFrame
+        contains filtered and transformed data used for plotting
+    columns: dict
+        Dictionary that defines the column names for:
+          - pos: semicolon separated site positions
+          - int: single column containing site intensity (or other quantitative parameter; will be log10 transformed)
+                 This defines the y-axis position/length of the lollipop.
+          - prob: single column containing localization probability
+                  This defines the relative size of the lollipop
+    protein_length: float or None
+        Optional maximum value for the x-axis. If None the maximum site position+20 is used.
+    name: str
+        name for legend and hoverdata
+
+    Returns
+    -------
+    None
+    """
+    fig.add_trace(go.Scatter(x=df[columns["pos"]], y=df["log10(" + columns["int"] + ")"],
+                             mode='markers', marker=dict(size=df["size"] * 3),
+                             name=name,
+                             customdata=df[columns['prob']],
+                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>" +
+                                            "<b>log10 intensity: %{y:.2f}<br>" +
+                                            "<b>Localization prob: %{customdata:.2f}"
+                                            ),
+                             x0=[-20, max(df[columns["pos"]]) + 20 if protein_length is None else protein_length],
+                             meta=dict(label=name)), row=1, col=1)
+
+    # Add lollipop stalks
+    for i, el in df.iterrows():
+        fig.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
+                      y0=0, y1=el["log10(" + columns["int"] + ")"], line_width=1, opacity=0.5)
 
 
 def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                         proteinid: str, protein_length: int or None = None,
-                        name1: str or None = None, name2: str or None = None,
-                        columns1: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                          "int": "Intensity", "prob": "Localization prob"},
-                        columns2: dict = {"ids": "Proteins", "pos": "Positions within proteins",
-                                          "int": "Intensity", "prob": "Localization prob"}
-                        ):
+                        name1: str or None = None, name2: str or None = None, columns1: Union[dict, None] = None,
+                        columns2: Union[dict, None] = None) -> tuple[tuple[DataFrame | None, DataFrame | None], Figure]:
     """
-    This function generates a interactive mirrored lollipop plot representing PTM localization, 
+    This function generates an interactive mirrored lollipop plot representing PTM localization,
     intensity and localization probability of a protein from 2 measurements.
     change the plotly io parameter if you have problems with rendering, see: pio.renderers.default = "jupyterlab"
     
@@ -871,9 +893,11 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
         Exact protein identifier to search in ids column (defined in columns dictionary).
     protein_length: int or None, default = None
         Optional maximum value for the x-axis. If None the maximum site position+20 is used.
-    name: str, default =None
+    name1: str, default =None
         name for legend and hoverdata, name1 for upper graph, name2 for mirrowed graph
-    columns: dict, default = MaxQuant sites table names, seperate for sty1 and sty2
+    name2: str, default =None
+        See name1
+    columns1: dict, default = MaxQuant sites table names, seperate for sty1 and sty2
         Dictionary that defines the column names for:
           - ids: semicolon separated protein identifiers
           - pos: semicolon separated site positions
@@ -881,66 +905,47 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                  This defines the y-axis position/length of the lollipop.
           - prob: single column containing localization probability
                   This defines the relative size of the lollipop
+    columns2: dict, default = MaxQuant sites table names, seperate for sty1 and sty2
+        See columns1
     
     Returns
     -------
-    a tuple of pandas DataFrame
-        contains filtered and transformed data used for plotting for sty1 and sty2 in a tuple
-    a plotly Figure
+    Tuple of two pandas DataFrames or None
+        contains filtered and transformed data used for plotting
+        None if no data is available
+    Plotly Figure
         interactive lollipop plot
     """
 
     # retrieve data
+    if columns2 is None:
+        columns2 = {"ids": "Proteins", "pos": "Positions within proteins",
+                    "int": "Intensity", "prob": "Localization prob"}
+    if columns1 is None:
+        columns1 = {"ids": "Proteins", "pos": "Positions within proteins",
+                    "int": "Intensity", "prob": "Localization prob"}
+
+    # prepare dataframes
     df1 = _i_lolli_plot_init(sty1, proteinid=proteinid, columns=columns1)
     df2 = _i_lolli_plot_init(sty2, proteinid=proteinid, columns=columns2)
 
     # Generate plot with subplot
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
 
-    fig.add_trace(go.Scatter(x=df1[columns1["pos"]], y=df1["log10(" + columns1["int"] + ")"],
-                             mode='markers', marker=dict(size=df1["size"] * 3),
-                             name=name1,
-                             customdata=df1[columns1['prob']],
-                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>" +
-                                            "<b>log10 intensity: %{y:.2f}<br>" +
-                                            "<b>Localization prob: %{customdata:.2f}"
-                                            ),
-                             x0=[-20, max(df1[columns1["pos"]]) + 20 if protein_length is None else protein_length],
-                             meta=dict(label=name1))
-                  , row=1, col=1)
+    # add 1st plot
+    _plot_interactive_lollies(fig, df1, columns1, protein_length, name1)
 
-    # Add lollipop stalks
-    for i, el in df1.iterrows():
-        fig.add_shape(x0=el[columns1["pos"]], x1=el[columns1["pos"]],
-                      y0=0, y1=el["log10(" + columns1["int"] + ")"], line_width=1, opacity=0.5)
-
-    #invert intensity values to mirror data alongsite the x-axis
+    # invert intensity values to mirror data alongsite the x-axis
     df2["log10(" + columns2["int"] + ")"] = df2["log10(" + columns2["int"] + ")"] * -1
 
     # add 2nd plot
-    fig.add_trace(go.Scatter(x=df2[columns2["pos"]], y=df2["log10(" + columns2["int"] + ")"],
-                             mode='markers', marker=dict(size=df2["size"] * 3),
-                             name=name2,
-                             customdata=df2[columns2['prob']],
-                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>" +
-                                            "<b>log10 intensity: %{y:.2f}<br>" +
-                                            "<b>Localization prob: %{customdata:.2f}"
-                                            ),
-                             x0=[-20, max(df2[columns2["pos"]]) + 20 if protein_length is None else protein_length],
-                             meta=dict(label=name2))
-                  , row=1, col=1)
-
-    # Add lollipop stalks
-    for i, el in df2.iterrows():
-        fig.add_shape(x0=el[columns2["pos"]], x1=el[columns2["pos"]],
-                      y0=0, y1=el["log10(" + columns2["int"] + ")"], line_width=1, opacity=0.5)
+    _plot_interactive_lollies(fig, df2, columns2, protein_length, name2)
 
     fig.add_hline(y=0, line_width=3)
 
     fig.update_layout(width=900, height=400,
                       template='simple_white',
                       font_family="Arial", font_size=12,
-                      title_text=gene,
                       yaxis_title="log10(" + columns1["int"] + ")"
                       )
 
@@ -949,4 +954,3 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     fig.add_hline(y=0, line_width=3)
 
     return (df1, df2), fig
-    fig.show()

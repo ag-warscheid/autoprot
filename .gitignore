@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+*__pycache__/
 *.py[cod]
 *$py.class
 
@@ -166,8 +166,10 @@ docs/_build/*
 # downloaded databases
 /db/**
 # old database neednt be synced
-/data/old_database/
+/autoprot/data/old_database/
 /examples/environment.txt
 /examples/R_environment.csv
 /docs/environment.txt
 /docs/R_environment.csv
+/environment.txt
+/R_environment.csv
