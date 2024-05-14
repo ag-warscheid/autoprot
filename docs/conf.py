@@ -86,7 +86,7 @@ html_theme_options = {'navigation_with_keys': False,
                       },
                       "navbar_start": ["navbar-logo", "version-switcher"],
                       "switcher": {
-                          "json_url": "https://github.com/ag-warscheid/autoprot/tree/dev/docs/_static/switcher.json",
+                          "json_url": "https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json",
                           "version_match": version,
                       }
                       }
