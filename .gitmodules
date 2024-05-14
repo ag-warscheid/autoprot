@@ -1,8 +1,6 @@
-[submodule "dependencies/venn"]
+[submodule "autoprot/dependencies/venn"]
 	path = autoprot/dependencies/venn
 	url = https://github.com/tctianchi/pyvenn
-	update = rebase
-[submodule "dependencies/plotlylogo"]
+[submodule "autoprot/dependencies/plotlylogo"]
 	path = autoprot/dependencies/plotlylogo
 	url = https://github.com/aretaon/PlotlyLogo
-	update = rebase
