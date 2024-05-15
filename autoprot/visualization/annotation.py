@@ -21,7 +21,7 @@ from plotly.subplots import make_subplots
 import logomaker
 import matplotlib.patches as patches
 
-from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
+from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 
 # SEQUENCE LOGO

@@ -31,7 +31,7 @@ from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
 
 from .. import common as com
-from autoprot.dependencies.venn import venn
+from ..dependencies.venn import venn
 
 # ignore FutureWarnings from upsetplot
 warnings.filterwarnings('ignore', module='upsetplot', category=FutureWarning)
