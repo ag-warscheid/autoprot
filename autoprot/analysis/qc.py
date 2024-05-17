@@ -214,7 +214,7 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     None.
     """
     # set plot style
-    plt.style.use('seaborn-whitegrid')
+    plt.style.use('seaborn-v0_8-whitegrid')
 
     # set parameters
     today = date.today().isoformat()
@@ -288,7 +288,7 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     """
     # set plot style
-    plt.style.use('seaborn-whitegrid')
+    plt.style.use('seaborn-v0_8-whitegrid')
 
     # set parameters
     today = date.today().isoformat()
@@ -357,15 +357,16 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     -------
     Fig, table for SILAC label incorporation
     """
-    # set plot style
+    
     if r_to_p_conversion is None:
         r_to_p_conversion = ["Arg6", "Arg10"]
     if label is None:
         label = list('LMH')
     # convert to dict
     label = {x: [] for x in label}
-
-    plt.style.use('seaborn-whitegrid')
+    
+    # set plot style
+    plt.style.use('seaborn-v0_8-whitegrid')
 
     # set parameters
     today = date.today().isoformat()
@@ -558,7 +559,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         Results from the analysis
     """
     # set plot style
-    plt.style.use('seaborn-whitegrid')
+    plt.style.use('seaborn-v0_8-whitegrid')
 
     # set parameters
     today = date.today().isoformat()
