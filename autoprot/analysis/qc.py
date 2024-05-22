@@ -219,10 +219,10 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     # set parameters
     today = date.today().isoformat()
 
-    if "Experiment" not in df_evidence:
+    if "Experiment" not in df_evidence.columns.tolist():
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
-        experiments = None
+        experiments = list(set((df_evidence["Raw file"])))
     else:
         experiments = list(set((df_evidence["Experiment"])))
 
@@ -293,12 +293,13 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
     # set parameters
     today = date.today().isoformat()
 
-    if "Experiment" not in df_evidence:
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
-        experiments = None
-    else:
-        experiments = list(set((df_evidence["Experiment"])))
+    if "Experiment" in df_evidence.columns.tolist()
+        try:
+            experiments = list((df_evidence["Experiment"].unique()))
+        except KeyError:
+            experiments = list((df_evidence["Raw file"].unique()))
+            print("Warning: Column [Experiment] either not unique or missing,\n\
+                  column [Raw file] used")
 
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
@@ -565,12 +566,13 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
     today = date.today().isoformat()
 
     df_evidence.sort_values(["Raw file"], inplace=True)
-    try:
-        experiments = list((df_evidence["Experiment"].unique()))
-    except KeyError:
-        experiments = list((df_evidence["Raw file"].unique()))
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+    if "Experiment" in df_evidence.columns.tolist()
+        try:
+            experiments = list((df_evidence["Experiment"].unique()))
+        except KeyError:
+            experiments = list((df_evidence["Raw file"].unique()))
+            print("Warning: Column [Experiment] either not unique or missing,\n\
+                  column [Raw file] used")
 
     df_labeling_eff = pd.DataFrame()
 
