@@ -9,32 +9,15 @@ if (!require("pak", character.only = TRUE))
   if (!require("pak", character.only = TRUE)) stop("Package not found")
 }
 
-#TODO Remove once the DESCRIPTION in the DIMAR package is fixed
-#TODO Add back the github_packages and URL_install to the pak::pkg_install function
-# Download packages
-download.file("https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz",
-              destfile = "imputation_1.3.tar.gz", mode = "wb")
-download.file("https://github.com/cran/DMwR/archive/refs/heads/master.zip",
-              destfile = "DMwR-master.zip", mode = "wb")
-download.file("https://github.com/kreutz-lab/DIMAR/archive/refs/heads/main.zip",
-              destfile = "DIMAR-main.zip", mode = "wb")
-# Install packages from local files
-install.packages("imputation_1.3.tar.gz", repos = NULL, type = "source")
-install.packages("DMwR-master.zip", repos = NULL, type = "source")
-install.packages("DIMAR-main.zip", repos = NULL, type = "source")
-# Clean up downloaded files (optional)
-file.remove(c("imputation_1.3.tar.gz", "DMwR-master.zip", "DIMAR-main.zip"))
-
 # Collect all required packages as vectors and install with pak
 # see https://pak.r-lib.org/dev/reference/get-started.html
 CRAN_packages <- c("rrcovNA", "tidyverse", "tmvtnorm")
 BC_packages <- c("limma", "vsn", "RankProd", "pcaMethods", "impute", "SummarizedExperiment")
-github_packages <- c("github::cran/DMwR", "github::kreutz-lab/DIMAR")
-URL_install <- c("imputation=url::https://cran.r-project.org/src/contrib/Archive/imputation/imputation_1.3.tar.gz")
+github_packages <- c("github::kreutz-lab/DIMAR")
 
 # check if the packages are already installed and install them if not
 installedPackages <- rownames(installed.packages())
-for (package in c(CRAN_packages, BC_packages)) {
+for (package in c(github_packages, CRAN_packages, BC_packages)) {
   if (package %in% installedPackages) {
     require(package, character.only = TRUE)
   }
