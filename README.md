@@ -33,6 +33,12 @@ or [pip](https://packaging.python.org/en/latest/guides/installing-using-pip-and-
 git clone --recurse-submodules https://github.com/ag-warscheid/autoprot.git
 ```
 
+- If you happen for some reason to forget the submodules, you can still add them later
+
+```
+git submodule update --init --recursive
+```
+
 - Next you need to install R. Please follow the instructions at the [R manual](https://cran.r-project.org/index.html) and install R to a custom location
 - Start autoprot by importing it from any Python console you like. It will generate an autoprot.conf file in the autoprot package directory that you need to edit.
   - Insert the path to your Rscript executable that you just installed as value for the R variable

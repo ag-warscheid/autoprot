@@ -11,10 +11,9 @@ from functools import reduce
 from itertools import combinations
 from typing import Literal, Union, List
 
-import matplotlib
-import matplotlib as mpl
+import matplotlib.colors as mcolors
 import matplotlib.patches as patches
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -22,7 +21,6 @@ import plotly.graph_objects as go
 import seaborn as sns
 import upsetplot
 from adjustText import adjust_text
-from matplotlib import pyplot as plt
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
 from pandas.core.dtypes.common import is_numeric_dtype
@@ -177,15 +175,15 @@ def correlogram(df: pd.DataFrame, columns: Union[list[str], pd.Index] = None, fi
         ax = plt.gca()
 
         # normalize the values so that the lowest value of the cmap is reach at R=0.8
-        norm = matplotlib.colors.Normalize(vmin=correlation_colorrange[0], vmax=correlation_colorrange[1])
+        norm = mcolors.Normalize(vmin=correlation_colorrange[0], vmax=correlation_colorrange[1])
         if (color is None) or (color not in plt.colormaps()):
-            cmap = matplotlib.cm.get_cmap('Blues')
+            cmap = plt.get_cmap('Blues')
         else:
-            cmap = matplotlib.cm.get_cmap(color)
-        ax.add_patch(mpl.patches.Rectangle((0, 0), 5, 5,
-                                           color=cmap(norm(r)),
-                                           transform=ax.transAxes,
-                                           label=label))
+            cmap = plt.get_cmap(color)
+        ax.add_patch(patches.Rectangle((0, 0), 5, 5,
+                                       color=cmap(norm(r)),
+                                       transform=ax.transAxes,
+                                       label=label))
         ax.tick_params(axis="both", which="both", length=0)
         ax.spines["left"].set_visible(False)
         ax.spines["bottom"].set_visible(False)
@@ -208,7 +206,7 @@ def correlogram(df: pd.DataFrame, columns: Union[list[str], pd.Index] = None, fi
         if (color is None) or (color not in plt.colormaps()):
             plt.hexbin(x, y, cmap="Blues", bins=bins, gridsize=50, label=label)
         else:
-            plt.hexbin(x, y, cmap=color, bins=bins, gridsize=50, label=label)
+            plt.hexbin(x, y, cmap=plt.get_cmap(color), bins=bins, gridsize=50, label=label)
 
     # noinspection PyShadowingNames
     def lower_hist_2d(x, y, color=None, label=None):
@@ -222,7 +220,7 @@ def correlogram(df: pd.DataFrame, columns: Union[list[str], pd.Index] = None, fi
         if (color is None) or (color not in plt.colormaps()):
             plt.hist2d(x, y, bins=bins, cmap="Blues", vmin=0, vmax=1, label=label)
         else:
-            plt.hist2d(x, y, bins=bins, cmap=color, vmin=0, vmax=1, label=label)
+            plt.hist2d(x, y, bins=bins, cmap=plt.get_cmap(color), vmin=0, vmax=1, label=label)
 
     # noinspection PyShadowingNames
     def proteins_found(x, y, **kwargs):
@@ -969,7 +967,7 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
                        bbox_transform=ax.transAxes)
 
     # this fixes the legend points having the same size as the points in the scatter plot
-    for handle in legend.legendHandles:
+    for handle in legend.legend_handles:
         handle._sizes = [30]
     ax.add_artist(legend)
 

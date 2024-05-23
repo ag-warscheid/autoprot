@@ -34,7 +34,6 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
-    'sphinx.ext.autosectionlabel',
     'matplotlib.sphinxext.plot_directive',
     'numpydoc',
     "myst_parser",

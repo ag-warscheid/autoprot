@@ -8,7 +8,7 @@ html_theme.sidebar_secondary.remove: true
 ---
 
 # Installation
-{#_installation}
+{#installation}
 
 The easiest way to install Python on Windows and Linux is the [Anaconda Python Distribution](https://www.anaconda.com/products/individual).
 Download the installer, follow the installation process and open an anaconda prompt.
@@ -19,11 +19,11 @@ In Linux Anaconda usually comes with an install script that integrates anaconda 
 
 Download the current version of autoprot from the [autoprot repository](https://salzgitter.biologie.uni-freiburg.de/FunctionalProteomics/autoprot) and save locally.
 Alternatively you may download the files via git to easily maintain an updated version of autoprot.
-For this, [install git](https://git-scm.com/downloads) and clone the autoprot repo by::
+For this, [install git](https://git-scm.com/downloads) and clone the autoprot repo by:
 
    git clone https://salzgitter.biologie.uni-freiburg.de:443/FunctionalProteomics/autoprot.git
 
-You may then keep your repo up to date using::
+You may then keep your repo up to date using:
 
     git pull
 
@@ -50,7 +50,7 @@ will have updated to the newest R version.
 
 If you use R on Linux, you can either install R system-wide using the standard package installer or compile a local version in your home dir.
 This has the advantage that you can easily switch between R versions and even have multiple R installations with different
-libraries next to each other. For this, have the following libs ready (on a recent Ubuntu 22.04 installation)::
+libraries next to each other. For this, have the following libs ready (on a recent Ubuntu 22.04 installation):
 
       sudo apt install build-essential gfortran libreadline8 libreadline-dev libxt-dev zlib1g zlib1g-dev bzip2
       libbz2-dev liblzma-dev openjdk-18-jre-headless openjdk-18-jre libssl-dev libcurl4-openssl-dev libcurl4-gnutls-dev
@@ -58,7 +58,7 @@ libraries next to each other. For this, have the following libs ready (on a rece
       cmake libmpfr-dev
 
 During compilation, R looks for the ICU library and may end up finding it in a close anaconda installation (leading to errors in the compilation).
-If this happens to you, compile R without the ICU libraries using::
+If this happens to you, compile R without the ICU libraries using:
 
     ./configure --without-ICU
     make
@@ -78,23 +78,23 @@ to also install [mamba](https://mamba.readthedocs.io/en/latest/)::
 
     conda install mamba -c conda-forge
 
-Using either conda or mamba (substitute mamba for conda) you can install from the yml file by::
+Using either conda or mamba (substitute mamba for conda) you can install from the yml file by:
 
     mamba env create -f autoprot.yml
 
 If the installation is successful,congratulations.
 If not, read the [troubleshooting](#troubleshooting) section.
-In any case, you may proceed by activating the environment::
+In any case, you may proceed by activating the environment:
 
     conda activate autoprot
 
-If the installation was successful you can start exploring autoprot by starting an interactive jupyter notebook within the autoprot environment::
+If the installation was successful you can start exploring autoprot by starting an interactive jupyter notebook within the autoprot environment:
 
     jupyter notebook
 
 ## Loading autoprot in jupyter
 
-To use autoprot in your jupyter notebooks, you have to add the autoprot folder to the path variable::
+To use autoprot in your jupyter notebooks, you have to add the autoprot folder to the path variable:
 
     import sys
     sys.path.append(r"Z:\0_people\jbender\02_software\")
@@ -103,9 +103,10 @@ To use autoprot in your jupyter notebooks, you have to add the autoprot folder t
 The path you add corresponds to the parent folder of your local autoprot installation.
 
 # Troubleshooting
+{#troubleshooting}
 
 If the installation using environment.yml did not work, usually incompatible package versions between Windows and Linux or between different Anaconda installations are the problem.
-Try locating which package did not install properly (e.g. by running autoprot and see where it breaks) and then install the missing packages using conda or pip::
+Try locating which package did not install properly (e.g. by running autoprot and see where it breaks) and then install the missing packages using conda or pip:
 
     conda activate autoprot
     conda install PACKAGENAME
@@ -115,7 +116,7 @@ or using pip::
     conda activate autoprot
     pip install PACKAGENAME
 
-Installation of R using anaconda requires additional conda packages to be installed::
+Installation of R using anaconda requires additional conda packages to be installed:
 
     conda install -c conda-forge r-gmp
     conda install -c conda-forge r-rmpfr
