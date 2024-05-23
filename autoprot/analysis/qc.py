@@ -267,7 +267,7 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
         # save df missed cleavage summery as .csv
         df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
 
-    print(df_missed_cleavage_summary, ax1)
+    print(df_missed_cleavage_summary)
 
 
 def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
@@ -293,18 +293,15 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
     # set parameters
     today = date.today().isoformat()
 
-    if "Experiment" in df_evidence.columns.tolist()
-        try:
-            experiments = list((df_evidence["Experiment"].unique()))
-        except KeyError:
-            experiments = list((df_evidence["Raw file"].unique()))
-            print("Warning: Column [Experiment] either not unique or missing,\n\
-                  column [Raw file] used")
+    if "Experiment" in df_evidence.columns.tolist():
+        experiments = list((df_evidence["Experiment"].unique()))
+    else:
+        experiments = list((df_evidence["Raw file"].unique()))
+        print("Warning: Column [Experiment] is not present in the dataframe. Using [Raw file] instead.")
 
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        raise Exception("The number of experiments and rawfiles do not match.")
 
     df = pd.DataFrame()
     df_summary = pd.DataFrame()
@@ -340,8 +337,6 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
         # save df missed cleavage summery as .csv
         df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
 
-    print(df.T, ax)
-
 
 def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L', 'M', 'H']] = None,
                               r_to_p_conversion: Literal['Pro6', 'Pro10'] = None):
@@ -358,14 +353,14 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     -------
     Fig, table for SILAC label incorporation
     """
-    
+
     if r_to_p_conversion is None:
         r_to_p_conversion = ["Arg6", "Arg10"]
     if label is None:
         label = list('LMH')
     # convert to dict
     label = {x: [] for x in label}
-    
+
     # set plot style
     plt.style.use('seaborn-v0_8-whitegrid')
 
@@ -566,13 +561,12 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
     today = date.today().isoformat()
 
     df_evidence.sort_values(["Raw file"], inplace=True)
-    if "Experiment" in df_evidence.columns.tolist()
-        try:
-            experiments = list((df_evidence["Experiment"].unique()))
-        except KeyError:
-            experiments = list((df_evidence["Raw file"].unique()))
-            print("Warning: Column [Experiment] either not unique or missing,\n\
-                  column [Raw file] used")
+    if "Experiment" in df_evidence.columns.tolist():
+        experiments = list((df_evidence["Experiment"].unique()))
+    else:
+        experiments = list((df_evidence["Raw file"].unique()))
+        print("Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used")
 
     df_labeling_eff = pd.DataFrame()
 
@@ -745,8 +739,8 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                                                          '\_\(Acetyl \(Protein N\-term\)\)')) &
                                                       (group["Modified sequence"].str.contains(nterm)))).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() -\
-            df_efficiency.loc[raw, ["fully labeled"]].values
+        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
+                                                        df_efficiency.loc[raw, ["fully labeled"]].values
 
         df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
 
