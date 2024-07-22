@@ -572,8 +572,6 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
             # reps
             ax.set_xticks(range(1, len(reps) + 1), [str(i + 1) for i in range(len(reps))])
 
-        if ylabel == "log_fc":
-            ax.axhline(0, 0, 1, color="gray", ls="dashed")
     sns.despine()
 
     if file is not None:
