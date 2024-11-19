@@ -354,61 +354,66 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     Fig, table for SILAC label incorporation
     """
 
-    if r_to_p_conversion is None:
-        r_to_p_conversion = ["Arg6", "Arg10"]
     if label is None:
         label = list('LMH')
+
+    if r_to_p_conversion is not None:
+        if r_to_p_conversion not in ['Pro6', 'Pro10']:
+            raise ValueError('r_to_p_conversion should be either "Pro6" or "Pro10"')
+
     # convert to dict
     label = {x: [] for x in label}
 
     # set plot style
     plt.style.use('seaborn-v0_8-whitegrid')
-
     # set parameters
     today = date.today().isoformat()
+
     df_evidence.sort_values(["Raw file"], inplace=True)
     experiments = list(df_evidence["Experiment"].unique())
     runs = list(df_evidence["Raw file"].unique())
 
+    # mapping raw file names to experiments
     dic_setup = {}
     for key, val in zip(runs, experiments):
         dic_setup[key] = val
+    
+    if r_to_p_conversion is not None:
+        # calculate Arg to Pro for each raw file in df_evidence
+        if r_to_p_conversion == 'Pro6':
+            title = "% Arg6 to Pro6 conversion"
+        else:
+            title = "% Arg10 to Pro10 conversion"
 
-    # calculate Arg to Pro for each raw file in df_evidence
-    if "Arg6" in r_to_p_conversion:
-        col_name = "Pro6"
-        title = "% Arg6 to Pro6 conversion"
-    else:
-        col_name = "Pro10"
-        title = "% Arg10 to Pro10 conversion"
+        df_r_to_p_summary = []  # collect dataframes per raw file
+        df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
+        for raw, df_group in df_evidence.groupby("Raw file"):
+            df_r_to_p = pd.DataFrame()
+            df_r_to_p.loc[raw, ["P count"]] = df_group.loc[df_group[r_to_p_conversion] == 0, "P count"].sum()
+            df_r_to_p.loc[raw, [col_name]] = df_group.loc[df_group[r_to_p_conversion, r_to_p_conversion] > 0].sum()
+            df_r_to_p_summary.append(df_r_to_p)
 
-    df_r_to_p_summary = pd.DataFrame()
-    df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
-    for raw, df_group in df_evidence.groupby("Raw file"):
-        df_r_to_p = pd.DataFrame()
-        df_r_to_p.loc[raw, ["P count"]] = df_group["P count"][df_group[col_name] == 0].sum()
-        df_r_to_p.loc[raw, [col_name]] = df_group[col_name][df_group[col_name] > 0].sum()
-        df_r_to_p_summary = pd.concat([df_r_to_p_summary, df_r_to_p], axis=0)
+        df_r_to_p_summary = pd.concat(df_r_to_p_summary, axis=0)  # concat all rawfiles dfs
 
-    df_r_to_p_summary.index = experiments
-    df_r_to_p_summary.dropna(inplace=True)
-    df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[col_name] / df_r_to_p_summary["P count"] * 100
+        df_r_to_p_summary.index = experiments
+        df_r_to_p_summary.dropna(inplace=True)
+        df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[col_name] / df_r_to_p_summary["P count"] * 100
 
-    # making the box plot Arg to Pro conversion
-    x_ax = len(experiments) + 1
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
-    fig.suptitle(title, fontdict=None,
-                 horizontalalignment='center', size=14
-                 )
-    df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
-    ax1.set_xlabel("rawfile number", size=12)
-    ax1.set_ylabel("Arg to Pro [%]", size=12)
+        # making the box plot Arg to Pro conversion
+        x_ax = len(experiments) + 1
+        fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
+        fig.suptitle(title, fontdict=None,
+                     horizontalalignment='center', size=14
+                     )
+        df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
+        ax1.set_xlabel("rawfile number", size=12)
+        ax1.set_ylabel("Arg to Pro [%]", size=12)
 
-    plt.tight_layout()
-    plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
+        plt.tight_layout()
+        plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
 
-    # save df Arg to Pro conversion as .csv
-    df_r_to_p_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
+        # save df Arg to Pro conversion as .csv
+        df_r_to_p_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
 
     def labeling_efficiency(df_evidence, label):
         """
