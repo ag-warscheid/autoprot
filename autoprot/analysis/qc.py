@@ -390,14 +390,14 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
         for raw, df_group in df_evidence.groupby("Raw file"):
             df_r_to_p = pd.DataFrame()
             df_r_to_p.loc[raw, ["P count"]] = df_group.loc[df_group[r_to_p_conversion] == 0, "P count"].sum()
-            df_r_to_p.loc[raw, [col_name]] = df_group.loc[df_group[r_to_p_conversion, r_to_p_conversion] > 0].sum()
+            df_r_to_p.loc[raw, [r_to_p_conversion]] = df_group.loc[df_group[r_to_p_conversion, r_to_p_conversion] > 0].sum()
             df_r_to_p_summary.append(df_r_to_p)
 
         df_r_to_p_summary = pd.concat(df_r_to_p_summary, axis=0)  # concat all rawfiles dfs
 
         df_r_to_p_summary.index = experiments
         df_r_to_p_summary.dropna(inplace=True)
-        df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[col_name] / df_r_to_p_summary["P count"] * 100
+        df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[r_to_p_conversion] / df_r_to_p_summary["P count"] * 100
 
         # making the box plot Arg to Pro conversion
         x_ax = len(experiments) + 1
