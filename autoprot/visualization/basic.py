@@ -869,7 +869,8 @@ def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = Fa
 
 
 # COMMON FOR ALL SCATTER PLOTS
-def _limit_density(xs, ys, ss, threshold):
+def _limit_density(xs: np.ndarray, ys: np.ndarray, ss: np.ndarray, threshold: float) -> tuple[
+    np.ndarray, np.ndarray, np.ndarray]:
     """
     Reduce the points for annotation through a point density threshold.
 
@@ -1199,7 +1200,7 @@ def volcano(
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
         annotate: Union[pd.Index, Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
-                                                                                                 "and log2FC",
+                                                                                                           "and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_p_sig: dict = None,
