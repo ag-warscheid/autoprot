@@ -991,7 +991,7 @@ def _stylize_scatter_legend(ax, pointsize_colname, df, pointsize_scaler):
 
 
 def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: str,
-                   annotate: Union[str, None], highlight: Union[pd.Index, List[pd.Index], None],
+                   annotate: Union[pd.Index, str, None], highlight: Union[pd.Index, List[pd.Index], None],
                    annotate_colname: str, annotate_density: float) -> None:
     """
     Add labels to a scatter plot based on certain conditions.
@@ -1006,9 +1006,9 @@ def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: st
        The name of the column in df to use for the x-values of the scatter plot.
     y_colname : str
        The name of the column in df to use for the y-values of the scatter plot.
-    annotate : str or None
+    annotate : str or None or pd.Index
        The condition to determine which points to label. Can be "highlight", "p-value and log2FC", "p-value",
-       "log2FC" or None.
+       "log2FC" or None. If it is a pandas Index, datapoints corresponding to that index will be annotated.
     highlight : pd.Index, list of pd.Index or None
        A list of indices to highlight if annotate is "highlight".
     annotate_colname : str
@@ -1043,6 +1043,8 @@ def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: st
     elif annotate in ["p-value and log2FC", "p-value", "log2FC", "ratio_thresh"]:
         to_label = df[df["SigCat"] == annotate].index
     # If annotation is not one of the allowed values, raise an error
+    elif isinstance(annotate, pd.Index):
+        to_label = annotate
     else:
         raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC" or None')
 
@@ -1196,7 +1198,7 @@ def volcano(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
+        annotate: Union[pd.Index, Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
                                                                                                  "and log2FC",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
