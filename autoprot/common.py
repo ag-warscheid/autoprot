@@ -56,10 +56,10 @@ def get_uniprot_accession(df: pd.DataFrame, gene: str, organism: str) -> Union[s
     """
     gene = gene.upper()
     try:
-        gene_in_GENE = (df['GENE'].str.upper() == gene) & (df['ORGANISM'] == organism)
-        gene_in_PROTEIN = (df['PROTEIN'].str.upper() == gene) & (df['ORGANISM'] == organism)
+        gene_in_gene = (df['GENE'].str.upper() == gene) & (df['ORGANISM'] == organism)
+        gene_in_protein = (df['PROTEIN'].str.upper() == gene) & (df['ORGANISM'] == organism)
 
-        uniprot_acc = df.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+        uniprot_acc = df.loc[(gene_in_gene | gene_in_protein), 'ACC_ID'].iloc[0]
 
         return uniprot_acc
 
