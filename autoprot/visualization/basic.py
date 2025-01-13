@@ -1031,7 +1031,7 @@ def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: st
         return
 
     # If annotation is set to "highlight", check if highlight indices are provided
-    if annotate == "highlight":
+    if isinstance(annotate, str) and annotate == "highlight":
         if highlight is None:
             raise ValueError("Highlight is None, but 'highlight' was passed to 'annotate'.")
         elif isinstance(highlight, list):
@@ -1041,13 +1041,13 @@ def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: st
         else:
             raise ValueError("'highlight' must be a list of pd.Index or a pd.Index or None.")
     # If annotation is set to one of the other allowed values, determine the points to label based on the condition
-    elif annotate in ["p-value and log2FC", "p-value", "log2FC", "ratio_thresh"]:
+    elif isinstance(annotate, str) and annotate in ["p-value and log2FC", "p-value", "log2FC"]:
         to_label = df[df["SigCat"] == annotate].index
     # If annotation is not one of the allowed values, raise an error
     elif isinstance(annotate, pd.Index):
         to_label = annotate
     else:
-        raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC" or None')
+        raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", a single pd.Index or None')
 
     # Limit the number of annotations if there are too many points
     xs, ys, ss = _limit_density(df.loc[to_label, x_colname].to_numpy(),
@@ -1726,7 +1726,7 @@ def ratio_plot(
         ax: plt.axis = None,
         ret_fig: bool = True,
         figsize: tuple = (8, 8),
-        annotate: Union[Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
+        annotate: Union[pd.Index, Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
         annotate_colname: str = "Gene names",
         kwargs_ns: dict = None,
         kwargs_r_sig: dict = None,
