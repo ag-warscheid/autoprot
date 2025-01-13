@@ -18,12 +18,19 @@ github_packages <- c("github::kreutz-lab/DIMAR")
 # check if the packages are already installed and install them if not
 installedPackages <- rownames(installed.packages())
 for (package in c(github_packages, CRAN_packages, BC_packages)) {
+if (grepl("::", package)) {
+    # extract the package name from the string (e.g. github::kreutz-lab/DIMAR -> DIMAR)
+    packagename <- strsplit(strsplit(package, "::")[[1]][2], "/")[[1]][2]
+  } else {
+    packagename <- package
+  }
+
   if (package %in% installedPackages) {
-    require(package, character.only = TRUE)
+    require(packagename, character.only = TRUE)
   }
   else {
     pak::pkg_install(package)
-    require(package, character.only = TRUE)
+    require(packagename, character.only = TRUE)
   }
 }
 
