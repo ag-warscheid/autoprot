@@ -915,7 +915,30 @@ def _limit_density(xs: np.ndarray, ys: np.ndarray, ss: np.ndarray, threshold: fl
     return xs[idx], ys[idx], ss[idx]
 
 
-def _init_scatter(ax, df, figsize, pointsize_colname, pointsize_scaler):
+def _init_scatter(ax: plt.Axes, df: pd.DataFrame, figsize: tuple[float, float], pointsize_colname: str,
+                  pointsize_scaler: float) -> tuple[plt.figure, plt.Axes, pd.DataFrame]:
+    """
+    Initialize a scatter plot.
+
+    Parameters
+    ----------
+    ax: plt.Axes
+        Axes object to plot on. If None, a new figure will be created.
+    df: pd.DataFrame
+        Dataframe containing the data to be plotted.
+    figsize: tuple
+        Size of the figure.
+    pointsize_colname:
+        Column name by which to scale the point sizes.
+    pointsize_scaler:
+        Scaler for point sizes.
+
+    Returns
+    -------
+    fig: plt.figure
+    ax: plt.Axes
+    df: pd.DataFrame with added column 's' for point sizes
+    """
     # draw figure
     if ax is None:
         fig = plt.figure(figsize=figsize)
@@ -1047,7 +1070,8 @@ def _label_scatter(df: pd.DataFrame, ax: plt.Axes, x_colname: str, y_colname: st
     elif isinstance(annotate, pd.Index):
         to_label = annotate
     else:
-        raise ValueError('Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", a single pd.Index or None')
+        raise ValueError(
+            'Annotate must be "highlight", "p-value and log2FC", "p-value", "log2FC", a single pd.Index or None')
 
     # Limit the number of annotations if there are too many points
     xs, ys, ss = _limit_density(df.loc[to_label, x_colname].to_numpy(),
@@ -1198,7 +1222,7 @@ def volcano(
         show_thresh: bool = True,
         ax: plt.axis = None,
         ret_fig: bool = True,
-        figsize: tuple = (8, 8),
+        figsize: tuple[float, float] = (8, 8),
         annotate: Union[pd.Index, Literal["highlight", "p-value and log2FC", "p-value", "log2FC"], None] = "p-value "
                                                                                                            "and log2FC",
         annotate_colname: str = "Gene names",
