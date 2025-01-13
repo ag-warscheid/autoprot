@@ -270,8 +270,9 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     print(df_missed_cleavage_summary)
 
 
-def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
+def enrichment_specificity(df_evidence, mod_col='Phospho (STY)', save=True):
     """
+    Calculate the enrichment specificity for a given type of modification.
 
     Parameters
     ----------
@@ -308,11 +309,12 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     try:
         for name, group in df_evidence.groupby("Experiment"):
-            nonmod = round(((group[mod_col] == 0).sum() / group.shape[0] * 100), 2)
-            mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
+            value_counts = group[mod_col].value_counts(normalize=True)  # count the percentage of modified peptides
+            nonmod_perc: pd.Series = round(value_counts[0], 2)
+            mod_perc : pd.Series = round(value_counts[value_counts > 0].sum(), 2)
 
-            df.loc[name, "Modified peptides [%]"] = mod
-            df.loc[name, "Non-modified peptides [%]"] = nonmod
+            df.loc[name, "Modified peptides [%]"] = mod_perc
+            df.loc[name, "Non-modified peptides [%]"] = nonmod_perc
     except KeyError:
         raise TypeError("Invalid type specified. Name must match the MaxQuant experiment name.")
 
@@ -320,9 +322,8 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     # make barchart
     fig, ax = plt.subplots()
-    fig.suptitle(f'Enrichment specificty [%] for {mod_col}', fontdict=None,
+    fig.suptitle(f'Enrichment specificity [%] for {mod_col}', fontdict=None,
                  horizontalalignment='center', size=14
-                 # ,fontweight="bold"
                  )
 
     df_summary.plot(kind="bar", stacked=True, ax=ax)
@@ -333,9 +334,9 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     if save:
         # save fig in cwd with date
-        plt.savefig(f"{today}_BarPlot_enrichmentSpecifity.pdf", dpi=600)
+        plt.savefig(f"{today}_BarPlot_enrichmentSpecificity.pdf", dpi=600)
         # save df missed cleavage summery as .csv
-        df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
+        df_summary.T.to_csv(f"{today}_enrichmentSpecificity_result-table.csv", sep='\t', index=False)
 
 
 def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L', 'M', 'H']] = None,
