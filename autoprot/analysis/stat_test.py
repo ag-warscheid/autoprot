@@ -384,12 +384,12 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     return df
 
 
-def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
+def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
     """
     Perform RankProd test as in R RankProd package.
 
     At the moment one sample test only.
-    Test for up and downregulated genes separatly therefore returns two p values.
+    Test for up and downregulated genes separately therefore returns two p values.
 
     Parameters
     ----------
@@ -409,6 +409,9 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
         missing values (p Values are calculated). If correct_fc is False
         the original fold changes from rankProd are return, else fold
         changes are calculated for all values after ignoring NaNs.
+    min_vv : int, optional
+        Minimum number of valid values for a row to be considered.
+        The default is 1.
 
     Returns
     -------
@@ -419,7 +422,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     Notes
     -----
     The adjusted p-values returned from the R backend are the percentage of
-    false postives calculated by the rankProd package. This is akin to corrected
+    false positives calculated by the rankProd package. This is akin to corrected
     p values, but care should be taken to name these values accordingly.
 
     """
@@ -431,19 +434,28 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if isinstance(reps[0], list) and len(reps) == 2:
-        class_labels = [0, ] * len(reps[0]) + [1, ] * len(reps[1])
+    if isinstance(reps[0], list) and len(reps) > 2:
+        raise ValueError("rankProd: Only up to two sample tests are supported. Please change the reps input.")
+    elif isinstance(reps[0], list) and len(reps) == 2:
         print("rankProd: Assuming a two sample test with:")
+        enough_vvs = (df[reps[0]].notnull().sum(axis=1) >= min_vv) &\
+                        (df[reps[1]].notnull().any(axis=1) >= min_vv)
+
+        class_labels = [0, ] * len(reps[0]) + [1, ] * len(reps[1])
         print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
         print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
         print(f"Class labels: {', '.join([str(x) for x in class_labels])}")
-
     else:
         print("rankProd: Assuming a one sample test")
+        enough_vvs = df[reps].notnull().sum(axis=1) >= min_vv
         class_labels = [1, ] * len(reps)
 
+    if enough_vvs.any():
+        print(f"rankProd: {len(df) - enough_vvs.sum()} rows with less than {min_vv} valid values per rep were ignored")
+    for_r = df[enough_vvs].copy()
+
     # flatten in case of two sample
-    pp.to_csv(df[["UID"] + list(pl.flatten(reps))], data_loc)
+    pp.to_csv(for_r[["UID"] + list(pl.flatten(reps))], data_loc)
 
     command = [R, '--vanilla',
                RFUNCTIONS,  # script location
