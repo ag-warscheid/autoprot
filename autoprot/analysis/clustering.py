@@ -370,7 +370,7 @@ class _Cluster:
     def clustering_evaluation(self, pred, figsize, start, up_to, plot: bool):
         pred = np.array(pred)
         print(f"Best Davies Boulding at {start + list(pred[::, 0]).index(min(pred[::, 0]))} with {min(pred[::, 0])}")
-        print(f"Best Silhouoette_score at {start + list(pred[::, 1]).index(max(pred[::, 1]))} with {max(pred[::, 1])}")
+        print(f"Best Silhouette_score at {start + list(pred[::, 1]).index(max(pred[::, 1]))} with {max(pred[::, 1])}")
         print(f"Best Harabasz/Calinski at {start + list(pred[::, 2]).index(max(pred[::, 2]))} with {max(pred[::, 2])}")
         self.nclusters = start + list(pred[::, 0]).index(min(pred[::, 0]))
         print(f"Using Davies Boulding Score for setting # clusters: {self.nclusters}")
@@ -383,7 +383,7 @@ class _Cluster:
             plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
             plt.grid(axis='x')
             plt.subplot(132)
-            plt.title("Silhouoette_score")
+            plt.title("Silhouette_score")
             plt.plot(pred[::, 1])
             plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
             plt.grid(axis='x')
