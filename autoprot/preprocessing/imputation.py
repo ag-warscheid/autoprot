@@ -184,7 +184,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
     df.drop("UID", axis=1, inplace=True)
 
     # return the imputed df and the imputed cols if requested
-    return (df, res_cols) if return_cols else df
+    return (df, df.columns) if return_cols else df
 
 
 def dima(df, cols: Union[list[str], pd.Index], selection_substr=None, ttest_substr='cluster', methods='fast',
