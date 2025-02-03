@@ -673,10 +673,13 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
         if n is not None:  # add the n largest and small ranks to the highlight
             highlight = [data.nlargest(n, '# rank').index.union(data.nsmallest(n, '# rank').index),]
             kwargs_highlight = [{'color': 'salmon'},]
-    elif isinstance(highlight, pd.Index):  # if highlight is a pd.Index, convert it to a list
+    elif isinstance(highlight, pd.Index):  # highlight is a pd.Index
+        highlight = highlight.intersection(data.index)  # only keep the indices that are in the data
         highlight = [highlight, ]  # add the highlight to the highlight list
         kwargs_highlight = [kwargs_highlight, ]
-    # else highlight is a list of pd.Index
+    else:  # else highlight is a list of pd.Index
+        for i, h in enumerate(highlight):
+            highlight[i] = h.intersection(data.index)  # only keep the indices that are in the data
 
     if highlight is not None:
         _plot_highlights_scatter(highlight=highlight,
