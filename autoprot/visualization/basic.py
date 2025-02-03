@@ -581,7 +581,7 @@ def boxplot(df: pd.DataFrame, reps: list, title: Union[str, list[str], None] = N
 
 
 def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: Union[int, None] = 5,
-                   title="Rank Plot", figsize=(15, 7), file=None, hline=None,
+                   title="Rank Plot", figsize=(15, 7), save_to_folder=None, hline=None,
                    ax=None, highlight=None, kwargs_highlight=None, ascending=True, **kwargs):
     # noinspection PyUnresolvedReferences
     """
@@ -605,8 +605,8 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
         The default is "Rank Plot".
     figsize : tuple of int, optional
         The figure size. The default is (15,7).
-    file : str, optional
-        Path to a folder where the resulting sigure should be saved.
+    save_to_folder : str, optional
+        Path to a folder where the resulting figure should be saved.
         The default is None.
     hline : numeric, optional
         y value to place a horizontal line.
@@ -669,45 +669,37 @@ def intensity_rank(data, rank_col="log10_Intensity", annotate_colname=None, n: U
     if hline is not None:
         ax.axhline(hline, 0, 1, ls="dashed", color="lightgray")
 
-    if annotate_colname is not None:
+    if highlight is None:
+        if n is not None:  # add the n largest and small ranks to the highlight
+            highlight = [data.nlargest(n, '# rank').index.union(data.nsmallest(n, '# rank').index),]
+            kwargs_highlight = [{'color': 'salmon'},]
+    elif isinstance(highlight, pd.Index):  # if highlight is a pd.Index, convert it to a list
+        highlight = [highlight, ]  # add the highlight to the highlight list
+        kwargs_highlight = [kwargs_highlight, ]
+    # else highlight is a list of pd.Index
 
-        if highlight is None:
-            if n is not None:
-                highlight = []
-                kwargs_highlight = []
-        else:
-            highlight = [highlight, ]
-            kwargs_highlight = [kwargs_highlight, ]
+    if highlight is not None:
+        _plot_highlights_scatter(highlight=highlight,
+                                 kwargs_highlight=kwargs_highlight,
+                                 df=data,
+                                 ax=ax,
+                                 x_colname='# rank',
+                                 y_colname=rank_col,
+                                 pointsize_colname=None)
 
-        # add the n largest and small ranks to the highlight
-        if n is not None:
-            highlight.append(data.nlargest(n, '# rank').index.union(data.nsmallest(n, '# rank').index))
-            kwargs_highlight.append({'color': 'salmon'})
+        _label_scatter(df=data,
+                       ax=ax,
+                       x_colname="# rank",
+                       y_colname=rank_col,
+                       annotate="highlight",
+                       highlight=highlight,
+                       annotate_colname=annotate_colname,  # will just return if annotate_colname is None
+                       annotate_density=100)
 
-        if highlight is not None:
-            _plot_highlights_scatter(highlight=highlight,
-                                     kwargs_highlight=kwargs_highlight,
-                                     df=data,
-                                     ax=ax,
-                                     x_colname='# rank',
-                                     y_colname=rank_col,
-                                     pointsize_colname=None)
+    plt.title(title)
 
-            _label_scatter(df=data,
-                           ax=ax,
-                           x_colname="# rank",
-                           y_colname=rank_col,
-                           annotate="highlight",
-                           highlight=highlight,
-                           annotate_colname=annotate_colname,
-                           annotate_density=100)
-        else:
-            print("annotate colname provided but neither n nor highlight given. Skipping annotation.")
-
-        plt.title(title)
-
-    if file is not None:
-        plt.savefig(fr"{file}/RankPlot.pdf")
+    if save_to_folder is not None:
+        plt.savefig(fr"{save_to_folder}/RankPlot.pdf")
 
 
 def venn_diagram(df: pd.DataFrame, figsize: tuple = (10, 10), ret_fig: bool = False, proportional: bool = True):
