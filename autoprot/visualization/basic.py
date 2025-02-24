@@ -9,7 +9,7 @@ Autoprot Basic Plotting Functions.
 import warnings
 from functools import reduce
 from itertools import combinations
-from typing import Literal, Union, List, Any
+from typing import Literal, Union, List
 
 import matplotlib.colors as mcolors
 import matplotlib.patches as patches
@@ -640,20 +640,20 @@ def boxplot(
 
 
 def intensity_rank(
-    data,
-    rank_col="log10_Intensity",
-    annotate_colname=None,
+    data: pd.DataFrame,
+    rank_col: str = "log10_Intensity",
+    annotate_colname: Union[str, None] = None,
     n: Union[int, None] = 5,
-    title="Rank Plot",
-    figsize=(15, 7),
-    save_to_folder=None,
-    hline=None,
-    ax=None,
-    highlight=None,
-    kwargs_highlight=None,
-    ascending=True,
+    title: str = "Rank Plot",
+    figsize: tuple[int, int] = (15, 7),
+    save_to_folder: Union[str, None] = None,
+    hline: Union[float, None] = None,
+    ax: Union[plt.Axes, None] = None,
+    highlight: Union[list[pd.Index], pd.Index, None] = None,
+    kwargs_highlight: Union[dict, None] = None,
+    ascending: bool = True,
     **kwargs,
-):
+) -> None:
     # noinspection PyUnresolvedReferences
     """
     Draw a rank plot.
@@ -750,12 +750,8 @@ def intensity_rank(
         highlight = highlight.intersection(
             data.index
         )  # only keep the indices that are in the data
-        highlight = [
-            highlight,
-        ]  # add the highlight to the highlight list
-        kwargs_highlight = [
-            kwargs_highlight,
-        ]
+        highlight = [highlight]  # add the highlight to the highlight list
+        kwargs_highlight = [kwargs_highlight]
     else:  # else highlight is a list of pd.Index
         for i, h in enumerate(highlight):
             highlight[i] = h.intersection(
@@ -899,7 +895,7 @@ def venn_diagram(
 
     if n == 2:
         if proportional:
-            venn2([g1, g2], set_labels=reps)
+            venn2((g1, g2), set_labels=reps)
         else:
             labels = venn.get_labels([g1, g2], fill=["number", "logic"])
             fig, ax = venn.venn2(labels, names=[reps[0], reps[1]], figsize=figsize)
@@ -910,7 +906,7 @@ def venn_diagram(
         g3 = data[[reps[2]] + ["UID"]]
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         if proportional:
-            venn3([g1, g2, g3], set_labels=reps)
+            venn3((g1, g2, g3), set_labels=reps)
         else:
             labels = venn.get_labels([g1, g2, g3], fill=["number", "logic"])
             fig, ax = venn.venn3(
@@ -2029,7 +2025,7 @@ def ratio_plot(
     show_thresh: bool = True,
     ax: plt.axis = None,
     ret_fig: bool = True,
-    figsize: tuple = (8, 8),
+    figsize: tuple[float, float] = (8, 8),
     annotate: Union[
         pd.Index, Literal["highlight", "ratio_thresh"], None
     ] = "ratio_thresh",
