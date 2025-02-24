@@ -643,6 +643,7 @@ def intensity_rank(
     data: pd.DataFrame,
     rank_col: str = "log10_Intensity",
     annotate_colname: Union[str, None] = None,
+    annotate: Union[Literal['highlight'], None] = None,
     n: Union[int, None] = 5,
     title: str = "Rank Plot",
     figsize: tuple[int, int] = (15, 7),
@@ -650,7 +651,7 @@ def intensity_rank(
     hline: Union[float, None] = None,
     ax: Union[plt.Axes, None] = None,
     highlight: Union[list[pd.Index], pd.Index, None] = None,
-    kwargs_highlight: Union[dict, None] = None,
+    kwargs_highlight: Union[list[dict], dict, None] = None,
     ascending: bool = True,
     **kwargs,
 ) -> None:
@@ -668,6 +669,8 @@ def intensity_rank(
     annotate_colname : str, optional
         Colname of the column with the labels.
         The default is None.
+    annotate : str, optional
+        Whether to annotate the plot. Can be "highlight" or None. The default is None.
     n : int, optional
         How many points to label on the top and bottom of the y-scale.
         The default is 5.
@@ -774,7 +777,7 @@ def intensity_rank(
             ax=ax,
             x_colname="# rank",
             y_colname=rank_col,
-            annotate="highlight",
+            annotate=None if annotate_colname is None else annotate,
             highlight=highlight,
             annotate_colname=annotate_colname,  # will just return if annotate_colname is None
             annotate_density=100,
