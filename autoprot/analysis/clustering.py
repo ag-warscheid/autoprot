@@ -15,6 +15,7 @@ import matplotlib.colors as clrs
 import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import seaborn as sns
 from gprofiler import GProfiler
 from numpy.typing import ArrayLike
@@ -22,13 +23,15 @@ from scipy import cluster as clst
 from scipy.spatial import distance
 from scipy.stats import zscore
 from sklearn import cluster as clstsklearn
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.metrics import (
+    silhouette_score,
+    calinski_harabasz_score,
+    davies_bouldin_score,
+)
 
 from .. import r_helper
 
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
@@ -40,9 +43,14 @@ class _Cluster:
     Base class for clustering pipelines.
     """
 
-    def __init__(self, data: Union[np.array, pd.DataFrame], clabels: Union[None, list] = None,
-                 rlabels: Union[None, list] = None, zs: Union[None, int] = None,
-                 linkage: Union[None, ArrayLike] = None):
+    def __init__(
+        self,
+        data: Union[np.array, pd.DataFrame],
+        clabels: Union[None, list] = None,
+        rlabels: Union[None, list] = None,
+        zs: Union[None, int] = None,
+        linkage: Union[None, ArrayLike] = None,
+    ):
         """
         Initialise the class.
 
@@ -52,7 +60,7 @@ class _Cluster:
             The data to be clustered.
         clabels : list or None
             Column labels. Must be present in the in input df.
-            Defaulting to RangeIndex(0, 1, 2, …, n). 
+            Defaulting to RangeIndex(0, 1, 2, …, n).
         rlabels : list or None
             Row labels. Must be present in the in input df.
             Will default to RangeIndex if no indexing information part of
@@ -70,8 +78,12 @@ class _Cluster:
 
         """
 
-        def _sanitize_data(data: Union[np.ndarray, pd.DataFrame], clabels: list, rlabels: list,
-                           zs: Union[int, None]) -> tuple[np.ndarray, list, list]:
+        def _sanitize_data(
+            data: Union[np.ndarray, pd.DataFrame],
+            clabels: list,
+            rlabels: list,
+            zs_axis: Union[int, None],
+        ) -> tuple[np.ndarray, list, list]:
             """
             Check if data contains missing values and remove them.
 
@@ -83,7 +95,7 @@ class _Cluster:
                 Column labels.
             rlabels : list
                 Row labels.
-            zs : int or None
+            zs_axis : int or None
                 Axis along which to calculate the zscore.
                 The default is None.
 
@@ -98,24 +110,52 @@ class _Cluster:
                 If the data is not a DataFrame or np.ndarray.
             """
 
-            # make sure this is a DataFrame
-            dataframe = pd.DataFrame(data, index=rlabels, columns=clabels)
+            # make sure that the data is a pandas DataFrame with the correct labels
+            # this will make sure that the labels are modified along with the data
+            if not isinstance(data, (pd.DataFrame, np.ndarray)):
+                raise ValueError(
+                    "Data must be a pandas DataFrame or a numpy ndarray."
+                )
+            else:
+                dataframe = pd.DataFrame(data, index=rlabels, columns=clabels)
+
+            # check that all input is numeric before proceeding
+            if not all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns):
+                # collect columns containing non-numeric values
+                non_numeric = [
+                    col for col in dataframe.columns if not is_numeric_dtype(dataframe[col])
+                ]
+                raise ValueError(f"All values must be numeric. Check for non-numeric values in column(s) {non_numeric}.")
 
             # if the zscore is to be calculated (i.e. if zs != None)
             # a dataframe with zscores instead of values is calculated
-            if zs is not None:
-                temp = dataframe.copy(deep=True).to_numpy()
-                temp_transformed = zscore(temp, axis=zs)
-                dataframe = pd.DataFrame(temp_transformed, index=dataframe.index, columns=dataframe.columns)
+            if zs_axis is not None:
+                to_transform = dataframe.to_numpy()  # convert to numpy array
+                transformed = zscore(to_transform, axis=zs_axis)  # calculate zscore
+                dataframe = pd.DataFrame(  # convert back to dataframe
+                    transformed, index=dataframe.index, columns=dataframe.columns
+                )
 
-            print(f'Removed {dataframe.isnull().values.sum()} NaN values from the dataframe to prepare for clustering.')
+            print(
+                f"Removed {dataframe.isnull().values.sum()} NaN values from the dataframe to prepare for clustering."
+            )
             # no NA values should remain during cluster analysis
-            dataframe.dropna(how='any', axis=1, inplace=True)
+            dataframe.dropna(how="any", axis=1, inplace=True)
 
-            return dataframe.values, dataframe.index.tolist(), dataframe.columns.tolist()
+            # check that the data is not empty
+            if dataframe.empty:
+                raise ValueError("The dataframe is empty.")
+
+            return (
+                dataframe.to_numpy(),
+                dataframe.index.tolist(),
+                dataframe.columns.tolist(),
+            )
 
         #
-        self.data, self.rlabels, self.clabels = _sanitize_data(data=data, clabels=clabels, rlabels=rlabels, zs=zs)
+        self.data, self.rlabels, self.clabels = _sanitize_data(
+            data=data, clabels=clabels, rlabels=rlabels, zs_axis=zs
+        )
 
         # the linkage object for hierarchical clustering
         self.linkage = linkage
@@ -124,13 +164,23 @@ class _Cluster:
         # list of len(data) with IDs of clusters corresponding to rows
         self.clusterId = None
         # the standard colormap
-        self.cmap = matplotlib.colormaps['viridis']
+        self.cmap = matplotlib.colormaps["viridis"]
         # type of clustering (base class is None)
         self.type = None
 
-    def vis_cluster(self, col_cluster=False, make_traces=False, make_heatmap=False, file=None, row_colors=None,
-                    colors: list = None, ytick_labels="", ret_figs: bool = False, make_clustermap: bool = True,
-                    **kwargs):
+    def vis_cluster(
+        self,
+        col_cluster=False,
+        make_traces=False,
+        make_heatmap=False,
+        file=None,
+        row_colors=None,
+        colors: list = None,
+        ytick_labels="",
+        ret_figs: bool = False,
+        make_clustermap: bool = True,
+        **kwargs,
+    ):
         """
         Visualise the clustering.
 
@@ -207,13 +257,18 @@ class _Cluster:
             for idx, i in enumerate(labels):
                 ax = plt.subplot(self.nclusters, 1, idx + 1)
                 temp2 = temp[temp["cluster"] == i].drop("cluster", axis=1)
-                temp2["distance"] = temp2.apply(lambda x: -np.log(np.sqrt(sum((x - temp2.mean()) ** 2))), 1)
+                temp2["distance"] = temp2.apply(
+                    lambda x: -np.log(np.sqrt(sum((x - temp2.mean()) ** 2))), 1
+                )
 
                 if temp2.shape[0] == 1:
                     ax.set_title(f"Cluster {i}")
                     ax.set_ylabel("")
                     ax.set_xlabel("")
-                    ax.plot(range(temp2.shape[1] - 1), temp2.drop("distance", axis=1).values.reshape(-1))
+                    ax.plot(
+                        range(temp2.shape[1] - 1),
+                        temp2.drop("distance", axis=1).values.reshape(-1),
+                    )
 
                     plt.xticks(range(len(self.clabels)), self.clabels)
                     continue
@@ -233,13 +288,17 @@ class _Cluster:
                 ax.set_xlabel("Condition")
                 for jdx, (_, group) in enumerate(grouped):
                     for j in range(group.shape[0]):
-                        ax.plot(range(temp2.shape[1] - 1), group.drop("distance", axis=1).iloc[j], color=color[jdx],
-                                alpha=alpha[jdx])
+                        ax.plot(
+                            range(temp2.shape[1] - 1),
+                            group.drop("distance", axis=1).iloc[j],
+                            color=color[jdx],
+                            alpha=alpha[jdx],
+                        )
 
                 plt.xticks(range(len(self.clabels)), self.clabels, rotation=90)
                 plt.tight_layout()
                 if file is not None:
-                    name, ext = file.split('.')
+                    name, ext = file.split(".")
                     filet = f"{name}_traces.{ext}"
                     plt.savefig(filet)
 
@@ -266,8 +325,10 @@ class _Cluster:
             temp = pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels)
             temp["cluster"] = self.clusterId
             grouped = temp.groupby("cluster")[self.clabels].mean()
-            ylabel = [f"Cluster{i + 1} (n={j})" for i, j in
-                      enumerate(temp.groupby("cluster").count().iloc[:, 0].values)]
+            ylabel = [
+                f"Cluster{i + 1} (n={j})"
+                for i, j in enumerate(temp.groupby("cluster").count().iloc[:, 0].values)
+            ]
 
             fig = plt.figure()
             plt.title("Summary Of Clustering")
@@ -275,7 +336,7 @@ class _Cluster:
             plt.yticks([i + 0.5 for i in range(len(ylabel))], ylabel, rotation=0)
             plt.tight_layout()
             if file is not None:
-                name, ext = file.split('.')
+                name, ext = file.split(".")
                 filet = f"{name}_summary.{ext}"
                 plt.savefig(filet)
 
@@ -302,29 +363,47 @@ class _Cluster:
             kwargs["cmap"] = self.cmap
         if row_colors is not None:
             row_colors_df = pd.DataFrame(row_colors)
-            row_colors_df['Cluster'] = cluster_colors
+            row_colors_df["Cluster"] = cluster_colors
             row_colors_df.index = self.rlabels
         else:
-            row_colors_df = pd.DataFrame(cluster_colors, columns=['Cluster'], index=self.rlabels)
+            row_colors_df = pd.DataFrame(
+                cluster_colors, columns=["Cluster"], index=self.rlabels
+            )
 
         if make_clustermap:
-            value_type = 'z-score' if "z_score" in kwargs else 'value'
-            if self.type == 'KMeans':
+            value_type = "z-score" if "z_score" in kwargs else "value"
+            if self.type == "KMeans":
                 # KMeans does not have linkage should not be reclustered
-                clustermap = sns.clustermap(data=pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
-                                            row_colors=row_colors_df, row_cluster=False, col_cluster=False,
-                                            dendrogram_ratio=0.05, cbar_pos=None, yticklabels=ytick_labels, **kwargs)
+                clustermap = sns.clustermap(
+                    data=pd.DataFrame(
+                        self.data, index=self.rlabels, columns=self.clabels
+                    ),
+                    row_colors=row_colors_df,
+                    row_cluster=False,
+                    col_cluster=False,
+                    dendrogram_ratio=0.05,
+                    cbar_pos=None,
+                    yticklabels=ytick_labels,
+                    **kwargs,
+                )
             else:
-                clustermap = sns.clustermap(pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
-                                            row_linkage=self.linkage,
-                                            row_colors=row_colors_df, col_cluster=col_cluster, yticklabels=ytick_labels,
-                                            cbar_kws={'label': value_type}, **kwargs)
+                clustermap = sns.clustermap(
+                    pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels),
+                    row_linkage=self.linkage,
+                    row_colors=row_colors_df,
+                    col_cluster=col_cluster,
+                    yticklabels=ytick_labels,
+                    cbar_kws={"label": value_type},
+                    **kwargs,
+                )
 
         if file is not None:
             plt.savefig(file)
         if make_traces:
             if "z_score" in kwargs:
-                traces = make_cluster_traces(file, zs=kwargs["z_score"], colors=colors, ret_fig=ret_figs)
+                traces = make_cluster_traces(
+                    file, zs=kwargs["z_score"], colors=colors, ret_fig=ret_figs
+                )
             else:
                 traces = make_cluster_traces(file, colors=colors, ret_fig=ret_figs)
         if make_heatmap:
@@ -364,14 +443,21 @@ class _Cluster:
         temp = pd.DataFrame(self.data, index=self.rlabels, columns=self.clabels)
         temp["cluster"] = self.clusterId
         for cluster in temp["cluster"].unique():
-            pd.DataFrame(temp[temp["cluster"] == cluster].index).to_csv(f"{path}/cluster_{cluster}.tsv", header=False,
-                                                                        index=False)
+            pd.DataFrame(temp[temp["cluster"] == cluster].index).to_csv(
+                f"{path}/cluster_{cluster}.tsv", header=False, index=False
+            )
 
     def clustering_evaluation(self, pred, figsize, start, up_to, plot: bool):
         pred = np.array(pred)
-        print(f"Best Davies Boulding at {start + list(pred[::, 0]).index(min(pred[::, 0]))} with {min(pred[::, 0])}")
-        print(f"Best Silhouette_score at {start + list(pred[::, 1]).index(max(pred[::, 1]))} with {max(pred[::, 1])}")
-        print(f"Best Harabasz/Calinski at {start + list(pred[::, 2]).index(max(pred[::, 2]))} with {max(pred[::, 2])}")
+        print(
+            f"Best Davies Boulding at {start + list(pred[::, 0]).index(min(pred[::, 0]))} with {min(pred[::, 0])}"
+        )
+        print(
+            f"Best Silhouette_score at {start + list(pred[::, 1]).index(max(pred[::, 1]))} with {max(pred[::, 1])}"
+        )
+        print(
+            f"Best Harabasz/Calinski at {start + list(pred[::, 2]).index(max(pred[::, 2]))} with {max(pred[::, 2])}"
+        )
         self.nclusters = start + list(pred[::, 0]).index(min(pred[::, 0]))
         print(f"Using Davies Boulding Score for setting # clusters: {self.nclusters}")
         print("You may manually overwrite this by setting self.nclusters")
@@ -380,18 +466,24 @@ class _Cluster:
             plt.subplot(131)
             plt.title("Davies_boulding_score")
             plt.plot(pred[::, 0])
-            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
-            plt.grid(axis='x')
+            plt.xticks(
+                range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90
+            )
+            plt.grid(axis="x")
             plt.subplot(132)
             plt.title("Silhouette_score")
             plt.plot(pred[::, 1])
-            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
-            plt.grid(axis='x')
+            plt.xticks(
+                range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90
+            )
+            plt.grid(axis="x")
             plt.subplot(133)
             plt.title("Harabasz score")
             plt.plot(pred[::, 2])
-            plt.xticks(range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90)
-            plt.grid(axis='x')
+            plt.xticks(
+                range(up_to - start), [str(x) for x in range(start, up_to)], rotation=90
+            )
+            plt.grid(axis="x")
 
 
 class HCA(_Cluster):
@@ -446,22 +538,45 @@ class HCA(_Cluster):
             c.make_cluster()
             c.cmap = 'coolwarm'
             c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
-        """
+    """
 
     def __init__(self, *args, **kwargs):
         """
         Initialise the subclass and set the type.
         """
         super().__init__(*args, **kwargs)
-        self.type = 'HCA'
+        self.type = "HCA"
 
-    def make_linkage(self, method='single',
-                     metric: Literal['braycurtis', 'canberra', 'chebyshev', 'cityblock',
-                                     'correlation', 'cosine', 'dice', 'euclidean', 'hamming', 'jaccard',
-                                     'jensenshannon', 'kulczynski1', 'mahalanobis', 'matching', 'minkowski',
-                                     'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener',
-                                     'sokalsneath', 'sqeuclidean', 'yule', 'spearman', 'pearson'] = 'euclidean'):
-
+    def make_linkage(
+        self,
+        method="single",
+        metric: Literal[
+            "braycurtis",
+            "canberra",
+            "chebyshev",
+            "cityblock",
+            "correlation",
+            "cosine",
+            "dice",
+            "euclidean",
+            "hamming",
+            "jaccard",
+            "jensenshannon",
+            "kulczynski1",
+            "mahalanobis",
+            "matching",
+            "minkowski",
+            "rogerstanimoto",
+            "russellrao",
+            "seuclidean",
+            "sokalmichener",
+            "sokalsneath",
+            "sqeuclidean",
+            "yule",
+            "spearman",
+            "pearson",
+        ] = "euclidean",
+    ):
         """
         Perform hierarchical clustering on the data.
 
@@ -514,11 +629,19 @@ class HCA(_Cluster):
              0.15958285448266604,
              -0.03960705975653923]
             """
-            return [c[i][j] for i in (range(c.shape[0])) for j in (range(c.shape[1])) if i < j]
+            return [
+                c[i][j]
+                for i in (range(c.shape[0]))
+                for j in (range(c.shape[1]))
+                if i < j
+            ]
 
         if self.linkage is not None:
-            warnings.warn('Linkage is already present, using the already defined linkage. If you want to reset the '
-                          'linkage, manually set HCA.linkage = None', UserWarning)
+            warnings.warn(
+                "Linkage is already present, using the already defined linkage. If you want to reset the "
+                "linkage, manually set HCA.linkage = None",
+                UserWarning,
+            )
             # leave the function
             return None
 
@@ -589,12 +712,16 @@ class HCA(_Cluster):
         pred = []
         for i in range(start, up_to):
             # return the assigned cluster labels for each data point
-            cluster = clst.hierarchy.fcluster(self.linkage, t=i, criterion='maxclust')
+            cluster = clst.hierarchy.fcluster(self.linkage, t=i, criterion="maxclust")
             # calculate scores based on assigned cluster labels and
             # the original data points
-            pred.append((davies_bouldin_score(self.data, cluster),
-                         silhouette_score(self.data, cluster),
-                         calinski_harabasz_score(self.data, cluster)))
+            pred.append(
+                (
+                    davies_bouldin_score(self.data, cluster),
+                    silhouette_score(self.data, cluster),
+                    calinski_harabasz_score(self.data, cluster),
+                )
+            )
 
         self.clustering_evaluation(pred, figsize, start, up_to, plot)
 
@@ -608,15 +735,18 @@ class HCA(_Cluster):
 
         """
         if self.nclusters is None:
-            raise AttributeError('No. of clusters is None. Perform find_nclusters before.')
+            raise AttributeError(
+                "No. of clusters is None. Perform find_nclusters before."
+            )
 
         # self.cluster is an array of length x
         # with x = number of original data points containing the ID
         # of the corresponding cluster
-        self.clusterId = \
-            clst.hierarchy.fcluster(self.linkage,  # the hierarchical clustering
-                                    t=self.nclusters,  # max number of clusters
-                                    criterion="maxclust")  # forms maximumum n=t clusters
+        self.clusterId = clst.hierarchy.fcluster(
+            self.linkage,  # the hierarchical clustering
+            t=self.nclusters,  # max number of clusters
+            criterion="maxclust",
+        )  # forms maximumum n=t clusters
 
     def auto_run(self, start_processing=1, stop_processing=5):
         """
@@ -683,24 +813,24 @@ class KMeans(_Cluster):
         labels = df.pop('species')
         c = ana.KMeans(df)
         c.auto_run()
-    
+
     Finally, visualise the clustering using the visCluster method and include the
     previously extracted labeling column from the original dataframe.
 
      .. plot::
          :context: close-figs
 
-         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)    
+         labels.replace(['setosa', 'virginica', 'versicolor'], ["teal", "purple", "salmon"], inplace=True)
          rc = {"species" : labels}
          c.vis_cluster(row_colors={'species': labels})
-         
+
     As you can see can KMeans quite well separate setosa but virginica and versicolor are harder.
     When we manually pick the number of clusters, it gets a bit better
 
      .. plot::
          :context: close-figs
 
-            c.nclusters = 3  
+            c.nclusters = 3
             c.make_cluster()
             c.vis_cluster(row_colors={'species': labels}, make_traces=True, file=None, make_heatmap=True)
     """
@@ -710,9 +840,11 @@ class KMeans(_Cluster):
         Initialise the subclass and set the type.
         """
         super().__init__(*args, **kwargs)
-        self.type = 'KMeans'
+        self.type = "KMeans"
 
-    def find_nclusters(self, start=2, up_to=20, figsize=(15, 5), plot=True, algo='scipy'):
+    def find_nclusters(
+        self, start=2, up_to=20, figsize=(15, 5), plot=True, algo="scipy"
+    ):
         """
         Evaluate number of clusters.
 
@@ -766,30 +898,34 @@ class KMeans(_Cluster):
         pred = []
         for i in range(start, up_to):
 
-            if algo == 'scipy':
+            if algo == "scipy":
                 # return the assigned cluster labels for each data point
-                _, cluster = clst.vq.kmeans2(data=self.data,
-                                             k=i,
-                                             minit='++')
-            elif algo == 'sklearn':
+                _, cluster = clst.vq.kmeans2(data=self.data, k=i, minit="++")
+            elif algo == "sklearn":
                 model = clstsklearn.KMeans(n_clusters=i)
                 model.fit(self.data)
                 cluster = model.labels_
             else:
-                raise ValueError('Provide either "sklearn" or "scipy" as parameter for the algo kwarg.')
+                raise ValueError(
+                    'Provide either "sklearn" or "scipy" as parameter for the algo kwarg.'
+                )
 
             # calculate scores based on assigned cluster labels and
             # the original data points
-            pred.append((davies_bouldin_score(self.data, cluster),
-                         silhouette_score(self.data, cluster),
-                         calinski_harabasz_score(self.data, cluster)))
+            pred.append(
+                (
+                    davies_bouldin_score(self.data, cluster),
+                    silhouette_score(self.data, cluster),
+                    calinski_harabasz_score(self.data, cluster),
+                )
+            )
 
         self.clustering_evaluation(pred, figsize, start, up_to, plot)
 
-    def make_cluster(self, algo='scipy', **kwargs):
+    def make_cluster(self, algo="scipy", **kwargs):
         """
         Perform k-means clustering and store the resulting labels in self.clusterId.
-        
+
         Parameters
         ----------
         algo : str, optional
@@ -802,20 +938,21 @@ class KMeans(_Cluster):
         None.
 
         """
-        if algo == 'scipy':
-            centroids, self.clusterId = clst.vq.kmeans2(data=self.data,
-                                                        k=self.nclusters,
-                                                        minit='++',
-                                                        **kwargs)
-        elif algo == 'sklearn':
+        if algo == "scipy":
+            centroids, self.clusterId = clst.vq.kmeans2(
+                data=self.data, k=self.nclusters, minit="++", **kwargs
+            )
+        elif algo == "sklearn":
             # initialise model
-            model = clstsklearn.KMeans(n_clusters=self.nclusters,
-                                       n_init='auto',
-                                       **kwargs)
+            model = clstsklearn.KMeans(
+                n_clusters=self.nclusters, n_init="auto", **kwargs
+            )
             model.fit(self.data)
             self.clusterId = model.labels_
         else:
-            raise ValueError('Provide either "sklearn" or "scipy" as parameter for the algo kwarg.')
+            raise ValueError(
+                'Provide either "sklearn" or "scipy" as parameter for the algo kwarg.'
+            )
 
     def auto_run(self, start_processing=1, stop_processing=5):
         """
