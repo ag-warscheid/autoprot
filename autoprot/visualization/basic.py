@@ -1890,8 +1890,8 @@ def ratio_plot(
 def _ratio_plot_style_axes(ax, ratio_thresh):
 
     if ratio_thresh is not None:
-        xthresh = ratio_thresh if isinstance(ratio_thresh, float) else ratio_thresh[0]
-        ythresh = ratio_thresh if isinstance(ratio_thresh, float) else ratio_thresh[1]
+        xthresh = ratio_thresh if isinstance(ratio_thresh, (float, int)) else ratio_thresh[0]
+        ythresh = ratio_thresh if isinstance(ratio_thresh, (float, int)) else ratio_thresh[1]
 
         if xthresh is not None:
             ax.axvline(x=xthresh, color="grey", linestyle="--", alpha=0.8)
