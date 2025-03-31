@@ -9,7 +9,7 @@ Autoprot Basic Plotting Functions.
 import warnings
 from functools import reduce
 from itertools import combinations
-from typing import Literal, Union, List
+from typing import Literal, Union, List, Iterable
 
 import matplotlib.colors as mcolors
 import matplotlib.patches as patches
@@ -24,6 +24,7 @@ from adjustText import adjust_text
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
 from pandas.core.dtypes.common import is_numeric_dtype
+from plotly.graph_objs.indicator import Number
 from scipy import stats
 from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
@@ -1696,9 +1697,24 @@ def _prep_ratio_data(
     # (1) non-significant
     df["SigCat"] = "NS"
     # (2) significant by score
+
     if ratio_thresh is not None:
-        df.loc[(df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh), "SigCat"] = "ratio_thresh"
-        df.loc[(df[col_name1] < ratio_thresh * -1) & (df[col_name2] < ratio_thresh * -1), "SigCat"] = "ratio_thresh"
+        if isinstance(ratio_thresh, (int, float)):
+            df.loc[(df[col_name1].abs() > ratio_thresh) & (df[col_name2].abs() > ratio_thresh), "SigCat"] = \
+                "ratio_thresh"
+        else:
+            # replace all occurrences of None with 0
+            ratio_thresh = [0 if x is None else x for x in ratio_thresh]
+            if len(ratio_thresh) == 2:
+                df.loc[(df[col_name1].abs() > ratio_thresh[0]) & (df[col_name2].abs() > ratio_thresh[1]), "SigCat"] = \
+                    "ratio_thresh"
+            elif len(ratio_thresh) == 1:
+                df.loc[(df[col_name1].abs() > ratio_thresh[0]) & (df[col_name2].abs() > ratio_thresh[0]), "SigCat"] = \
+                    "ratio_thresh"
+            else:
+                raise ValueError(
+                    "If ratio_thresh is a list, it must contain two values for the x and y ratios."
+                )
 
     unsig = df[df["SigCat"] == "NS"].index
     sig_ratio = df[df["SigCat"] == "ratio_thresh"].index
@@ -1709,11 +1725,11 @@ def _prep_ratio_data(
 def ratio_plot(
         df: pd.DataFrame,
         col_name1: str,
-        col_name2: str = None,
-        ratio_thresh: float = None,
+        col_name2: str | None = None,
+        ratio_thresh: Number | Iterable[Number] | None = None,
         xlabel: str = "Ratio col1",
         ylabel: str = "Ratio col2",
-        pointsize_colname: str or float = None,
+        pointsize_colname: str | None= None,
         pointsize_scaler: float = 1,
         highlight: Union[list, pd.Index, None] = None,
         title: str = None,
@@ -1725,8 +1741,8 @@ def ratio_plot(
         figsize: tuple = (8, 8),
         annotate: Union[Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
         annotate_colname: str = "Gene names",
-        kwargs_ns: dict = None,
-        kwargs_r_sig: dict = None,
+        kwargs_ns: dict | None = None,
+        kwargs_r_sig: dict | None = None,
         kwargs_highlight: Union[list, dict, None] = None,
         annotate_density: int = 100):
     # noinspection PyUnresolvedReferences
@@ -1742,7 +1758,7 @@ def ratio_plot(
     col_name2: str, optional
         The name of the column in df to use for the y-values of the scatter plot.
         The default is None.
-    ratio_thresh: float, optional
+    ratio_thresh:
         The threshold for the ratio plot. The default is None.
     xlabel: str, optional
         Label for the x-axis. The default is "Ratio col1".
@@ -1872,10 +1888,19 @@ def ratio_plot(
 
 
 def _ratio_plot_style_axes(ax, ratio_thresh):
-    ax.axvline(x=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-    ax.axvline(x=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-    ax.axhline(y=ratio_thresh, color="grey", linestyle="--", alpha=0.8)
-    ax.axhline(y=-ratio_thresh, color="grey", linestyle="--", alpha=0.8)
+
+    if ratio_thresh is not None:
+        xthresh = ratio_thresh if isinstance(ratio_thresh, float) else ratio_thresh[0]
+        ythresh = ratio_thresh if isinstance(ratio_thresh, float) else ratio_thresh[1]
+
+        if xthresh is not None:
+            ax.axvline(x=xthresh, color="grey", linestyle="--", alpha=0.8)
+            ax.axvline(x=-xthresh, color="grey", linestyle="--", alpha=0.8)
+
+        if ythresh is not None:
+            ax.axhline(y=ythresh, color="grey", linestyle="--", alpha=0.8)
+            ax.axhline(y=-ythresh, color="grey", linestyle="--", alpha=0.8)
+
     ax.axhline(y=0, color="black", linestyle="-")
     ax.axvline(x=0, color="black", linestyle="-")
 
