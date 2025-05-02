@@ -256,7 +256,7 @@ class AutoPCA:
         ax.set_yticks(yp, self.vis_df["label"], rotation=0)
         ax.set_title("")
 
-    def bar_load(self, pc: int = 1, n: int = 25) -> None:
+    def bar_load(self, pc: int = 1, n: int = 25, ax: plt.axis = None) -> None:
         """
         Plot the loadings of a given component in a barplot.
 
@@ -267,6 +267,8 @@ class AutoPCA:
         n : int, optional
             Plot only the n first rows.
             The default is 25.
+        ax : plt.Axis
+            The axis to plot on. Default is None.
 
         Returns
         -------
@@ -280,9 +282,17 @@ class AutoPCA:
         for_vis.loc[for_vis[pc] > 0, "color"] = "positive"
         for_vis = for_vis.sort_values(by=f"{pc}_abs", ascending=False)[:n]
         plt.figure()
-        ax = plt.subplot()
-        sns.barplot(x=for_vis[pc], y=for_vis["label"], hue=for_vis["color"], alpha=.5,
-                    hue_order=["negative", "positive"], palette=["teal", "purple"])
+        if ax is None:
+            fig, ax = plt.subplots()  # init axis if not provided
+
+        sns.barplot(
+            x=for_vis[pc],
+            y=for_vis["label"],
+            hue=for_vis["color"],
+            alpha=0.5,
+            hue_order=["negative", "positive"],
+            palette=["teal", "purple"],
+        )
         ax.get_legend().remove()
         sns.despine()
 
