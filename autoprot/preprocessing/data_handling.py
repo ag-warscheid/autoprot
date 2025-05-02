@@ -14,7 +14,7 @@ from urllib import parse
 from ftplib import FTP
 
 
-def read_csv(file, sep='\t', low_memory=False, **kwargs):
+def read_csv(file, sep="\t", low_memory=False, **kwargs):
     r"""
     pd.read_csv with modified default args.
 
@@ -38,7 +38,7 @@ def read_csv(file, sep='\t', low_memory=False, **kwargs):
     return pd.read_csv(file, sep=sep, low_memory=low_memory, **kwargs)
 
 
-def to_csv(df, file, sep='\t', index=False, **kwargs):
+def to_csv(df, file, sep="\t", index=False, **kwargs):
     r"""
     Write to CSV file.
 
@@ -63,7 +63,7 @@ def to_csv(df, file, sep='\t', index=False, **kwargs):
     df.to_csv(file, sep=sep, index=index, **kwargs)
 
 
-def download_from_ftp(url, save_dir, login_name='anonymous', login_pw=''):
+def download_from_ftp(url, save_dir, login_name="anonymous", login_pw=""):
     r"""
     Download a file from FTP.
 
@@ -98,8 +98,8 @@ def download_from_ftp(url, save_dir, login_name='anonymous', login_pw=''):
     ftp = FTP(parse.urlparse(url).netloc)
     ftp.login(login_name, login_pw)
     ftp.cwd(path)
-    ftp.retrbinary("RETR " + file, open(os.path.join(save_dir, file), 'wb').write)
-    print(f'Downloaded {file}')
+    ftp.retrbinary("RETR " + file, open(os.path.join(save_dir, file), "wb").write)
+    print(f"Downloaded {file}")
     ftp.quit()
     return os.path.join(save_dir, file)
 
@@ -132,19 +132,21 @@ def fetch_from_pride(accession, term, ignore_caps=True):
     >>> ftpDict = pp.fetch_from_pride("PXD031829", 'proteingroups')
 
     """
-    js_list = requests.get(f'https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession={accession}',
-                           headers={'Accept': 'application/json'}).json()
+    js_list = requests.get(
+        f"https://www.ebi.ac.uk/pride/ws/archive/v2/files/byProject?accession={accession}",
+        headers={"Accept": "application/json"},
+    ).json()
 
     file_locs = {}
 
     for fdict in js_list:
-        fname = fdict['fileName']
+        fname = fdict["fileName"]
         if ignore_caps is True:
             fname = fname.lower()
             term = term.lower()
         if term in fname:
-            for protocol in fdict['publicFileLocations']:
-                if protocol['name'] == 'FTP Protocol':
-                    file_locs[fname] = protocol['value']
-                    print(f'Found file {fname}')
+            for protocol in fdict["publicFileLocations"]:
+                if protocol["name"] == "FTP Protocol":
+                    file_locs[fname] = protocol["value"]
+                    print(f"Found file {fname}")
     return file_locs

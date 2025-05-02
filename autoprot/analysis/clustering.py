@@ -113,9 +113,7 @@ class _Cluster:
             # make sure that the data is a pandas DataFrame with the correct labels
             # this will make sure that the labels are modified along with the data
             if not isinstance(data, (pd.DataFrame, np.ndarray)):
-                raise ValueError(
-                    "Data must be a pandas DataFrame or a numpy ndarray."
-                )
+                raise ValueError("Data must be a pandas DataFrame or a numpy ndarray.")
             else:
                 dataframe = pd.DataFrame(data, index=rlabels, columns=clabels)
 
@@ -123,9 +121,13 @@ class _Cluster:
             if not all(is_numeric_dtype(dataframe[col]) for col in dataframe.columns):
                 # collect columns containing non-numeric values
                 non_numeric = [
-                    col for col in dataframe.columns if not is_numeric_dtype(dataframe[col])
+                    col
+                    for col in dataframe.columns
+                    if not is_numeric_dtype(dataframe[col])
                 ]
-                raise ValueError(f"All values must be numeric. Check for non-numeric values in column(s) {non_numeric}.")
+                raise ValueError(
+                    f"All values must be numeric. Check for non-numeric values in column(s) {non_numeric}."
+                )
 
             # if the zscore is to be calculated (i.e. if zs != None)
             # a dataframe with zscores instead of values is calculated

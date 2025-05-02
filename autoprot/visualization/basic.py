@@ -643,7 +643,7 @@ def intensity_rank(
     data: pd.DataFrame,
     rank_col: str = "log10_Intensity",
     annotate_colname: Union[str, None] = None,
-    annotate: Union[Literal['highlight'], None] = None,
+    annotate: Union[Literal["highlight"], None] = None,
     n: Union[int, None] = 5,
     title: str = "Rank Plot",
     figsize: tuple[int, int] = (15, 7),

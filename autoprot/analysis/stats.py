@@ -14,9 +14,8 @@ import seaborn as sns
 from .. import r_helper
 
 from gprofiler import GProfiler
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
@@ -42,8 +41,8 @@ def edm(matrix_a, matrix_b):
         Distance matrix.
 
     """
-    p1 = np.sum(matrix_a ** 2, axis=1)[:, np.newaxis]
-    p2 = np.sum(matrix_b ** 2, axis=1)
+    p1 = np.sum(matrix_a**2, axis=1)[:, np.newaxis]
+    p2 = np.sum(matrix_b**2, axis=1)
     p3 = -2 * np.dot(matrix_a, matrix_b.T)
     return np.sqrt(p1 + p2 + p3)
 
@@ -112,7 +111,9 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         plt.show()
     """
     # generate x,y value pairs and sort them according to x
-    all_data = sorted(zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0])
+    all_data = sorted(
+        zip(data[xvals].tolist(), data[yvals].tolist()), key=lambda x: x[0]
+    )
     # separate the values again into x and y cols
     xvals, yvals = zip(*all_data)
 
@@ -122,28 +123,33 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
     # alpha determines the relative proportion of values considered during weighing
     q = int(np.floor(n * alpha) if alpha <= 1.0 else n)
     # the average point to point distance in x direction
-    avg_interval = ((max(xvals) - min(xvals)) / len(xvals))
+    avg_interval = (max(xvals) - min(xvals)) / len(xvals)
     # calculate upper on lower boundaries
-    v_lb = min(xvals) - (.5 * avg_interval)
-    v_ub = (max(xvals) + (.5 * avg_interval))
+    v_lb = min(xvals) - (0.5 * avg_interval)
+    v_ub = max(xvals) + (0.5 * avg_interval)
     # coordinates for the fitting points
     v = enumerate(np.linspace(start=v_lb, stop=v_ub, num=m), start=1)
     # create an array of ones of the same length as xvals
     xcols = [np.ones_like(xvals)]
 
     for j in range(1, (poly_degree + 1)):
-        xcols.append([i ** j for i in xvals])
+        xcols.append([i**j for i in xvals])
     x_mtx = np.vstack(xcols).T
 
     collect_dfs = []
 
     for i in v:
         iterval = i[1]
-        iterdists = sorted([(j, np.abs(j - iterval)) for j in xvals], key=lambda x: x[1])
+        iterdists = sorted(
+            [(j, np.abs(j - iterval)) for j in xvals], key=lambda x: x[1]
+        )
         _, raw_dists = zip(*iterdists)
         scale_fact = raw_dists[q - 1]
         scaled_dists = [(j[0], (j[1] / scale_fact)) for j in iterdists]
-        weights = [(j[0], ((1 - np.abs(j[1] ** 3)) ** 3 if j[1] <= 1 else 0)) for j in scaled_dists]
+        weights = [
+            (j[0], ((1 - np.abs(j[1] ** 3)) ** 3 if j[1] <= 1 else 0))
+            for j in scaled_dists
+        ]
         _, weights = zip(*sorted(weights, key=lambda x: x[0]))
         _, raw_dists = zip(*sorted(iterdists, key=lambda x: x[0]))
         _, scaled_dists = zip(*sorted(scaled_dists, key=lambda x: x[0]))
@@ -151,10 +157,7 @@ def loess(data, xvals, yvals, alpha, poly_degree=2):
         b = np.linalg.inv(x_mtx.T @ w @ x_mtx) @ (x_mtx.T @ w @ yvals)
         # loc_eval
         local_est = sum(i[1] * (iterval ** i[0]) for i in enumerate(b))
-        iter_df2 = pd.DataFrame({
-            'v': [iterval],
-            'g': [local_est]
-        })
+        iter_df2 = pd.DataFrame({"v": [iterval], "g": [local_est]})
 
         # collect all dataframes
         collect_dfs.append(iter_df2)
@@ -211,36 +214,36 @@ def make_psm(seq, seq_len):
 
     """
     aa_dic = {
-        'G': 0,
-        'P': 0,
-        'matrix_a': 0,
-        'V': 0,
-        'L': 0,
-        'I': 0,
-        'M': 0,
-        'C': 0,
-        'F': 0,
-        'Y': 0,
-        'W': 0,
-        'H': 0,
-        'K': 0,
-        'R': 0,
-        'Q': 0,
-        'N': 0,
-        'E': 0,
-        'D': 0,
-        'S': 0,
-        'T': 0,
+        "G": 0,
+        "P": 0,
+        "matrix_a": 0,
+        "V": 0,
+        "L": 0,
+        "I": 0,
+        "M": 0,
+        "C": 0,
+        "F": 0,
+        "Y": 0,
+        "W": 0,
+        "H": 0,
+        "K": 0,
+        "R": 0,
+        "Q": 0,
+        "N": 0,
+        "E": 0,
+        "D": 0,
+        "S": 0,
+        "T": 0,
     }
 
     seq = [i for i in seq if len(i) == seq_len]
-    seq_t = [''.join(s) for s in zip(*seq)]
+    seq_t = ["".join(s) for s in zip(*seq)]
     score_matrix = []
     for pos in seq_t:
         d = aa_dic.copy()
         for aa in pos:
             aa = aa.upper()
-            if aa not in ['.', '-', '_', "dataframe"]:
+            if aa not in [".", "-", "_", "dataframe"]:
                 d[aa] += 1
         score_matrix.append(d)
 

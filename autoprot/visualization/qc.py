@@ -27,16 +27,20 @@ def _bar_plot_style(df, ax):
     ax2.yaxis.tick_left()
     ax.yaxis.tick_right()
 
-    ax.yaxis.set_label_position('right')
-    ax2.yaxis.set_label_position('left')
+    ax.yaxis.set_label_position("right")
+    ax2.yaxis.set_label_position("left")
 
-    ax2.set_ylabel('Frequency [%]')
+    ax2.set_ylabel("Frequency [%]")
 
     for p in ax.patches:
         x = p.get_bbox().get_points()[:, 0]
         y = p.get_bbox().get_points()[1, 1]
-        ax.annotate('{:.1f}%'.format(100. * y / ncount), (x.mean(), y),
-                    ha='center', va='bottom')  # set the alignment of the text
+        ax.annotate(
+            "{:.1f}%".format(100.0 * y / ncount),
+            (x.mean(), y),
+            ha="center",
+            va="bottom",
+        )  # set the alignment of the text
 
     ax.yaxis.set_major_locator(ticker.LinearLocator(11))
     ax2.set_ylim(0, 100)
@@ -45,8 +49,14 @@ def _bar_plot_style(df, ax):
 
 
 # STY COUNT PLOT ##
-def sty_count_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
-                   ret_fig: bool = False, ax: Union[plt.axis, None] = None, **kwargs):
+def sty_count_plot(
+    df: pd.DataFrame,
+    figsize: tuple[float, float] = (12, 8),
+    chart_type: Literal["bar", "pie"] = "bar",
+    ret_fig: bool = False,
+    ax: Union[plt.axis, None] = None,
+    **kwargs,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Draw an overview of Number of Phospho (STY) of a Phospho(STY) file.
@@ -91,7 +101,7 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), cha
         plt.show()
 
     """
-    values, count, counts_perc = _count_values(df, column='Number of Phospho (STY)')
+    values, count, counts_perc = _count_values(df, column="Number of Phospho (STY)")
 
     df = pd.DataFrame(values, columns=["Number of Phospho (STY)"])
 
@@ -103,8 +113,8 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), cha
 
     if chart_type == "bar":
         sns.countplot(x="Number of Phospho (STY)", data=df, ax=ax, **kwargs)
-        plt.title('Number of Phospho (STY)')
-        plt.xlabel('Number of Phospho (STY)')
+        plt.title("Number of Phospho (STY)")
+        plt.xlabel("Number of Phospho (STY)")
         _bar_plot_style(df, ax)
 
     elif chart_type == "pie":
@@ -117,7 +127,12 @@ def sty_count_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), cha
         return fig
 
 
-def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", ret_fig: bool = False, **kwargs):
+def isty_count_plot(
+    df: pd.DataFrame,
+    chart_type: Literal["bar", "pie"] = "bar",
+    ret_fig: bool = False,
+    **kwargs,
+):
     r"""
     Draw an interactive overview of Number of Phospho (STY) of a Phospho(STY) file.
 
@@ -139,15 +154,19 @@ def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar",
         The figure object.
 
     """
-    values, count, counts_perc = _count_values(df, column='Number of Phospho (STY)')
+    values, count, counts_perc = _count_values(df, column="Number of Phospho (STY)")
 
-    df = pd.DataFrame(values, columns=["Count"]).value_counts().reset_index(name='Number of Phospho (STY)')
+    df = (
+        pd.DataFrame(values, columns=["Count"])
+        .value_counts()
+        .reset_index(name="Number of Phospho (STY)")
+    )
     df = df.sort_index()
 
     if chart_type == "bar":
-        fig = px.bar(df, x='Count', y="Number of Phospho (STY)", **kwargs)
+        fig = px.bar(df, x="Count", y="Number of Phospho (STY)", **kwargs)
     elif chart_type == "pie":
-        fig = px.pie(df, names='Count', values='Number of Phospho (STY)', **kwargs)
+        fig = px.pie(df, names="Count", values="Number of Phospho (STY)", **kwargs)
     else:
         raise TypeError("typ must be either 'bar' or 'pie")
 
@@ -158,8 +177,9 @@ def isty_count_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar",
 
 
 # CHARGE PLOT #
-def _count_values(df: pd.DataFrame, column: str = 'Charge') -> tuple[list[int], list[tuple[int, int]],
-                                                                     list[tuple[float, int]]]:
+def _count_values(
+    df: pd.DataFrame, column: str = "Charge"
+) -> tuple[list[int], list[tuple[int, int]], list[tuple[float, int]]]:
     """
     Perform calculations for charge_plot.
 
@@ -187,9 +207,14 @@ def _count_values(df: pd.DataFrame, column: str = 'Charge') -> tuple[list[int], 
     if column not in df.columns:
         raise KeyError(f"Column '{column}' not found in dataframe.")
 
-    values = [int(i) for i in list(plt.flatten([str(i).split(';') for i in df[column].fillna(0)]))]
+    values = [
+        int(i)
+        for i in list(plt.flatten([str(i).split(";") for i in df[column].fillna(0)]))
+    ]
     count = [(values.count(i), i) for i in set(values)]
-    counts_perc = [(round(values.count(i) / len(values) * 100, 2), i) for i in set(values)]
+    counts_perc = [
+        (round(values.count(i) / len(values) * 100, 2), i) for i in set(values)
+    ]
 
     print(f"{column.lower()} [total] - (count / # {column})")
     print(count)
@@ -199,8 +224,14 @@ def _count_values(df: pd.DataFrame, column: str = 'Charge') -> tuple[list[int], 
     return values, count, counts_perc
 
 
-def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_type: Literal['bar', 'pie'] = "bar",
-                ret_fig: bool = False, ax: Union[plt.axis, None] = None, **kwargs):
+def charge_plot(
+    df: pd.DataFrame,
+    figsize: tuple[float, float] = (12, 8),
+    chart_type: Literal["bar", "pie"] = "bar",
+    ret_fig: bool = False,
+    ax: Union[plt.axis, None] = None,
+    **kwargs,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
@@ -250,7 +281,7 @@ def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_
         vis.charge_plot(phos, chart_type="pie")
         plt.show()
     """
-    no_of_phos, count, counts_perc = _count_values(df, column='Charge')
+    no_of_phos, count, counts_perc = _count_values(df, column="Charge")
 
     df = pd.DataFrame(no_of_phos, columns=["charge"])
 
@@ -262,8 +293,8 @@ def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_
 
     if chart_type == "bar":
         sns.countplot(x="charge", data=df, ax=ax, **kwargs)
-        plt.title('charge')
-        plt.xlabel('charge')
+        plt.title("charge")
+        plt.xlabel("charge")
         _bar_plot_style(df, ax)
     elif chart_type == "pie":
         ax.pie([i[0] for i in count], labels=[i[1] for i in count], **kwargs)
@@ -272,7 +303,12 @@ def charge_plot(df: pd.DataFrame, figsize: tuple[float, float] = (12, 8), chart_
         return fig
 
 
-def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", ret_fig: bool = False, **kwargs):
+def icharge_plot(
+    df: pd.DataFrame,
+    chart_type: Literal["bar", "pie"] = "bar",
+    ret_fig: bool = False,
+    **kwargs,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Plot a pie chart of the peptide charges of a phospho(STY) dataframe.
@@ -294,16 +330,20 @@ def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", re
     fig : plotly.figure
         The figure object.
     """
-    no_of_phos, count, counts_perc = _count_values(df, column='Charge')
+    no_of_phos, count, counts_perc = _count_values(df, column="Charge")
 
-    df = pd.DataFrame(no_of_phos, columns=["charge"]).value_counts().reset_index(name='charge')
+    df = (
+        pd.DataFrame(no_of_phos, columns=["charge"])
+        .value_counts()
+        .reset_index(name="charge")
+    )
     df = df.sort_index()
 
     if chart_type == "bar":
-        fig = px.bar(df, x='Count', y="charge", **kwargs)
+        fig = px.bar(df, x="Count", y="charge", **kwargs)
 
     elif chart_type == "pie":
-        fig = px.pie(df, names='Count', values='charge', **kwargs)
+        fig = px.pie(df, names="Count", values="charge", **kwargs)
     else:
         raise ValueError("typ must be either 'bar' or 'pie")
 
@@ -314,9 +354,13 @@ def icharge_plot(df: pd.DataFrame, chart_type: Literal['bar', 'pie'] = "bar", re
 
 
 # COUNT MODIFIED AMINO ACIDS #
-def count_mod_aa(df: pd.DataFrame, figsize: tuple[float, float] = (6, 6), ret_fig: bool = False,
-                 ax: Union[plt.axis, None] = None,
-                 **kwargs):
+def count_mod_aa(
+    df: pd.DataFrame,
+    figsize: tuple[float, float] = (6, 6),
+    ret_fig: bool = False,
+    ax: Union[plt.axis, None] = None,
+    **kwargs,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Count the number of modifications per amino acid.
@@ -356,7 +400,10 @@ def count_mod_aa(df: pd.DataFrame, figsize: tuple[float, float] = (6, 6), ret_fi
 
     """
     srs = df["Amino acid"].value_counts()
-    labels = [str(i) + '\n' + str(round(j / srs.sum() * 100, 2)) + '%' for i, j in zip(srs.index, srs.values)]
+    labels = [
+        str(i) + "\n" + str(round(j / srs.sum() * 100, 2)) + "%"
+        for i, j in zip(srs.index, srs.values)
+    ]
 
     if ax is None:
         fig = plt.figure(figsize=figsize)
@@ -364,9 +411,7 @@ def count_mod_aa(df: pd.DataFrame, figsize: tuple[float, float] = (6, 6), ret_fi
     else:
         fig = ax.get_figure()
 
-    ax.pie(srs.values,
-           labels=labels,
-           **kwargs)
+    ax.pie(srs.values, labels=labels, **kwargs)
     ax.set_title("Modified AAs")
 
     if ret_fig:
@@ -394,11 +439,21 @@ def icount_mod_aa(df: pd.DataFrame, ret_fig: bool = False, **kwargs):
         The figure object.
     """
     srs = df["Amino acid"].value_counts()
-    labels = [str(i) + '\n' + str(round(j / srs.shape[0] * 100, 2)) + '%' for i, j in zip(srs.index, srs.values)]
-    srs.index.name = 'Amino Acid'
-    srs.name = 'Count'
+    labels = [
+        str(i) + "\n" + str(round(j / srs.shape[0] * 100, 2)) + "%"
+        for i, j in zip(srs.index, srs.values)
+    ]
+    srs.index.name = "Amino Acid"
+    srs.name = "Count"
 
-    fig = px.pie(srs, names=srs.index, values='Count', title="Modified AAs", custom_data=[labels], **kwargs)
+    fig = px.pie(
+        srs,
+        names=srs.index,
+        values="Count",
+        title="Modified AAs",
+        custom_data=[labels],
+        **kwargs,
+    )
 
     fig.update_traces(hovertemplate="%{customdata[0]}")
 
