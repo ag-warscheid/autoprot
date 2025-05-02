@@ -58,11 +58,25 @@ output <- args[3]
 ## READ DATA
 # Data for processing is written to file from Python and
 # read here for R processing
+
+# Read just the first line of the file
+header_line <- readLines(input, n = 1)
+# Split by the delimiter (change sep if needed)
+original_names <- strsplit(header_line, '\t')[[1]]
+# read the data file
 df <- read.table(input, sep = '\t', header = TRUE)
 # set the row names of the df to the UID columns
 rownames(df) <- df$UID
 # remove the column UID from the df and save as new var dfv
 dfv <- df[, -which(names(df) %in% c("UID"))]
+# check if the column names of the data frame are the same as the original names
+changed_cols <- original_names != colnames(df)
+# print the original names and the changed column names
+if (any(changed_cols)) {
+  print("Column names have changed:")
+  print(paste("Original names:", original_names[changed_cols]))
+  print(paste("Changed names:", colnames(df)[changed_cols]))
+}
 
 ## FUNCTIONS
 # Data driven imputation selection DIMA
