@@ -47,7 +47,7 @@ def correlogram(
     sample_frac: Union[float, None] = None,
     bins: int = 100,
     ret_fig: bool = False,
-    correlation_colorrange: tuple[float] = (0.8, 1),
+    correlation_colorrange: tuple[float, float] = (0.8, 1),
     figsize: Union[bool, tuple] = None,
 ):
     # noinspection PyUnresolvedReferences
@@ -276,7 +276,7 @@ def correlogram(
     # maps each pairwise combination of column onto an axis grid
     g = sns.PairGrid(y)
     if figsize is not None:
-        g.fig.set_size_inches(*figsize)
+        g.figure.set_size_inches(*figsize)
     # accesses the lower triangle
     g.map_lower(corrfunc)
     # plot the data points on the lower triangle
@@ -301,6 +301,7 @@ def correlogram(
 
     if ret_fig:
         return g
+    return None
 
 
 def corr_map(
@@ -637,6 +638,7 @@ def boxplot(
         plt.savefig(rf"{file}/BoxPlot.pdf")
     if ret_fig:
         return fig
+    return None
 
 
 def intensity_rank(
@@ -899,17 +901,20 @@ def venn_diagram(
     if n == 2:
         if proportional:
             venn2((g1, g2), set_labels=reps)
+            return None
         else:
             labels = venn.get_labels([g1, g2], fill=["number", "logic"])
             fig, ax = venn.venn2(labels, names=[reps[0], reps[1]], figsize=figsize)
             if ret_fig:
                 return fig
+            return None
 
     elif n == 3:
         g3 = data[[reps[2]] + ["UID"]]
         g3 = set(g3["UID"][g3[reps[2]].notnull()].values)
         if proportional:
             venn3((g1, g2, g3), set_labels=reps)
+            return None
         else:
             labels = venn.get_labels([g1, g2, g3], fill=["number", "logic"])
             fig, ax = venn.venn3(
@@ -917,6 +922,7 @@ def venn_diagram(
             )
             if ret_fig:
                 return fig
+            return None
 
     elif n == 4:
         g3 = data[[reps[2]] + ["UID"]]
@@ -930,6 +936,7 @@ def venn_diagram(
 
         if ret_fig:
             return fig
+        return None
     elif n == 5:
         g3 = data[[reps[2]] + ["UID"]]
         g4 = data[[reps[3]] + ["UID"]]
@@ -944,6 +951,7 @@ def venn_diagram(
 
         if ret_fig:
             return fig
+        return None
     elif n == 6:
         g3 = data[[reps[2]] + ["UID"]]
         g4 = data[[reps[3]] + ["UID"]]
@@ -962,6 +970,8 @@ def venn_diagram(
 
         if ret_fig:
             return fig
+        return None
+    return None
 
 
 # COMMON FOR ALL SCATTER PLOTS
@@ -1740,6 +1750,7 @@ def volcano(
 
     if ret_fig:
         return fig
+    return None
 
 
 def ivolcano(
@@ -1901,6 +1912,7 @@ def ivolcano(
         return fig
     else:
         fig.show()
+        return None
 
 
 # RATIO-RATIO PLOTS #
@@ -2206,6 +2218,7 @@ def ratio_plot(
         )
     if ret_fig:
         return fig
+    return None
 
 
 def iratio_plot(
@@ -2318,6 +2331,7 @@ def iratio_plot(
         return fig
     else:
         fig.show()
+        return None
 
 
 # ratio vs. Intensity Plot
@@ -2424,6 +2438,7 @@ def ratio_vs_intens(
         _ratio_plot_style_axes(ax, ratio_thresh_x=ratio_thresh, ratio_thresh_y=None)
     if ret_fig:
         return fig
+    return None
 
 
 # Log Intensity Plots #
@@ -2585,6 +2600,7 @@ def log_int_plot(
 
     if ret_fig:
         return fig
+    return None
 
 
 def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
@@ -2666,6 +2682,7 @@ def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=Fal
         return fig
     else:
         fig.show()
+        return None
 
     # MA Plots #
 
@@ -2781,6 +2798,7 @@ def ma_plot(
 
     if ret_fig:
         return fig
+    return None
 
 
 def ima_plot(df, x, y, fct=None, title="MA Plot", annot=None):
