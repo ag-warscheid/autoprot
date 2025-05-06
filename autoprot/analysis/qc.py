@@ -20,17 +20,23 @@ from .. import r_helper
 
 from gprofiler import GProfiler
 
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
-                  extra_vis=False, save_dir=None):
+def miss_analysis(
+    df,
+    cols,
+    n=None,
+    sort="ascending",
+    text=True,
+    vis=True,
+    extra_vis=False,
+    save_dir=None,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Print missing statistics for a dataframe.
@@ -130,7 +136,7 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
     # Sort data by the percentage of missingness
     data = sorted(data, key=itemgetter(3))
     # inverse dataframe if required
-    if sort == 'descending':
+    if sort == "descending":
         data = data[::-1]
 
     # add a number corresponding to the position in the ranking
@@ -148,35 +154,37 @@ def miss_analysis(df, cols, n=None, sort='ascending', text=True, vis=True,
         raise ValueError("'n_entries' has to be a positive integer!")
 
     if text:  # print summary statistics and saves them to file
-        allines = ''
+        allines = ""
         for i in range(n):
             allines += f"{data[i][0]} has {data[i][2]} of {data[i][1]} entries missing ({round(data[i][3], 2)}%)."
-            allines += '\n'
+            allines += "\n"
             # line separator
-            allines += '-' * 80
+            allines += "-" * 80
 
         if save_dir:
-            with open(f"{save_dir}/missAnalysis_text.txt", 'w') as f:
+            with open(f"{save_dir}/missAnalysis_text.txt", "w") as f:
                 for _ in range(n):
                     f.write(allines)
 
         # write all lines at once
         print(allines)
 
-    if vis:  # Visualize the % missingness of first n entries of dataframe as a bar plot.
-        data = pd.DataFrame(data=data,
-                            columns=["Name", "tot_values", "tot_miss", "perc_miss", "rank"])
+    if (
+        vis
+    ):  # Visualize the % missingness of first n entries of dataframe as a bar plot.
+        data = pd.DataFrame(
+            data=data, columns=["Name", "tot_values", "tot_miss", "perc_miss", "rank"]
+        )
 
         plt.figure(figsize=(7, 7))
         ax = plt.subplot()
         # plot colname against total missing values
-        splot = sns.barplot(x=data["tot_miss"].iloc[:n],
-                            y=data["Name"].iloc[:n])
+        splot = sns.barplot(x=data["tot_miss"].iloc[:n], y=data["Name"].iloc[:n])
 
         # add the percentage of missingness to every bar of the plot
         for idx, p in enumerate(splot.patches):
-            s = f'{str(round(data.iloc[idx, 3], 2))}%'
-            x = p.get_width() + p.get_width() * .01
+            s = f"{str(round(data.iloc[idx, 3], 2))}%"
+            x = p.get_width() + p.get_width() * 0.01
             y = p.get_y() + p.get_height() / 2
             splot.annotate(s, (x, y))
 
@@ -214,14 +222,16 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     None.
     """
     # set plot style
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use("seaborn-v0_8-whitegrid")
 
     # set parameters
     today = date.today().isoformat()
 
     if "Experiment" not in df_evidence.columns.tolist():
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
         experiments = list(set((df_evidence["Raw file"])))
     else:
         experiments = list(set((df_evidence["Experiment"])))
@@ -229,8 +239,10 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
         experiments = rawfiles
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
 
     # calculate miss cleavage for each raw file in df_evidence
     df_missed_cleavage_summary = pd.DataFrame()
@@ -238,40 +250,52 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
         if enzyme == "Trypsin/P":
             df_missed_cleavage = df_group["Missed cleavages"].value_counts()
         else:
-            df_missed_cleavage = df_group["Missed cleavages ({0})".format(enzyme)].value_counts()
-        df_missed_cleavage_summary = pd.concat([df_missed_cleavage_summary, df_missed_cleavage],
-                                               axis=1)
+            df_missed_cleavage = df_group[
+                "Missed cleavages ({0})".format(enzyme)
+            ].value_counts()
+        df_missed_cleavage_summary = pd.concat(
+            [df_missed_cleavage_summary, df_missed_cleavage], axis=1
+        )
     try:
         df_missed_cleavage_summary.columns = experiments
     except Exception as e:
         print(f"unexpected error in col [Experiment]: {e}")
-    df_missed_cleavage_summary = df_missed_cleavage_summary / df_missed_cleavage_summary.apply(np.sum, axis=0) * 100
+    df_missed_cleavage_summary = (
+        df_missed_cleavage_summary
+        / df_missed_cleavage_summary.apply(np.sum, axis=0)
+        * 100
+    )
     df_missed_cleavage_summary = df_missed_cleavage_summary.round(2)
 
     # making the barchart figure missed cleavage
     x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
-    fig.suptitle("% Missed cleavage per run", fontdict=None,
-                 horizontalalignment='center', size=14
-                 # ,fontweight="bold"
-                 )
+    fig.suptitle(
+        "% Missed cleavage per run",
+        fontdict=None,
+        horizontalalignment="center",
+        size=14,
+        # ,fontweight="bold"
+    )
     df_missed_cleavage_summary.T.plot(kind="bar", stacked=True, ax=ax1)
     ax1.set_xlabel("Experiment assinged in MaxQuant", size=12)
     ax1.set_ylabel("Missed cleavage [%]", size=12)
-    ax1.legend(bbox_to_anchor=(1.5, 1),
-               loc='upper right', borderaxespad=0.)
+    ax1.legend(bbox_to_anchor=(1.5, 1), loc="upper right", borderaxespad=0.0)
 
     if save:
         # save fig in cwd with date
         plt.savefig(f"{today}_BarChart_missed-cleavage.pdf", dpi=600)
         # save df missed cleavage summery as .csv
-        df_missed_cleavage_summary.to_csv(f"{today}_Missed-cleavage_result-table.csv", sep='\t', index=False)
+        df_missed_cleavage_summary.to_csv(
+            f"{today}_Missed-cleavage_result-table.csv", sep="\t", index=False
+        )
 
     print(df_missed_cleavage_summary)
 
 
-def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
+def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", save=True):
     """
+    Calculate the enrichment specificity for a given type of modification.
 
     Parameters
     ----------
@@ -288,7 +312,7 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     """
     # set plot style
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use("seaborn-v0_8-whitegrid")
 
     # set parameters
     today = date.today().isoformat()
@@ -297,7 +321,9 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
         experiments = list((df_evidence["Experiment"].unique()))
     else:
         experiments = list((df_evidence["Raw file"].unique()))
-        print("Warning: Column [Experiment] is not present in the dataframe. Using [Raw file] instead.")
+        print(
+            "Warning: Column [Experiment] is not present in the dataframe. Using [Raw file] instead."
+        )
 
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
@@ -308,38 +334,49 @@ def enrichment_specifity(df_evidence, mod_col='Phospho (STY)', save=True):
 
     try:
         for name, group in df_evidence.groupby("Experiment"):
-            nonmod = round(((group[mod_col] == 0).sum() / group.shape[0] * 100), 2)
-            mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
+            value_counts = group[mod_col].value_counts(
+                normalize=True
+            )  # count the percentage of modified peptides
+            nonmod_perc: pd.Series = round(value_counts[0], 2)
+            mod_perc: pd.Series = round(value_counts[value_counts > 0].sum(), 2)
 
-            df.loc[name, "Modified peptides [%]"] = mod
-            df.loc[name, "Non-modified peptides [%]"] = nonmod
+            df.loc[name, "Modified peptides [%]"] = mod_perc
+            df.loc[name, "Non-modified peptides [%]"] = nonmod_perc
     except KeyError:
-        raise TypeError("Invalid type specified. Name must match the MaxQuant experiment name.")
+        raise TypeError(
+            "Invalid type specified. Name must match the MaxQuant experiment name."
+        )
 
     df_summary = pd.concat([df_summary, df], axis=0)
 
     # make barchart
     fig, ax = plt.subplots()
-    fig.suptitle(f'Enrichment specificty [%] for {mod_col}', fontdict=None,
-                 horizontalalignment='center', size=14
-                 # ,fontweight="bold"
-                 )
+    fig.suptitle(
+        f"Enrichment specificity [%] for {mod_col}",
+        fontdict=None,
+        horizontalalignment="center",
+        size=14,
+    )
 
     df_summary.plot(kind="bar", stacked=True, ax=ax)
 
-    ax.set_ylabel('peptides [%]')
-    ax.legend(bbox_to_anchor=(1.5, 1),
-              loc='upper right', borderaxespad=0.)
+    ax.set_ylabel("peptides [%]")
+    ax.legend(bbox_to_anchor=(1.5, 1), loc="upper right", borderaxespad=0.0)
 
     if save:
         # save fig in cwd with date
-        plt.savefig(f"{today}_BarPlot_enrichmentSpecifity.pdf", dpi=600)
+        plt.savefig(f"{today}_BarPlot_enrichmentSpecificity.pdf", dpi=600)
         # save df missed cleavage summery as .csv
-        df_summary.T.to_csv(f"{today}_enrichmentSpecifity_result-table.csv", sep='\t', index=False)
+        df_summary.T.to_csv(
+            f"{today}_enrichmentSpecificity_result-table.csv", sep="\t", index=False
+        )
 
 
-def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L', 'M', 'H']] = None,
-                              r_to_p_conversion: Literal['Pro6', 'Pro10'] = None):
+def SILAC_labeling_efficiency(
+    df_evidence: pd.DataFrame,
+    label: list[Literal["L", "M", "H"]] = None,
+    r_to_p_conversion: Literal["Pro6", "Pro10"] = None,
+):
     """
     Parameters
     ----------
@@ -355,17 +392,17 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     """
 
     if label is None:
-        label = list('LMH')
+        label = list("LMH")
 
     if r_to_p_conversion is not None:
-        if r_to_p_conversion not in ['Pro6', 'Pro10']:
+        if r_to_p_conversion not in ["Pro6", "Pro10"]:
             raise ValueError('r_to_p_conversion should be either "Pro6" or "Pro10"')
 
     # convert to dict
     label = {x: [] for x in label}
 
     # set plot style
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use("seaborn-v0_8-whitegrid")
     # set parameters
     today = date.today().isoformat()
 
@@ -377,10 +414,10 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     dic_setup = {}
     for key, val in zip(runs, experiments):
         dic_setup[key] = val
-    
+
     if r_to_p_conversion is not None:
         # calculate Arg to Pro for each raw file in df_evidence
-        if r_to_p_conversion == 'Pro6':
+        if r_to_p_conversion == "Pro6":
             title = "% Arg6 to Pro6 conversion"
         else:
             title = "% Arg10 to Pro10 conversion"
@@ -389,22 +426,28 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
         df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
         for raw, df_group in df_evidence.groupby("Raw file"):
             df_r_to_p = pd.DataFrame()
-            df_r_to_p.loc[raw, ["P count"]] = df_group.loc[df_group[r_to_p_conversion] == 0, "P count"].sum()
-            df_r_to_p.loc[raw, [col_name]] = df_group.loc[df_group[r_to_p_conversion, r_to_p_conversion] > 0].sum()
+            df_r_to_p.loc[raw, ["P count"]] = df_group.loc[
+                df_group[r_to_p_conversion] == 0, "P count"
+            ].sum()
+            df_r_to_p.loc[raw, [r_to_p_conversion]] = df_group.loc[
+                df_group[r_to_p_conversion, r_to_p_conversion] > 0
+            ].sum()
             df_r_to_p_summary.append(df_r_to_p)
 
-        df_r_to_p_summary = pd.concat(df_r_to_p_summary, axis=0)  # concat all rawfiles dfs
+        df_r_to_p_summary = pd.concat(
+            df_r_to_p_summary, axis=0
+        )  # concat all rawfiles dfs
 
         df_r_to_p_summary.index = experiments
         df_r_to_p_summary.dropna(inplace=True)
-        df_r_to_p_summary["RtoP [%]"] = df_r_to_p_summary[col_name] / df_r_to_p_summary["P count"] * 100
+        df_r_to_p_summary["RtoP [%]"] = (
+            df_r_to_p_summary[r_to_p_conversion] / df_r_to_p_summary["P count"] * 100
+        )
 
         # making the box plot Arg to Pro conversion
         x_ax = len(experiments) + 1
         fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
-        fig.suptitle(title, fontdict=None,
-                     horizontalalignment='center', size=14
-                     )
+        fig.suptitle(title, fontdict=None, horizontalalignment="center", size=14)
         df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
         ax1.set_xlabel("rawfile number", size=12)
         ax1.set_ylabel("Arg to Pro [%]", size=12)
@@ -413,7 +456,9 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
         plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
 
         # save df Arg to Pro conversion as .csv
-        df_r_to_p_summary.to_csv("{}_RtoP_summary-table.csv".format(today), sep='\t', index=False)
+        df_r_to_p_summary.to_csv(
+            "{}_RtoP_summary-table.csv".format(today), sep="\t", index=False
+        )
 
     def labeling_efficiency(df_evidence, label):
         """
@@ -444,20 +489,26 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
         df_evidence[intensity_col] = df_evidence[intensity_col].dropna()
 
         # Calculate the SILAC labeling ratio for each peptide.
-        df_evidence[ratio_col_name] = df_evidence[intensity_col] / df_evidence["Intensity"] * 100
+        df_evidence[ratio_col_name] = (
+            df_evidence[intensity_col] / df_evidence["Intensity"] * 100
+        )
 
         # Iterate through each sample (i.e., raw file).
         for raw, df_group in df_evidence.groupby("Raw file"):
             # Calculate the SILAC labeling efficiency for Lysine.
             k_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
-            s_k_binned = df_group[ratio_col_name][k_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            s_k_binned = df_group[ratio_col_name][k_filter].value_counts(
+                bins=range(0, 101, 10), sort=False
+            )
             k_count = k_filter.sum()
             s_relative_k_binned = s_k_binned / k_count * 100
             df_labeling_eff_k[raw] = s_relative_k_binned
 
             # Calculate the SILAC labeling efficiency for Arginine.
             r_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
-            s_r_binned = df_group[ratio_col_name][r_filter].value_counts(bins=range(0, 101, 10), sort=False)
+            s_r_binned = df_group[ratio_col_name][r_filter].value_counts(
+                bins=range(0, 101, 10), sort=False
+            )
             r_count = r_filter.sum()
             s_relative_r_binned = s_r_binned / r_count * 100
             df_labeling_eff_r[raw] = s_relative_r_binned
@@ -470,10 +521,11 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
         df_labeling_eff_r.columns = exp
 
         # Combine the two DataFrames into one and return it.
-        df_labeling_eff = pd.concat([df_labeling_eff_k, df_labeling_eff_r],
-                                    keys=["Lys incorpororation", "Arg incorpororation"],
-                                    names=["Amino acid", "bins"]
-                                    )
+        df_labeling_eff = pd.concat(
+            [df_labeling_eff_k, df_labeling_eff_r],
+            keys=["Lys incorpororation", "Arg incorpororation"],
+            names=["Amino acid", "bins"],
+        )
 
         return df_labeling_eff
 
@@ -519,21 +571,38 @@ def SILAC_labeling_efficiency(df_evidence: pd.DataFrame, label: list[Literal['L'
     df_labeling_eff_summary = pd.concat(df_labeling_eff_summary_list, axis=1)
 
     # store the results
-    df_labeling_eff_summary.to_csv("{0}_labeling_eff_summary.csv".format(today), sep='\t')
+    df_labeling_eff_summary.to_csv(
+        "{0}_labeling_eff_summary.csv".format(today), sep="\t"
+    )
 
     # plot labeling efficiency overview
     x_ax = len(experiments) + 1
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax * 2, 4))
-    fig.suptitle("SILAC Labeling efficiency {}".format(', '.join(label.keys())), fontdict=None,
-                 horizontalalignment='center', size=14
-                 )
+    fig.suptitle(
+        "SILAC Labeling efficiency {}".format(", ".join(label.keys())),
+        fontdict=None,
+        horizontalalignment="center",
+        size=14,
+    )
     for i, (aa, df) in enumerate(df_labeling_eff_summary.groupby(level=0)):
         df.plot(kind="bar", ax=ax[i], legend=False)
 
-        ax[i].set_xticklabels(["0-10", "11-20", "21-30", "31-40", "41-50",
-                               "51-60", "61-70", "71-80", "81-90", "91-100"])
+        ax[i].set_xticklabels(
+            [
+                "0-10",
+                "11-20",
+                "21-30",
+                "31-40",
+                "41-50",
+                "51-60",
+                "61-70",
+                "71-80",
+                "81-90",
+                "91-100",
+            ]
+        )
         ax[i].set_xlabel("bins", size=12)
-        ax[i].set_ylabel("{} {} [%]".format(', '.join(label.keys()), aa), size=12)
+        ax[i].set_ylabel("{} {} [%]".format(", ".join(label.keys()), aa), size=12)
 
     plt.tight_layout()
     plt.savefig("{0}_BoxPlot_Lab-eff_overview.png".format(today))
@@ -560,7 +629,7 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         Results from the analysis
     """
     # set plot style
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use("seaborn-v0_8-whitegrid")
 
     # set parameters
     today = date.today().isoformat()
@@ -570,18 +639,23 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         experiments = list((df_evidence["Experiment"].unique()))
     else:
         experiments = list((df_evidence["Raw file"].unique()))
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
 
     df_labeling_eff = pd.DataFrame()
 
     df_evidence.dropna(subset=["Intensity"], inplace=True)
-    df_evidence["Ratio Intensity {}/total".format(label)] = df_evidence["Intensity {}".format(label)] / df_evidence[
-        "Intensity"] * 100
+    df_evidence["Ratio Intensity {}/total".format(label)] = (
+        df_evidence["Intensity {}".format(label)] / df_evidence["Intensity"] * 100
+    )
 
     # build label ratio based on given label
     for raw, df_group in df_evidence.groupby("Raw file"):
-        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(bins=range(0, 101, 10), sort=False)
+        s_binned = df_group["Ratio Intensity {}/total".format(label)].value_counts(
+            bins=range(0, 101, 10), sort=False
+        )
         count = df_group["Ratio Intensity {}/total".format(label)].count()
         s_relative_binned = s_binned / count * 100
         df_labeling_eff = pd.concat([df_labeling_eff, s_relative_binned], axis=1)
@@ -592,22 +666,29 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         print(f"unexpected error in col [Experiment]: {e}")
 
     if save:
-        df_labeling_eff.to_csv("{0}_labeling_eff_{1}_summary.csv".format(today, label), sep='\t')
+        df_labeling_eff.to_csv(
+            "{0}_labeling_eff_{1}_summary.csv".format(today, label), sep="\t"
+        )
 
     # plot labeling efficiency overview
     x_ax = len(experiments) + 1
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax * 2, 4))
-    fig.suptitle("Dimethyl Labeling efficiency {}".format(label), fontdict=None,
-                 horizontalalignment='center', size=14
-                 # ,fontweight="bold"
-                 )
+    fig.suptitle(
+        "Dimethyl Labeling efficiency {}".format(label),
+        fontdict=None,
+        horizontalalignment="center",
+        size=14,
+        # ,fontweight="bold"
+    )
     df_labeling_eff.plot(kind="bar", ax=ax1)
     ax1.set_xlabel("bins", size=12)
     ax1.set_ylabel("{} labeling [%]".format(label), size=12)
 
     plt.tight_layout()
     if save:
-        plt.savefig("{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600)
+        plt.savefig(
+            "{0}_BoxPlot_Lab-eff-{1}_overview.pdf".format(today, label), dpi=600
+        )
 
     # plot labeling efficiency Lys for each experiment separately
     # columns and rows from number of experiments in df_evidence
@@ -624,14 +705,15 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
 
     # adjust figsize
     # 8.3 *11.7 inch is the size of a dinA4
-    fig = plt.figure(figsize=(2.76 * number_of_columns,
-                              2.925 * number_of_rows))
+    fig = plt.figure(figsize=(2.76 * number_of_columns, 2.925 * number_of_rows))
 
     for col_name, plot in zip(experiments, range(number_of_subplots)):
         ax1 = fig.add_subplot(number_of_rows, number_of_columns, plot + 1)
 
         # filter for bins with low values: set 1%
-        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum() > 1].plot(kind="bar", ax=ax1)
+        df_labeling_eff[col_name][df_labeling_eff[col_name].cumsum() > 1].plot(
+            kind="bar", ax=ax1
+        )
 
         ax1.set_title(col_name)
         ax1.set_xlabel("bins", size=8)
@@ -639,11 +721,15 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         ax1.set_ylim(0, 100)
         ax1.axhline(95, linestyle="--", c="k")
 
-    fig.suptitle("Dimethyl Labeling efficiency {}".format(label), horizontalalignment='center')
+    fig.suptitle(
+        "Dimethyl Labeling efficiency {}".format(label), horizontalalignment="center"
+    )
     plt.tight_layout()
 
     if save:
-        plt.savefig("{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200)
+        plt.savefig(
+            "{0}_BoxPlot_Lab-eff-{1}-seperately.pdf".format(today, label), dpi=1200
+        )
 
     return df_labeling_eff
 
@@ -676,149 +762,271 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
 
     # delete N-terminal acetylated arginines without lysine (can't be modified)
     evidence_under = evidence_under[
-        ~(evidence_under["Modified sequence"].str.contains('\_\(Acetyl \(Protein N\-term\)\)') &
-          evidence_under["Modified sequence"].str.contains('K'))]
+        ~(
+            evidence_under["Modified sequence"].str.contains(
+                "\_\(Acetyl \(Protein N\-term\)\)"
+            )
+            & evidence_under["Modified sequence"].str.contains("K")
+        )
+    ]
 
     # cal
-    evidence_under["K count"] = evidence_under["Sequence"].str.count('K')
-    evidence_sty_over["S count"] = evidence_sty_over["Sequence"].str.count('S')
-    evidence_sty_over["T count"] = evidence_sty_over["Sequence"].str.count('T')
-    evidence_sty_over["Y count"] = evidence_sty_over["Sequence"].str.count('Y')
+    evidence_under["K count"] = evidence_under["Sequence"].str.count("K")
+    evidence_sty_over["S count"] = evidence_sty_over["Sequence"].str.count("S")
+    evidence_sty_over["T count"] = evidence_sty_over["Sequence"].str.count("T")
+    evidence_sty_over["Y count"] = evidence_sty_over["Sequence"].str.count("Y")
 
-    evidence_h_over["H count"] = evidence_h_over["Sequence"].str.count('H')
+    evidence_h_over["H count"] = evidence_h_over["Sequence"].str.count("H")
 
     for raw, group in evidence_under.groupby("Experiment"):
-        lysine, nterm, sty_over_experiment, under_experiment, sty_over, h_over_experiment, h_over = ('',) * 7
+        (
+            lysine,
+            nterm,
+            sty_over_experiment,
+            under_experiment,
+            sty_over,
+            h_over_experiment,
+            h_over,
+        ) = ("",) * 7
 
         if str(126) in raw:
-            nterm = '\_\(TMT6plex\-Nterm126\)'
-            lysine = 'TMT6plex-Lysine126'  # modifications have to be named after MQ mod.list
-            h_over = 'TMT6plex (H)126'
-            sty_over = 'TMT6plex (STY)126'
+            nterm = "\_\(TMT6plex\-Nterm126\)"
+            lysine = (
+                "TMT6plex-Lysine126"  # modifications have to be named after MQ mod.list
+            )
+            h_over = "TMT6plex (H)126"
+            sty_over = "TMT6plex (STY)126"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(126) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(126) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(126) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(126) in entry
+            ][0]
         if str(127) in raw:
-            nterm = '\_\(TMT6plex\-Nterm127\)'
-            lysine = 'TMT6plex-Lysine127'
-            h_over = 'TMT6plex (H)127'
-            sty_over = 'TMT6plex (STY)127'
+            nterm = "\_\(TMT6plex\-Nterm127\)"
+            lysine = "TMT6plex-Lysine127"
+            h_over = "TMT6plex (H)127"
+            sty_over = "TMT6plex (STY)127"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(127) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(127) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(127) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(127) in entry
+            ][0]
         if str(128) in raw:
-            nterm = '\_\(TMT6plex\-Nterm128\)'
-            lysine = 'TMT6plex-Lysine128'
-            h_over = 'TMT6plex (H)128'
-            sty_over = 'TMT6plex (STY)128'
+            nterm = "\_\(TMT6plex\-Nterm128\)"
+            lysine = "TMT6plex-Lysine128"
+            h_over = "TMT6plex (H)128"
+            sty_over = "TMT6plex (STY)128"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(128) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(128) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(128) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(128) in entry
+            ][0]
         if str(129) in raw:
-            nterm = '\_\(TMT6plex\-Nterm129\)'
-            lysine = 'TMT6plex-Lysine129'
-            h_over = 'TMT6plex (H)129'
-            sty_over = 'TMT6plex (STY)129'
+            nterm = "\_\(TMT6plex\-Nterm129\)"
+            lysine = "TMT6plex-Lysine129"
+            h_over = "TMT6plex (H)129"
+            sty_over = "TMT6plex (STY)129"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(129) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(129) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(129) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(129) in entry
+            ][0]
         if str(130) in raw:
-            nterm = '\_\(TMT6plex\-Nterm130\)'
-            lysine = 'TMT6plex-Lysine130'
-            h_over = 'TMT6plex (H)130'
-            sty_over = 'TMT6plex (STY)130'
+            nterm = "\_\(TMT6plex\-Nterm130\)"
+            lysine = "TMT6plex-Lysine130"
+            h_over = "TMT6plex (H)130"
+            sty_over = "TMT6plex (STY)130"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(130) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(130) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(130) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(130) in entry
+            ][0]
         if str(131) in raw:
-            nterm = '\_\(TMT6plex\-Nterm131\)'
-            lysine = 'TMT6plex-Lysine131'
-            h_over = 'TMT6plex (H)131'
-            sty_over = 'TMT6plex (STY)131'
+            nterm = "\_\(TMT6plex\-Nterm131\)"
+            lysine = "TMT6plex-Lysine131"
+            h_over = "TMT6plex (H)131"
+            sty_over = "TMT6plex (STY)131"
             under_experiment = raw
-            h_over_experiment = [entry for entry in evidence_h_over["Experiment"].unique() if str(131) in entry][0]
-            sty_over_experiment = [entry for entry in evidence_sty_over["Experiment"].unique() if str(131) in entry][0]
+            h_over_experiment = [
+                entry
+                for entry in evidence_h_over["Experiment"].unique()
+                if str(131) in entry
+            ][0]
+            sty_over_experiment = [
+                entry
+                for entry in evidence_sty_over["Experiment"].unique()
+                if str(131) in entry
+            ][0]
 
-        df_efficiency.loc[raw, ["fully labeled"]] = ((group["K count"] == group[lysine]) &
-                                                     (~(group["Modified sequence"].str.contains(
-                                                         '\_\(Acetyl \(Protein N\-term\)\)')) &
-                                                      (group["Modified sequence"].str.contains(nterm)))).sum()
+        df_efficiency.loc[raw, ["fully labeled"]] = (
+            (group["K count"] == group[lysine])
+            & (
+                ~(
+                    group["Modified sequence"].str.contains(
+                        "\_\(Acetyl \(Protein N\-term\)\)"
+                    )
+                )
+                & (group["Modified sequence"].str.contains(nterm))
+            )
+        ).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = group["Modified sequence"].str.contains('\(TMT6plex').sum() - \
-                                                        df_efficiency.loc[raw, ["fully labeled"]].values
+        df_efficiency.loc[raw, ["partially labeled"]] = (
+            group["Modified sequence"].str.contains("\(TMT6plex").sum()
+            - df_efficiency.loc[raw, ["fully labeled"]].values
+        )
 
-        df_efficiency.loc[raw, ["not labeled"]] = (~group["Modified sequence"].str.contains('\(TMT6plex')).sum()
+        df_efficiency.loc[raw, ["not labeled"]] = (
+            ~group["Modified sequence"].str.contains("\(TMT6plex")
+        ).sum()
 
-        df_efficiency.loc[[under_experiment], "sum all labeled"] = df_efficiency["not labeled"] + df_efficiency[
-            "fully labeled"] + df_efficiency["partially labeled"]
+        df_efficiency.loc[[under_experiment], "sum all labeled"] = (
+            df_efficiency["not labeled"]
+            + df_efficiency["fully labeled"]
+            + df_efficiency["partially labeled"]
+        )
 
-        df_efficiency.loc[[under_experiment], "PSM STY"] = \
-            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["S count"].sum() \
-            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["T count"].sum() \
-            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment]["Y count"].sum()
-        df_efficiency.loc[[under_experiment], "TMT (STY)"] = \
-            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][sty_over].sum()
+        df_efficiency.loc[[under_experiment], "PSM STY"] = (
+            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
+                "S count"
+            ].sum()
+            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
+                "T count"
+            ].sum()
+            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
+                "Y count"
+            ].sum()
+        )
+        df_efficiency.loc[[under_experiment], "TMT (STY)"] = evidence_sty_over[
+            evidence_sty_over["Experiment"] == sty_over_experiment
+        ][sty_over].sum()
 
-        df_efficiency.loc[[under_experiment], "PSM H"] = \
-            evidence_h_over[evidence_h_over["Experiment"] == h_over_experiment][
-                "H count"].sum()
-        df_efficiency.loc[[under_experiment], "TMT (H)"] = \
-            evidence_h_over[evidence_h_over["Experiment"] == h_over_experiment][h_over].sum()
+        df_efficiency.loc[[under_experiment], "PSM H"] = evidence_h_over[
+            evidence_h_over["Experiment"] == h_over_experiment
+        ]["H count"].sum()
+        df_efficiency.loc[[under_experiment], "TMT (H)"] = evidence_h_over[
+            evidence_h_over["Experiment"] == h_over_experiment
+        ][h_over].sum()
 
-    df_efficiency["% fully labeled"] = df_efficiency["fully labeled"] / df_efficiency["sum all labeled"] * 100
-    df_efficiency["% partially labeled"] = df_efficiency["partially labeled"] / df_efficiency["sum all labeled"] * 100
-    df_efficiency["% not labeled"] = df_efficiency["not labeled"] / df_efficiency["sum all labeled"] * 100
-    df_efficiency["% overlabeled STY"] = (df_efficiency["TMT (STY)"]) / df_efficiency["PSM STY"] * 100
-    df_efficiency["% overlabeled H"] = (df_efficiency["TMT (H)"]) / df_efficiency["PSM H"] * 100
-    df_efficiency["% overlabeled STY+H"] = df_efficiency["% overlabeled H"] + df_efficiency["% overlabeled STY"]
+    df_efficiency["% fully labeled"] = (
+        df_efficiency["fully labeled"] / df_efficiency["sum all labeled"] * 100
+    )
+    df_efficiency["% partially labeled"] = (
+        df_efficiency["partially labeled"] / df_efficiency["sum all labeled"] * 100
+    )
+    df_efficiency["% not labeled"] = (
+        df_efficiency["not labeled"] / df_efficiency["sum all labeled"] * 100
+    )
+    df_efficiency["% overlabeled STY"] = (
+        (df_efficiency["TMT (STY)"]) / df_efficiency["PSM STY"] * 100
+    )
+    df_efficiency["% overlabeled H"] = (
+        (df_efficiency["TMT (H)"]) / df_efficiency["PSM H"] * 100
+    )
+    df_efficiency["% overlabeled STY+H"] = (
+        df_efficiency["% overlabeled H"] + df_efficiency["% overlabeled STY"]
+    )
 
     # make figure TMT6plex labeling efficiency
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 8),
-                                                 gridspec_kw={'height_ratios': [3, 1]})
-    fig.suptitle("Comparison of labeling efficiency in TMT6plex", fontdict=None, horizontalalignment='center')
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+        nrows=2, ncols=2, figsize=(10, 8), gridspec_kw={"height_ratios": [3, 1]}
+    )
+    fig.suptitle(
+        "Comparison of labeling efficiency in TMT6plex",
+        fontdict=None,
+        horizontalalignment="center",
+    )
 
-    sns.barplot(x=df_efficiency.index,
-                y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"] + df_efficiency[
-                    "% not labeled"],
-                ax=ax1, color="#dd4e26", **{"label": "% not labeled"})
+    sns.barplot(
+        x=df_efficiency.index,
+        y=df_efficiency["% fully labeled"]
+        + df_efficiency["% partially labeled"]
+        + df_efficiency["% not labeled"],
+        ax=ax1,
+        color="#dd4e26",
+        **{"label": "% not labeled"},
+    )
 
-    sns.barplot(x=df_efficiency.index, y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"],
-                ax=ax1, color="#2596be", **{"label": "% partially labeled"})
+    sns.barplot(
+        x=df_efficiency.index,
+        y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"],
+        ax=ax1,
+        color="#2596be",
+        **{"label": "% partially labeled"},
+    )
 
-    sns.barplot(x=df_efficiency.index, y=df_efficiency["% fully labeled"],
-                ax=ax1, color="#063970", **{"label": "% fully labeled"})
+    sns.barplot(
+        x=df_efficiency.index,
+        y=df_efficiency["% fully labeled"],
+        ax=ax1,
+        color="#063970",
+        **{"label": "% fully labeled"},
+    )
 
-    plt.xticks(np.arange(len(df_efficiency.index)),
-               rotation=45,
-               horizontalalignment='right')
+    plt.xticks(
+        np.arange(len(df_efficiency.index)), rotation=45, horizontalalignment="right"
+    )
 
-    sns.barplot(x=df_efficiency.index,
-                y=df_efficiency["% not labeled"],
-                ax=ax3, color="#dd4e26")
+    sns.barplot(
+        x=df_efficiency.index, y=df_efficiency["% not labeled"], ax=ax3, color="#dd4e26"
+    )
 
     ax1.set_ylabel("Peptides [%]")
     ax3.set_ylabel("Peptides [%]")
-    ax1.legend(bbox_to_anchor=(-0.75, 1), loc='upper left', borderaxespad=0.)
-    ax3.set_xlabel("channel",
-                   horizontalalignment='center',
-                   fontsize=12)
+    ax1.legend(bbox_to_anchor=(-0.75, 1), loc="upper left", borderaxespad=0.0)
+    ax3.set_xlabel("channel", horizontalalignment="center", fontsize=12)
     ax1.set_xticklabels([])
-    ax3.set_xticklabels(df_efficiency.index,
-                        rotation=45,
-                        horizontalalignment='right')
+    ax3.set_xticklabels(df_efficiency.index, rotation=45, horizontalalignment="right")
 
-    sns.barplot(x=df_efficiency.index, y=df_efficiency["% overlabeled STY+H"],
-                ax=ax2, color="#cce7e8", **{"label": "% overlabeled STY+H"})
+    sns.barplot(
+        x=df_efficiency.index,
+        y=df_efficiency["% overlabeled STY+H"],
+        ax=ax2,
+        color="#cce7e8",
+        **{"label": "% overlabeled STY+H"},
+    )
 
-    sns.barplot(x=df_efficiency.index, y=df_efficiency["% overlabeled STY"],
-                ax=ax2, color="#44bcd8", **{"label": "% overlabeled STY"})
+    sns.barplot(
+        x=df_efficiency.index,
+        y=df_efficiency["% overlabeled STY"],
+        ax=ax2,
+        color="#44bcd8",
+        **{"label": "% overlabeled STY"},
+    )
 
-    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    ax2.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
     ax2.set_ylabel("AA Residues [%]")
 
-    ax2.set_xticklabels(df_efficiency.index,
-                        rotation=90,
-                        horizontalalignment='center')
+    ax2.set_xticklabels(df_efficiency.index, rotation=90, horizontalalignment="center")
 
     ax4.remove()
 

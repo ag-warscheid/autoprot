@@ -20,18 +20,20 @@ from .. import r_helper
 
 from gprofiler import GProfiler
 
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def go_analysis(gene_list: list[str], organism: str = "hsapiens", background: Union[list[str], str, None] = None,
-                significance_threshold_method: Literal["g_SCS", "bonferroni", "fdr"] = "bonferroni",
-                **kwargs) -> List[Dict[str, Any]]:
+def go_analysis(
+    gene_list: list[str],
+    organism: str = "hsapiens",
+    background: Union[list[str], str, None] = None,
+    significance_threshold_method: Literal["g_SCS", "bonferroni", "fdr"] = "bonferroni",
+    **kwargs,
+) -> List[Dict[str, Any]]:
     # noinspection PyUnresolvedReferences
     """
     Perform go Enrichment analysis (also KEGG and REAC).
@@ -77,17 +79,30 @@ def go_analysis(gene_list: list[str], organism: str = "hsapiens", background: Un
             raise ValueError("Please provide a list of gene names")
 
     if background is None:
-        return gp.profile(organism=organism, query=gene_list, no_evidences=False,
-                          significance_threshold_method=significance_threshold_method, **kwargs)
+        return gp.profile(
+            organism=organism,
+            query=gene_list,
+            no_evidences=False,
+            significance_threshold_method=significance_threshold_method,
+            **kwargs,
+        )
     else:
         if isinstance(background, list):
-            background = ' '.join(background)
+            background = " ".join(background)
         else:
             if not isinstance(background, str):
-                raise ValueError("Please provide a list of gene names as argument for 'background'")
+                raise ValueError(
+                    "Please provide a list of gene names as argument for 'background'"
+                )
 
-        return gp.profile(organism=organism, query=gene_list, background=background, no_evidences=False,
-                          significance_threshold_method=significance_threshold_method, **kwargs)
+        return gp.profile(
+            organism=organism,
+            query=gene_list,
+            background=background,
+            no_evidences=False,
+            significance_threshold_method=significance_threshold_method,
+            **kwargs,
+        )
 
 
 class KSEA:
@@ -222,18 +237,26 @@ class KSEA:
 
         """
         # TODO: Fetch the Kinase substrate dataset from the web
-        with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
-            self.PSP_KS = pd.read_csv(d, sep='\t', compression='zip')
+        with resources.open_binary(
+            "autoprot.data", "Kinase_Substrate_Dataset.zip"
+        ) as d:
+            self.PSP_KS = pd.read_csv(d, sep="\t", compression="zip")
         # harmonize gene naming
-        self.PSP_KS["SUB_GENE"] = self.PSP_KS["SUB_GENE"].fillna("NA").apply(lambda x: x.upper())
+        self.PSP_KS["SUB_GENE"] = (
+            self.PSP_KS["SUB_GENE"].fillna("NA").apply(lambda x: x.upper())
+        )
         # add source information
         self.PSP_KS["source"] = "PSP"
         with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
-            self.PSP_regSits = pd.read_csv(d, sep='\t', compression='zip')
+            self.PSP_regSits = pd.read_csv(d, sep="\t", compression="zip")
 
         # Check that all necessary columns are present in the input data
-        if not all([i in data.columns for i in ["Gene names", "Position", "Amino acid"]]):
-            raise ValueError("Please provide a dataframe with columns 'Gene names', 'Position' and 'Amino acid'.")
+        if not all(
+            [i in data.columns for i in ["Gene names", "Position", "Amino acid"]]
+        ):
+            raise ValueError(
+                "Please provide a dataframe with columns 'Gene names', 'Position' and 'Amino acid'."
+            )
 
         # Harmonize the input data and store them to the class
         self.data = self._preprocess(data.copy(deep=True))
@@ -247,7 +270,9 @@ class KSEA:
     def _preprocess(data: pd.DataFrame) -> pd.DataFrame:
         """Define MOD_RSD, ucGene and mergeID cols in the input dataset."""
         # New column containing the modified residue as Ser201
-        data["MOD_RSD"] = data["Amino acid"] + data["Position"].fillna(0).astype(int).astype(str)
+        data["MOD_RSD"] = data["Amino acid"] + data["Position"].fillna(0).astype(
+            int
+        ).astype(str)
         # The Gene names as defined for the Kinase substrate dataset
         data["ucGene"] = data["Gene names"].fillna("NA").apply(lambda x: x.upper())
         # an index column
@@ -276,7 +301,7 @@ class KSEA:
 
         """
         # get enrichment values for rows containing the kinase of interest
-        ks = df[col][df["KINASE"].fillna('').apply(lambda x: kinase in x)]
+        ks = df[col][df["KINASE"].fillna("").apply(lambda x: kinase in x)]
         s = ks.mean()  # mean FC of kinase subs
         p = df[col].mean()  # mean FC of all substrates
         m = ks.shape[0]  # number of kinase substrates
@@ -339,7 +364,7 @@ class KSEA:
         the_len = len(kinases)
         # Check if the lengths of all lists are equal
         if any(len(lst) != the_len for lst in [substrates, sub_mod_rsd]):
-            raise ValueError('Not all lists have the same length!')
+            raise ValueError("Not all lists have the same length!")
 
         # generate new empty df to fill in the new kinases
         temp = pd.DataFrame(columns=["KINASE", "SUB_GENE", "SUB_MOD_RSD", "source"])
@@ -349,10 +374,11 @@ class KSEA:
             temp.loc[i, "SUB_MOD_RSD"] = sub_mod_rsd[i]
             temp.loc[i, "source"] = "manual"
         # append to the original database from PSP
-        self.PSP_KS = pd.concat([self.PSP_KS, temp],
-                                ignore_index=True,  # reset the index
-                                join="outer"  # will add columns if they are not present in the temp df
-                                )
+        self.PSP_KS = pd.concat(
+            [self.PSP_KS, temp],
+            ignore_index=True,  # reset the index
+            join="outer",  # will add columns if they are not present in the temp df
+        )
 
     def clear_manual_substrates(self):
         """Remove all manual entries from the PSP database."""
@@ -381,29 +407,43 @@ class KSEA:
         """
         # return a kinase substrate dataframe including only entries of the target organism that were validated in vitro
         if only_in_vivo:
-            temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
-                                (self.PSP_KS["SUB_ORGANISM"] == organism) &
-                                (self.PSP_KS["IN_VIVO_RXN"] == "X")) | (self.PSP_KS["source"] == "manual")]
+            temp = self.PSP_KS[
+                (
+                    (self.PSP_KS["KIN_ORGANISM"] == organism)
+                    & (self.PSP_KS["SUB_ORGANISM"] == organism)
+                    & (self.PSP_KS["IN_VIVO_RXN"] == "X")
+                )
+                | (self.PSP_KS["source"] == "manual")
+            ]
         # only filter for the target organism
         else:
-            temp = self.PSP_KS[((self.PSP_KS["KIN_ORGANISM"] == organism) &
-                                (self.PSP_KS["SUB_ORGANISM"] == organism)) | (self.PSP_KS["source"] == "manual")]
+            temp = self.PSP_KS[
+                (
+                    (self.PSP_KS["KIN_ORGANISM"] == organism)
+                    & (self.PSP_KS["SUB_ORGANISM"] == organism)
+                )
+                | (self.PSP_KS["source"] == "manual")
+            ]
 
         # merge the kinase substrate data tables with the input dataframe
         # include the multiplicity column in the merge if present in the
         # input dataframe the substrate gene names and the modification position are used for merging
         if "Multiplicity" in self.data.columns:
-            self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "Multiplicity", "mergeID"]],
-                                    temp,
-                                    left_on=["ucGene", "MOD_RSD"],
-                                    right_on=["SUB_GENE", "SUB_MOD_RSD"],
-                                    how="left")  # keep only entries that are present in the input dataframe
+            self.annotDf = pd.merge(
+                self.data[["ucGene", "MOD_RSD", "Multiplicity", "mergeID"]],
+                temp,
+                left_on=["ucGene", "MOD_RSD"],
+                right_on=["SUB_GENE", "SUB_MOD_RSD"],
+                how="left",
+            )  # keep only entries that are present in the input dataframe
         else:
-            self.annotDf = pd.merge(self.data[["ucGene", "MOD_RSD", "mergeID"]],
-                                    temp,
-                                    left_on=["ucGene", "MOD_RSD"],
-                                    right_on=["SUB_GENE", "SUB_MOD_RSD"],
-                                    how="left")
+            self.annotDf = pd.merge(
+                self.data[["ucGene", "MOD_RSD", "mergeID"]],
+                temp,
+                left_on=["ucGene", "MOD_RSD"],
+                right_on=["SUB_GENE", "SUB_MOD_RSD"],
+                how="left",
+            )
 
         # generate a df with kinase:number of substrate pairs for the dataset
         self.koi = self._extract_kois(self.annotDf)
@@ -436,13 +476,15 @@ class KSEA:
         ax[1].spines["top"].set_visible(False)
         ax[1].spines["bottom"].set_visible(False)
         ax[1].spines["right"].set_visible(False)
-        ax[1].tick_params(axis='both',  # changes apply to the x-axis
-                          which='both',  # both major and minor ticks are affected
-                          bottom=False,  # ticks along the bottom edge are off
-                          top=False,  # ticks along the top edge are off
-                          left=False,
-                          labelbottom=False,
-                          labelleft=False)  # labels along the bottom edge are off
+        ax[1].tick_params(
+            axis="both",  # changes apply to the x-axis
+            which="both",  # both major and minor ticks are affected
+            bottom=False,  # ticks along the bottom edge are off
+            top=False,  # ticks along the top edge are off
+            left=False,
+            labelbottom=False,
+            labelleft=False,
+        )  # labels along the bottom edge are off
         ax[1].set_xlim(0, 1)
         ax[1].set_ylim(0, 1)
 
@@ -450,8 +492,8 @@ class KSEA:
         ax[1].text(x=0, y=1 - 0.01, s="Top10\nKinase")
         ax[1].text(x=0.1, y=1 - 0.01, s="#Subs")
 
-        ax[1].plot([0, 0.2], [.975, .975], color="black")
-        ax[1].plot([0.1, 0.1], [0, .975], color="black")
+        ax[1].plot([0, 0.2], [0.975, 0.975], color="black")
+        ax[1].plot([0.1, 0.1], [0, 0.975], color="black")
 
         # get top 10 kinases for annotation
         text = self.koi.sort_values(by="#Subs", ascending=False).iloc[:10].values
@@ -463,25 +505,32 @@ class KSEA:
         tot = self.koi.shape[0]
         s = f"Substrates for {tot} kinases found in data."
         ax[1].text(0.3, 0.975, s)
-        med = round(self.koi['#Subs'].median(), 2)
+        med = round(self.koi["#Subs"].median(), 2)
         s = f"Median #Sub: {med}"
         ax[1].text(0.3, 0.925, s)
-        mea = round(self.koi['#Subs'].mean(), 2)
+        mea = round(self.koi["#Subs"].mean(), 2)
         s = f"Mean #Sub: {mea}"
         ax[1].text(0.3, 0.875, s)
         # if kois are provided plot those
         if kois is not None:
-            pos = .8
+            pos = 0.8
             for k in kois:
                 try:
-                    s = self.koi[self.koi["Kinase"].apply(lambda x: x.upper()) == k.upper()]["#Subs"].values[0]
+                    s = self.koi[
+                        self.koi["Kinase"].apply(lambda x: x.upper()) == k.upper()
+                    ]["#Subs"].values[0]
                 except Exception:
                     s = 0
                 ss = f"{k} has {s} substrates."
                 ax[1].text(0.3, pos, ss)
                 pos -= 0.055
 
-    def ksea(self, col: str, min_subs: int = 5, simplify: Union[Literal["auto"], Dict, None] = None) -> None:
+    def ksea(
+        self,
+        col: str,
+        min_subs: int = 5,
+        simplify: Union[Literal["auto"], Dict, None] = None,
+    ) -> None:
         r"""
         Calculate Kinase Enrichment Score.
 
@@ -524,23 +573,35 @@ class KSEA:
         copy_annot_df = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
-                simplify = {"AKT": ["Akt1", "Akt2", "Akt3"],
-                            "PKC": ["PKCA", "PKCD", "PKCE"],
-                            "ERK": ["ERK1", "ERK2"],
-                            "GSK3": ["GSK3B", "GSK3A"],
-                            "JNK": ["JNK1", "JNK2", "JNK3"],
-                            "FAK": ["FAK iso2"],
-                            "p70S6K": ["p70S6K", "p70SKB"],
-                            "RSK": ["p90RSK", "RSK2"],
-                            "P38": ["P38A", "P38B", "P38C", "P338D"]}
+                simplify = {
+                    "AKT": ["Akt1", "Akt2", "Akt3"],
+                    "PKC": ["PKCA", "PKCD", "PKCE"],
+                    "ERK": ["ERK1", "ERK2"],
+                    "GSK3": ["GSK3B", "GSK3A"],
+                    "JNK": ["JNK1", "JNK2", "JNK3"],
+                    "FAK": ["FAK iso2"],
+                    "p70S6K": ["p70S6K", "p70SKB"],
+                    "RSK": ["p90RSK", "RSK2"],
+                    "P38": ["P38A", "P38B", "P38C", "P338D"],
+                }
             for key in simplify:
-                copy_annot_df["KINASE"] = copy_annot_df["KINASE"].replace(simplify[key], [key] * len(simplify[key]))
+                copy_annot_df["KINASE"] = copy_annot_df["KINASE"].replace(
+                    simplify[key], [key] * len(simplify[key])
+                )
 
             # drop rows which are now duplicates
             if "Multiplicity" in copy_annot_df.columns:
-                idx = copy_annot_df[["ucGene", "MOD_RSD", "Multiplicity", "KINASE"]].drop_duplicates().index
+                idx = (
+                    copy_annot_df[["ucGene", "MOD_RSD", "Multiplicity", "KINASE"]]
+                    .drop_duplicates()
+                    .index
+                )
             else:
-                idx = copy_annot_df[["ucGene", "MOD_RSD", "KINASE"]].drop_duplicates().index
+                idx = (
+                    copy_annot_df[["ucGene", "MOD_RSD", "KINASE"]]
+                    .drop_duplicates()
+                    .index
+                )
             copy_annot_df = copy_annot_df.loc[idx]
             self.simpleDf = copy_annot_df
 
@@ -553,10 +614,14 @@ class KSEA:
         # init empty list to collect sub-dfs
         ksea_results_dfs = []
         # add the enrichment column back to the annotation df using the mergeID
-        copy_annot_df = copy_annot_df.merge(self.data[[col, "mergeID"]], on="mergeID", how="left")
+        copy_annot_df = copy_annot_df.merge(
+            self.data[[col, "mergeID"]], on="mergeID", how="left"
+        )
         for kinase in koi:
             # calculate the enrichment score
-            k, s = self._enrichment(copy_annot_df[copy_annot_df[col].notnull()], col, kinase)
+            k, s = self._enrichment(
+                copy_annot_df[copy_annot_df[col].notnull()], col, kinase
+            )
             # new dataframe containing kinase names and scores
             temp = pd.DataFrame(data={"kinase": k, "score": s}, index=[0])
             # add the new df to the pre-initialised list
@@ -577,9 +642,17 @@ class KSEA:
             # nans are dropped in ksea enrichment
             return self.kseaResults.dropna()
 
-    def plot_enrichment(self, up_col: str = "orange", down_col: str = "blue", bg_col: str = "lightgray",
-                        plot_bg: bool = True, ret_fig: bool = False, title: str = "",
-                        figsize: tuple[int, int] = (5, 10), ax: plt.axis = None) -> Union[None, plt.Figure]:
+    def plot_enrichment(
+        self,
+        up_col: str = "orange",
+        down_col: str = "blue",
+        bg_col: str = "lightgray",
+        plot_bg: bool = True,
+        ret_fig: bool = False,
+        title: str = "",
+        figsize: tuple[int, int] = (5, 10),
+        ax: plt.axis = None,
+    ) -> Union[None, plt.Figure]:
         """
         Plot the KSEA results.
 
@@ -630,14 +703,28 @@ class KSEA:
 
             # only plot the unaffected substrates if plot_bg is True
             if plot_bg:
-                sns.barplot(data=self.kseaResults.dropna(), x="score", y="kinase",
-                            hue="kinase", palette=self.kseaResults.dropna()["color"].tolist(), ax=ax, legend=False)
+                sns.barplot(
+                    data=self.kseaResults.dropna(),
+                    x="score",
+                    y="kinase",
+                    hue="kinase",
+                    palette=self.kseaResults.dropna()["color"].tolist(),
+                    ax=ax,
+                    legend=False,
+                )
             else:
                 # else remove the unaffected substrates from the plotting df
-                sns.barplot(data=self.kseaResults[self.kseaResults["color"] != bg_col].dropna(), x="score", y="kinase",
-                            hue="kinase",
-                            palette=self.kseaResults[self.kseaResults["color"] != bg_col].dropna()["color"].tolist(),
-                            ax=ax, legend=False)
+                sns.barplot(
+                    data=self.kseaResults[self.kseaResults["color"] != bg_col].dropna(),
+                    x="score",
+                    y="kinase",
+                    hue="kinase",
+                    palette=self.kseaResults[self.kseaResults["color"] != bg_col]
+                    .dropna()["color"]
+                    .tolist(),
+                    ax=ax,
+                    legend=False,
+                )
 
             # remove top and right spines/plot lines
             sns.despine()
@@ -652,8 +739,14 @@ class KSEA:
             else:
                 return None
 
-    def plot_volcano(self, log_fc: str, p_colname: str, kinases: Union[list[str], None] = None, ret_fig: bool = False,
-                     **kwargs) -> Union[None, list]:
+    def plot_volcano(
+        self,
+        log_fc: str,
+        p_colname: str,
+        kinases: Union[list[str], None] = None,
+        ret_fig: bool = False,
+        **kwargs,
+    ) -> Union[None, list]:
         """
         Plot volcano plots highlighting substrates of a given kinase.
 
@@ -680,7 +773,7 @@ class KSEA:
         """
         # generate a df containing only the kinases of interest
         if kinases is None:
-            kinases = self.koi.sort_values('#Subs', ascending=False).head(5)['Kinase']
+            kinases = self.koi.sort_values("#Subs", ascending=False).head(5)["Kinase"]
             print("No Kinase supplied, plotting the top 5 kinases.")
         df = self.annotate_df(kinases=kinases)
 
@@ -688,12 +781,16 @@ class KSEA:
         for k in kinases:
             # index for highlighting the selected kinase substrates
             idx = df[df[k] == 1].index
-            fig = vis.volcano(df, log_fc, p_colname=p_colname, highlight=idx,
-                              annotate='highlight',  # annotate the highlighted substrates
-                              kwargs_highlight={"label": f"{k} substrate"},
-                              kwargs_both_sig={"alpha": .5},
-                              **kwargs
-                              )
+            fig = vis.volcano(
+                df,
+                log_fc,
+                p_colname=p_colname,
+                highlight=idx,
+                annotate="highlight",  # annotate the highlighted substrates
+                kwargs_highlight={"label": f"{k} substrate"},
+                kwargs_both_sig={"alpha": 0.5},
+                **kwargs,
+            )
 
             # add to the return list
             volcano_returns.append(fig)
@@ -732,25 +829,63 @@ class KSEA:
         # if a list of kinases is provided, iterate through the list and
         # collect corresponding indices
         if isinstance(kinase, list):
-            idx = [df[df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == k.upper()].index for k in kinase]
+            idx = [
+                df[
+                    df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == k.upper()
+                ].index
+                for k in kinase
+            ]
 
             # merge all row indices and use them to create a sub-df containing
             # only the kinases of interest
             df_filter = df.loc[reduce(lambda x, y: x.union(y), idx)]
         elif isinstance(kinase, str):
-            df_filter = df[df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == kinase.upper()]
+            df_filter = df[
+                df["KINASE"].fillna("NA").apply(lambda x: x.upper()) == kinase.upper()
+            ]
         else:
-            raise ValueError("Please provide either a string or a list of strings representing kinases of interest.")
+            raise ValueError(
+                "Please provide either a string or a list of strings representing kinases of interest."
+            )
 
         # data are merged implicitly on common column nnames i.e. on SITE_GRP_ID
         # only entries present in the filtered annotDfare retained
-        df_filter = pd.merge(df_filter[['GENE', 'KINASE', 'KIN_ACC_ID', 'SUBSTRATE', 'SUB_ACC_ID',
-                                        'SUB_GENE', 'SUB_MOD_RSD', 'SITE_GRP_ID', 'SITE_+/-7_AA', 'DOMAIN',
-                                        'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'source', "mergeID"]],
-                             self.PSP_regSits[['SITE_GRP_ID', 'ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT',
-                                               'ON_OTHER_INTERACT', 'PMIDs', 'LT_LIT', 'MS_LIT', 'MS_CST',
-                                               'NOTES']],
-                             how="left")
+        df_filter = pd.merge(
+            df_filter[
+                [
+                    "GENE",
+                    "KINASE",
+                    "KIN_ACC_ID",
+                    "SUBSTRATE",
+                    "SUB_ACC_ID",
+                    "SUB_GENE",
+                    "SUB_MOD_RSD",
+                    "SITE_GRP_ID",
+                    "SITE_+/-7_AA",
+                    "DOMAIN",
+                    "IN_VIVO_RXN",
+                    "IN_VITRO_RXN",
+                    "CST_CAT#",
+                    "source",
+                    "mergeID",
+                ]
+            ],
+            self.PSP_regSits[
+                [
+                    "SITE_GRP_ID",
+                    "ON_FUNCTION",
+                    "ON_PROCESS",
+                    "ON_PROT_INTERACT",
+                    "ON_OTHER_INTERACT",
+                    "PMIDs",
+                    "LT_LIT",
+                    "MS_LIT",
+                    "MS_CST",
+                    "NOTES",
+                ]
+            ],
+            how="left",
+        )
         return df_filter
 
     def annotate_df(self, kinases: Union[list[str], None] = None) -> pd.DataFrame:
@@ -771,7 +906,7 @@ class KSEA:
 
         """
         if kinases is None:
-            raise ValueError('Please provide at least one kinase for annotation')
+            raise ValueError("Please provide at least one kinase for annotation")
         if len(kinases) > 0:
             # remove the two columns from the returned df
             df = self.data.drop(["MOD_RSD", "ucGene"], axis=1)
@@ -786,4 +921,4 @@ class KSEA:
             # remove also the mergeID column before returning the df
             return df.drop("mergeID", axis=1)
         else:
-            raise ValueError('Please provide at least one kinase for annotation')
+            raise ValueError("Please provide at least one kinase for annotation")
