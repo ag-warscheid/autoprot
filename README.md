@@ -4,10 +4,11 @@
 [![made-with-r](https://img.shields.io/badge/Made%20with-R-1f425f.svg)](https://www.r-project.org/)
 [![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/ag-warscheid.github.io/autoprot/)](https://ag-warscheid.github.io/autoprot/)
-
 ![Mastodon Follow](https://img.shields.io/mastodon/follow/109993892962152197?domain=https%3A%2F%2Fmstdn.science&style=social)
-![Twitter Follow](https://img.shields.io/twitter/follow/warscheidalb?style=social)
+![Bluesky Follow](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fpublic.api.bsky.app%2Fxrpc%2Fapp.bsky.actor.getProfile%2F%3Factor%3Dwarscheidlab.bsky.social&query=%24.followersCount&style=social&logo=bluesky&label=Follow%20%40warscheidlab.bsky.social)
+
+[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/ag-warscheid.github.io/autoprot/)](https://ag-warscheid.github.io/autoprot/)
+[![DOI:10.1101/2024.01.18.571429](http://img.shields.io/badge/DOI-10.1101/2024.01.18.571429-blue.svg)](https://doi.org/10.1101/2024.01.18.571429)
 
 ## Description
 
