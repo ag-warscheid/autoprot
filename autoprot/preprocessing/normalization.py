@@ -120,9 +120,7 @@ def quantile_norm(
         df = df.merge(df_norm, on="UID", how="left")
 
     elif backend == "r":
-        d = os.getcwd()
-        data_loc = d + "/input.csv"
-        output_loc = d + "/output.csv"
+        data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_dima')
 
         pp.to_csv(df[["UID"] + cols], data_loc)
 
@@ -251,9 +249,7 @@ def vsn(
         for i in range(len(invert)):
             subset[cols[i]] = subset[cols[i]].apply(lambda x: x ** invert[i])
 
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_vsn')
 
     if not isinstance(cols, list):
         cols = cols.to_list()
@@ -344,7 +340,7 @@ def cyclic_loess(
         plt.show()
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols)
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_cyclic_loess')
 
     command = [
         R,

@@ -1,15 +1,27 @@
+import hashlib
 import os
 from subprocess import run, STDOUT, Popen, PIPE
+import pandas as pd
 
 # this is a pointer to the module object instance itself.
 module_pointer = __import__(__name__.split(".")[0])
 config_dir = {}
 
 
-def write_data_for_r(df, cols):
+def write_data_for_r(df, cols, write_csv=True, return_hash=False, tool=''):
+    # Get a deterministic byte representation of the DataFrame
+    hash_bytes = pd.util.hash_pandas_object(df, index=True).values.tobytes()
+    # Compute SHA256 and return first 10 characters of hex digest
+    hash = hashlib.sha256(hash_bytes).hexdigest()[:10]
+
     d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc = d + f"/{hash}{tool}_input.csv"
+    output_loc = d + f"/{hash}{tool}_output.csv"
+
+    if not write_csv:
+        if return_hash:
+            return data_loc, output_loc, hash
+        return data_loc, output_loc
 
     if "UID" not in df.columns:
         # UID is basically a row index starting at 1
@@ -19,6 +31,8 @@ def write_data_for_r(df, cols):
         cols = cols.to_list()
 
     df[["UID"] + cols].to_csv(data_loc, sep="\t", index=False)
+    if return_hash:
+        return data_loc, output_loc, hash+tool
     return data_loc, output_loc
 
 

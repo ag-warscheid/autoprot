@@ -160,15 +160,15 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         Columns that were imputed.
 
     """
-    dataLoc, outputLoc = r_helper.write_data_for_r(df, cols)
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_imp_seq')
 
     command = [
         R,
         "--vanilla",
         RFUNCTIONS,  # script location
         "impSeq",  # functionName
-        dataLoc,  # data location
-        outputLoc,  # output file
+        data_loc,  # data location
+        output_loc,  # output file
     ]
 
     p = run(command, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
@@ -176,7 +176,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
     if print_r:
         print(p.stdout)
 
-    res = pp.read_csv(outputLoc)
+    res = pp.read_csv(output_loc)
     # append a string to recognise the cols
     res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
     # change back the R colnames
@@ -187,6 +187,9 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
     df = df.merge(res, how="left", on="UID")
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
+
+    os.remove(data_loc)
+    os.remove(output_loc)
 
     # return the imputed df and the imputed cols if requested
     return (df, df.columns) if return_cols else df
@@ -309,9 +312,7 @@ def dima(
         )
     df = df.copy(deep=True)
 
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_dima')
 
     for col in cols:
         mvs = df[col].isna().sum() / df[col].size

@@ -337,8 +337,10 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     # TODO: better handle coefficient extraction in R
     df = df.copy()
     d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+
+    data_loc, output_loc, hashstring = r_helper.write_data_for_r(
+        df, reps, write_csv=False, return_hash=True, tool="_limma"
+    )
 
     # limma handles fold-change calculation opposite to all other autoprot tools
     # this changes the order for function consistency
@@ -353,7 +355,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
 
     # Normally no custom_design is provided
     if custom_design is None:
-        design_loc = d + "/design.csv"
+        design_loc = d + f"/{hashstring}_design.csv"
         # if two lists are provided with reps, this likely is a twoSample test
         if isinstance(reps[0], list) and len(reps) == 2:
             print("LIMMA: Assuming a two sample test with:")
@@ -468,9 +470,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
 
     """
 
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc, output_loc = r_helper.write_data_for_r(df, reps, write_csv=False, tool='_rank_prod')
 
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
