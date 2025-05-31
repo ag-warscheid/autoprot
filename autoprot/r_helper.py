@@ -8,7 +8,7 @@ module_pointer = __import__(__name__.split(".")[0])
 config_dir = {}
 
 
-def write_data_for_r(df, cols, write_csv=True, return_hash=False, tool=''):
+def write_data_for_r(df, cols, write_csv=True, return_hash=False, tool=""):
     # Get a deterministic byte representation of the DataFrame
     hash_bytes = pd.util.hash_pandas_object(df, index=True).values.tobytes()
     # Compute SHA256 and return first 10 characters of hex digest
@@ -32,7 +32,7 @@ def write_data_for_r(df, cols, write_csv=True, return_hash=False, tool=''):
 
     df[["UID"] + cols].to_csv(data_loc, sep="\t", index=False)
     if return_hash:
-        return data_loc, output_loc, hash+tool
+        return data_loc, output_loc, hash + tool
     return data_loc, output_loc
 
 

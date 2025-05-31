@@ -470,7 +470,9 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
 
     """
 
-    data_loc, output_loc = r_helper.write_data_for_r(df, reps, write_csv=False, tool='_rank_prod')
+    data_loc, output_loc = r_helper.write_data_for_r(
+        df, reps, write_csv=False, tool="_rank_prod"
+    )
 
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)

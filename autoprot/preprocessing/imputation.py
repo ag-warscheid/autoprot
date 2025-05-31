@@ -160,7 +160,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         Columns that were imputed.
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_imp_seq')
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_imp_seq")
 
     command = [
         R,
@@ -312,7 +312,7 @@ def dima(
         )
     df = df.copy(deep=True)
 
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool='_dima')
+    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_dima")
 
     for col in cols:
         mvs = df[col].isna().sum() / df[col].size
