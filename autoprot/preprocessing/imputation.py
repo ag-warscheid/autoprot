@@ -183,8 +183,8 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
     res_cols = [x.replace(".", " ") for x in res_cols]
     res.columns = res_cols
 
-    # merge and retain the rows of the original df
-    df = df.merge(res, how="left", on="UID")
+    # join and retain the rows of the original df
+    df = df.join(res.set_index("UID"), on="UID", how="left")
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 
@@ -367,8 +367,8 @@ def dima(
     res_cols = [x.replace("Imputation.", "") for x in res_cols]
     res.columns = res_cols
 
-    # merge and retain the rows of the original df
-    df = df.merge(res, how="left", on="UID")
+    # join and retain the rows of the original df
+    df = df.join(res.set_index("UID"), on="UID", how="left")
     # drop UID again
     df.drop("UID", axis=1, inplace=True)
 

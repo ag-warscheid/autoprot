@@ -115,9 +115,7 @@ def quantile_norm(
         )
         res_cols = [f"{i}_normalized" for i in df_norm.columns]
         df_norm.columns = res_cols
-        df_norm["UID"] = df_norm.index
-        print(df_norm)
-        df = df.merge(df_norm, on="UID", how="left")
+        df = df.join(df_norm, on="UID", how="left")
 
     elif backend == "r":
         data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_dima")
@@ -138,7 +136,11 @@ def quantile_norm(
         res = pp.read_csv(output_loc)
         res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
         res.columns = res_cols
-        df = df.merge(res, on="UID")
+
+        # join and retain the rows of the original df
+        df = df.join(res.set_index("UID"), on="UID", how="left")
+        # drop UID again
+        df.drop("UID", axis=1, inplace=True)
 
         os.remove(data_loc)
         os.remove(output_loc)
@@ -270,7 +272,10 @@ def vsn(
     res_cols = [f"{i}{suffix}" if i != "UID" else i for i in res.columns]
     res.columns = res_cols
 
-    df = df.merge(res, on="UID")
+    # join and retain the rows of the original df
+    df = df.join(res.set_index("UID"), on="UID", how="left")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
 
     os.remove(data_loc)
     os.remove(output_loc)
@@ -357,7 +362,10 @@ def cyclic_loess(
     res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
     res.columns = res_cols
 
-    df = df.merge(res, on="UID")
+    # join and retain the rows of the original df
+    df = df.join(res.set_index("UID"), on="UID", how="left")
+    # drop UID again
+    df.drop("UID", axis=1, inplace=True)
 
     os.remove(data_loc)
     os.remove(output_loc)
