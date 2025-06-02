@@ -10,7 +10,10 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 import os
-from typing import Union
+from typing import Union, Literal, Tuple, List
+
+from pandas import DataFrame
+
 from .. import r_helper
 from .. import preprocessing as pp
 
@@ -22,6 +25,56 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # Especially, do not use +,- or spaces in your column names. Maybe write decorator to
 # validate proper column formatting and handle exceptions
 # =============================================================================
+
+
+def loading_norm(df: pd.DataFrame,
+                 cols: Union[list[str], pd.Index],
+                 return_cols: bool = False,
+                 how: Literal['median', 'mean'] = 'median',
+                 ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
+    """
+    Loading normalisation.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Input dataframe.
+    cols: Union[list[str], pd.Index]
+        Columns to normalise.
+    return_cols: bool
+        If True the column names of the normalized columns are returned in addition to the dataframe.
+        The default is False.
+    how: median or mean
+        Should each column be normalized against the mean or the median intensity of all columns.
+
+    Notes
+    -----
+    This function assumes intensity columns to be log transformed.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with new normalized columns.
+    list[str]
+        The normalized column names.
+    """
+    norm_cols = [x + '_loading_norm' for x in cols]
+
+    if how == 'median':
+        grand_median = df[cols].median(axis=0).median()
+        correction_factor = df[cols].median(axis=0) - grand_median
+        df[norm_cols] = df[cols].subtract(correction_factor)
+
+    elif how == 'mean':
+        correction_factor = df[cols].sum(axis=0).mean() / df[cols].sum(axis=0)
+        df[norm_cols] = df[cols].multiply(correction_factor)
+
+    else:
+        raise KeyError(f"{how} is not a valid option.")
+
+    if return_cols:
+        return df, norm_cols
+    return df
 
 
 def quantile_norm(
