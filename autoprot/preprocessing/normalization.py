@@ -209,7 +209,7 @@ def vsn(
     cols: Union[list[str], pd.Index],
     return_cols: bool = False,
     invert: Union[list[int], None] = None,
-    suffix: str = "_normalized",
+    suffix: str = "_norm",
     print_r: bool = False,
 ):
     # noinspection PyUnresolvedReferences
