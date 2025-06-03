@@ -9,10 +9,7 @@ Autoprot Preprocessing Functions.
 
 import numpy as np
 import pandas as pd
-import os
 from typing import Union, Literal, Tuple, List
-
-from pandas import DataFrame
 
 from .. import r_helper
 from .. import preprocessing as pp
@@ -27,11 +24,12 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def loading_norm(df: pd.DataFrame,
-                 cols: Union[list[str], pd.Index],
-                 return_cols: bool = False,
-                 how: Literal['median', 'mean'] = 'median',
-                 ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
+def loading_norm(
+    df: pd.DataFrame,
+    cols: Union[list[str], pd.Index],
+    return_cols: bool = False,
+    how: Literal["median", "mean"] = "median",
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
     """
     Loading normalisation.
 
@@ -58,14 +56,14 @@ def loading_norm(df: pd.DataFrame,
     list[str]
         The normalized column names.
     """
-    norm_cols = [x + '_loading_norm' for x in cols]
+    norm_cols = [x + "_loading_norm" for x in cols]
 
-    if how == 'median':
+    if how == "median":
         grand_median = df[cols].median(axis=0).median()
         correction_factor = df[cols].median(axis=0) - grand_median
         df[norm_cols] = df[cols].subtract(correction_factor)
 
-    elif how == 'mean':
+    elif how == "mean":
         correction_factor = df[cols].sum(axis=0).mean() / df[cols].sum(axis=0)
         df[norm_cols] = df[cols].multiply(correction_factor)
 
@@ -83,6 +81,7 @@ def quantile_norm(
     return_cols=False,
     backend="r",
     print_r: bool = False,
+    suffix: str = "_normalized",
 ):
     # noinspection PyUnresolvedReferences
     r"""
@@ -103,6 +102,8 @@ def quantile_norm(
         R Function handles NaNs in a more sophisticated manner than the python function (which just ignores NaNs)
     print_r : bool
         Whether to return output from the R command line. Default is False.
+    suffix : str, optional
+        Suffix to be added to the column names of the normalized columns. The default is "_normalized".
 
     Returns
     -------
@@ -171,7 +172,7 @@ def quantile_norm(
         df = df.join(df_norm, on="UID", how="left")
 
     elif backend == "r":
-        data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_dima")
+        data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_qnorm")
 
         pp.to_csv(df[["UID"] + cols], data_loc)
 
@@ -187,16 +188,13 @@ def quantile_norm(
         r_helper.run_r_command(command, print_r)
 
         res = pp.read_csv(output_loc)
-        res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
-        res.columns = res_cols
-
-        # join and retain the rows of the original df
-        df = df.join(res.set_index("UID"), on="UID", how="left")
-        # drop UID again
-        df.drop("UID", axis=1, inplace=True)
-
-        os.remove(data_loc)
-        os.remove(output_loc)
+        return r_helper.merge_data_from_r(
+            res,
+            df,
+            suffix=suffix,
+            locs_to_remove=[data_loc, output_loc],
+            return_cols=return_cols,
+        )
 
     else:
         raise (
@@ -304,7 +302,7 @@ def vsn(
         for i in range(len(invert)):
             subset[cols[i]] = subset[cols[i]].apply(lambda x: x ** invert[i])
 
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_vsn")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_vsn")
 
     if not isinstance(cols, list):
         cols = cols.to_list()
@@ -322,18 +320,14 @@ def vsn(
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res_cols = [f"{i}{suffix}" if i != "UID" else i for i in res.columns]
-    res.columns = res_cols
 
-    # join and retain the rows of the original df
-    df = df.join(res.set_index("UID"), on="UID", how="left")
-    # drop UID again
-    df.drop("UID", axis=1, inplace=True)
-
-    os.remove(data_loc)
-    os.remove(output_loc)
-
-    return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
+    return r_helper.merge_data_from_r(
+        res,
+        df,
+        suffix=suffix,
+        locs_to_remove=[data_loc, output_loc],
+        return_cols=return_cols,
+    )
 
 
 def cyclic_loess(
@@ -341,6 +335,7 @@ def cyclic_loess(
     cols: Union[list[str], pd.Index],
     return_cols: bool = False,
     print_r: bool = False,
+    suffix: str = "_normalized",
 ):
     # noinspection PyUnresolvedReferences
     r"""
@@ -356,7 +351,9 @@ def cyclic_loess(
         Whether to return a list of names corresponding to the columns added
         to the dataframe. The default is False.
     print_r : bool
-        Whether to return output from the R command line. Default is False.
+        Whether to return output from the R command line. Default is False
+    suffix : str, optional
+        Suffix to be added to the column names of the normalized columns. The default is "_normalized".
 
     Returns
     -------
@@ -398,7 +395,7 @@ def cyclic_loess(
         plt.show()
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_cyclic_loess")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_cyclic_loess")
 
     command = [
         R,
@@ -412,18 +409,14 @@ def cyclic_loess(
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res_cols = [f"{i}_normalized" if i != "UID" else i for i in res.columns]
-    res.columns = res_cols
 
-    # join and retain the rows of the original df
-    df = df.join(res.set_index("UID"), on="UID", how="left")
-    # drop UID again
-    df.drop("UID", axis=1, inplace=True)
-
-    os.remove(data_loc)
-    os.remove(output_loc)
-
-    return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
+    return r_helper.merge_data_from_r(
+        res,
+        df,
+        suffix=suffix,
+        locs_to_remove=[data_loc, output_loc],
+        return_cols=return_cols,
+    )
 
 
 def norm_to_prot(entry: pd.Series, prot_df: pd.DataFrame, to_normalize: list[str]):

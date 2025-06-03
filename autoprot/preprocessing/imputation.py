@@ -8,7 +8,6 @@ Autoprot Preprocessing Functions.
 """
 import numpy as np
 import pandas as pd
-import os
 from subprocess import run, PIPE, STDOUT
 from typing import Union
 from .. import r_helper
@@ -129,7 +128,13 @@ def imp_min_prob(
     return (df, imputed_cols) if return_cols else df
 
 
-def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=False):
+def imp_seq(
+    df,
+    cols: Union[list[str], pd.Index],
+    print_r=False,
+    return_cols=False,
+    suffix="_imputed",
+):
     """
     Perform sequential imputation in R using impSeq from rrcovNA.
 
@@ -149,6 +154,8 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         Whether to print the output of R, default is False.
     return_cols : bool, optional
         Whether to return the columns that were imputed. The default is False.
+    suffix : str, optional
+        Suffix to add to the imputed columns. Default is '_imputed'.
 
     Returns
     -------
@@ -160,7 +167,7 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         Columns that were imputed.
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_imp_seq")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_imp_seq")
 
     command = [
         R,
@@ -177,22 +184,14 @@ def imp_seq(df, cols: Union[list[str], pd.Index], print_r=False, return_cols=Fal
         print(p.stdout)
 
     res = pp.read_csv(output_loc)
-    # append a string to recognise the cols
-    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
-    # change back the R colnames
-    res_cols = [x.replace(".", " ") for x in res_cols]
-    res.columns = res_cols
 
-    # join and retain the rows of the original df
-    df = df.join(res.set_index("UID"), on="UID", how="left")
-    # drop UID again
-    df.drop("UID", axis=1, inplace=True)
-
-    os.remove(data_loc)
-    os.remove(output_loc)
-
-    # return the imputed df and the imputed cols if requested
-    return (df, df.columns) if return_cols else df
+    return r_helper.merge_data_from_r(
+        res,
+        df,
+        suffix=suffix,
+        locs_to_remove=[data_loc, output_loc],
+        return_cols=return_cols,
+    )
 
 
 def dima(
@@ -206,6 +205,7 @@ def dima(
     print_r=True,
     min_values_for_imputation=0,
     return_cols=False,
+    suffix="_imputed",
 ):
     # noinspection PyUnresolvedReferences
     """
@@ -246,6 +246,8 @@ def dima(
         Whether to print the R output to the Python console.
     return_cols : bool, optional
         Whether to return the columns that were imputed. The default is False.
+    suffix : str, optional
+        Suffix to add to the imputed columns. Default is '_imputed'.
 
     Returns
     -------
@@ -312,7 +314,7 @@ def dima(
         )
     df = df.copy(deep=True)
 
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_dima")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_dima")
 
     for col in cols:
         mvs = df[col].isna().sum() / df[col].size
@@ -361,22 +363,21 @@ def dima(
     res = res.loc[
         :, (res.columns.str.contains("Imputation")) | (res.columns.str.contains("UID"))
     ]
-    # append a string to recognise the cols
-    res_cols = [f"{i}_imputed" if i != "UID" else i for i in res.columns]
-    # remove the preceding string Imputation
-    res_cols = [x.replace("Imputation.", "") for x in res_cols]
-    res.columns = res_cols
-
-    # join and retain the rows of the original df
-    df = df.join(res.set_index("UID"), on="UID", how="left")
-    # drop UID again
-    df.drop("UID", axis=1, inplace=True)
+    res.columns = [x.replace("Imputation.", "") for x in res.columns]
 
     perf = pp.read_csv(output_loc[:-4] + "_performance.csv")
 
-    os.remove(data_loc)
-    os.remove(output_loc)
-    os.remove(output_loc[:-4] + "_performance.csv")
+    imputed_and_cols = r_helper.merge_data_from_r(
+        res,
+        df,
+        suffix=suffix,
+        locs_to_remove=[data_loc, output_loc, output_loc[:-4] + "_performance.csv"],
+        return_cols=return_cols,
+    )
 
     # return the imputed df and the performance metrics
-    return (df, perf, res_cols) if return_cols else (df, perf)
+    return (
+        (imputed_and_cols[0], perf, imputed_and_cols[1])
+        if return_cols
+        else (imputed_and_cols, perf)
+    )

@@ -338,7 +338,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     df = df.copy()
     d = os.getcwd()
 
-    data_loc, output_loc, hashstring = r_helper.write_data_for_r(
+    data_loc, output_loc, hashstring = r_helper.generate_paths_for_r(
         df, reps, write_csv=False, return_hash=True, tool="_limma"
     )
 
@@ -470,7 +470,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
 
     """
 
-    data_loc, output_loc = r_helper.write_data_for_r(
+    data_loc, output_loc = r_helper.generate_paths_for_r(
         df, reps, write_csv=False, tool="_rank_prod"
     )
 
