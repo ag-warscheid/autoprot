@@ -27,11 +27,12 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def loading_norm(df: pd.DataFrame,
-                 cols: Union[list[str], pd.Index],
-                 return_cols: bool = False,
-                 how: Literal['median', 'mean'] = 'median',
-                 ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
+def loading_norm(
+    df: pd.DataFrame,
+    cols: Union[list[str], pd.Index],
+    return_cols: bool = False,
+    how: Literal["median", "mean"] = "median",
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
     """
     Loading normalisation.
 
@@ -58,14 +59,14 @@ def loading_norm(df: pd.DataFrame,
     list[str]
         The normalized column names.
     """
-    norm_cols = [x + '_loading_norm' for x in cols]
+    norm_cols = [x + "_loading_norm" for x in cols]
 
-    if how == 'median':
+    if how == "median":
         grand_median = df[cols].median(axis=0).median()
         correction_factor = df[cols].median(axis=0) - grand_median
         df[norm_cols] = df[cols].subtract(correction_factor)
 
-    elif how == 'mean':
+    elif how == "mean":
         correction_factor = df[cols].sum(axis=0).mean() / df[cols].sum(axis=0)
         df[norm_cols] = df[cols].multiply(correction_factor)
 

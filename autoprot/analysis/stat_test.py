@@ -267,7 +267,9 @@ def cohen_d(df, group1, group2):
     return df
 
 
-def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
+def limma(
+    df, reps, cond="", custom_design=None, coef=None, print_r=False, return_cols=False
+):
     # sourcery skip: extract-method, inline-immediately-returned-variable
     # noinspection PyUnresolvedReferences
     r"""
@@ -294,11 +296,15 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     print_r : bool, optional
         Whether to print the R output.
         The default is False.
+    return_cols : bool, optional
+        Whether to return the columns of the R output DataFrame.
 
     Returns
     -------
     df : pd.DataFrame
         The input dataframe with additional columns.
+    list [str] | None
+        If return_cols is True, returns the columns of the R output DataFrame excluding "UID".
 
     Notes
     -----
@@ -338,7 +344,7 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     df = df.copy()
     d = os.getcwd()
 
-    data_loc, output_loc, hashstring = r_helper.write_data_for_r(
+    data_loc, output_loc, hashstring = r_helper.generate_paths_for_r(
         df, reps, write_csv=False, return_hash=True, tool="_limma"
     )
 
@@ -415,19 +421,23 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res.columns = [i + cond if i != "UID" else i for i in res.columns]
-    # this keeps the index of the original df in the returned df
-    df = df.reset_index().merge(res, on="UID").set_index("index")
 
-    os.remove(data_loc)
-    os.remove(output_loc)
-    if custom_design is None and isinstance(reps[0], list) and len(reps) == 2:
-        os.remove(design_loc)
+    return r_helper.merge_data_from_r(
+        res,
+        df,
+        cond,
+        locs_to_remove=(
+            [data_loc, output_loc, design_loc]
+            if custom_design is None
+            else [data_loc, output_loc]
+        ),
+        return_cols=return_cols,
+    )
 
-    return df
 
-
-def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
+def rank_prod(
+    df, reps, cond="", print_r=False, correct_fc=True, min_vv=1, return_cols=False
+):
     """
     Perform RankProd test as in R RankProd package.
 
@@ -455,6 +465,8 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
     min_vv : int, optional
         Minimum number of valid values for a row to be considered.
         The default is 1.
+    return_cols : bool, optional
+        Whether to return the columns of the R output DataFrame.
 
     Returns
     -------
@@ -470,7 +482,7 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
 
     """
 
-    data_loc, output_loc = r_helper.write_data_for_r(
+    data_loc, output_loc = r_helper.generate_paths_for_r(
         df, reps, write_csv=False, tool="_rank_prod"
     )
 
@@ -524,8 +536,14 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res.columns = [i + cond if i != "UID" else i for i in res.columns]
-    df = df.reset_index().merge(res, on="UID").set_index("index")
+
+    df, cols = r_helper.merge_data_from_r(
+        res,
+        df,
+        cond,
+        locs_to_remove=[data_loc, output_loc],
+        return_cols=True,
+    )
 
     if correct_fc:
         if isinstance(reps[0], list) and len(reps) == 2:
@@ -536,7 +554,6 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True, min_vv=1):
         else:
             df["logFC" + cond] = df[reps].mean(axis=1, skipna=True)
 
-    os.remove(data_loc)
-    os.remove(output_loc)
-
+    if return_cols:
+        return df, cols
     return df
