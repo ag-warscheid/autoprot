@@ -11,9 +11,6 @@ import numpy as np
 import pandas as pd
 import os
 from typing import Union, Literal, Tuple, List
-
-from pandas import DataFrame
-
 from .. import r_helper
 from .. import preprocessing as pp
 
@@ -174,7 +171,7 @@ def quantile_norm(
         df = df.merge(df_norm, on="UID", how="left")
 
     elif backend == "r":
-        data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_dima")
+        data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_dima")
 
         pp.to_csv(df[["UID"] + cols], data_loc)
 
@@ -303,7 +300,7 @@ def vsn(
         for i in range(len(invert)):
             subset[cols[i]] = subset[cols[i]].apply(lambda x: x ** invert[i])
 
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_vsn")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_vsn")
 
     if not isinstance(cols, list):
         cols = cols.to_list()
@@ -394,7 +391,7 @@ def cyclic_loess(
         plt.show()
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols, tool="_cyclic_loess")
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_cyclic_loess")
 
     command = [
         R,
