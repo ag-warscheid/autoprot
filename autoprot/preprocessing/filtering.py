@@ -10,6 +10,8 @@ import functools
 
 import numpy as np
 import pandas as pd
+from typing import Literal
+
 from autoprot.decorators import report
 from .. import r_helper
 
@@ -187,6 +189,9 @@ def filter_vv(
         Minimum amount of valid values. The default is 2.
     valid_values : bool, optional
         True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
+    operator : Literal['and', 'or'], optional
+        How to combine the results of the groups. If 'and', only rows that are valid in all groups are kept.
+        If 'or', rows that are valid in at least one group are kept. The default is 'and'.
 
     Returns
     -------
@@ -221,12 +226,22 @@ def filter_vv(
     df = df.copy()  # make sure to keep the original dataframe unmodified
 
     if valid_values:
-        idxs = [df[df[group].notnull().sum(axis=1) >= min_valid].index for group in groups]
+        idxs = [
+            df[df[group].notnull().sum(axis=1) >= min_valid].index for group in groups
+        ]
     else:
-        idxs = [df[df[group].isnull().sum(axis=1) <= min_valid].index for group in groups]
+        idxs = [
+            df[df[group].isnull().sum(axis=1) <= min_valid].index for group in groups
+        ]
 
-    # indices that are valid in all groups
-    idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
+    if operator == "and":
+        # indices that are valid in all groups
+        idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
+    elif operator == "or":
+        # indices that are valid in at least one group
+        idx = functools.reduce(lambda x, y: x.union(y), idxs)
+    else:
+        raise ValueError("Operator must be 'and' or 'or'.")
     df = df.loc[idx, :]
 
     return df
