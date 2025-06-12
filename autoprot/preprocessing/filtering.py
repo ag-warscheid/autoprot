@@ -165,7 +165,13 @@ def filter_seq_cov(df, thresh, cols=None):
 
 
 @report
-def filter_vv(df, groups, n=2, valid_values=True):
+def filter_vv(
+    df: pd.DataFrame,
+    groups: list[list[str]],
+    min_valid: int = 2,
+    valid_values: bool = True,
+    operator: Literal["and", "or"] = "and",
+):
     # noinspection PyUnresolvedReferences
     r"""
     Filter dataframe for minimum number of valid values.
@@ -177,7 +183,7 @@ def filter_vv(df, groups, n=2, valid_values=True):
     groups : list of lists of str
         Lists of colnames of the experimental groups.
         Each group is filtered for at least n vv.
-    n : int, optional
+    min_valid : int, optional
         Minimum amount of valid values. The default is 2.
     valid_values : bool, optional
         True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
@@ -208,16 +214,16 @@ def filter_vv(df, groups, n=2, valid_values=True):
     >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2",
     ...      "log2_Ratio M/L normalized BC18_3", "log2_Ratio H/M normalized BC36_1",
     ...      "log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
-    >>> protFilter = pp.filter_vv(protLog, groups=[a,b,c], n=3)
+    >>> protFilter = pp.filter_vv(protLog, groups=[a,b,c], min_valid=3)
     4910 rows before filter operation.
     2674 rows after filter operation.
     """
     df = df.copy()  # make sure to keep the original dataframe unmodified
 
     if valid_values:
-        idxs = [df[df[group].notnull().sum(axis=1) >= n].index for group in groups]
+        idxs = [df[df[group].notnull().sum(axis=1) >= min_valid].index for group in groups]
     else:
-        idxs = [df[df[group].isnull().sum(axis=1) <= n].index for group in groups]
+        idxs = [df[df[group].isnull().sum(axis=1) <= min_valid].index for group in groups]
 
     # indices that are valid in all groups
     idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
