@@ -128,6 +128,83 @@ def imp_min_prob(
     return (df, imputed_cols) if return_cols else df
 
 
+def imp_median(
+    df: pd.DataFrame,
+    cols_to_impute: Union[list[str], pd.Index],
+    min_missing: int = None,
+    max_missing: int = None,
+    return_cols: bool = False,
+) -> Union[pd.DataFrame, tuple[pd.DataFrame, list[str]]]:
+    """
+    Perform an imputation by replacing missing values with the median of the row.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe on which imputation is performed.
+    cols_to_impute : list of str or pd.Index
+        Columns to impute. Should correspond to a single condition (i.e. control).
+    min_missing : int, optional
+        How many missing values have to be missing across all columns to perform imputation.
+        If None all values have to be missing. The default is None.
+    max_missing : int, optional
+        How many missing values are allowed across all columns to perform imputation.
+        If None no limit is set. The default is None.
+    return_cols : bool, optional
+        Whether to return the columns that were imputed. The default is False.
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with imputed values.
+    list of str
+        Columns that were imputed.
+
+    """
+    df = df.copy(deep=True)
+
+    # test if cols_to_impute is iterable
+    try:
+        iter(cols_to_impute)
+    except TypeError:
+        cols_to_impute = [cols_to_impute]
+
+    min_missing = min_missing if min_missing is not None else 0
+    max_missing = max_missing if max_missing is not None else len(cols_to_impute)
+
+    # idxs of rows for imputation
+    filter_idx = df[
+        min_missing <= df[cols_to_impute].isnull().sum(axis=1)
+    ].index.intersection(
+        df[df[cols_to_impute].isnull().sum(axis=1) <= max_missing].index
+    )
+
+    imputed_rows = []
+    imputed_cols = [x + "_median_imputed" for x in cols_to_impute]
+    print(f"Imputing {len(filter_idx)} rows out of {len(df)}")
+    for row in df.loc[filter_idx, cols_to_impute].itertuples(index=False):
+        row_median = np.nanmedian(row)
+        # fill the NaN values with the median of the row
+        row = pd.Series(np.nan_to_num(row, nan=row_median), index=imputed_cols)
+        imputed_rows.append(row)
+
+    # create a new DataFrame with the imputed rows
+    imputed_df = pd.DataFrame(imputed_rows, columns=imputed_cols, index=filter_idx)
+    # join the imputed DataFrame with the original DataFrame
+    df = df.join(imputed_df)
+
+    # set the rows which were not imputed to the original values
+    untouched_rows = ~df.index.isin(filter_idx)
+    # Create a temporary DataFrame with imputed values
+    tmp = df.loc[untouched_rows, cols_to_impute].copy()
+    tmp.columns = imputed_cols  # Rename if necessary
+    # Update only the selected columns in the original df
+    df.update(tmp)
+
+    # return the imputed df and the imputed cols if requested)
+    return (df, imputed_cols) if return_cols else df
+
+
 def imp_seq(
     df,
     cols: Union[list[str], pd.Index],
