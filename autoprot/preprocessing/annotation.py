@@ -264,7 +264,7 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
     """
 
     # open the phospho site plus phosphorylation dataset
-    with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
+    with resources.open_binary('autoprot.data', "Phosphorylation_site_dataset.zip") as d:
         ps = pd.read_csv(d, sep='\t', compression='zip')
 
     def get_uniprot_sequence(uniprot_acc):
