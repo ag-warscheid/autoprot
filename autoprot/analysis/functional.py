@@ -532,7 +532,7 @@ class KSEA:
                             "FAK": ["FAK iso2"],
                             "p70S6K": ["p70S6K", "p70SKB"],
                             "RSK": ["p90RSK", "RSK2"],
-                            "P38": ["P38A", "P38B", "P38C", "P338D"]}
+                            "P38": ["P38A", "P38B", "P38C", "P38D"]}
             for key in simplify:
                 copy_annot_df["KINASE"] = copy_annot_df["KINASE"].replace(simplify[key], [key] * len(simplify[key]))
 
