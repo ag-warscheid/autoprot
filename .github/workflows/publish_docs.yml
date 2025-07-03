@@ -1,6 +1,17 @@
 name: publish docs
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+      - master
+      - dev
+  pull_request:
+    branches:
+      - main
+      - master
+      - dev
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,7 +29,7 @@ jobs:
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
-            r-version: '4.2.1' # The R version to download (if necessary) and use.
+            r-version: '4.4.0' # The R version to download (if necessary) and use.
       - name: Install R package requirements
         # libcurl is required for r curl
         run: |
@@ -26,7 +37,7 @@ jobs:
           tree
           sudo apt install -y libcurl4-openssl-dev
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: 'x64'
@@ -49,6 +60,8 @@ jobs:
         run: |
           python -c "from autoprot import r_helper; r_helper.return_r_path()"
           Rscript autoprot/RFunctions.R functest
+      - name: Check matplotlib version
+        run: python -c "import matplotlib; print(matplotlib.__version__)"
       - name: Sphinx build
         run: |
           sphinx-build docs docs/_build

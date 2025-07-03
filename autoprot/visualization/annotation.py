@@ -26,6 +26,7 @@ from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 # SEQUENCE LOGO
 
+
 def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False):
     """
     Return the input sequence_motif if it fits to the value provided in "Sequence window" of a dataframe row.
@@ -54,6 +55,7 @@ def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False
 
     """
     import re
+
     # identified sequence window
     d = row["Sequence window"]
     # In Sequence window the aa of interest is always at pos 15
@@ -96,17 +98,37 @@ def _generate_kinase_motif_df(seq: list):
     -------
     pd.Dataframe : kinase_motif_df
     """
-    aa_dic = dict(G=0, P=0, A=0, V=0, L=0, I=0, M=0, C=0, F=0, Y=0, W=0, H=0, K=0, R=0, Q=0, N=0, E=0, D=0, S=0,
-                  T=0)
+    aa_dic = dict(
+        G=0,
+        P=0,
+        A=0,
+        V=0,
+        L=0,
+        I=0,
+        M=0,
+        C=0,
+        F=0,
+        Y=0,
+        W=0,
+        H=0,
+        K=0,
+        R=0,
+        Q=0,
+        N=0,
+        E=0,
+        D=0,
+        S=0,
+        T=0,
+    )
 
     seq = [i for i in seq if len(i) == 15]
-    seq_t = [''.join(s) for s in zip(*seq)]
+    seq_t = ["".join(s) for s in zip(*seq)]
     score_matrix = []
     for pos in seq_t:
         d = aa_dic.copy()
         for aa in pos:
             aa = aa.upper()
-            if aa not in ['.', '-', '_', "X"]:
+            if aa not in [".", "-", "_", "X"]:
                 d[aa] += 1
         score_matrix.append(d)
 
@@ -177,7 +199,9 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
         vis.sequence_logo(phos, sequence_motif, rename_to_st=True)
     """
 
-    def generate_sequence_logo(seq: list, outfile_path: str = None, sequence_motif: str = ""):
+    def generate_sequence_logo(
+        seq: list, outfile_path: str = None, sequence_motif: str = ""
+    ):
         """
         Draw a sequence logo plot for a sequence_motif.
 
@@ -199,13 +223,15 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
 
         kinase_motif_df = _generate_kinase_motif_df(seq)
 
-        k_logo = logomaker.Logo(kinase_motif_df,
-                                font_name="Arial",
-                                color_scheme="dmslogo_funcgroup",
-                                vpad=0,
-                                width=.8)
+        k_logo = logomaker.Logo(
+            kinase_motif_df,
+            font_name="Arial",
+            color_scheme="dmslogo_funcgroup",
+            vpad=0,
+            width=0.8,
+        )
 
-        k_logo.highlight_position(p=7, color='purple', alpha=.5)
+        k_logo.highlight_position(p=7, color="purple", alpha=0.5)
         plt.title(f"{sequence_motif} SequenceLogo")
 
         # generate x labels corresponding to sequence indices
@@ -219,16 +245,22 @@ def sequence_logo(df, motif, file=None, rename_to_st=False):
     df[motif[0]] = np.nan
     # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
     # window
-    df[motif[0]] = df.apply(lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1)
+    df[motif[0]] = df.apply(
+        lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1
+    )
 
     if file is not None:
         # consider only the +- 7 amino acids around the modified residue (x[8:23])
-        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                               outfile_path=file + "/{}_{}.svg".format(motif[0], motif[1]),
-                               sequence_motif="{} - {}".format(motif[0], motif[1]))
+        generate_sequence_logo(
+            df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+            outfile_path=file + "/{}_{}.svg".format(motif[0], motif[1]),
+            sequence_motif="{} - {}".format(motif[0], motif[1]),
+        )
     else:
-        generate_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                               sequence_motif="{} - {}".format(motif[0], motif[1]))
+        generate_sequence_logo(
+            df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+            sequence_motif="{} - {}".format(motif[0], motif[1]),
+        )
 
 
 def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
@@ -273,9 +305,10 @@ def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
         """
         kinase_motif_df = _generate_kinase_motif_df(seq)
         interactive_logo = plogo.logo(kinase_motif_df, return_fig=True)
-        interactive_logo.update_layout(title=f"{sequence_motif} SequenceLogo",
-                                       margin=dict(t=50)  # add margin to accommodate title
-                                       )
+        interactive_logo.update_layout(
+            title=f"{sequence_motif} SequenceLogo",
+            margin=dict(t=50),  # add margin to accommodate title
+        )
 
         return interactive_logo
 
@@ -283,10 +316,14 @@ def isequence_logo(df, motif, rename_to_st=False, ret_fig=False):
     df[motif[0]] = np.nan
     # returns the input sequence sequence_motif for rows where the sequence_motif fits the sequence
     # window
-    df[motif[0]] = df.apply(lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1)
+    df[motif[0]] = df.apply(
+        lambda row: _find_sequence_motif(row, motif[0], rename_to_st), axis=1
+    )
 
-    fig = interactive_sequence_logo(df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
-                                    sequence_motif="{} - {}".format(motif[0], motif[1]))
+    fig = interactive_sequence_logo(
+        df["Sequence window"][df[motif[0]].notnull()].apply(lambda x: x[8:23]),
+        sequence_motif="{} - {}".format(motif[0], motif[1]),
+    )
 
     if ret_fig:
         return fig
@@ -303,14 +340,18 @@ def _vis_psites_init(domain_position, domain_color, length):
         color = cm(np.linspace(0, 1, len(domain_position)))
     except ValueError as e:
         if isinstance(domain_color, str):
-            color = [domain_color, ] * len(domain_position)
+            color = [
+                domain_color,
+            ] * len(domain_position)
         elif isinstance(domain_color, list):
             if len(domain_color) != len(domain_position):
                 raise TypeError("Please provide one domain colour per domain") from e
             else:
                 color = domain_color
         else:
-            raise TypeError("You must provide a colormap name, a colour name or a list of colour names") from e
+            raise TypeError(
+                "You must provide a colormap name, a colour name or a list of colour names"
+            ) from e
 
     lims = (1, length)
     height = lims[1] / 25
@@ -318,10 +359,18 @@ def _vis_psites_init(domain_position, domain_color, length):
     return lims, height, color, domain_position
 
 
-def vis_psites(name: str, length: int, domain_position: Union[list[tuple[int]], None] = None,
-               ps: Union[list[int], None] = None, pl: Union[list[str], None] = None,
-               plc: Union[list[str], None] = None, pls: int = 4, ax: plt.Axes = None, domain_color: str = 'tab10',
-               ret_fig: bool = False):
+def vis_psites(
+    name: str,
+    length: int,
+    domain_position: Union[list[tuple[int]], None] = None,
+    ps: Union[list[int], None] = None,
+    pl: Union[list[str], None] = None,
+    plc: Union[list[str], None] = None,
+    pls: int = 4,
+    ax: plt.Axes = None,
+    domain_color: str = "tab10",
+    ret_fig: bool = False,
+):
     # noinspection PyUnresolvedReferences
     # noinspection PyShadowingNames
     """
@@ -389,56 +438,70 @@ def vis_psites(name: str, length: int, domain_position: Union[list[tuple[int]], 
 
     """
 
-    lims, height, color, domain_position = _vis_psites_init(domain_position, domain_color, length)
+    lims, height, color, domain_position = _vis_psites_init(
+        domain_position, domain_color, length
+    )
 
     if ax is None:
         fig1 = plt.figure(figsize=(15, 2))
-        ax1 = fig1.add_subplot(111, aspect='equal')
+        ax1 = fig1.add_subplot(111, aspect="equal")
     else:
         ax1 = ax
 
     # background of the whole protein in grey
-    ax1.add_patch(
-        patches.Rectangle((0, 0), length, height, color='lightgrey'))
+    ax1.add_patch(patches.Rectangle((0, 0), length, height, color="lightgrey"))
 
     for idx, (start, end) in enumerate(domain_position):
         width = end - start
-        ax1.add_patch(
-            patches.Rectangle((start, 0), width, height, color=color[idx]))
+        ax1.add_patch(patches.Rectangle((start, 0), width, height, color=color[idx]))
 
     # only plot phospho site if there are any
     if ps is not None:
-        text_color = {"A": "gray",
-                      "Ad": "gray",
-                      "B": "#dc86fa",
-                      "Bd": "#6AC9BE",
-                      "C": "#aa00d7",
-                      "Cd": "#239895",
-                      "D": "#770087",
-                      "Dd": "#008080"}
+        text_color = {
+            "A": "gray",
+            "Ad": "gray",
+            "B": "#dc86fa",
+            "Bd": "#6AC9BE",
+            "C": "#aa00d7",
+            "Cd": "#239895",
+            "D": "#770087",
+            "Dd": "#008080",
+        }
 
         for idx, site in enumerate(ps):
             plt.axvline(site, 0, 1, color="red")
-            plt.text(site - 1,
-                     height - (height + height * 0.15),
-                     pl[idx] if pl is not None else '',
-                     fontsize=pls,
-                     rotation=90,
-                     color=text_color[plc[idx]] if plc is not None else 'black')
+            plt.text(
+                site - 1,
+                height - (height + height * 0.15),
+                pl[idx] if pl is not None else "",
+                fontsize=pls,
+                rotation=90,
+                color=text_color[plc[idx]] if plc is not None else "black",
+            )
 
     plt.subplots_adjust(left=0.25)
     plt.ylim(height)
     plt.xlim(lims)
     ax1.axes.get_yaxis().set_visible(False)
-    plt.title(name + '\n', size=18)
+    plt.title(name + "\n", size=18)
     plt.tight_layout()
     if ret_fig:
         return ax1
 
 
-def ivis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, domain_color='tab10',
-                ret_fig=False):
-    lims, height, color, domain_position = _vis_psites_init(domain_position, domain_color, length)
+def ivis_psites(
+    name,
+    length,
+    domain_position=None,
+    ps=None,
+    pl=None,
+    plc=None,
+    domain_color="tab10",
+    ret_fig=False,
+):
+    lims, height, color, domain_position = _vis_psites_init(
+        domain_position, domain_color, length
+    )
 
     def to_rgba(ndarray):
         return f"rgba({ndarray[0] * 256}, {ndarray[1] * 256}, {ndarray[2] * 256}, {ndarray[3]})"
@@ -448,15 +511,15 @@ def ivis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, 
     # the protein background
     shapes = [
         dict(
-            type='rect',
-            xref='x',
-            yref='y',
+            type="rect",
+            xref="x",
+            yref="y",
             x0=0,
             y0=0,
             x1=length,
             y1=height,
-            fillcolor='lightgray',
-            layer='below'
+            fillcolor="lightgray",
+            layer="below",
         )
     ]
 
@@ -465,56 +528,66 @@ def ivis_psites(name, length, domain_position=None, ps=None, pl=None, plc=None, 
         width = end - start
         shapes.append(
             dict(
-                type='rect',
-                xref='x',
-                yref='y',
+                type="rect",
+                xref="x",
+                yref="y",
                 x0=start,
                 y0=0,
                 x1=start + width,
                 y1=height,
                 fillcolor=to_rgba(color[idx]),
-                layer='below'
-
+                layer="below",
             )
         )
 
-    fig.update_layout(shapes=shapes,
-                      xaxis_range=[0, length],  # length
-                      yaxis_range=[0, 2 * height],  # height
-                      xaxis=dict(showgrid=False,
-                                 visible=True,
-                                 zeroline=False,
-                                 showticklabels=True),
-                      yaxis=dict(showgrid=False,
-                                 visible=False,
-                                 showticklabels=False),
-                      plot_bgcolor="rgba(0,0,0,0)",
-                      paper_bgcolor="rgba(0,0,0,0)",
-                      title=name
-                      )
+    fig.update_layout(
+        shapes=shapes,
+        xaxis_range=[0, length],  # length
+        yaxis_range=[0, 2 * height],  # height
+        xaxis=dict(showgrid=False, visible=True, zeroline=False, showticklabels=True),
+        yaxis=dict(showgrid=False, visible=False, showticklabels=False),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        title=name,
+    )
 
     # only plot phospho site if there are any
     if ps is not None:
-        text_color = {"A": "gray",
-                      "Ad": "gray",
-                      "B": "#dc86fa",
-                      "Bd": "#6AC9BE",
-                      "C": "#aa00d7",
-                      "Cd": "#239895",
-                      "D": "#770087",
-                      "Dd": "#008080"}
+        text_color = {
+            "A": "gray",
+            "Ad": "gray",
+            "B": "#dc86fa",
+            "Bd": "#6AC9BE",
+            "C": "#aa00d7",
+            "Cd": "#239895",
+            "D": "#770087",
+            "Dd": "#008080",
+        }
 
         for idx, site in enumerate(ps):
-            fig.add_trace(go.Scatter(x=[site, ] * int(height), y=np.linspace(0, height, int(height)), mode='lines',
-                                     hovertemplate=f'{pl[idx]}<br>Pos: {site}<extra></extra>',
-                                     line=dict(color=text_color[plc[idx]] if plc is not None else 'black')))
+            fig.add_trace(
+                go.Scatter(
+                    x=[
+                        site,
+                    ]
+                    * int(height),
+                    y=np.linspace(0, height, int(height)),
+                    mode="lines",
+                    hovertemplate=f"{pl[idx]}<br>Pos: {site}<extra></extra>",
+                    line=dict(
+                        color=text_color[plc[idx]] if plc is not None else "black"
+                    ),
+                )
+            )
 
     if ret_fig:
         return fig
     fig.show()
 
 
-def _prepare_df_and_adjust_bubble_size(df: pd.DataFrame, protein_length: int, columns: dict):
+def _prepare_df_and_adjust_bubble_size(
+    df: pd.DataFrame, protein_length: int, columns: dict
+):
     """
     Prepare the dataframe for the lollipop plot and adjust the bubble size according to the PTM localization
     probability.
@@ -545,7 +618,12 @@ def _prepare_df_and_adjust_bubble_size(df: pd.DataFrame, protein_length: int, co
     return df_protein
 
 
-def _plot_lollies(df: pd.DataFrame, columns: dict, color: str = "deeppink", text_y_offset: float = 0.05) -> None:
+def _plot_lollies(
+    df: pd.DataFrame,
+    columns: dict,
+    color: str = "deeppink",
+    text_y_offset: float = 0.05,
+) -> None:
     """
     This function plots the lollipops for the PTM sites.
 
@@ -559,9 +637,7 @@ def _plot_lollies(df: pd.DataFrame, columns: dict, color: str = "deeppink", text
     text_y_offset: float, default=0.05
         Offset of the text annotation
     """
-    plt.stem(df[columns["int"]],
-             markerfmt=' ', linefmt='grey', basefmt='black'
-             )
+    plt.stem(df[columns["int"]], markerfmt=" ", linefmt="grey", basefmt="black")
 
     x_pos = np.arange(0, df.shape[0])
     y_pos = df[columns["int"]]
@@ -573,23 +649,23 @@ def _plot_lollies(df: pd.DataFrame, columns: dict, color: str = "deeppink", text
     psite_new = psite[~np.isnan(y_pos)]
     scale_new = scale[~np.isnan(y_pos)]
 
-    plt.scatter(
-        x_pos_new,
-        y_pos_new,
-        s=scale_new * 10,
-        color=color
-    )
+    plt.scatter(x_pos_new, y_pos_new, s=scale_new * 10, color=color)
 
-    for (x, y, ps) in zip(x_pos_new, y_pos_new, psite_new):
+    for x, y, ps in zip(x_pos_new, y_pos_new, psite_new):
         plt.text(x, y + text_y_offset, f"{ps}", fontsize=9, ha="center", rotation=45)
 
 
-def ptm_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, None],
-                   columns: Union[dict, None] = None, scale: bool = False):
+def ptm_lolli_plot(
+    sty: pd.DataFrame,
+    proteinid: str,
+    protein_length: Union[int, None],
+    columns: Union[dict, None] = None,
+    scale: bool = False,
+):
     """
     This function generates a static lollipop plot representing PTM localization,
     intensity and localization probability.
-    
+
     Parameters
     ----------
     sty: pandas DataFrame
@@ -608,7 +684,7 @@ def ptm_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int,
                   This defines the relative size of the lollipop
     scale: bool, default=False
         Min-Max-Scaling of Intensity columns
-    
+
     Returns
     -------
     a pandas DataFrame
@@ -618,8 +694,13 @@ def ptm_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int,
     """
 
     if columns is None:
-        columns = {"ids": "Proteins", "pos": "Positions within proteins",
-                   "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
+        columns = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+            "aa": "Amino acid",
+        }
 
     df = sty[sty[columns["ids"]] == proteinid]
 
@@ -641,19 +722,24 @@ def ptm_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int,
     fig, _ = plt.subplots(nrows=1, sharex=False, figsize=(12, 3))
     _plot_lollies(df_protein, columns)
 
-    plt.title(proteinid, fontdict=None, loc='left', fontsize=12)
+    plt.title(proteinid, fontdict=None, loc="left", fontsize=12)
 
     return df_protein, fig
 
 
-def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
-                          proteinid: str, protein_length: int or None = None,
-                          columns1: Union[dict, None] = None, columns2: Union[dict, None] = None, scale: bool = False
-                          ):
+def ptm_mirror_lolli_plot(
+    sty1: pd.DataFrame,
+    sty2: pd.DataFrame,
+    proteinid: str,
+    protein_length: int or None = None,
+    columns1: Union[dict, None] = None,
+    columns2: Union[dict, None] = None,
+    scale: bool = False,
+):
     """
     This function generates a static, mirror lollipop plot representing PTM localization, intensity and localization
     probability.
-    
+
     Parameters
     ----------
     sty1: pandas DataFrame
@@ -678,7 +764,7 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
         Optional protein length for the x-axis. If None the maximum site position+20 is used.
     scale: bool, default=False
         Min-Max-Scaling of Intensity columns
-    
+
     Returns
     -------
     a pandas DataFrame
@@ -688,11 +774,21 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     """
 
     if columns1 is None:
-        columns1 = {"ids": "Proteins", "pos": "Positions within proteins",
-                    "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
+        columns1 = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+            "aa": "Amino acid",
+        }
     if columns2 is None:
-        columns2 = {"ids": "Proteins", "pos": "Positions within proteins",
-                    "int": "Intensity", "prob": "Localization prob", "aa": "Amino acid"}
+        columns2 = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+            "aa": "Amino acid",
+        }
     df1 = sty1[sty1[columns1["ids"]] == proteinid]
     df2 = sty2[sty2[columns2["ids"]] == proteinid]
 
@@ -707,12 +803,16 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
         # min max scale intensity column and add new column in column dic
         d1max = df1[columns1["int"]].max()
         d1min = df1[columns1["int"]].min()
-        df1["scaled " + columns1["int"]] = (df1[columns1["int"]] - d1min) / (d1max - d1min)
+        df1["scaled " + columns1["int"]] = (df1[columns1["int"]] - d1min) / (
+            d1max - d1min
+        )
         columns1["int"] = "scaled " + columns1["int"]
 
         d2max = df2[columns2["int"]].max()
         d2min = df2[columns2["int"]].min()
-        df2["scaled " + columns2["int"]] = (df2[columns2["int"]] - d2min) / (d2max - d2min)
+        df2["scaled " + columns2["int"]] = (df2[columns2["int"]] - d2min) / (
+            d2max - d2min
+        )
         columns2["int"] = "scaled " + columns2["int"]
 
     # invers intensity of 2nd dataframe to mirror data along x-axis
@@ -728,15 +828,17 @@ def ptm_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
     _plot_lollies(df1_protein, columns1)
     _plot_lollies(df2_protein, columns2, color="dodgerblue", text_y_offset=-0.15)
 
-    plt.title(proteinid, fontdict=None, loc='left', fontsize=12)
+    plt.title(proteinid, fontdict=None, loc="left", fontsize=12)
 
     return df1_protein, df2_protein, fig
 
 
-def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str, columns=None) -> Union[pd.DataFrame, None]:
+def _i_lolli_plot_init(
+    sty: pd.DataFrame, proteinid: str, columns=None
+) -> Union[pd.DataFrame, None]:
     """
     This function prepares MaxQuant Phospho(STY) dataframes for interactive plotting.
-    
+
     Parameters
     ----------
     sty: pandas DataFrame
@@ -751,7 +853,7 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str, columns=None) -> Union
                  This defines the y-axis position/length of the lollipop.
           - prob: single column containing localization probability
                   This defines the relative size of the lollipop
-    
+
     Returns
     -------
     pd.DataFrame or None
@@ -760,17 +862,34 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str, columns=None) -> Union
     """
     # retrieve data
     if columns is None:
-        columns = {"ids": "Proteins", "pos": "Positions within proteins",
-                   "int": "Intensity", "prob": "Localization prob"}
-    df_prot = sty.loc[[proteinid in str(el) for el in sty[columns["ids"]]], list(columns.values())]
+        columns = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+        }
+    df_prot = sty.loc[
+        [proteinid in str(el) for el in sty[columns["ids"]]], list(columns.values())
+    ]
 
     # Logarithmize Intensity
     df_prot[columns["int"]] = df_prot[columns["int"]].apply(np.log10)
-    df_prot.rename({columns["int"]: "log10(" + columns["int"] + ")"}, axis=1, inplace=True)
+    df_prot.rename(
+        {columns["int"]: "log10(" + columns["int"] + ")"}, axis=1, inplace=True
+    )
 
     # Convert probability to size
-    df_prot.insert(0, "size", df_prot[columns["prob"]].apply(
-        lambda x: 1 if x < 0.5 else 2 if x < 0.8 else 3 if x < 0.95 else 4 if x < 0.98 else 5))
+    df_prot.insert(
+        0,
+        "size",
+        df_prot[columns["prob"]].apply(
+            lambda x: (
+                1
+                if x < 0.5
+                else 2 if x < 0.8 else 3 if x < 0.95 else 4 if x < 0.98 else 5
+            )
+        ),
+    )
 
     # Drop 0 intensities
     df_prot = df_prot.loc[np.isfinite(df_prot["log10(" + columns["int"] + ")"])]
@@ -780,12 +899,16 @@ def _i_lolli_plot_init(sty: pd.DataFrame, proteinid: str, columns=None) -> Union
     return df_prot
 
 
-def i_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, None] = None,
-                 columns: Union[dict, None] = None):
+def i_lolli_plot(
+    sty: pd.DataFrame,
+    proteinid: str,
+    protein_length: Union[int, None] = None,
+    columns: Union[dict, None] = None,
+):
     """
     This function generates a lollipop plot representing PTM localization, intensity and localization probability.
     change the plotly io parameter if you have problems with rendering, see: pio.renderers.default = "jupyterlab"
-    
+
     Parameters
     ----------
     sty: pandas DataFrame
@@ -802,7 +925,7 @@ def i_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, N
                  This defines the y-axis position/length of the lollipop.
           - prob: single column containing localization probability
                   This defines the relative size of the lollipop
-    
+
     Returns
     -------
     a pandas DataFrame
@@ -812,26 +935,54 @@ def i_lolli_plot(sty: pd.DataFrame, proteinid: str, protein_length: Union[int, N
     """
     # retrieve data
     if columns is None:
-        columns = {"ids": "Proteins", "pos": "Positions within proteins",
-                   "int": "Intensity", "prob": "Localization prob"}
+        columns = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+        }
     df_prot = _i_lolli_plot_init(sty, proteinid=proteinid, columns=columns)
 
     # df_protrate plot
-    plot = px.scatter(df_prot, x=columns["pos"], y="log10(" + columns["int"] + ")", size="size",
-                      template="simple_white", title=proteinid,
-                      hover_data=[columns["pos"], "log10(" + columns["int"] + ")", columns["prob"]],
-                      range_x=[-20, max(df_prot[columns["pos"]]) + 20 if protein_length is None else protein_length])
+    plot = px.scatter(
+        df_prot,
+        x=columns["pos"],
+        y="log10(" + columns["int"] + ")",
+        size="size",
+        template="simple_white",
+        title=proteinid,
+        hover_data=[columns["pos"], "log10(" + columns["int"] + ")", columns["prob"]],
+        range_x=[
+            -20,
+            (
+                max(df_prot[columns["pos"]]) + 20
+                if protein_length is None
+                else protein_length
+            ),
+        ],
+    )
 
     # Add lollipop stalks
     for i, el in df_prot.iterrows():
-        plot.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
-                       y0=0, y1=el["log10(" + columns["int"] + ")"], line_width=1, opacity=0.5)
+        plot.add_shape(
+            x0=el[columns["pos"]],
+            x1=el[columns["pos"]],
+            y0=0,
+            y1=el["log10(" + columns["int"] + ")"],
+            line_width=1,
+            opacity=0.5,
+        )
 
     return df_prot, plot
 
 
-def _plot_interactive_lollies(fig: go.Figure, df: pd.DataFrame, columns: dict, protein_length: Union[None, float],
-                              name: str):
+def _plot_interactive_lollies(
+    fig: go.Figure,
+    df: pd.DataFrame,
+    columns: dict,
+    protein_length: Union[None, float],
+    name: str,
+):
     """
     This function adds interactive lollipops to a plotly figure.
 
@@ -857,32 +1008,60 @@ def _plot_interactive_lollies(fig: go.Figure, df: pd.DataFrame, columns: dict, p
     -------
     None
     """
-    fig.add_trace(go.Scatter(x=df[columns["pos"]], y=df["log10(" + columns["int"] + ")"],
-                             mode='markers', marker=dict(size=df["size"] * 3),
-                             name=name,
-                             customdata=df[columns['prob']],
-                             hovertemplate=("<b>Positions within proteins: %{x:i}<br>" +
-                                            "<b>log10 intensity: %{y:.2f}<br>" +
-                                            "<b>Localization prob: %{customdata:.2f}"
-                                            ),
-                             x0=[-20, max(df[columns["pos"]]) + 20 if protein_length is None else protein_length],
-                             meta=dict(label=name)), row=1, col=1)
+    fig.add_trace(
+        go.Scatter(
+            x=df[columns["pos"]],
+            y=df["log10(" + columns["int"] + ")"],
+            mode="markers",
+            marker=dict(size=df["size"] * 3),
+            name=name,
+            customdata=df[columns["prob"]],
+            hovertemplate=(
+                "<b>Positions within proteins: %{x:i}<br>"
+                + "<b>log10 intensity: %{y:.2f}<br>"
+                + "<b>Localization prob: %{customdata:.2f}"
+            ),
+            x0=[
+                -20,
+                (
+                    max(df[columns["pos"]]) + 20
+                    if protein_length is None
+                    else protein_length
+                ),
+            ],
+            meta=dict(label=name),
+        ),
+        row=1,
+        col=1,
+    )
 
     # Add lollipop stalks
     for i, el in df.iterrows():
-        fig.add_shape(x0=el[columns["pos"]], x1=el[columns["pos"]],
-                      y0=0, y1=el["log10(" + columns["int"] + ")"], line_width=1, opacity=0.5)
+        fig.add_shape(
+            x0=el[columns["pos"]],
+            x1=el[columns["pos"]],
+            y0=0,
+            y1=el["log10(" + columns["int"] + ")"],
+            line_width=1,
+            opacity=0.5,
+        )
 
 
-def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
-                        proteinid: str, protein_length: int or None = None,
-                        name1: str or None = None, name2: str or None = None, columns1: Union[dict, None] = None,
-                        columns2: Union[dict, None] = None) -> tuple[tuple[DataFrame | None, DataFrame | None], Figure]:
+def i_mirror_lolli_plot(
+    sty1: pd.DataFrame,
+    sty2: pd.DataFrame,
+    proteinid: str,
+    protein_length: int or None = None,
+    name1: str or None = None,
+    name2: str or None = None,
+    columns1: Union[dict, None] = None,
+    columns2: Union[dict, None] = None,
+) -> tuple[tuple[DataFrame | None, DataFrame | None], Figure]:
     """
     This function generates an interactive mirrored lollipop plot representing PTM localization,
     intensity and localization probability of a protein from 2 measurements.
     change the plotly io parameter if you have problems with rendering, see: pio.renderers.default = "jupyterlab"
-    
+
     Parameters
     ----------
     sty1: pandas DataFrame
@@ -907,7 +1086,7 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
                   This defines the relative size of the lollipop
     columns2: dict, default = MaxQuant sites table names, seperate for sty1 and sty2
         See columns1
-    
+
     Returns
     -------
     Tuple of two pandas DataFrames or None
@@ -919,11 +1098,19 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
 
     # retrieve data
     if columns2 is None:
-        columns2 = {"ids": "Proteins", "pos": "Positions within proteins",
-                    "int": "Intensity", "prob": "Localization prob"}
+        columns2 = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+        }
     if columns1 is None:
-        columns1 = {"ids": "Proteins", "pos": "Positions within proteins",
-                    "int": "Intensity", "prob": "Localization prob"}
+        columns1 = {
+            "ids": "Proteins",
+            "pos": "Positions within proteins",
+            "int": "Intensity",
+            "prob": "Localization prob",
+        }
 
     # prepare dataframes
     df1 = _i_lolli_plot_init(sty1, proteinid=proteinid, columns=columns1)
@@ -943,13 +1130,23 @@ def i_mirror_lolli_plot(sty1: pd.DataFrame, sty2: pd.DataFrame,
 
     fig.add_hline(y=0, line_width=3)
 
-    fig.update_layout(width=900, height=400,
-                      template='simple_white',
-                      font_family="Arial", font_size=12,
-                      yaxis_title="log10(" + columns1["int"] + ")"
-                      )
+    fig.update_layout(
+        width=900,
+        height=400,
+        template="simple_white",
+        font_family="Arial",
+        font_size=12,
+        yaxis_title="log10(" + columns1["int"] + ")",
+    )
 
-    fig.update_xaxes(title_text=columns1['pos'], overwrite=True, tick0=200, showticklabels=True, row=1, col=1)
+    fig.update_xaxes(
+        title_text=columns1["pos"],
+        overwrite=True,
+        tick0=200,
+        showticklabels=True,
+        row=1,
+        col=1,
+    )
 
     fig.add_hline(y=0, line_width=3)
 

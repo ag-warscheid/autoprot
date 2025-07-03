@@ -14,6 +14,7 @@ from typing import Union, Tuple
 import numpy as np
 import pandas as pd
 import requests
+
 # noinspection PyPackageRequirements
 from Bio import Align
 from .. import r_helper, common
@@ -30,8 +31,9 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 
 @report
-def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bool = True) \
-        -> Union[pd.DataFrame, pd.Series]:
+def go_annot(
+    prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bool = True
+) -> Union[pd.DataFrame, pd.Series]:
     # noinspection PyUnresolvedReferences
     """
     Filter a list of experimentally determined gene names by GO annotation.
@@ -73,26 +75,35 @@ def go_annot(prots: pd.DataFrame, gos: list, only_prots: bool = False, exact: bo
     4  16112        SF1    7536  GO:0005840  ribosome
     """
     with resources.open_binary("autoprot.data", "Homo_sapiens.zip") as d:
-        gene_info = pd.read_csv(d, sep='\t', compression='zip')
+        gene_info = pd.read_csv(d, sep="\t", compression="zip")
     with resources.open_binary("autoprot.data", "gene2go_alt.zip") as d:
-        gene2go = pd.read_csv(d, sep='\t', compression='zip')
+        gene2go = pd.read_csv(d, sep="\t", compression="zip")
     # generate dataframe with single columns corresponding to experimental gene names
-    prots = pd.DataFrame(pd.Series([str(i).upper().split(';')[0] for i in prots]), columns=["Gene names"])
+    prots = pd.DataFrame(
+        pd.Series([str(i).upper().split(";")[0] for i in prots]), columns=["Gene names"]
+    )
     # add the column GeneID by merging with the gene_info table
-    prots = prots.merge(gene_info[["Symbol", "GeneID"]], left_on="Gene names", right_on="Symbol", how='inner')
+    prots = prots.merge(
+        gene_info[["Symbol", "GeneID"]],
+        left_on="Gene names",
+        right_on="Symbol",
+        how="inner",
+    )
     # add the columns GO_ID and GO_term by merging on GeneID
-    prots = prots.merge(gene2go[["GeneID", "GO_ID", "GO_term"]], on="GeneID", how='inner')
+    prots = prots.merge(
+        gene2go[["GeneID", "GO_ID", "GO_term"]], on="GeneID", how="inner"
+    )
 
     # if the go terms must match exactly, pandas' isin is used
     if exact:
         red_prots = prots[prots["GO_term"].isin(gos)]
     # if they should only contain the go term, the str contains method with the OR separator is used
     else:
-        red_prots = prots[prots["GO_term"].str.contains('|'.join(gos), regex=True)]
+        red_prots = prots[prots["GO_term"].str.contains("|".join(gos), regex=True)]
 
     # if only the proteins should be returned, the Symbol column from the GO annotation is returned
     if only_prots:
-        return red_prots['Symbol'].drop_duplicates().reset_index(drop=True)
+        return red_prots["Symbol"].drop_duplicates().reset_index(drop=True)
     # else the complete dataframe without the Symabol column is returned
     else:
         return red_prots.drop_duplicates().drop("Symbol", axis=1).reset_index(drop=True)
@@ -130,7 +141,7 @@ def motif_annot(df, motif, col="Sequence window"):
 
     def find_motif(x, col, motif, motlen):
         seq = x[col]
-        seqs = seq.split(';') if ";" in seq else [seq]
+        seqs = seq.split(";") if ";" in seq else [seq]
         for seq in seqs:
             pos2 = re.finditer(motif, seq)
             if pos2:
@@ -144,14 +155,14 @@ def motif_annot(df, motif, col="Sequence window"):
                         return 1
         return 0
 
-    assert (col in df.columns)
-    assert (len(df[col].iloc[0]) % 2 == 1)
+    assert col in df.columns
+    assert len(df[col].iloc[0]) % 2 == 1
 
     # generate a regex string out of the input motif
-    search = motif.replace('x', '.').replace('S/T', '(S|T)').upper()
+    search = motif.replace("x", ".").replace("S/T", "(S|T)").upper()
     i = search.index("(S|T)")
     before = search[:i]
-    after = search[i + 5:]
+    after = search[i + 5 :]
     # the regex contains a lookbehind (?<=SEQUENCEBEFORE), the actual modified residues (S/T)
     # and a lookahead with the following seqeunce for this motif (?=SEQUENCEAFTER)
     search = f"(?<={before})(S|T)(?={after})"
@@ -190,22 +201,37 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
     def make_merge_col(df_to_merge, file="regSites"):
         """Format the phosphosite positions and gene names so that merging is possible."""
         if file == "regSites":
-            return df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-                df_to_merge["MOD_RSD"].fillna("").apply(
-                    lambda x: x.split('-')[0])
-        return df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper()) + '_' + \
-            df_to_merge["SUB_MOD_RSD"].fillna("")
+            return (
+                df_to_merge["GENE"].fillna("").apply(lambda x: str(x).upper())
+                + "_"
+                + df_to_merge["MOD_RSD"].fillna("").apply(lambda x: x.split("-")[0])
+            )
+        return (
+            df_to_merge["SUB_GENE"].fillna("").apply(lambda x: str(x).upper())
+            + "_"
+            + df_to_merge["SUB_MOD_RSD"].fillna("")
+        )
 
     with resources.open_binary("autoprot.data", "Kinase_Substrate_Dataset.zip") as d:
-        ks = pd.read_csv(d, sep='\t', compression='zip')
+        ks = pd.read_csv(d, sep="\t", compression="zip")
         ks["merge"] = make_merge_col(ks, "KS")
     with resources.open_binary("autoprot.data", "Regulatory_sites.zip") as d:
-        reg_sites = pd.read_csv(d, sep='\t', compression='zip')
+        reg_sites = pd.read_csv(d, sep="\t", compression="zip")
         reg_sites["merge"] = make_merge_col(reg_sites)
 
-    ks_coi = ['KINASE', 'DOMAIN', 'IN_VIVO_RXN', 'IN_VITRO_RXN', 'CST_CAT#', 'merge']
-    reg_sites_coi = ['ON_FUNCTION', 'ON_PROCESS', 'ON_PROT_INTERACT', 'ON_OTHER_INTERACT',
-                     'PMIDs', 'NOTES', 'LT_LIT', 'MS_LIT', 'MS_CST', 'merge']
+    ks_coi = ["KINASE", "DOMAIN", "IN_VIVO_RXN", "IN_VITRO_RXN", "CST_CAT#", "merge"]
+    reg_sites_coi = [
+        "ON_FUNCTION",
+        "ON_PROCESS",
+        "ON_PROT_INTERACT",
+        "ON_OTHER_INTERACT",
+        "PMIDs",
+        "NOTES",
+        "LT_LIT",
+        "MS_LIT",
+        "MS_CST",
+        "merge",
+    ]
 
     df = df.copy(deep=True)
     df.rename(columns={ps: "merge"}, inplace=True)
@@ -216,7 +242,9 @@ def annotate_phosphosite(df, ps, cols_to_keep=None):
     return df
 
 
-def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, print_alignment=False):
+def to_canonical_ps(
+    series, organism="human", get_seq="online", uniprot=None, print_alignment=False
+):
     # noinspection PyUnresolvedReferences
     """
     Convert phosphosites to "canonical" phosphosites.
@@ -264,20 +292,23 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
     """
 
     # open the phospho site plus phosphorylation dataset
-    with resources.open_binary('autoprot.data', "Phosphorylation_site_dataset.zip") as d:
-        ps = pd.read_csv(d, sep='\t', compression='zip')
+
+    with resources.open_binary(
+        "autoprot.data", "Phosphorylation_site_dataset.zip"
+    ) as d:
+        ps = pd.read_csv(d, sep="\t", compression="zip")
 
     def get_uniprot_sequence(uniprot_acc):
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
-        seq = "".join(response.text.split('\n')[1:])
+        seq = "".join(response.text.split("\n")[1:])
         return seq
 
     def get_canonical_psite(seq: str, ps_seq: str, aa_to_ps: int) -> Tuple[int, float]:
         """Align an experimental phospho site sequence window to the corresponding UniProt sequence."""
         aligner = Align.PairwiseAligner()
-        aligner.mode = 'local'  # generate local alignments
+        aligner.mode = "local"  # generate local alignments
         aligner.open_gap_score = -1
         aligner.extend_gap_score = -1
         alignment = aligner.align(seq, ps_seq)
@@ -287,7 +318,9 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
 
         canonical_psite = None
         for idx, (start, end) in enumerate(q_aligned):
-            if start <= aa_to_ps < end:  # is the query phospho site in the aligned subsequences
+            if (
+                start <= aa_to_ps < end
+            ):  # is the query phospho site in the aligned subsequences
                 # start of the target subsequence + absolute position of the phospho site - absolute position of the
                 # subsequence
                 canonical_psite = t_aligned[idx][0] + aa_to_ps - start + 1
@@ -301,12 +334,12 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
     gene = str(series["Gene names"])
     ps_seq = series["Sequence window"]
 
-    ps_seq_list = ps_seq.split(';')
-    gene_list = gene.split(';')
+    ps_seq_list = ps_seq.split(";")
+    gene_list = gene.split(";")
     if len(ps_seq_list) != len(gene_list):
 
         if get_seq == "online":
-            print(f'Gene list does not match sequence list:\n {gene}\n{ps_seq}')
+            print(f"Gene list does not match sequence list:\n {gene}\n{ps_seq}")
 
         ps_seq_list = ps_seq_list * len(gene_list)
 
@@ -325,9 +358,11 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
     # get the local uniprot file
     if get_seq == "local":
         if (uniprot is None) or (not os.path.isfile(uniprot)):
-            raise ValueError('Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz).')
+            raise ValueError(
+                "Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz)."
+            )
         else:
-            uniprot = pd.read_csv(uniprot, sep='\t', compression='gzip')
+            uniprot = pd.read_csv(uniprot, sep="\t", compression="gzip")
 
     for uniprot_acc, ps_seq in zip(uniprot_acc_extr, ps_seq_extr):
         seq = False
@@ -339,16 +374,22 @@ def to_canonical_ps(series, organism="human", get_seq="online", uniprot=None, pr
         if not seq:
             canonical_ps_list.append("no match")
         else:
-            aa_to_ps = len(ps_seq[0:15].lstrip('_'))
-            ps_seq = ps_seq.strip('_')
+            aa_to_ps = len(ps_seq[0:15].lstrip("_"))
+            ps_seq = ps_seq.strip("_")
             canonical_ps, score = get_canonical_psite(seq, ps_seq, aa_to_ps)
             canonical_ps_list.append(str(canonical_ps))
             score_list.append(str(score))
 
-    return [(";".join(uniprot_acc_extr)), (";".join(canonical_ps_list)), (";".join(score_list))]
+    return [
+        (";".join(uniprot_acc_extr)),
+        (";".join(canonical_ps_list)),
+        (";".join(score_list)),
+    ]
 
 
-def get_subcellular_loc(series, database="compartments", loca=None, colname="Gene names"):
+def get_subcellular_loc(
+    series, database="compartments", loca=None, colname="Gene names"
+):
     # noinspection PyUnresolvedReferences
     """
     Annotate the df with subcellular localization.
@@ -420,8 +461,10 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
     """
     gene = series[colname]
     if database == "compartments":
-        with resources.open_binary("autoprot.data", "human_compartment_integrated_full.zip") as d:
-            comp_data = pd.read_csv(d, sep='\t', compression='zip', header=None)
+        with resources.open_binary(
+            "autoprot.data", "human_compartment_integrated_full.zip"
+        ) as d:
+            comp_data = pd.read_csv(d, sep="\t", compression="zip", header=None)
             comp_data.columns = ["ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"]
         if loca is None:
             # if loca is not provided, a table with all predicted localisations
@@ -429,19 +472,30 @@ def get_subcellular_loc(series, database="compartments", loca=None, colname="Gen
             return comp_data[(comp_data["Gene name"] == gene)][["LOCNAME", "SCORE"]]
         # if loca is provided, only rows with the correspoding locname and score
         # are returned
-        return comp_data[(comp_data["Gene name"] == gene) &
-                         (comp_data["LOCNAME"] == loca)]
+        return comp_data[
+            (comp_data["Gene name"] == gene) & (comp_data["LOCNAME"] == loca)
+        ]
     elif database == "hpa":
         cols = "g,scl,scml,scal"
         # obtain protein atlas subset for the gene of interest
         html = requests.get(
             f"https://www.proteinatlas.org/api/search_download.php?search={gene}&format=json&"
-            f"columns={cols}&compress=no").text
-        main_loc = html.split('Subcellular main location')[1].split(',"Subcellular additional location')[0].lstrip(
-            '":[').split(',')
-        alt_loc = html.split('Subcellular additional location')[1].split('}')[0].lstrip('":[').split(',')
+            f"columns={cols}&compress=no"
+        ).text
+        main_loc = (
+            html.split("Subcellular main location")[1]
+            .split(',"Subcellular additional location')[0]
+            .lstrip('":[')
+            .split(",")
+        )
+        alt_loc = (
+            html.split("Subcellular additional location")[1]
+            .split("}")[0]
+            .lstrip('":[')
+            .split(",")
+        )
         main_loc = [i.strip('"]') for i in main_loc]
-        alt_loc = [i.strip('"]').rstrip('}') for i in alt_loc]
+        alt_loc = [i.strip('"]').rstrip("}") for i in alt_loc]
         return main_loc, alt_loc
     else:
         raise ValueError('Database can be either "compartments" or "hpa"')

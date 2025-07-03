@@ -10,7 +10,7 @@ Autoprot Preprocessing Functions.
 import numpy as np
 import pandas as pd
 import os
-from typing import Union
+from typing import Union, Literal, Tuple, List
 from .. import r_helper
 from .. import preprocessing as pp
 
@@ -24,9 +24,66 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backend="r", print_r: bool = False):
+def loading_norm(
+    df: pd.DataFrame,
+    cols: Union[list[str], pd.Index],
+    return_cols: bool = False,
+    how: Literal["median", "mean"] = "median",
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, List[str]]]:
+    """
+    Loading normalisation.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Input dataframe.
+    cols: Union[list[str], pd.Index]
+        Columns to normalise.
+    return_cols: bool
+        If True the column names of the normalized columns are returned in addition to the dataframe.
+        The default is False.
+    how: median or mean
+        Should each column be normalized against the mean or the median intensity of all columns.
+
+    Notes
+    -----
+    This function assumes intensity columns to be log transformed.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with new normalized columns.
+    list[str]
+        The normalized column names.
+    """
+    norm_cols = [x + "_loading_norm" for x in cols]
+
+    if how == "median":
+        grand_median = df[cols].median(axis=0).median()
+        correction_factor = df[cols].median(axis=0) - grand_median
+        df[norm_cols] = df[cols].subtract(correction_factor)
+
+    elif how == "mean":
+        correction_factor = df[cols].sum(axis=0).mean() / df[cols].sum(axis=0)
+        df[norm_cols] = df[cols].multiply(correction_factor)
+
+    else:
+        raise KeyError(f"{how} is not a valid option.")
+
+    if return_cols:
+        return df, norm_cols
+    return df
+
+
+def quantile_norm(
+    df,
+    cols: Union[list[str], pd.Index],
+    return_cols=False,
+    backend="r",
+    print_r: bool = False,
+):
     # noinspection PyUnresolvedReferences
-    r""" 
+    r"""
     Perform quantile normalization.
 
     Parameters
@@ -93,12 +150,20 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
         sub_df = sub_df.drop("UID", axis=1)
         sub_df.index = idx
         # use numpy sort to sort columns independently
-        sub_df_sorted = pd.DataFrame(np.sort(sub_df.values, axis=0), index=sub_df.index, columns=sub_df.columns)
+        sub_df_sorted = pd.DataFrame(
+            np.sort(sub_df.values, axis=0), index=sub_df.index, columns=sub_df.columns
+        )
         sub_df_mean = sub_df_sorted.mean(axis=1)
         sub_df_mean.index = np.arange(1, len(sub_df_mean) + 1)
         # Assign ranks across the cols, stack the cols so that a multiIndex series
         # is created, map the sub_df_mean series on the series and unstack again
-        df_norm = sub_df.rank(axis=0, method="min").stack().astype(int).map(sub_df_mean).unstack()
+        df_norm = (
+            sub_df.rank(axis=0, method="min")
+            .stack()
+            .astype(int)
+            .map(sub_df_mean)
+            .unstack()
+        )
         res_cols = [f"{i}_normalized" for i in df_norm.columns]
         df_norm.columns = res_cols
         df_norm["UID"] = df_norm.index
@@ -106,18 +171,18 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
         df = df.merge(df_norm, on="UID", how="left")
 
     elif backend == "r":
-        d = os.getcwd()
-        data_loc = d + "/input.csv"
-        output_loc = d + "/output.csv"
+        data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_dima")
 
         pp.to_csv(df[["UID"] + cols], data_loc)
 
-        command = [R, '--vanilla',
-                   RFUNCTIONS,  # script location
-                   "quantile",  # functionName
-                   data_loc,  # data location
-                   output_loc  # output file
-                   ]
+        command = [
+            R,
+            "--vanilla",
+            RFUNCTIONS,  # script location
+            "quantile",  # functionName
+            data_loc,  # data location
+            output_loc,  # output file
+        ]
 
         r_helper.run_r_command(command, print_r)
 
@@ -130,13 +195,21 @@ def quantile_norm(df, cols: Union[list[str], pd.Index], return_cols=False, backe
         os.remove(output_loc)
 
     else:
-        raise (Exception('Please supply either "r" or "py" as value for the backend arg'))
+        raise (
+            Exception('Please supply either "r" or "py" as value for the backend arg')
+        )
 
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert: Union[list[int], None] = None,
-        suffix: str = "_normalized", print_r: bool = False):
+def vsn(
+    df,
+    cols: Union[list[str], pd.Index],
+    return_cols: bool = False,
+    invert: Union[list[int], None] = None,
+    suffix: str = "_normalized",
+    print_r: bool = False,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Perform Variance Stabilizing Normalization.
@@ -181,7 +254,7 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
     variances independent of their mean intensities and bringing the
     samples onto a same scale with a set of parametric transformations
     and maximum likelihood estimation.
-    
+
     See https://www.bioconductor.org/packages/release/bioc/html/vsn.html: Differences between transformed intensities
     are analogous to "normalized log-ratios". However, in contrast to the latter, their variance is independent of
     the mean, and they are usually more sensitive and specific in detecting differential transcription.
@@ -209,9 +282,16 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
 
     # copy the relevant columns to avoid changing the original dataframe
     if isinstance(cols, pd.Index):
-        subset = df[cols.append(pd.Index(["UID"]))].copy()  # append UID to the columns pandas style
+        subset = df[
+            cols.append(pd.Index(["UID"]))
+        ].copy()  # append UID to the columns pandas style
     else:
-        subset = df[cols + ["UID", ]].copy()  # append UID to the columns list style
+        subset = df[
+            cols
+            + [
+                "UID",
+            ]
+        ].copy()  # append UID to the columns list style
 
     # if invert is not None, apply the inversion to the columns
     if invert is not None:
@@ -220,20 +300,20 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
         for i in range(len(invert)):
             subset[cols[i]] = subset[cols[i]].apply(lambda x: x ** invert[i])
 
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_vsn")
 
     if not isinstance(cols, list):
         cols = cols.to_list()
     pp.to_csv(subset[["UID"] + cols], data_loc)
 
-    command = [R, '--vanilla',
-               RFUNCTIONS,  # script location
-               "vsn",  # functionName
-               data_loc,  # data location
-               output_loc  # output file
-               ]
+    command = [
+        R,
+        "--vanilla",
+        RFUNCTIONS,  # script location
+        "vsn",  # functionName
+        data_loc,  # data location
+        output_loc,  # output file
+    ]
 
     r_helper.run_r_command(command, print_r)
 
@@ -249,7 +329,12 @@ def vsn(df, cols: Union[list[str], pd.Index], return_cols: bool = False, invert:
     return (df, [i for i in res_cols if i != "UID"]) if return_cols else df
 
 
-def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False, print_r: bool = False):
+def cyclic_loess(
+    df,
+    cols: Union[list[str], pd.Index],
+    return_cols: bool = False,
+    print_r: bool = False,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Perform cyclic Loess normalization.
@@ -306,14 +391,16 @@ def cyclic_loess(df, cols: Union[list[str], pd.Index], return_cols: bool = False
         plt.show()
 
     """
-    data_loc, output_loc = r_helper.write_data_for_r(df, cols)
+    data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_cyclic_loess")
 
-    command = [R, '--vanilla',
-               RFUNCTIONS,  # script location
-               "cloess",  # functionName
-               data_loc,  # data location
-               output_loc  # output file
-               ]
+    command = [
+        R,
+        "--vanilla",
+        RFUNCTIONS,  # script location
+        "cloess",  # functionName
+        data_loc,  # data location
+        output_loc,  # output file
+    ]
 
     r_helper.run_r_command(command, print_r)
 
@@ -365,9 +452,11 @@ def norm_to_prot(entry: pd.Series, prot_df: pd.DataFrame, to_normalize: list[str
     try:
         prot_ids = entry["Protein group IDs"]
     except Exception:
-        raise ValueError('The input array does not contain an index "Protein group IDs"')
-    if ';' in prot_ids:
-        prot_ids = [int(i) for i in prot_ids.split(';')]
+        raise ValueError(
+            'The input array does not contain an index "Protein group IDs"'
+        )
+    if ";" in prot_ids:
+        prot_ids = [int(i) for i in prot_ids.split(";")]
         prot_df = prot_df[prot_df["id"].isin(prot_ids)]
         poi = prot_df.groupby("Gene names").median()
     else:

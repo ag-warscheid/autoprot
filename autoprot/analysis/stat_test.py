@@ -19,16 +19,22 @@ from statsmodels.stats import multitest as mt
 from .. import preprocessing as pp
 from .. import r_helper
 
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
 
 
-def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='two-sided', logged=True):
+def ttest(
+    df,
+    reps,
+    cond="",
+    return_fc=True,
+    adjust_p_vals=True,
+    alternative="two-sided",
+    logged=True,
+):
     # noinspection PyUnresolvedReferences
     """
     Perform one or two sample ttest.
@@ -102,18 +108,31 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
         ana.ttest(df=df, reps=[["a1","a2", "a3"],["b1","b2", "b3"]])["pValue"].hist(bins=50)
         plt.show()
     """
+
     def one_samp_ttest(x):
         # nan-containing/masked inputs with nan_policy='omit' are currently not supported by one-sided alternatives.
         x = x[~np.isnan(x)]
-        return np.ma.filled(ttest_1samp(x, nan_policy="raise", alternative=alternative, popmean=0)[1], np.nan)
+        return np.ma.filled(
+            ttest_1samp(x, nan_policy="raise", alternative=alternative, popmean=0)[1],
+            np.nan,
+        )
 
     def two_samp_ttest(x):
         return np.ma.filled(
-            ttest_ind(x[: len(reps[0])], x[len(reps[0]):], alternative=alternative, nan_policy="omit")[1], np.nan)
+            ttest_ind(
+                x[: len(reps[0])],
+                x[len(reps[0]) :],
+                alternative=alternative,
+                nan_policy="omit",
+            )[1],
+            np.nan,
+        )
 
     if isinstance(reps[0], list) and len(reps) == 2:
         print("Performing two-sample t-Test")
-        df[f"pValue{cond}"] = df[reps[0] + reps[1]].apply(lambda x: two_samp_ttest(x), 1).astype(float)
+        df[f"pValue{cond}"] = (
+            df[reps[0] + reps[1]].apply(lambda x: two_samp_ttest(x), 1).astype(float)
+        )
 
         pvals = df[f"pValue{cond}"].values
         # replace values <= 0 with nan to avoid division by zero
@@ -122,17 +141,25 @@ def ttest(df, reps, cond="", return_fc=True, adjust_p_vals=True, alternative='tw
         df[f"score{cond}"] = -np.log10(pvals)
         if return_fc:
             if logged:
-                df[f"logFC{cond}"] = pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
+                df[f"logFC{cond}"] = (
+                    pd.DataFrame(df[reps[0]].values - df[reps[1]].values).mean(1).values
+                )
             else:
-                df[f"logFC{cond}"] = np.log2(pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)).values
+                df[f"logFC{cond}"] = np.log2(
+                    pd.DataFrame(df[reps[0]].values / df[reps[1]].values).mean(1)
+                ).values
 
     else:
         print("Performing one-sample t-Test")
-        df[f"pValue{cond}"] = df[reps].apply(lambda x: one_samp_ttest(x), 1).astype(float)
+        df[f"pValue{cond}"] = (
+            df[reps].apply(lambda x: one_samp_ttest(x), 1).astype(float)
+        )
 
         df[f"score{cond}"] = -np.log10(df[f"pValue{cond}"])
         if return_fc:
-            df[f"logFC{cond}"] = df[reps].mean(1) if logged else np.log2(df[reps].mean(1))
+            df[f"logFC{cond}"] = (
+                df[reps].mean(1) if logged else np.log2(df[reps].mean(1))
+            )
     if adjust_p_vals:
         adjust_p(df, f"pValue{cond}")
     return df
@@ -235,12 +262,14 @@ def cohen_d(df, group1, group2):
     std2 = df[group2].std(1).values
     # TODO: the pooled sd here is calculated omitting the sample sizes n
     # This is not exactly what was proposed for cohens d: https://en.wikipedia.org/wiki/Effect_size
-    sd_pooled = np.sqrt((std1 ** 2 + std2 ** 2) / 2)
+    sd_pooled = np.sqrt((std1**2 + std2**2) / 2)
     df["cohenD"] = (abs(mean1 - mean2)) / sd_pooled
     return df
 
 
-def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
+def limma(
+    df, reps, cond="", custom_design=None, coef=None, print_r=False, return_cols=False
+):
     # sourcery skip: extract-method, inline-immediately-returned-variable
     # noinspection PyUnresolvedReferences
     r"""
@@ -267,11 +296,15 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     print_r : bool, optional
         Whether to print the R output.
         The default is False.
+    return_cols : bool, optional
+        Whether to return the columns of the R output DataFrame.
 
     Returns
     -------
     df : pd.DataFrame
         The input dataframe with additional columns.
+    list [str] | None
+        If return_cols is True, returns the columns of the R output DataFrame excluding "UID".
 
     Notes
     -----
@@ -310,8 +343,10 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     # TODO: better handle coefficient extraction in R
     df = df.copy()
     d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+
+    data_loc, output_loc, hashstring = r_helper.generate_paths_for_r(
+        df, reps, write_csv=False, return_hash=True, tool="_limma"
+    )
 
     # limma handles fold-change calculation opposite to all other autoprot tools
     # this changes the order for function consistency
@@ -326,15 +361,19 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
 
     # Normally no custom_design is provided
     if custom_design is None:
-        design_loc = d + "/design.csv"
+        design_loc = d + f"/{hashstring}_design.csv"
         # if two lists are provided with reps, this likely is a twoSample test
         if isinstance(reps[0], list) and len(reps) == 2:
             print("LIMMA: Assuming a two sample test with:")
-            print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
-            print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
+            print("Sample 1: {}".format(", ".join(["\n\t" + x for x in reps[0]])))
+            print("Sample 2: {}".format(", ".join(["\n\t" + x for x in reps[1]])))
             test = "twoSample"
-            design = pd.DataFrame({"Intercept": [1] * (len(reps[0]) + len(reps[1])),
-                                   "coef": [0] * len(reps[0]) + [1] * len(reps[1])})
+            design = pd.DataFrame(
+                {
+                    "Intercept": [1] * (len(reps[0]) + len(reps[1])),
+                    "coef": [0] * len(reps[0]) + [1] * len(reps[1]),
+                }
+            )
             # =============================================================================
             #             creates a design matrix such as
             #                 Intercept  coef
@@ -358,38 +397,52 @@ def limma(df, reps, cond="", custom_design=None, coef=None, print_r=False):
     else:
         print("LIMMA: Assuming a custom design test with:")
         print(f"Design specified at {custom_design}")
-        print("Columns: {}".format('\n\t'.join(list(pl.flatten(reps)))))
+        print("Columns: {}".format("\n\t".join(list(pl.flatten(reps)))))
 
-        design = pd.read_csv(custom_design, sep='\t')
+        design = pd.read_csv(custom_design, sep="\t")
         print("Using design matrix:\n")
         print(design.to_markdown())
 
         test = "custom"
         design_loc = custom_design
 
-    command = [R, '--vanilla', RFUNCTIONS, "limma", data_loc, output_loc, test, design_loc, coef or ""]
+    command = [
+        R,
+        "--vanilla",
+        RFUNCTIONS,
+        "limma",
+        data_loc,
+        output_loc,
+        test,
+        design_loc,
+        coef or "",
+    ]
 
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res.columns = [i + cond if i != "UID" else i for i in res.columns]
-    # this keeps the index of the original df in the returned df
-    df = df.reset_index().merge(res, on="UID").set_index('index')
 
-    os.remove(data_loc)
-    os.remove(output_loc)
-    if custom_design is None and isinstance(reps[0], list) and len(reps) == 2:
-        os.remove(design_loc)
+    return r_helper.merge_data_from_r(
+        res,
+        df,
+        cond,
+        locs_to_remove=(
+            [data_loc, output_loc, design_loc]
+            if custom_design is None
+            else [data_loc, output_loc]
+        ),
+        return_cols=return_cols,
+    )
 
-    return df
 
-
-def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
+def rank_prod(
+    df, reps, cond="", print_r=False, correct_fc=True, min_vv=1, return_cols=False
+):
     """
     Perform RankProd test as in R RankProd package.
 
     At the moment one sample test only.
-    Test for up and downregulated genes separatly therefore returns two p values.
+    Test for up and downregulated genes separately therefore returns two p values.
 
     Parameters
     ----------
@@ -409,6 +462,11 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
         missing values (p Values are calculated). If correct_fc is False
         the original fold changes from rankProd are return, else fold
         changes are calculated for all values after ignoring NaNs.
+    min_vv : int, optional
+        Minimum number of valid values for a row to be considered.
+        The default is 1.
+    return_cols : bool, optional
+        Whether to return the columns of the R output DataFrame.
 
     Returns
     -------
@@ -419,54 +477,83 @@ def rank_prod(df, reps, cond="", print_r=False, correct_fc=True):
     Notes
     -----
     The adjusted p-values returned from the R backend are the percentage of
-    false postives calculated by the rankProd package. This is akin to corrected
+    false positives calculated by the rankProd package. This is akin to corrected
     p values, but care should be taken to name these values accordingly.
 
     """
 
-    d = os.getcwd()
-    data_loc = d + "/input.csv"
-    output_loc = d + "/output.csv"
+    data_loc, output_loc = r_helper.generate_paths_for_r(
+        df, reps, write_csv=False, tool="_rank_prod"
+    )
 
     if "UID" not in df.columns:
         df["UID"] = range(1, df.shape[0] + 1)
 
-    if isinstance(reps[0], list) and len(reps) == 2:
-        class_labels = [0, ] * len(reps[0]) + [1, ] * len(reps[1])
+    if isinstance(reps[0], list) and len(reps) > 2:
+        raise ValueError(
+            "rankProd: Only up to two sample tests are supported. Please change the reps input."
+        )
+    elif isinstance(reps[0], list) and len(reps) == 2:
         print("rankProd: Assuming a two sample test with:")
-        print("Sample 1: {}".format(', '.join(['\n\t' + x for x in reps[0]])))
-        print("Sample 2: {}".format(', '.join(['\n\t' + x for x in reps[1]])))
-        print(f"Class labels: {', '.join([str(x) for x in class_labels])}")
+        enough_vvs = (df[reps[0]].notnull().sum(axis=1) >= min_vv) & (
+            df[reps[1]].notnull().any(axis=1) >= min_vv
+        )
 
+        class_labels = [
+            0,
+        ] * len(reps[0]) + [
+            1,
+        ] * len(reps[1])
+        print("Sample 1: {}".format(", ".join(["\n\t" + x for x in reps[0]])))
+        print("Sample 2: {}".format(", ".join(["\n\t" + x for x in reps[1]])))
+        print(f"Class labels: {', '.join([str(x) for x in class_labels])}")
     else:
         print("rankProd: Assuming a one sample test")
-        class_labels = [1, ] * len(reps)
+        enough_vvs = df[reps].notnull().sum(axis=1) >= min_vv
+        class_labels = [
+            1,
+        ] * len(reps)
+
+    if enough_vvs.any():
+        print(
+            f"rankProd: {len(df) - enough_vvs.sum()} rows with less than {min_vv} valid values per rep were ignored"
+        )
+    for_r = df[enough_vvs].copy()
 
     # flatten in case of two sample
-    pp.to_csv(df[["UID"] + list(pl.flatten(reps))], data_loc)
+    pp.to_csv(for_r[["UID"] + list(pl.flatten(reps))], data_loc)
 
-    command = [R, '--vanilla',
-               RFUNCTIONS,  # script location
-               "rankProd",  # functionName
-               data_loc,  # data location
-               output_loc,  # output file,
-               ','.join([str(x) for x in class_labels]),
-               ]
+    command = [
+        R,
+        "--vanilla",
+        RFUNCTIONS,  # script location
+        "rankProd",  # functionName
+        data_loc,  # data location
+        output_loc,  # output file,
+        ",".join([str(x) for x in class_labels]),
+    ]
 
     r_helper.run_r_command(command, print_r)
 
     res = pp.read_csv(output_loc)
-    res.columns = [i + cond if i != "UID" else i for i in res.columns]
-    df = df.reset_index().merge(res, on="UID").set_index('index')
+
+    df, cols = r_helper.merge_data_from_r(
+        res,
+        df,
+        cond,
+        locs_to_remove=[data_loc, output_loc],
+        return_cols=True,
+    )
 
     if correct_fc:
         if isinstance(reps[0], list) and len(reps) == 2:
             # Column must be called logFC as this is also the column name returned by RankProd
-            df['logFC' + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[reps[1]].mean(axis=1, skipna=True)
+            df["logFC" + cond] = df[reps[0]].mean(axis=1, skipna=True) - df[
+                reps[1]
+            ].mean(axis=1, skipna=True)
         else:
-            df['logFC' + cond] = df[reps].mean(axis=1, skipna=True)
+            df["logFC" + cond] = df[reps].mean(axis=1, skipna=True)
 
-    os.remove(data_loc)
-    os.remove(output_loc)
-
+    if return_cols:
+        return df, cols
     return df

@@ -10,6 +10,8 @@ import functools
 
 import numpy as np
 import pandas as pd
+from typing import Literal
+
 from autoprot.decorators import report
 from .. import r_helper
 
@@ -28,88 +30,106 @@ RFUNCTIONS, R = r_helper.return_r_path()
 def cleaning(df, file="proteinGroups"):
     # noinspection PyUnresolvedReferences
     """
-        Remove contaminant, reverse and identified by site only entries.
+    Remove contaminant, reverse and identified by site only entries.
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Dataframe to clean up.
-        file : str, optional
-            Which file is provided in the dataframe.
-            Possible values are "proteinGroups"; "Phospho (STY)", "evidence",  "modificationSpecificPeptides" or
-            "peptides". The default is "proteinGroups".
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe to clean up.
+    file : str, optional
+        Which file is provided in the dataframe.
+        Possible values are "proteinGroups"; "Phospho (STY)", "evidence",  "modificationSpecificPeptides" or
+        "peptides". The default is "proteinGroups".
 
-        Returns
-        -------
-        df : pd.DataFrame
-            The cleaned dataframe.
+    Returns
+    -------
+    df : pd.DataFrame
+        The cleaned dataframe.
 
-        Examples
-        --------
-        Cleaning can target different MQ txt files such as proteinGroups and
-        phospho (STY) tables. The variables phos and prot are parsed MQ results tables.
+    Examples
+    --------
+    Cleaning can target different MQ txt files such as proteinGroups and
+    phospho (STY) tables. The variables phos and prot are parsed MQ results tables.
 
-        >>> prot_clean = pp.cleaning(prot, "proteinGroups")
-        4910 rows before filter operation.
-        4624 rows after filter operation.
+    >>> prot_clean = pp.cleaning(prot, "proteinGroups")
+    4910 rows before filter operation.
+    4624 rows after filter operation.
 
-        >>> phos_clean = pp.cleaning(phos, file = "Phospho (STY)")
-        47936 rows before filter operation.
-        47420 rows after filter operation.
-        """
+    >>> phos_clean = pp.cleaning(phos, file = "Phospho (STY)")
+    47936 rows before filter operation.
+    47420 rows after filter operation.
+    """
     df = df.copy()
     columns = df.columns
     if file == "proteinGroups":
-        if "Potential contaminant" not in columns or "Reverse" not in columns or \
-                "Only identified by site" not in columns:
-            print("Is this data already cleaned?\nMandatory columns for cleaning not present in data!")
+        if (
+            "Potential contaminant" not in columns
+            or "Reverse" not in columns
+            or "Only identified by site" not in columns
+        ):
+            print(
+                "Is this data already cleaned?\nMandatory columns for cleaning not present in data!"
+            )
             print("Returning provided dataframe!")
             return df
-        df = df[(df['Potential contaminant'].isnull() & df['Reverse'].isnull()) &
-                df['Only identified by site'].isnull()]
+        df = df[
+            (df["Potential contaminant"].isnull() & df["Reverse"].isnull())
+            & df["Only identified by site"].isnull()
+        ]
 
-        df.drop(['Potential contaminant', "Reverse", 'Only identified by site'], axis=1, inplace=True)
+        df.drop(
+            ["Potential contaminant", "Reverse", "Only identified by site"],
+            axis=1,
+            inplace=True,
+        )
 
-    elif file in ["Phospho (STY)", "evidence", "modificationSpecificPeptides", "peptides"]:
+    elif file in [
+        "Phospho (STY)",
+        "evidence",
+        "modificationSpecificPeptides",
+        "peptides",
+    ]:
         if "Potential contaminant" not in columns or "Reverse" not in columns:
-            print("Is this data already cleaned?\nMandatory columns for cleaning not present in data!")
+            print(
+                "Is this data already cleaned?\nMandatory columns for cleaning not present in data!"
+            )
 
             print("Returning provided dataframe!")
             return df
-        df = df[(df['Potential contaminant'].isnull() & df['Reverse'].isnull())]
-        df.drop(['Potential contaminant', "Reverse"], axis=1, inplace=True)
+        df = df[(df["Potential contaminant"].isnull() & df["Reverse"].isnull())]
+        df.drop(["Potential contaminant", "Reverse"], axis=1, inplace=True)
 
     return df
 
 
 @report
-def filter_loc_prob(df, thresh=.75):
+def filter_loc_prob(df, thresh=0.75):
     # noinspection PyUnresolvedReferences
     """
-        Filter by localization probability.
+    Filter by localization probability.
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Dataframe to filter.
-        thresh : int, optional
-            Entries with localization probability below will be removed. The default is .75.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe to filter.
+    thresh : int, optional
+        Entries with localization probability below will be removed. The default is .75.
 
-        Examples
-        --------
-        The .filter_loc_prob() function filters a Phospho (STY)Sites.txt file.
-        You can provide the desired threshold with the *thresh* parameter.
+    Examples
+    --------
+    The .filter_loc_prob() function filters a Phospho (STY)Sites.txt file.
+    You can provide the desired threshold with the *thresh* parameter.
 
-        >>> phos_filter = pp.filter_loc_prob(phos, thresh=.75)
-        47936 rows before filter operation.
-        33311 rows after filter operation.
+    >>> phos_filter = pp.filter_loc_prob(phos, thresh=.75)
+    47936 rows before filter operation.
+    33311 rows after filter operation.
 
-        Returns
-        -------
-        pd.DataFrame
-            Filtered dataframe.
+    Returns
+    -------
+    pd.DataFrame
+        Filtered dataframe.
 
-        """
+    """
     df = df.copy()  # make sure to keep the original dataframe unmodified
     if "Localization prob" not in df.columns:
         print("This dataframe has no 'Localization prob' column!")
@@ -147,62 +167,81 @@ def filter_seq_cov(df, thresh, cols=None):
 
 
 @report
-def filter_vv(df, groups, n=2, valid_values=True):
+def filter_vv(
+    df: pd.DataFrame,
+    groups: list[list[str]],
+    min_valid: int = 2,
+    valid_values: bool = True,
+    operator: Literal["and", "or"] = "and",
+):
     # noinspection PyUnresolvedReferences
     r"""
-        Filter dataframe for minimum number of valid values.
+    Filter dataframe for minimum number of valid values.
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Dataframe to be filtered.
-        groups : list of lists of str
-            Lists of colnames of the experimental groups.
-            Each group is filtered for at least n vv.
-        n : int, optional
-            Minimum amount of valid values. The default is 2.
-        valid_values : bool, optional
-            True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe to be filtered.
+    groups : list of lists of str
+        Lists of colnames of the experimental groups.
+        Each group is filtered for at least n vv.
+    min_valid : int, optional
+        Minimum amount of valid values. The default is 2.
+    valid_values : bool, optional
+        True for minimum amount of valid values; False for maximum amount of missing values. The default is True.
+    operator : Literal['and', 'or'], optional
+        How to combine the results of the groups. If 'and', only rows that are valid in all groups are kept.
+        If 'or', rows that are valid in at least one group are kept. The default is 'and'.
 
-        Returns
-        -------
-        pd.DataFrame
-            Filtered dataframe.
-        set (optional)
-            Set of indices after filtering.
+    Returns
+    -------
+    pd.DataFrame
+        Filtered dataframe.
+    set (optional)
+        Set of indices after filtering.
 
-        Examples
-        --------
-        The function filterVv() filters the dataframe for a minimum number of valid values per group.
-        You have to provide the data, the groups as well as the desired number of valid values.
-        If the specified n is not reached in one or more groups the respective row is dropped.
-        Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.
+    Examples
+    --------
+    The function filterVv() filters the dataframe for a minimum number of valid values per group.
+    You have to provide the data, the groups as well as the desired number of valid values.
+    If the specified n is not reached in one or more groups the respective row is dropped.
+    Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.
 
-        >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
-        >>> protLog = pp.log(prot, protRatio, base=2)
+    >>> protRatio = prot.filter(regex="Ratio .\/. normalized")
+    >>> protLog = pp.log(prot, protRatio, base=2)
 
-        >>> a = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
-        ...      'log2_Ratio H/M normalized BC18_3','log2_Ratio H/L normalized BC36_1',
-        ...      'log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
-        >>> b = ["log2_Ratio H/L normalized BC18_1","log2_Ratio H/M normalized BC18_2",
-        ...      "log2_Ratio H/L normalized BC18_3","log2_Ratio M/L normalized BC36_1",
-        ...      "log2_Ratio H/L normalized BC36_2","log2_Ratio H/M normalized BC36_2"]
-        >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2",
-        ...      "log2_Ratio M/L normalized BC18_3", "log2_Ratio H/M normalized BC36_1",
-        ...      "log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
-        >>> protFilter = pp.filter_vv(protLog, groups=[a,b,c], n=3)
-        4910 rows before filter operation.
-        2674 rows after filter operation.
-        """
+    >>> a = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
+    ...      'log2_Ratio H/M normalized BC18_3','log2_Ratio H/L normalized BC36_1',
+    ...      'log2_Ratio H/M normalized BC36_2','log2_Ratio M/L normalized BC36_2']
+    >>> b = ["log2_Ratio H/L normalized BC18_1","log2_Ratio H/M normalized BC18_2",
+    ...      "log2_Ratio H/L normalized BC18_3","log2_Ratio M/L normalized BC36_1",
+    ...      "log2_Ratio H/L normalized BC36_2","log2_Ratio H/M normalized BC36_2"]
+    >>> c = ["log2_Ratio M/L normalized BC18_1","log2_Ratio H/L normalized BC18_2",
+    ...      "log2_Ratio M/L normalized BC18_3", "log2_Ratio H/M normalized BC36_1",
+    ...      "log2_Ratio M/L normalized BC36_2","log2_Ratio H/L normalized BC36_2"]
+    >>> protFilter = pp.filter_vv(protLog, groups=[a,b,c], min_valid=3)
+    4910 rows before filter operation.
+    2674 rows after filter operation.
+    """
     df = df.copy()  # make sure to keep the original dataframe unmodified
 
     if valid_values:
-        idxs = [df[df[group].notnull().sum(axis=1) >= n].index for group in groups]
+        idxs = [
+            df[df[group].notnull().sum(axis=1) >= min_valid].index for group in groups
+        ]
     else:
-        idxs = [df[df[group].isnull().sum(axis=1) <= n].index for group in groups]
+        idxs = [
+            df[df[group].isnull().sum(axis=1) <= min_valid].index for group in groups
+        ]
 
-    # indices that are valid in all groups
-    idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
+    if operator == "and":
+        # indices that are valid in all groups
+        idx = functools.reduce(lambda x, y: x.intersection(y), idxs)
+    elif operator == "or":
+        # indices that are valid in at least one group
+        idx = functools.reduce(lambda x, y: x.union(y), idxs)
+    else:
+        raise ValueError("Operator must be 'and' or 'or'.")
     df = df.loc[idx, :]
 
     return df
@@ -212,48 +251,48 @@ def filter_vv(df, groups, n=2, valid_values=True):
 def remove_non_quant(df, cols):
     # noinspection PyUnresolvedReferences
     r"""
-        Remove entries without quantitative data.
+    Remove entries without quantitative data.
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Dataframe to filter.
-        cols : list of str
-            cols to be evaluated for missingness.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe to filter.
+    cols : list of str
+        cols to be evaluated for missingness.
 
-        Returns
-        -------
-        pd.DataFrame
-            Filtered dataframe.
+    Returns
+    -------
+    pd.DataFrame
+        Filtered dataframe.
 
-        Examples
-        --------
-        >>> df = pd.DataFrame({'a':[1,2,np.nan,4], 'b':[4,0,np.nan,1], 'c':[None, None, 1, 1]})
-        >>> pp.remove_non_quant(df, cols=['a', 'b'])
-        4 rows before filter operation.
-        3 rows after filter operation.
-             a    b    c
-        0  1.0  4.0  NaN
-        1  2.0  0.0  NaN
-        3  4.0  1.0  1.0
+    Examples
+    --------
+    >>> df = pd.DataFrame({'a':[1,2,np.nan,4], 'b':[4,0,np.nan,1], 'c':[None, None, 1, 1]})
+    >>> pp.remove_non_quant(df, cols=['a', 'b'])
+    4 rows before filter operation.
+    3 rows after filter operation.
+         a    b    c
+    0  1.0  4.0  NaN
+    1  2.0  0.0  NaN
+    3  4.0  1.0  1.0
 
-        Rows are only removed if the all values in the specified columns are NaN.
+    Rows are only removed if the all values in the specified columns are NaN.
 
-        >>> pp.remove_non_quant(df, cols=['b', 'c'])
-        4 rows before filter operation.
-        4 rows after filter operation.
-             a    b    c
-        0  1.0  4.0  NaN
-        1  2.0  0.0  NaN
-        2  NaN  NaN  1.0
-        3  4.0  1.0  1.0
+    >>> pp.remove_non_quant(df, cols=['b', 'c'])
+    4 rows before filter operation.
+    4 rows after filter operation.
+         a    b    c
+    0  1.0  4.0  NaN
+    1  2.0  0.0  NaN
+    2  NaN  NaN  1.0
+    3  4.0  1.0  1.0
 
-        Example with real data.
+    Example with real data.
 
-        >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
-        >>> phosQuant = pp.remove_non_quant(phosLog, phosRatio)
-        47936 rows before filter operation.
-        39398 rows after filter operation.
-        """
+    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+    >>> phosQuant = pp.remove_non_quant(phosLog, phosRatio)
+    47936 rows before filter operation.
+    39398 rows after filter operation.
+    """
     df = df[~(df[cols].isnull().all(1))]
     return df

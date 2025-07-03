@@ -18,9 +18,7 @@ from .. import r_helper
 
 from gprofiler import GProfiler
 
-gp = GProfiler(
-    user_agent="autoprot",
-    return_dataframe=True)
+gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
@@ -128,15 +126,20 @@ class AutoPCA:
     # - Allow further customization of plots (e.g. figsize)
     # - Implement pair plot for multiple dimensions
     # =========================================================================
-    def __init__(self, dataframe: pd.DataFrame, clabels: Union[list[str], None], rlabels: Union[list[str], None] = None,
-                 batch: Union[list[str], None] = None):
+    def __init__(
+        self,
+        data: Union[pd.DataFrame, np.array],
+        clabels: Union[list[str], None],
+        rlabels: Union[list[str], None] = None,
+        batch: Union[list[str], None] = None,
+    ):
         """
         Initialise PCA class.
 
         Parameters
         ----------
-        dataframe : pd.DataFrame
-            Input dataframe.
+        data : pd.DataFrame or np.array
+            Input data for PCA.
         clabels : list or None
             Column labels.
         rlabels : list or None, optional
@@ -144,7 +147,7 @@ class AutoPCA:
             The default is None.
         batch : list, optional
             Labels for distinct conditions used to colour dots in score plot.
-            Must be the length of rlabels.
+            Must be the length of clabels.
             The default is None.
 
         Returns
@@ -152,32 +155,54 @@ class AutoPCA:
         None.
 
         """
-        if not isinstance(dataframe, pd.DataFrame):
-            raise TypeError("Provide a pandas dataframe.")
-        # drop any rows in the dataframe containing missing values
-        if clabels is not None:
-            self.X = dataframe[clabels].dropna()
-        else:  # use all columns provided
-            self.X = dataframe.dropna()
-        self.label = clabels
-        self.rlabel = rlabels
+        if isinstance(data, pd.DataFrame):
+            data = data.to_numpy()
+        elif not isinstance(data, np.ndarray):
+            raise TypeError("Provide a pandas dataframe or numpy array as input.")
+
+        # check that the number of labels matches the number of columns
+        if clabels is not None and len(clabels) != data.shape[1]:
+            raise ValueError(
+                f"Number of column labels must match number of columns in data. Found {len(clabels)} labels for {data.shape[1]} columns."
+            )
+
+        # check that the number of labels matches the number of rows
+        if rlabels is not None and len(rlabels) != data.shape[0]:
+            raise ValueError(
+                f"Number of row labels must match number of rows in data. Found {len(rlabels)} labels for {data.shape[0]} rows."
+            )
+
+        # check that batch has the correct length
+        if batch is not None and len(batch) != data.shape[1]:
+            raise ValueError(
+                f"Number of batch labels must match number of rows in data. Found {len(batch)} labels for {data.shape[1]} columns."
+            )
+
+        self.label = (
+            np.array(clabels)
+            if clabels is not None
+            else np.array([f"Col{i}" for i in range(1, data.shape[1] + 1)])
+        )
+        self.rowlabels = (
+            np.array(rlabels)
+            if rlabels is not None
+            else np.array([f"Row{i}" for i in range(1, data.shape[0] + 1)])
+        )
         self.batch = batch
-        # PCA is performed with the df containing missing values
-        self.pca, self.vis_df = self._perform_pca(dataframe, clabels)
+
+        # drop any rows in the data containing missing values
+        self.X = data[~np.isnan(data).any(axis=1)]
+        # remove the corresponding row labels
+        self.rowlabels = self.rowlabels[~np.isnan(data).any(axis=1)]
+
+        self.pca = PCA().fit(self.X)
+        self.vis_df = pd.DataFrame(self.pca.components_.T)
+        self.vis_df.columns = [f"PC{i}" for i in range(1, self.vis_df.shape[1] + 1)]
+        self.vis_df["label"] = self.label
+
         # generate scores from loadings
         self.Xt = self.pca.transform(self.X)
         self.expVar = self.pca.explained_variance_ratio_
-
-    @staticmethod
-    def _perform_pca(dataframe: pd.DataFrame, label: list[str]) -> tuple[object, pd.DataFrame]:
-        """Perform pca and generate for_vis dataframe."""
-        pca = PCA().fit(dataframe.dropna())
-        # components_ is and ndarray of shape (n_components, n_features)
-        # and contains the loadings/weights of each PCA eigenvector
-        for_vis = pd.DataFrame(pca.components_.T)
-        for_vis.columns = [f"PC{i}" for i in range(1, min(dataframe.shape[0], dataframe.T.shape[0]) + 1)]
-        for_vis["label"] = label
-        return pca, for_vis
 
     def scree(self, figsize=(15, 5)) -> None:
         """
@@ -200,7 +225,9 @@ class AutoPCA:
 
         """
         if not isinstance(self.pca, PCA):
-            raise TypeError("This is a function to plot Scree plots. Provide fitted sklearn PCA object.")
+            raise TypeError(
+                "This is a function to plot Scree plots. Provide fitted sklearn PCA object."
+            )
 
         eig_val = self.pca.explained_variance_
         cum_var = np.append(np.array([0]), np.cumsum(self.expVar))
@@ -213,8 +240,13 @@ class AutoPCA:
 
         plt.figure(figsize=figsize)
         plt.subplot(121)
-        plt.plot(range(1, len(eig_val) + 1), eig_val, marker="o", color="teal",
-                 markerfacecolor='purple')
+        plt.plot(
+            range(1, len(eig_val) + 1),
+            eig_val,
+            marker="o",
+            color="teal",
+            markerfacecolor="purple",
+        )
         _set_labels("Eigenvalues", "Scree plot")
         plt.subplot(122)
         plt.plot(range(1, len(cum_var) + 1), cum_var, ds="steps", color="teal")
@@ -248,15 +280,17 @@ class AutoPCA:
         """
         if ax is None:
             fig, ax = plt.subplots(1)
-        sns.heatmap(self.vis_df.filter(regex="^PC"),
-                    cmap=sns.color_palette(palette="PuOr", n_colors=10),
-                    annot=annot,
-                    ax=ax)
+        sns.heatmap(
+            self.vis_df.filter(regex="^PC"),
+            cmap=sns.color_palette(palette="PuOr", n_colors=10),
+            annot=annot,
+            ax=ax,
+        )
         yp = [i + 0.5 for i in range(len(self.label))]
         ax.set_yticks(yp, self.vis_df["label"], rotation=0)
         ax.set_title("")
 
-    def bar_load(self, pc: int = 1, n: int = 25) -> None:
+    def bar_load(self, pc: int = 1, n: int = 25, ax: plt.axis = None) -> None:
         """
         Plot the loadings of a given component in a barplot.
 
@@ -267,6 +301,8 @@ class AutoPCA:
         n : int, optional
             Plot only the n first rows.
             The default is 25.
+        ax : plt.Axis
+            The axis to plot on. Default is None.
 
         Returns
         -------
@@ -280,9 +316,17 @@ class AutoPCA:
         for_vis.loc[for_vis[pc] > 0, "color"] = "positive"
         for_vis = for_vis.sort_values(by=f"{pc}_abs", ascending=False)[:n]
         plt.figure()
-        ax = plt.subplot()
-        sns.barplot(x=for_vis[pc], y=for_vis["label"], hue=for_vis["color"], alpha=.5,
-                    hue_order=["negative", "positive"], palette=["teal", "purple"])
+        if ax is None:
+            fig, ax = plt.subplots()  # init axis if not provided
+
+        sns.barplot(
+            x=for_vis[pc],
+            y=for_vis["label"],
+            hue=for_vis["color"],
+            alpha=0.5,
+            hue_order=["negative", "positive"],
+            palette=["teal", "purple"],
+        )
         ax.get_legend().remove()
         sns.despine()
 
@@ -326,8 +370,14 @@ class AutoPCA:
             scores["batch"] = self.batch
         return scores
 
-    def score_plot(self, pc1: int = 1, pc2: int = 2, labeling: bool = False, file: str = None,
-                   figsize: tuple[Union[int, float], Union[int, float]] = (5, 5)) -> None:
+    def score_plot(
+        self,
+        pc1: int = 1,
+        pc2: int = 2,
+        labeling: bool = False,
+        file: str = None,
+        figsize: tuple[Union[int, float], Union[int, float]] = (5, 5),
+    ) -> None:
         """
         Generate a PCA score plot.
 
@@ -368,7 +418,7 @@ class AutoPCA:
         else:
             for_vis = pd.DataFrame({"x": x, "y": y, "batch": self.batch})
             sns.scatterplot(data=for_vis, x="x", y="y", hue=for_vis["batch"])
-        for_vis["label"] = self.rlabel
+        for_vis["label"] = self.rowlabels
 
         plt.title("Score plot")
         plt.xlabel(f"PC{pc1}\n{round(self.expVar[pc1 - 1] * 100, 2)} %")
@@ -383,10 +433,16 @@ class AutoPCA:
         sns.despine()
 
         if file is not None:
-            plt.savefig(fr"{file}/ScorePlot.pdf")
+            plt.savefig(rf"{file}/ScorePlot.pdf")
 
-    def loading_plot(self, pc1: int = 1, pc2: int = 2, labeling: bool = False, ax: plt.axis = None,
-                     figsize: tuple[int] = (5, 5)):
+    def loading_plot(
+        self,
+        pc1: int = 1,
+        pc2: int = 2,
+        labeling: bool = False,
+        ax: plt.axis = None,
+        figsize: tuple[int] = (5, 5),
+    ):
         """
         Generate a PCA loading plot.
 
@@ -421,11 +477,18 @@ class AutoPCA:
         if ax is None:
             fig, ax = plt.subplots(1, figsize=figsize)
         if self.batch is None or len(self.batch) != self.vis_df.shape[0]:
-            sns.scatterplot(data=self.vis_df, x=f"PC{pc1}",
-                            y=f"PC{pc2}", edgecolor=None, ax=ax)
+            sns.scatterplot(
+                data=self.vis_df, x=f"PC{pc1}", y=f"PC{pc2}", edgecolor=None, ax=ax
+            )
         else:
-            sns.scatterplot(data=self.vis_df, x=f"PC{pc1}",
-                            y=f"PC{pc2}", edgecolor=None, hue=self.batch, ax=ax)
+            sns.scatterplot(
+                data=self.vis_df,
+                x=f"PC{pc1}",
+                y=f"PC{pc2}",
+                edgecolor=None,
+                hue=self.batch,
+                ax=ax,
+            )
         sns.despine()
 
         ax.set_title("Loadings plot")
@@ -439,8 +502,14 @@ class AutoPCA:
             for x, y, s in zip(xx, yy, ss):
                 ax.text(x, y, s)
 
-    def bi_plot(self, pc1: int = 1, pc2: int = 2, num_load: Union[Literal["all"], int] = "all",
-                figsize: tuple[int, int] = (5, 5), **kwargs) -> None:
+    def bi_plot(
+        self,
+        pc1: int = 1,
+        pc2: int = 2,
+        num_load: Union[Literal["all"], int] = "all",
+        figsize: tuple[int, int] = (5, 5),
+        **kwargs,
+    ) -> None:
         """
         Generate a biplot, a combined loadings and score plot.
 
@@ -492,8 +561,14 @@ class AutoPCA:
 
         for load, lab in zip(loadings, labels):
             # plt.plot([0,load[0]/xscale], (0, load[1]/yscale), color="purple")
-            plt.arrow(x=0, y=0, dx=load[0] / xscale, dy=load[1] / yscale, color="purple",
-                      head_width=.2)
+            plt.arrow(
+                x=0,
+                y=0,
+                dx=load[0] / xscale,
+                dy=load[1] / yscale,
+                color="purple",
+                head_width=0.2,
+            )
             plt.text(x=load[0] / xscale, y=load[1] / yscale, s=lab)
 
             if load[0] / xscale < xmina:

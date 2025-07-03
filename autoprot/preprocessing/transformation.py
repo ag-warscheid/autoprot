@@ -36,9 +36,15 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 
 
-def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequence[int], None] = None,
-        return_cols: bool = False, ratio_identifier: str = r"(\w)(/)(\w)",
-        ratio_replace: str = r"\3\2\1"):
+def log(
+    df: pd.DataFrame,
+    cols: Sequence[str],
+    base: int = 2,
+    invert: Union[Sequence[int], None] = None,
+    return_cols: bool = False,
+    ratio_identifier: str = r"(\w)(/)(\w)",
+    ratio_replace: str = r"\3\2\1",
+):
     # noinspection PyUnresolvedReferences
     """
     Perform log transformation.
@@ -102,7 +108,9 @@ def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequ
     """
     # check the input
     if not (isinstance(cols, collections.abc.Sequence) or isinstance(cols, pd.Index)):
-        raise ValueError("Columns must be provided as a sequence (e.g. list, tuple etc).")
+        raise ValueError(
+            "Columns must be provided as a sequence (e.g. list, tuple etc)."
+        )
     if not all([c in df.columns for c in cols]):
         raise ValueError("Not all columns are present in the dataframe.")
     if base <= 0:
@@ -135,7 +143,7 @@ def log(df: pd.DataFrame, cols: Sequence[str], base: int = 2, invert: Union[Sequ
             if i < 0:
                 mapper[col] = re.sub(ratio_identifier, ratio_replace, col)
         # this changes the column headers
-        df.rename(mapper, axis='columns', inplace=True)
+        df.rename(mapper, axis="columns", inplace=True)
         # this changes the returned column list
         new_cols = [mapper[x] if x in mapper.keys() else x for x in new_cols]
 
@@ -190,7 +198,7 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     if "id" not in df.columns:
         raise ValueError("The dataframe does not contain an 'id' column.")
     for col in cols:
-        if '___' not in col:
+        if "___" not in col:
             raise ValueError("The columns provided are not suitable for expansion.")
 
     df = df.copy(deep=True)
@@ -200,9 +208,13 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     # columns to melt
     melt = cols  # e.g. "Ratio M/L normalized R2___1"
     # drop duplicates and preserve order (works with Python >3.7)
-    melt_set = list(dict.fromkeys([i[:-4] for i in melt]))  # e.g. "Ratio M/L normalized R2"
+    melt_set = list(
+        dict.fromkeys([i[:-4] for i in melt])
+    )  # e.g. "Ratio M/L normalized R2"
     # Due to MaxQuant column names we might have to drop some columns
-    check = [i in df.columns for i in melt_set]  # check if the colnames are present in the df
+    check = [
+        i in df.columns for i in melt_set
+    ]  # check if the colnames are present in the df
     if False not in check:
         df.drop(melt_set, axis=1, inplace=True)  # remove cols w/o ___n
     if True in check and False in check:
@@ -211,16 +223,19 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     if df[melt].eq(0).any().any() and replace_zero:
         warnings.warn(
             "The dataframe contains 0 values that will not be filtered out eventually. Will replace by np.nan. If "
-            "this is not intended set replace_zero to False.")
+            "this is not intended set replace_zero to False."
+        )
         df[melt].replace(0, np.nan)
 
     # generate a separated melted df for every entry in the melt_set
     for i in melt_set:
-        cs = list(df.filter(regex=i + '___').columns) + ["id"]  # reconstruct the ___n cols for each melt_set entry
+        cs = list(df.filter(regex=i + "___").columns) + [
+            "id"
+        ]  # reconstruct the ___n cols for each melt_set entry
         # melt the dataframe generating an 'id' column,
         # a 'variable' col with the previous colnames
         # and a 'value' col with the previous values
-        dfs.append(pd.melt(df[cs], id_vars='id'))
+        dfs.append(pd.melt(df[cs], id_vars="id"))
 
     # =============================================================================
     #     pd.melt
@@ -238,22 +253,36 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
 
     t = pd.DataFrame()
     for idx, df in enumerate(dfs):
-        x = df["variable"].iloc[0].split('___')[0]  # reconstructs the colname w/o ___n, e.g. Ratio M/L normalized R2
-        if idx == 0:  # the first df contains all peptides and all multiplicities as rows
+        x = (
+            df["variable"].iloc[0].split("___")[0]
+        )  # reconstructs the colname w/o ___n, e.g. Ratio M/L normalized R2
+        if (
+            idx == 0
+        ):  # the first df contains all peptides and all multiplicities as rows
             t = df.copy(deep=True)
-            t.columns = ["id", "Multiplicity", x]  # e.g. 0, Ratio M/L normalized R2___1, 0.67391
-            t["Multiplicity"] = t["Multiplicity"].apply(lambda col_header: col_header.split('___')[1])  # 0, 1, 0.673
+            t.columns = [
+                "id",
+                "Multiplicity",
+                x,
+            ]  # e.g. 0, Ratio M/L normalized R2___1, 0.67391
+            t["Multiplicity"] = t["Multiplicity"].apply(
+                lambda col_header: col_header.split("___")[1]
+            )  # 0, 1, 0.673
         else:  # in the subsequent dfs id and multiplicities can be dropped as only the ratio is new information
             # compared to the first df
             df.columns = ["id", "Multiplicity", x]
             df = df.drop(["id", "Multiplicity"], axis=1)  # keep only the x col
-            t = t.join(df, rsuffix=f'_{idx}')  # horizontally joins the new col with the previous df
+            t = t.join(
+                df, rsuffix=f"_{idx}"
+            )  # horizontally joins the new col with the previous df
     # merging on ids gives the melted peptides their names back´
-    temp = temp.merge(t, on='id', how='left')
+    temp = temp.merge(t, on="id", how="left")
     temp["Multiplicity"] = temp["Multiplicity"].astype(int)  # is previously str
 
     if temp.shape[0] != expected:
-        print("The expansion of site table is probably not correct!!! Check it! Maybe you provided wrong columns?")
+        print(
+            "The expansion of site table is probably not correct!!! Check it! Maybe you provided wrong columns?"
+        )
 
     # remove rows that contain no modified peptides
     # this requires that unidentified modifications are set to np.nan! See warning above that checks just this.
@@ -262,8 +291,12 @@ def expand_site_table(df: pd.DataFrame, cols: list[str], replace_zero: bool = Tr
     return temp
 
 
-def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: callable = np.nanmedian,
-                  delimiter: str = ';'):
+def collapse_rows(
+    df: pd.DataFrame,
+    columns: Union[list, str],
+    numeric_func: callable = np.nanmedian,
+    delimiter: str = ";",
+):
     """
     Merge rows of data frames based on values of column(s).
     Non-numeric values are concatenated and numeric values are treated with specific function.
@@ -285,9 +318,11 @@ def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: cal
     """
 
     if not isinstance(columns, list):
-        columns = [columns, ]
+        columns = [
+            columns,
+        ]
 
-    numeric_columns = df.select_dtypes(include='number').columns.tolist()
+    numeric_columns = df.select_dtypes(include="number").columns.tolist()
     non_numeric_columns = [c for c in df.columns if c not in numeric_columns]
 
     for col in columns:
@@ -296,7 +331,9 @@ def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: cal
                 split_cols.append(col)
 
     numeric = df[numeric_columns].groupby(columns).agg(numeric_func)
-    non_numeric = df[non_numeric_columns].astype(str).groupby(columns).agg(delimiter.join)
+    non_numeric = (
+        df[non_numeric_columns].astype(str).groupby(columns).agg(delimiter.join)
+    )
 
     collapsed = pd.concat([non_numeric, numeric], axis=1).reset_index()
     # this resets the columns order
@@ -304,8 +341,13 @@ def collapse_rows(df: pd.DataFrame, columns: Union[list, str], numeric_func: cal
     return collapsed
 
 
-def exp_semi_col(df: pd.DataFrame, columns: Union[list, str], suffix: str = '_exploded', delimiter: str = ';',
-                 cast_to: object = None):
+def exp_semi_col(
+    df: pd.DataFrame,
+    columns: Union[list, str],
+    suffix: str = "_exploded",
+    delimiter: str = ";",
+    cast_to: object = None,
+):
     # noinspection PyUnresolvedReferences
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
@@ -361,9 +403,13 @@ def exp_semi_col(df: pd.DataFrame, columns: Union[list, str], suffix: str = '_ex
     df = df.copy(deep=True)
 
     if not isinstance(columns, list):
-        columns = [columns, ]
+        columns = [
+            columns,
+        ]
     if not isinstance(cast_to, list) and cast_to is not None:
-        cast_to = [cast_to, ]
+        cast_to = [
+            cast_to,
+        ]
     new_columns = [c + suffix for c in columns]
 
     # make temp df with expanded columns
@@ -378,8 +424,13 @@ def exp_semi_col(df: pd.DataFrame, columns: Union[list, str], suffix: str = '_ex
     return df
 
 
-def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, semicolon_col2: str = None,
-                    how: Literal['left', 'right', 'outer', 'inner'] = 'left'):
+def merge_semi_cols(
+    m1: pd.DataFrame,
+    m2: pd.DataFrame,
+    semicolon_col1: str,
+    semicolon_col2: str = None,
+    how: Literal["left", "right", "outer", "inner"] = "left",
+):
     """
     Merge two dataframes on a semicolon separated column.
 
@@ -480,33 +531,45 @@ def merge_semi_cols(m1: pd.DataFrame, m2: pd.DataFrame, semicolon_col1: str, sem
     # add the appropriate original row indices of m2 to the corresponding rows
     # of m1_exp
     # here one might want to consider other kind of merges
-    merge = pd.merge(m1_exp, m2_exp[["mergeID_m2", semicolon_col1 + '_exploded']], on=semicolon_col1 + '_exploded',
-                     how=how)
+    merge = pd.merge(
+        m1_exp,
+        m2_exp[["mergeID_m2", semicolon_col1 + "_exploded"]],
+        on=semicolon_col1 + "_exploded",
+        how=how,
+    )
 
-    merge_pairs = merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_form_merge_pairs)
+    merge_pairs = (
+        merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_form_merge_pairs)
+    )
     # This is necessary if there are more than one matching columns
     merge_pairs = merge_pairs.explode("mergeID_m2")
 
     # merge of m2 columns
-    merge_pairs = (merge_pairs
-                   .reset_index()
-                   .merge(m2, on="mergeID_m2", how="left")
-                   .groupby("mergeID_m1")
-                   .agg(_aggregate_duplicates)
-                   .reset_index())
+    merge_pairs = (
+        merge_pairs.reset_index()
+        .merge(m2, on="mergeID_m2", how="left")
+        .groupby("mergeID_m1")
+        .agg(_aggregate_duplicates)
+        .reset_index()
+    )
 
     # merge of m1 columns (those should all be unique)
-    merge_pairs = (merge_pairs
-                   .merge(m1, on="mergeID_m1", how="outer"))
+    merge_pairs = merge_pairs.merge(m1, on="mergeID_m1", how="outer")
 
     return merge_pairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
 
-def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human", get_seq="online",
-                   uniprot=None) -> float:
+def calculate_iBAQ(
+    intensity,
+    gene_name=None,
+    protein_id=None,
+    organism="human",
+    get_seq="online",
+    uniprot=None,
+) -> float:
     """
     Convert raw intensities to ‘intensity-based absolute quantification’ or iBAQ intensities.
-    Given intensities are divided by the number of theoretically observable tryptic peptides. 
+    Given intensities are divided by the number of theoretically observable tryptic peptides.
 
     Parameters
     ----------
@@ -547,32 +610,36 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
 
     if protein_id is None and get_seq == "online":
         # open the phosphosite plus phosphorylation dataset
-        with resources.open_binary('autoprot.data', "phosphorylation_site_dataset.zip") as d:
-            ps = pd.read_csv(d, sep='\t', compression='zip')
+        with resources.open_binary(
+            "autoprot.data", "phosphorylation_site_dataset.zip"
+        ) as d:
+            ps = pd.read_csv(d, sep="\t", compression="zip")
 
     if uniprot is None and get_seq == "offline":
         # open the uniprot datatable if not provided
-        with resources.open_binary('autoprot.data',
-                                   r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cg"
-                                   r"ene_n-2022.11.29-14.49.20.07.tsv.gz") as e:
-            uniprot = pd.read_csv(e, sep='\t', compression='gzip')
+        with resources.open_binary(
+            "autoprot.data",
+            r"uniprot-compressed_true_download_true_fields_accession_2Cid_2Cg"
+            r"ene_n-2022.11.29-14.49.20.07.tsv.gz",
+        ) as e:
+            uniprot = pd.read_csv(e, sep="\t", compression="gzip")
 
     def get_uniprot_sequence(uniprot_acc: str) -> str:
         """Download sequence from uniprot by UniProt ID."""
         url = f"https://www.uniprot.org/uniprot/{uniprot_acc}.fasta"
         response = requests.get(url)
-        sequence = "".join(response.text.split('\n')[1:])
+        sequence = "".join(response.text.split("\n")[1:])
         return sequence
 
     def count_tryptic_peptides(sequence: str) -> int:
-        """count tryptic peptides 6<=pep<=30 after cleavage """
+        """count tryptic peptides 6<=pep<=30 after cleavage"""
         peptide_counter = 0
         # trypsin cuts after K and R, could be adjusted for different enzymes
         for peptide in sequence.split("K"):
             peptide = peptide + "K"
             pep = peptide.split("R")
             for p in pep:
-                if len(p) > 0 and p[-1] != 'K':
+                if len(p) > 0 and p[-1] != "K":
                     p = p + "R"
                 # peptide length exclusion
                 if 6 <= len(p) <= 30:
@@ -583,11 +650,15 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
     uniprot_acc = None
     sequence = None
     if protein_id is None:
-        uniprot_acc = common.get_uniprot_accession(df=ps, gene=gene_name, organism=organism)
+        uniprot_acc = common.get_uniprot_accession(
+            df=ps, gene=gene_name, organism=organism
+        )
     if get_seq == "online":
         sequence = get_uniprot_sequence(uniprot_acc)
     if get_seq == "offline":
-        sequence = common.get_uniprot_sequence_locally(uniprot_acc=uniprot_acc, organism=organism, uniprot=uniprot)
+        sequence = common.get_uniprot_sequence_locally(
+            uniprot_acc=uniprot_acc, organism=organism, uniprot=uniprot
+        )
         if not sequence:
             sequence = get_uniprot_sequence(uniprot_acc)
 
@@ -597,7 +668,9 @@ def calculate_iBAQ(intensity, gene_name=None, protein_id=None, organism="human",
     return iBAQ
 
 
-def make_sim_score(m1: Sequence, m2: Sequence, corr: Literal['Pearson', 'Spearman'] = "pearson") -> float:
+def make_sim_score(
+    m1: Sequence, m2: Sequence, corr: Literal["Pearson", "Spearman"] = "pearson"
+) -> float:
     # noinspection PyUnresolvedReferences
     """
     Calculate similarity score.
@@ -657,9 +730,9 @@ def make_sim_score(m1: Sequence, m2: Sequence, corr: Literal['Pearson', 'Spearma
         elif corr == "spearman":
             r = spearmanr(m1, m2)[0]
         else:
-            raise ValueError('Invalid correlation parameter.')
+            raise ValueError("Invalid correlation parameter.")
         dof = len(m1) - 2
-        t = (r * np.sqrt(dof)) / np.sqrt(1 - r ** 2)
+        t = (r * np.sqrt(dof)) / np.sqrt(1 - r**2)
         pval = stats.t.sf(np.abs(t), dof)
         return pval
 

@@ -32,11 +32,13 @@ def set_default_kwargs(keyword_dict: Union[dict, None], default_dict: dict):
 
 
 def generate_environment_txt():
-    with open("environment.txt", 'w') as env_:
-        subprocess.call(['pip', 'list'], stdout=env_)
+    with open("environment.txt", "w") as env_:
+        subprocess.call(["pip", "list"], stdout=env_)
 
 
-def get_uniprot_accession(df: pd.DataFrame, gene: str, organism: str) -> Union[str, None]:
+def get_uniprot_accession(
+    df: pd.DataFrame, gene: str, organism: str
+) -> Union[str, None]:
     """
     Finds the matching UniProt ID in a dataset given a gene name and a corresponding organism.
 
@@ -56,10 +58,12 @@ def get_uniprot_accession(df: pd.DataFrame, gene: str, organism: str) -> Union[s
     """
     gene = gene.upper()
     try:
-        gene_in_GENE = (df['GENE'].str.upper() == gene) & (df['ORGANISM'] == organism)
-        gene_in_PROTEIN = (df['PROTEIN'].str.upper() == gene) & (df['ORGANISM'] == organism)
+        gene_in_gene = (df["GENE"].str.upper() == gene) & (df["ORGANISM"] == organism)
+        gene_in_protein = (df["PROTEIN"].str.upper() == gene) & (
+            df["ORGANISM"] == organism
+        )
 
-        uniprot_acc = df.loc[(gene_in_GENE | gene_in_PROTEIN), 'ACC_ID'].iloc[0]
+        uniprot_acc = df.loc[(gene_in_gene | gene_in_protein), "ACC_ID"].iloc[0]
 
         return uniprot_acc
 
@@ -67,7 +71,9 @@ def get_uniprot_accession(df: pd.DataFrame, gene: str, organism: str) -> Union[s
         return None
 
 
-def get_uniprot_sequence_locally(uniprot_acc: str, organism: str, uniprot: pd.DataFrame) -> str:
+def get_uniprot_sequence_locally(
+    uniprot_acc: str, organism: str, uniprot: pd.DataFrame
+) -> str:
     """
     Get sequence from a locally stored uniprot file by UniProt ID.
 
@@ -90,7 +96,9 @@ def get_uniprot_sequence_locally(uniprot_acc: str, organism: str, uniprot: pd.Da
     else:
         uniprot_organism = "Homo sapiens (Human)"
 
-    sequence = uniprot["Sequence"][(uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)]
+    sequence = uniprot["Sequence"][
+        (uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)
+    ]
     try:
         sequence = sequence.values.tolist()[0]
     except IndexError:
