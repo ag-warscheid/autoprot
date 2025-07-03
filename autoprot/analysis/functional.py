@@ -573,15 +573,17 @@ class KSEA:
         copy_annot_df = self.annotDf.copy(deep=True)
         if simplify is not None:
             if simplify == "auto":
-                simplify = {"AKT": ["Akt1", "Akt2", "Akt3"],
-                            "PKC": ["PKCA", "PKCD", "PKCE"],
-                            "ERK": ["ERK1", "ERK2"],
-                            "GSK3": ["GSK3B", "GSK3A"],
-                            "JNK": ["JNK1", "JNK2", "JNK3"],
-                            "FAK": ["FAK iso2"],
-                            "p70S6K": ["p70S6K", "p70SKB"],
-                            "RSK": ["p90RSK", "RSK2"],
-                            "P38": ["P38A", "P38B", "P38C", "P38D"]}
+                simplify = {
+                    "AKT": ["Akt1", "Akt2", "Akt3"],
+                    "PKC": ["PKCA", "PKCD", "PKCE"],
+                    "ERK": ["ERK1", "ERK2"],
+                    "GSK3": ["GSK3B", "GSK3A"],
+                    "JNK": ["JNK1", "JNK2", "JNK3"],
+                    "FAK": ["FAK iso2"],
+                    "p70S6K": ["p70S6K", "p70SKB"],
+                    "RSK": ["p90RSK", "RSK2"],
+                    "P38": ["P38A", "P38B", "P38C", "P38D"],
+                }
 
             for key in simplify:
                 copy_annot_df["KINASE"] = copy_annot_df["KINASE"].replace(
