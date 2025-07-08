@@ -366,8 +366,7 @@ class AutoPCA:
         """
         columns = [f"PC{i + 1}" for i in range(self.Xt.shape[1])]
         scores = pd.DataFrame(self.Xt, columns=columns)
-        if self.batch is not None:
-            scores["batch"] = self.batch
+        scores["label"] = self.rowlabels
         return scores
 
     def score_plot(
