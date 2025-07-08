@@ -171,7 +171,9 @@ def quantile_norm(
         df = df.merge(df_norm, on="UID", how="left")
 
     elif backend == "r":
-        data_loc, output_loc = r_helper.generate_paths_for_r(df, cols, tool="_quantile_norm")
+        data_loc, output_loc = r_helper.generate_paths_for_r(
+            df, cols, tool="_quantile_norm"
+        )
 
         pp.to_csv(df[["UID"] + cols], data_loc)
 
