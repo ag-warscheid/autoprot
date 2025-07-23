@@ -41,5 +41,10 @@ docs = [
     "myst-parser>=3.0.1"
 ]
 
+testing = [
+    "ruff",
+    "pytest"
+]
+
 [tool.setuptools.packages.find]
 include = ["autoprot"]
