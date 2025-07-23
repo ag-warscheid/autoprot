@@ -26,7 +26,7 @@ Its main features are:
 
 - Generate a new python environment using [anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 or [pip](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
-- Install required Python packages (see [requirements.txt](requirements.txt)) in the environment
+  - Install required Python packages (see [pyproject.toml](pyproject.toml)) in the environment
 - Download or clone autoprot
   - If you clone the repository, make sure to include the dependencies as submodules (example below)
 

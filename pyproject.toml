@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=70.0.0", "pip>=23.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoprot"
+version = "0.3.0"
+description = "Automated Proteomics Analysis"
+authors = [
+    { name = "Julian Bender", email = "julian.bender@uni-wuerzburg.de" },
+    { name = "Johannes Zimmermann", email = "johannes.zimmermann@uni-wuerzburg.de" },
+    { name = "Friedel Drepper", email = "drepper@uni-freiburg.de" },
+    { name = "Wignand Mühlhäuser" }
+]
+license = { text = "BSD-3-Clause" }
+urls = { Homepage = "https://www.warscheidlab.de" }
+dependencies = [
+    "adjustText>=0.7.3",
+    "biopython>=1.78",
+    "gprofiler-official>=1.0.0",
+    "logomaker>=0.8",
+    "matplotlib>=3.8.4",
+    "matplotlib-venn>=0.11.7",
+    "missingno>=0.4.2",
+    "numpy>=1.22.3",
+    "pandas>=2.0.0",
+    "plotly>=5.8.0",
+    "requests>=2.31.0",
+    "scikit-learn>=1.0.1",
+    "scipy>=1.7.3",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.13.2",
+    "UpSetPlot>=0.8.0"
+]
+
+[project.optional-dependencies]
+docs = [
+    "Sphinx>=7.3.7",
+    "numpydoc>=1.7.0",
+    "pydata-sphinx-theme>=0.15.2",
+    "myst-parser>=3.0.1"
+]
+
+[tool.setuptools.packages.find]
+include = ["autoprot"]
