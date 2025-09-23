@@ -1140,7 +1140,18 @@ def _label_scatter(
     ax: plt.Axes,
     x_colname: str,
     y_colname: str,
-    annotate: Union[pd.Index, str, None],
+    annotate: Union[
+        pd.Index,
+        Literal[
+            "highlight",
+            "p-value",
+            "log2FC",
+            "p-value and log2FC",
+            "p-value or log2FC",
+            "ratio_thresh",
+        ],
+        None,
+    ],
     highlight: Union[pd.Index, List[pd.Index], None],
     annotate_colname: str,
     annotate_density: float,
@@ -1200,14 +1211,13 @@ def _label_scatter(
         "p-value and log2FC",
         "p-value",
         "log2FC",
+        "ratio_thresh"
     ]:
         to_label = df[df["SigCat"] == annotate].index
     elif isinstance(annotate, str) and annotate == "p-value or log2FC":
         to_label = pd.Index.union(
             df[df["SigCat"] == "p-value"].index, df[df["SigCat"] == "log2FC"].index
         )
-    elif isinstance(annotate, str) and annotate == "ratio":
-        to_label = df[df["SigCat"] == "ratio"].index
     elif isinstance(annotate, pd.Index):
         to_label = annotate
     else:  # If annotation is not one of the allowed values, raise an error
@@ -1922,8 +1932,8 @@ def ivolcano(
 def _prep_ratio_data(
     df: pd.DataFrame,
     col_name1: str,
-    col_name2: str or None,
-    ratio_thresh: float or None,
+    col_name2: str | None,
+    ratio_thresh: float | None,
 ) -> tuple[pd.DataFrame, str, str, pd.Index, pd.Index]:
     """
     Prepare ratio data for analysis.
@@ -2341,7 +2351,7 @@ def ratio_vs_intens(
     df: pd.DataFrame,
     ratiocol: str,
     intenscol: str,
-    ratio_thresh: float or None,
+    ratio_thresh: float | None,
     xlabel: str = "Ratio",
     ylabel: str = "Intensity",
     pointsize_colname: Union[str, float] = None,
@@ -2354,7 +2364,7 @@ def ratio_vs_intens(
     ax: plt.Axes = None,
     ret_fig: bool = True,
     figsize: tuple[float, float] = (8, 8),
-    annotate: Union[pd.Index, Literal["highlight", "ratio"], None] = "ratio",
+    annotate: Union[pd.Index, Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
     annotate_colname: str = "Gene names",
     kwargs_ns: dict = None,
     kwargs_r_sig: dict = None,
@@ -2457,152 +2467,41 @@ def log_int_plot(
     ax: plt.Axes = None,
     ret_fig: bool = False,
     legend: bool = True,
+    **kwargs,
 ):
-    # noinspection PyUnresolvedReferences
     r"""
     Draw a log-foldchange vs log-intensity plot.
 
-    Parameters
-    ----------
-    ret_fig : bool
-        Whether to return the figrue object, optional.
-    ret_fig :  bool
-        Whether to return the figure object.
-    ax : plt.Axes
-        The axis to plot on, optional.
-    df : pd.DataFrame
-        Input dataframe.
-    log_fc : str
-        Colname containing log fold-changes.
-    log_intens_col : str
-        Colname containing the log intensities.
-    fct : float, optional
-        fold change threshold at which an entry is deemed significant regulated.
-        The default is None.
-    annot : str, optional
-        Which column to use for plot annotation. The default is False.
-    sig_col : str, optional
-        Colour for significant points. The default is "green".
-    bg_col : str, optional
-        Background colour. The default is "lightgray".
-    title : str, optional
-        Title for the plot.
-        The default is "Volcano Plot".
-    figsize : tuple of int, optional
-        Size of the figure. The default is (6,6).
-    legend: bool, optional
-        Whether to add a legend. Default is True.
-    Returns
-    -------
-    None.
-
-    Examples
-    --------
-    The log_fc Intensity plot requires the log fold changes as calculated e.g.
-    during t-test or LIMMA analysis and (log) intensities to separate points
-    on the y axis.
-
-    .. plot::
-        :context: close-figs
-
-        prot = pp.read_csv("../data/proteinGroups_minimal.zip")
-        prot = pp.cleaning(prot, "proteinGroups")
-        protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
-        prot = pp.log(prot, protRatio, base=2)
-        protInt = prot.filter(regex='Intensity').columns
-        prot = pp.log(prot, protInt, base=10)
-        twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
-                        'log2_Ratio H/M normalized BC18_3',
-                        'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
-                        'log2_Ratio M/L normalized BC36_2']
-        prot_limma = ana.limma(prot, twitchVsmild, cond="_TvM")
-        prot["log10_Intensity BC4_3"].replace(-np.inf, np.nan, inplace=True)
-
-        vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3", fct=0.7, figsize=(15,5))
-
-    Similar to the visualization using a volcano plot, points of interest can be
-    selected and labelled.
-
-    .. plot::
-        :context: close-figs
-
-        vis.log_int_plot(prot_limma, "logFC_TvM", "log10_Intensity BC4_3",
-                       fct=2, annot="Gene names")
+    Notes
+    -----
+    Deprecated, use ratio_vs_intens instead.
     """
-    # TODO: Copy features from volcano function (highlight etc)
-    # TODO also add option to not highlight anything
-    df = df.copy(deep=True)
-
-    df = df[~df[log_intens_col].isin([-np.inf, np.nan])]
-    df["SigCat"] = "-"
-    if fct is not None:
-        df.loc[abs(df[log_fc]) > fct, "SigCat"] = "*"
-    unsig = df[df["SigCat"] == "-"].index
-    sig = df[df["SigCat"] == "*"].index
-
-    # draw figure
-    if ax is None:
-        fig, ax = plt.subplots(figsize=figsize)
-    else:
-        fig = ax.get_figure()
-
-    ax.scatter(
-        df[log_fc].loc[unsig],
-        df[log_intens_col].loc[unsig],
-        color=bg_col,
-        alpha=0.75,
-        s=5,
-        label="background",
-    )
-    ax.scatter(
-        df[log_fc].loc[sig], df[log_intens_col].loc[sig], color=sig_col, label="POI"
+    warnings.warn(
+        "[log_int_plot] This function is deprecated, please use ratio_vs_intens instead.",
+        DeprecationWarning,
     )
 
-    # draw threshold lines
-    if fct:
-        ax.axvline(fct, 0, 1, ls="dashed", color="lightgray")
-        ax.axvline(-fct, 0, 1, ls="dashed", color="lightgray")
-    ax.axvline(0, 0, 1, ls="dashed", color="gray")
+    print("[log_int_plot] This function is deprecated, please use ratio_vs_intens instead.")
 
-    # remove of top and right plot boundary
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    # setting x and y labels and title
-    ax.set_ylabel("log Intensity")
-    ax.set_xlabel("log_fc")
-    ax.set_title(title, size=18)
-
-    if legend:
-        # add legend
-        ax.legend()
-
-    if annot:
-        # Annotation
-        # get x and y coordinates as well as strings to plot
-        xs = df[log_fc].loc[sig]
-        ys = df[log_intens_col].loc[sig]
-        ss = df[annot].loc[sig]
-
-        # annotation
-        for idx, (x, y, s) in enumerate(zip(xs, ys, ss)):
-            if idx % 2 == 0:
-                if x < 0:
-                    ax.plot([x, x - 0.2], [y, y - 0.2], color="gray")
-                    ax.text(x - 0.3, y - 0.25, s)
-                else:
-                    ax.plot([x, x + 0.2], [y, y - 0.2], color="gray")
-                    ax.text(x + 0.2, y - 0.2, s)
-
-            elif x < 0:
-                ax.plot([x, x - 0.2], [y, y + 0.2], color="gray")
-                ax.text(x - 0.3, y + 0.25, s)
-            else:
-                ax.plot([x, x + 0.2], [y, y + 0.2], color="gray")
-                ax.text(x + 0.2, y + 0.2, s)
-
-    if ret_fig:
-        return fig
-    return None
+    return ratio_vs_intens(
+        df=df,
+        ratiocol=log_fc,
+        intenscol=log_intens_col,
+        ratio_thresh=fct,
+        pointsize_colname=None,
+        pointsize_scaler=1,
+        highlight=None,
+        title=title,
+        show_legend=legend,
+        show_caption=False,
+        show_thresh=True,
+        ax=ax,
+        ret_fig=ret_fig,
+        figsize=figsize,
+        kwargs_ns={"color": bg_col},
+        kwargs_r_sig={"color": sig_col},
+        **kwargs,
+    )
 
 
 def ilog_int_plot(df, log_fc, log_intens_col, fct=None, annot=False, ret_fig=False):
