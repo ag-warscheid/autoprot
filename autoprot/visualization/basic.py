@@ -655,6 +655,7 @@ def intensity_rank(
     highlight: Union[list[pd.Index], pd.Index, None] = None,
     kwargs_highlight: Union[list[dict], dict, None] = None,
     ascending: bool = True,
+    annotate_density: int = 100,
     **kwargs,
 ) -> None:
     # noinspection PyUnresolvedReferences
@@ -689,11 +690,12 @@ def intensity_rank(
         The default is None.
     ax : matplotlib.axis
         Axis to plot on
-    highlight : pd.Index, optional
+    highlight : pd.Index or list of pd.Index, optional
         Index of the data to highlight.
         The default is None.
-    kwargs_highlight: dict, optional
+    kwargs_highlight: dict or list of dict, optional
         Keyword arguments to be passed to the highlight plot.
+        If list, must be the same length as highlight.
     ascending : bool, optional
         Whether to sort the data in ascending order.
     **kwargs :
@@ -782,7 +784,7 @@ def intensity_rank(
             annotate=None if annotate_colname is None else annotate,
             highlight=highlight,
             annotate_colname=annotate_colname,  # will just return if annotate_colname is None
-            annotate_density=100,
+            annotate_density=annotate_density,
         )
 
     plt.title(title)
