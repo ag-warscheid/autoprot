@@ -652,7 +652,7 @@ class KSEA:
         ret_fig: bool = False,
         title: str = "",
         figsize: tuple[int, int] = (5, 10),
-        ax: plt.axis = None,
+        ax: plt.Axes = None,
     ) -> Union[None, plt.Figure]:
         """
         Plot the KSEA results.

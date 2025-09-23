@@ -1236,7 +1236,7 @@ def _plot_highlights_scatter(
     highlight: Union[pd.Index, list[pd.Index], None],
     kwargs_highlight: Union[dict, list[dict], None],
     df: pd.DataFrame,
-    ax: plt.axis,
+    ax: plt.Axes,
     x_colname: str,
     y_colname: str,
     pointsize_colname: Union[str, None],
@@ -1397,7 +1397,7 @@ def volcano(
     show_legend: bool = True,
     show_caption: bool = True,
     show_thresh: bool = True,
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     ret_fig: bool = True,
     figsize: tuple[float, float] = (8, 8),
     annotate: Union[
@@ -2040,7 +2040,7 @@ def ratio_plot(
     show_legend: bool = True,
     show_caption: bool = True,
     show_thresh: bool = True,
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     ret_fig: bool = True,
     figsize: tuple[float, float] = (8, 8),
     annotate: Union[
@@ -2085,7 +2085,7 @@ def ratio_plot(
         Whether to show the caption. The default is True.
     show_thresh: bool, optional
         Whether to show the threshold lines. The default is True.
-    ax: plt.axis, optional
+    ax: plt.Axes, optional
         The axis to plot on. The default is None.
     ret_fig: bool, optional
         Whether to return the figure. The default is True.
@@ -2351,7 +2351,7 @@ def ratio_vs_intens(
     show_legend: bool = True,
     show_caption: bool = True,
     show_thresh: bool = True,
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     ret_fig: bool = True,
     figsize: tuple[float, float] = (8, 8),
     annotate: Union[pd.Index, Literal["highlight", "ratio"], None] = "ratio",
@@ -2454,7 +2454,7 @@ def log_int_plot(
     bg_col="lightgray",
     title="LogFC Intensity Plot",
     figsize=(6, 6),
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     ret_fig: bool = False,
     legend: bool = True,
 ):
@@ -2708,7 +2708,7 @@ def ma_plot(
     y: str,
     fct: Union[float, int] = None,
     title: str = "MA Plot",
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     ret_fig: bool = False,
     figsize: tuple = (6, 6),
 ):
@@ -2964,7 +2964,7 @@ def plot_traces(
     xlabel: str = "",
     ylabel: str = "log_fc",
     title: str = "",
-    ax: plt.axis = None,
+    ax: plt.Axes = None,
     plot_summary: bool = False,
     plot_summary_only: bool = False,
     summary_color: str = "red",

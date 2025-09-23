@@ -253,19 +253,20 @@ class AutoPCA:
         plt.xticks(range(1, len(eig_val) + 1))
         _set_labels("explained cumulative variance", "Explained variance")
 
-    def corr_comp(self, annot=False, ax: plt.axis = None) -> None:
+    def corr_comp(self, annot=False, ax: plt.Axes = None) -> None:
         """
         Plot heatmap of PCA weights vs. variables.
 
         Parameters
         ----------
+
         annot : bool, optional
             If True, write the data value in each cell.
             If an array-like with the same shape as data, then use this
             to annotate the heatmap instead of the data.
             Note that DataFrames will match on position, not index.
             The default is False.
-        ax: plt.axis, optional
+        ax: plt.Axes, optional
             axis to plot on. Default is None.
 
         Notes
@@ -290,7 +291,7 @@ class AutoPCA:
         ax.set_yticks(yp, self.vis_df["label"], rotation=0)
         ax.set_title("")
 
-    def bar_load(self, pc: int = 1, n: int = 25, ax: plt.axis = None) -> None:
+    def bar_load(self, pc: int = 1, n: int = 25, ax: plt.Axes = None) -> None:
         """
         Plot the loadings of a given component in a barplot.
 
@@ -439,7 +440,7 @@ class AutoPCA:
         pc1: int = 1,
         pc2: int = 2,
         labeling: bool = False,
-        ax: plt.axis = None,
+        ax: plt.Axes = None,
         figsize: tuple[int] = (5, 5),
     ):
         """
@@ -457,7 +458,7 @@ class AutoPCA:
         figsize : tuple of int, optional
             The size of the figure object. Will be ignored if ax is not None.
             The default is (5,5).
-        ax: plt.axis, optional.
+        ax: plt.Axes, optional.
             The axis to plot on. Default is None.
 
         Notes
