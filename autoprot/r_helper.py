@@ -11,7 +11,8 @@ config_dir = {}
 def generate_paths_for_r(df, cols, write_csv=True, return_hash=False, tool=""):
     # Get a deterministic byte representation of the DataFrame
     hash_bytes = pd.util.hash_pandas_object(
-        df.select_dtypes(exclude="object"), index=True
+        df.select_dtypes(exclude="object"),
+        index=True,
         # we exclude object columns (e.g. lists since they cannot be hashed directly)
     ).values.tobytes()
 
@@ -41,11 +42,11 @@ def generate_paths_for_r(df, cols, write_csv=True, return_hash=False, tool=""):
 
 
 def merge_data_from_r(
-        r_df: pd.DataFrame,
-        orig_df: pd.DataFrame,
-        suffix: str,
-        locs_to_remove: list[str] | str | None = None,
-        return_cols: bool = False,
+    r_df: pd.DataFrame,
+    orig_df: pd.DataFrame,
+    suffix: str,
+    locs_to_remove: list[str] | str | None = None,
+    return_cols: bool = False,
 ):
     """ "
     Read output data from R and merge it with the original DataFrame.

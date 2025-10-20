@@ -1211,7 +1211,7 @@ def _label_scatter(
         "p-value and log2FC",
         "p-value",
         "log2FC",
-        "ratio_thresh"
+        "ratio_thresh",
     ]:
         to_label = df[df["SigCat"] == annotate].index
     elif isinstance(annotate, str) and annotate == "p-value or log2FC":
@@ -2364,7 +2364,9 @@ def ratio_vs_intens(
     ax: plt.Axes = None,
     ret_fig: bool = True,
     figsize: tuple[float, float] = (8, 8),
-    annotate: Union[pd.Index, Literal["highlight", "ratio_thresh"], None] = "ratio_thresh",
+    annotate: Union[
+        pd.Index, Literal["highlight", "ratio_thresh"], None
+    ] = "ratio_thresh",
     annotate_colname: str = "Gene names",
     kwargs_ns: dict = None,
     kwargs_r_sig: dict = None,
@@ -2481,7 +2483,9 @@ def log_int_plot(
         DeprecationWarning,
     )
 
-    print("[log_int_plot] This function is deprecated, please use ratio_vs_intens instead.")
+    print(
+        "[log_int_plot] This function is deprecated, please use ratio_vs_intens instead."
+    )
 
     return ratio_vs_intens(
         df=df,
