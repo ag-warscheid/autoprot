@@ -48,3 +48,30 @@ testing = [
 
 [tool.setuptools.packages.find]
 include = ["autoprot"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+autoprot = { path = ".", editable = true }
+
+[tool.pixi.dependencies]
+pixi-pycharm = ">=0.0.9,<0.0.10"
+r-base = ">=4.4.3,<4.5"
+r-tidyverse = ">=2.0.0,<3"
+r-tmvtnorm = ">=1.7,<2"
+bioconductor-limma = ">=3.28.10,<4"
+bioconductor-vsn = ">=3.74"
+bioconductor-rankprod = ">=3.32.0,<4"
+bioconductor-pcamethods = ">=1.98.0,<2"
+bioconductor-impute = ">=1.80.0,<2"
+bioconductor-summarizedexperiment = ">=1.36.0,<2"
+r-pak = ">=0.9.0,<0.10"
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+testing = { features = ["testing"], solve-group = "default" }
+
+[tool.pixi.tasks]
