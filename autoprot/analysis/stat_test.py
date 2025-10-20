@@ -90,7 +90,7 @@ def ttest(
                         'log2_Ratio H/L normalized BC36_1','log2_Ratio H/M normalized BC36_2',
                         'log2_Ratio M/L normalized BC36_2']
         prot = pd.read_csv("../data/proteinGroups_minimal.zip", sep='\\t', low_memory=False)
-        protRatio = prot.filter(regex="Ratio .\/. normalized").columns
+        protRatio = prot.filter(regex=r"Ratio .\/. normalized").columns
         protLog = pp.log(prot, protRatio, base=2)
         prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond="_TvM", return_fc=True, adjust_p_vals=True)
         prot_tt["pValue_TvM"].hist(bins=50)

@@ -764,7 +764,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     evidence_under = evidence_under[
         ~(
             evidence_under["Modified sequence"].str.contains(
-                "\_\(Acetyl \(Protein N\-term\)\)"
+                r"\_\(Acetyl \(Protein N\-term\)\)"
             )
             & evidence_under["Modified sequence"].str.contains("K")
         )
@@ -790,7 +790,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
         ) = ("",) * 7
 
         if str(126) in raw:
-            nterm = "\_\(TMT6plex\-Nterm126\)"
+            nterm = r"\_\(TMT6plex\-Nterm126\)"
             lysine = (
                 "TMT6plex-Lysine126"  # modifications have to be named after MQ mod.list
             )
@@ -808,7 +808,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                 if str(126) in entry
             ][0]
         if str(127) in raw:
-            nterm = "\_\(TMT6plex\-Nterm127\)"
+            nterm = r"\_\(TMT6plex\-Nterm127\)"
             lysine = "TMT6plex-Lysine127"
             h_over = "TMT6plex (H)127"
             sty_over = "TMT6plex (STY)127"
@@ -824,7 +824,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                 if str(127) in entry
             ][0]
         if str(128) in raw:
-            nterm = "\_\(TMT6plex\-Nterm128\)"
+            nterm = r"\_\(TMT6plex\-Nterm128\)"
             lysine = "TMT6plex-Lysine128"
             h_over = "TMT6plex (H)128"
             sty_over = "TMT6plex (STY)128"
@@ -840,7 +840,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                 if str(128) in entry
             ][0]
         if str(129) in raw:
-            nterm = "\_\(TMT6plex\-Nterm129\)"
+            nterm = r"\_\(TMT6plex\-Nterm129\)"
             lysine = "TMT6plex-Lysine129"
             h_over = "TMT6plex (H)129"
             sty_over = "TMT6plex (STY)129"
@@ -856,7 +856,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                 if str(129) in entry
             ][0]
         if str(130) in raw:
-            nterm = "\_\(TMT6plex\-Nterm130\)"
+            nterm = r"\_\(TMT6plex\-Nterm130\)"
             lysine = "TMT6plex-Lysine130"
             h_over = "TMT6plex (H)130"
             sty_over = "TMT6plex (STY)130"
@@ -872,7 +872,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
                 if str(130) in entry
             ][0]
         if str(131) in raw:
-            nterm = "\_\(TMT6plex\-Nterm131\)"
+            nterm = r"\_\(TMT6plex\-Nterm131\)"
             lysine = "TMT6plex-Lysine131"
             h_over = "TMT6plex (H)131"
             sty_over = "TMT6plex (STY)131"
@@ -893,7 +893,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
             & (
                 ~(
                     group["Modified sequence"].str.contains(
-                        "\_\(Acetyl \(Protein N\-term\)\)"
+                        r"\_\(Acetyl \(Protein N\-term\)\)"
                     )
                 )
                 & (group["Modified sequence"].str.contains(nterm))
@@ -901,12 +901,12 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
         ).sum()
 
         df_efficiency.loc[raw, ["partially labeled"]] = (
-            group["Modified sequence"].str.contains("\(TMT6plex").sum()
+            group["Modified sequence"].str.contains(r"\(TMT6plex").sum()
             - df_efficiency.loc[raw, ["fully labeled"]].values
         )
 
         df_efficiency.loc[raw, ["not labeled"]] = (
-            ~group["Modified sequence"].str.contains("\(TMT6plex")
+            ~group["Modified sequence"].str.contains(r"\(TMT6plex")
         ).sum()
 
         df_efficiency.loc[[under_experiment], "sum all labeled"] = (

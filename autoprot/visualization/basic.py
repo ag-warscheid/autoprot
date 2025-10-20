@@ -1515,7 +1515,7 @@ def volcano(
 
          prot = pp.read_csv("../data/proteinGroups_minimal.zip")
          prot = pp.cleaning(prot, "proteinGroups")
-         protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+         protRatio = prot.filter(regex=r"^Ratio .\/.( | normalized )B").columns
          prot = pp.log(prot, protRatio, base=2)
          twitchVsmild = ['log2_Ratio H/M normalized BC18_1','log2_Ratio M/L normalized BC18_2',
                          'log2_Ratio H/M normalized BC18_3',
@@ -2130,7 +2130,7 @@ def ratio_plot(
 
         prot = pp.read_csv("../data/proteinGroups_minimal.zip")
         prot = pp.cleaning(prot, "proteinGroups")
-        protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
+        protRatio = prot.filter(regex=r"^Ratio .\/.( | normalized )B").columns
         prot = pp.log(prot, protRatio, base=2)
         prot['Gene names 1st'] = prot['Gene names'].str.split(';').str[0]
 

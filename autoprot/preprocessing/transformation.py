@@ -82,8 +82,8 @@ def log(
     --------
     First collect colnames holding the intensity ratios.
 
-    >>> protRatio = prot.filter(regex="^Ratio .\/.( | normalized )B").columns
-    >>> phosRatio = phos.filter(regex="^Ratio .\/.( | normalized )R.___").columns
+    >>> protRatio = prot.filter(regex=r"^Ratio .\/.( | normalized )B").columns
+    >>> phosRatio = phos.filter(regex=r"^Ratio .\/.( | normalized )R.___").columns
 
     Some ratios need to be inverted as a result from label switches.
     This can be accomplished using the invert variable.
