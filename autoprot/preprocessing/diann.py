@@ -257,7 +257,6 @@ def silac_protein_group_from_diann(df):
 
     # Step 3: Combine results by merging on index
     start_time = time.time()
-    # TODO: Check if the sub-dfs are correctly aligned on Protein.Group
     combined = pd.concat(results, axis=1)
     print(f"Combined all runs. Runtime: {time.time() - start_time:.2f} sec.")
 
