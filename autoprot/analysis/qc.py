@@ -305,7 +305,14 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
     return fig, df_missed_cleavage_summary
 
 
-def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", groupby='Experiment', save=True, ax=None, title=None):
+def enrichment_specificity(
+    df_evidence,
+    mod_col="Phospho (STY)",
+    groupby="Experiment",
+    save=True,
+    ax=None,
+    title=None,
+):
     """
 
     Parameters
@@ -333,18 +340,22 @@ def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", groupby='Experi
     today = date.today().isoformat()
 
     if groupby not in df_evidence.columns.tolist():
-        if 'Raw file' in df_evidence.columns.tolist():
+        if "Raw file" in df_evidence.columns.tolist():
             print(
                 f"Warning: Column [{groupby}] either not unique or missing, column [Raw file] used"
             )
-            groupby = 'Raw file'
+            groupby = "Raw file"
         else:
-            raise KeyError("Columns [Experiment] and [Raw file] are missing. Is this a MaxQuant evidence table?")
+            raise KeyError(
+                "Columns [Experiment] and [Raw file] are missing. Is this a MaxQuant evidence table?"
+            )
 
     df_summary = pd.DataFrame()
 
     for name, group in df_evidence.groupby(groupby):
-        nonmod = round(((group[mod_col] == 0).astype(int).sum() / group.shape[0] * 100), 2)  # noqa
+        nonmod = round(
+            ((group[mod_col] == 0).astype(int).sum() / group.shape[0] * 100), 2
+        )  # noqa
         mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
 
         df_summary.loc[name, "Modified peptides [%]"] = mod
@@ -379,6 +390,7 @@ def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", groupby='Experi
         )
 
     return fig, df_summary
+
 
 def SILAC_labeling_efficiency(
     df_evidence: pd.DataFrame,
