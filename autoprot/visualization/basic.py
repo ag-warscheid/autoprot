@@ -1969,7 +1969,7 @@ def _prep_ratio_data(
         The indices of the rows where the ratio is above the threshold.
     """
     # Work with a copy of the dataframe
-    df = df.copy()
+    df: pd.DataFrame = df.copy()  # noqa
 
     # check that ratio_thresh is a number
     if not isinstance(ratio_thresh, (int, float, type(None))):
@@ -1999,20 +1999,13 @@ def _prep_ratio_data(
     df["SigCat"] = "not significant"  # default value
     if ratio_thresh is not None:
         if col_name2 is None:
-            # significantly up
-            df.loc[df[col_name1] > ratio_thresh, "SigCat"] = "ratio_thresh"
-            # significantly down
-            df.loc[df[col_name1] < ratio_thresh * -1, "SigCat"] = "ratio_thresh"
+            # significantly up or down
+            df.loc[df[col_name1].abs() > ratio_thresh, "SigCat"] = "ratio_thresh"
         else:
-            # significantly up
+            # significantly up or down in both
             df.loc[
-                (df[col_name1] > ratio_thresh) & (df[col_name2] > ratio_thresh),
-                "SigCat",
-            ] = "ratio_thresh"
-            # significantly down
-            df.loc[
-                (df[col_name1] < ratio_thresh * -1)
-                & (df[col_name2] < ratio_thresh * -1),
+                (df[col_name1].abs() > ratio_thresh)
+                & (df[col_name2].abs() > ratio_thresh),
                 "SigCat",
             ] = "ratio_thresh"
 
@@ -2023,7 +2016,7 @@ def _prep_ratio_data(
 
 
 def _ratio_plot_style_axes(
-    ax: plt.Axes, ratio_thresh_x: float or None, ratio_thresh_y: float or None
+    ax: plt.Axes, ratio_thresh_x: float | None, ratio_thresh_y: float | None
 ):
     if ratio_thresh_x is not None:
         ax.axvline(x=ratio_thresh_x, color="grey", linestyle="--", alpha=0.8)
