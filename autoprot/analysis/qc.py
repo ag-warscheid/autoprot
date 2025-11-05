@@ -305,9 +305,8 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
     return fig, df_missed_cleavage_summary
 
 
-def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", save=True):
+def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", groupby='Experiment', save=True, ax=None, title=None):
     """
-    Calculate the enrichment specificity for a given type of modification.
 
     Parameters
     ----------
@@ -315,63 +314,59 @@ def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", save=True):
     mod_col : str,
           Give type of enrichment for analysis. The default is 'Phospho (STY)'.
           ('Met--> Phosphonate', 'Cys--> Phosphonate', 'Met --> Biotin')
+    groupby : str,
+        Column name to group the data by. The default is 'Experiment'.
     save : bool,
         While True table and fig will be saved in active filepath.
+    ax: matplotlib axis, optional
+        If provided, the plot will be drawn on the given axis.
+    title: str, optional
+        Title for the plot. If None, a default title will be used.
 
     Returns
     -------
-    None.
+    plt.Figure, pd.DataFrame
+        Fig and table for enrichment specificity analysis
 
     """
-    # set plot style
-    plt.style.use("seaborn-v0_8-whitegrid")
-
     # set parameters
     today = date.today().isoformat()
 
-    if "Experiment" in df_evidence.columns.tolist():
-        experiments = list((df_evidence["Experiment"].unique()))
-    else:
-        experiments = list((df_evidence["Raw file"].unique()))
-        print(
-            "Warning: Column [Experiment] is not present in the dataframe. Using [Raw file] instead."
-        )
+    if groupby not in df_evidence.columns.tolist():
+        if 'Raw file' in df_evidence.columns.tolist():
+            print(
+                f"Warning: Column [{groupby}] either not unique or missing, column [Raw file] used"
+            )
+            groupby = 'Raw file'
+        else:
+            raise KeyError("Columns [Experiment] and [Raw file] are missing. Is this a MaxQuant evidence table?")
 
-    rawfiles = list(set((df_evidence["Raw file"])))
-    if len(experiments) != len(rawfiles):
-        raise Exception("The number of experiments and rawfiles do not match.")
-
-    df = pd.DataFrame()
     df_summary = pd.DataFrame()
 
-    try:
-        for name, group in df_evidence.groupby("Experiment"):
-            value_counts = group[mod_col].value_counts(
-                normalize=True
-            )  # count the percentage of modified peptides
-            nonmod_perc: pd.Series = round(value_counts[0], 2)
-            mod_perc: pd.Series = round(value_counts[value_counts > 0].sum(), 2)
+    for name, group in df_evidence.groupby(groupby):
+        nonmod = round(((group[mod_col] == 0).astype(int).sum() / group.shape[0] * 100), 2)  # noqa
+        mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
 
-            df.loc[name, "Modified peptides [%]"] = mod_perc
-            df.loc[name, "Non-modified peptides [%]"] = nonmod_perc
-    except KeyError:
-        raise TypeError(
-            "Invalid type specified. Name must match the MaxQuant experiment name."
-        )
-
-    df_summary = pd.concat([df_summary, df], axis=0)
+        df_summary.loc[name, "Modified peptides [%]"] = mod
+        df_summary.loc[name, "Non-modified peptides [%]"] = nonmod
 
     # make barchart
-    fig, ax = plt.subplots()
-    fig.suptitle(
-        f"Enrichment specificity [%] for {mod_col}",
-        fontdict=None,
-        horizontalalignment="center",
-        size=14,
-    )
+    if ax is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
+
+    if title is None:
+        fig.suptitle(
+            f"Enrichment specificity [%] for {mod_col}",
+            fontdict=None,
+            horizontalalignment="center",
+            size=14,
+        )
+    else:
+        fig.suptitle(title)
 
     df_summary.plot(kind="bar", stacked=True, ax=ax)
-
     ax.set_ylabel("peptides [%]")
     ax.legend(bbox_to_anchor=(1.5, 1), loc="upper right", borderaxespad=0.0)
 
@@ -383,6 +378,7 @@ def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", save=True):
             f"{today}_enrichmentSpecificity_result-table.csv", sep="\t", index=False
         )
 
+    return fig, df_summary
 
 def SILAC_labeling_efficiency(
     df_evidence: pd.DataFrame,
