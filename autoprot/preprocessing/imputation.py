@@ -94,10 +94,10 @@ def imp_min_prob(
     except TypeError:
         cols_to_impute = [cols_to_impute]
 
-    # idxs of rows imputation will be excluded
+    # idxs of rows in which imputation will be excluded
     if min_missing is not None:
         s_nan = df[cols_to_impute].isnull().sum(axis=1)
-        s_nan = s_nan[s_nan <= min_missing]
+        s_nan = s_nan[s_nan < min_missing]
         filter_idx = s_nan.index
     else:
         filter_idx = pd.Index([])
