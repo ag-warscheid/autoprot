@@ -146,10 +146,10 @@ def imp_median(
         Columns to impute. Should correspond to a single condition (i.e. control).
     min_missing : int, optional
         How many missing values have to be missing across all columns to perform imputation.
-        If None all values have to be missing. The default is None.
+        If None one value has to be missing. The default is None.
     max_missing : int, optional
         How many missing values are allowed across all columns to perform imputation.
-        If None no limit is set. The default is None.
+        If None the number of columns minus one is used (i.e. one value has to be present). The default is None.
     return_cols : bool, optional
         Whether to return the columns that were imputed. The default is False.
 
@@ -169,8 +169,8 @@ def imp_median(
     except TypeError:
         cols_to_impute = [cols_to_impute]
 
-    min_missing = min_missing if min_missing is not None else 0
-    max_missing = max_missing if max_missing is not None else len(cols_to_impute)
+    min_missing = min_missing if min_missing is not None else 1
+    max_missing = max_missing if max_missing is not None else len(cols_to_impute) - 1
 
     # idxs of rows for imputation
     filter_idx = df[
