@@ -207,7 +207,7 @@ def miss_analysis(
         return True
 
 
-def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
+def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=None):
     """
     Parameters
     ----------
@@ -216,10 +216,15 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
         Give any chosen Protease from MQ. The default is "Trypsin/P".
     save : bool,
         While True table and fig will be saved in active filepath.
+    ax: matplotlib axis, optional
+        If provided, the plot will be drawn on the given axis.
+    title: str, optional
+        Title for the plot. If None, a default title will be used.
 
     Returns
     -------
-    None.
+    plt.Figure, pd.DataFrame
+        Fig and table for missed cleavage analysis
     """
     # set plot style
     plt.style.use("seaborn-v0_8-whitegrid")
@@ -269,14 +274,21 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
 
     # making the barchart figure missed cleavage
     x_ax = len(experiments) + 1
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
-    fig.suptitle(
-        "% Missed cleavage per run",
-        fontdict=None,
-        horizontalalignment="center",
-        size=14,
-        # ,fontweight="bold"
-    )
+    if ax is None:
+        fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
+    else:
+        fig = ax.get_figure()
+        ax1 = ax
+
+    if title is None:
+        fig.suptitle(
+            "% Missed cleavage per run",
+            fontdict=None,
+            horizontalalignment="center",
+            size=14,
+        )
+    else:
+        fig.suptitle(title)
     df_missed_cleavage_summary.T.plot(kind="bar", stacked=True, ax=ax1)
     ax1.set_xlabel("Experiment assinged in MaxQuant", size=12)
     ax1.set_ylabel("Missed cleavage [%]", size=12)
@@ -290,7 +302,7 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True):
             f"{today}_Missed-cleavage_result-table.csv", sep="\t", index=False
         )
 
-    print(df_missed_cleavage_summary)
+    return fig, df_missed_cleavage_summary
 
 
 def enrichment_specificity(df_evidence, mod_col="Phospho (STY)", save=True):
