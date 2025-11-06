@@ -1,7 +1,7 @@
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
-
+from itertools import combinations
 import numpy as np
 import pandas as pd
 
@@ -35,6 +35,8 @@ def silac_protein_group_from_diann(df):
         if missing:
             raise KeyError(f"Missing columns : {missing}")
 
+        print(f"Pivoting DataFrame of shape {df.shape} with channels {df['Channel'].unique()}")
+
         pivot_df = df.pivot_table(
             index=["Run", "Precursor.Id", "Protein.Group", "Stripped.Sequence"],
             columns="Channel",
@@ -46,15 +48,18 @@ def silac_protein_group_from_diann(df):
             ],
             aggfunc="first",
         )
-        pivot_df.columns = [f"{a}_{b}" for a, b in pivot_df.columns]
+        pivot_df.columns = [f"{a}_{b}" for a, b in pivot_df.columns]  # flatten multiindex; adds channel suffixes
         pivot_df = pivot_df.reset_index()
 
-        pivot_df["H_L_Ms1"] = (
-            pivot_df["Ms1.Normalised_H"] / pivot_df["Ms1.Normalised_L"]
-        )
-        pivot_df["H_L_Precursor"] = (
-            pivot_df["Precursor.Quantity_H"] / pivot_df["Precursor.Quantity_L"]
-        )
+        # calculate ratios between all combinations of channels
+        for combination in combinations(df['Channel'].unique(), 2):
+            ch1, ch2 = combination
+            pivot_df[f"H_L_Ms1_{ch1}_vs_{ch2}"] = (
+                pivot_df[f"Ms1.Normalised_{ch1}"] / pivot_df[f"Ms1.Normalised_{ch2}"]
+            )
+            pivot_df[f"H_L_Precursor_{ch1}_vs_{ch2}"] = (
+                pivot_df[f"Precursor.Quantity_{ch1}"] / pivot_df[f"Precursor.Quantity_{ch2}"]
+            )
 
         pivot_df.replace([0, np.inf, -np.inf], np.nan, inplace=True)
         return pivot_df
