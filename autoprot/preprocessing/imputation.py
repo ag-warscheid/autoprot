@@ -156,7 +156,13 @@ def imp_median(
     min_missing: int = None,
     max_missing: int = None,
     return_cols: bool = False,
-) -> Union[pd.DataFrame, tuple[pd.DataFrame, list[str]]]:
+    gen_isimp_cols: bool = False,
+    return_isimp_cols: bool = False,
+) -> (
+    Union[pd.DataFrame, tuple[pd.DataFrame, list[str], list[str]]]
+    | Union[pd.DataFrame, tuple[pd.DataFrame, list[str]]]
+    | pd.DataFrame
+):
     """
     Perform an imputation by replacing missing values with the median of the row.
 
@@ -174,6 +180,10 @@ def imp_median(
         If None the number of columns minus one is used (i.e. one value has to be present). The default is None.
     return_cols : bool, optional
         Whether to return the columns that were imputed. The default is False.
+    gen_isimp_cols : bool, optional
+        Whether to generate columns indicating which values were imputed. The default is False.
+    return_isimp_cols : bool, optional
+        Whether to return the columns indicating which values were imputed. The default is False.
 
     Returns
     -------
@@ -181,15 +191,21 @@ def imp_median(
         The dataframe with imputed values.
     list of str
         Columns that were imputed.
+    list of str
+        Columns indicating which values were imputed.
 
     """
-    df = df.copy(deep=True)
+    if return_isimp_cols and not gen_isimp_cols:
+        raise ValueError(
+            "You set return_isimp_cols to True but gen_isimp_cols is False. Cannot return columns that were not "
+            "generated."
+        )
 
     # test if cols_to_impute is iterable
     try:
         iter(cols_to_impute)
     except TypeError:
-        cols_to_impute = [cols_to_impute]
+        cols_to_impute: list[str] = [cols_to_impute]
 
     min_missing = min_missing if min_missing is not None else 1
     max_missing = max_missing if max_missing is not None else len(cols_to_impute) - 1
@@ -203,28 +219,49 @@ def imp_median(
 
     imputed_rows = []
     imputed_cols = [x + "_median_imputed" for x in cols_to_impute]
+    isimp_cols = [x + "_is_imputed" for x in cols_to_impute]
+    isimp_rows = []
     print(f"Imputing {len(filter_idx)} rows out of {len(df)}")
     for row in df.loc[filter_idx, cols_to_impute].itertuples(index=False):
         row_median = np.nanmedian(row)
         # fill the NaN values with the median of the row
         row = pd.Series(np.nan_to_num(row, nan=row_median), index=imputed_cols)
         imputed_rows.append(row)
+        if gen_isimp_cols:
+            isimp_row = pd.Series(np.isnan(row), index=imputed_cols)
+            isimp_rows.append(isimp_row)
 
     # create a new DataFrame with the imputed rows
     imputed_df = pd.DataFrame(imputed_rows, columns=imputed_cols, index=filter_idx)
     # join the imputed DataFrame with the original DataFrame
     df = df.join(imputed_df)
+    # create a new DataFrame with the is_imputed rows
+    if gen_isimp_cols:
+        isimp_df = pd.DataFrame(isimp_rows, columns=isimp_cols, index=filter_idx)
+        # join the is_imputed DataFrame with the original DataFrame
+        df = df.join(isimp_df)
 
     # set the rows which were not imputed to the original values
+    # the loop above only created the imputed rows
     untouched_rows = ~df.index.isin(filter_idx)
     # Create a temporary DataFrame with imputed values
     tmp = df.loc[untouched_rows, cols_to_impute].copy()
     tmp.columns = imputed_cols  # Rename if necessary
     # Update only the selected columns in the original df
     df.update(tmp)
+    if gen_isimp_cols:
+        # fill the unset values in the is_imputed cols with False
+        for col in isimp_cols:
+            df[col].fillna(False, inplace=True)
 
-    # return the imputed df and the imputed cols if requested)
-    return (df, imputed_cols) if return_cols else df
+    if return_isimp_cols and return_cols:
+        return df, imputed_cols, isimp_cols
+    elif return_isimp_cols:
+        return df, isimp_cols
+    elif gen_isimp_cols:
+        return df, imputed_cols
+    else:
+        return df
 
 
 def imp_seq(
