@@ -28,11 +28,13 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 def imp_min_prob(
     df: pd.DataFrame,
-    cols_to_impute: Union[list[str], pd.Index],
+    cols_to_impute: Union[list[str], str],
     min_missing: int = None,
     downshift: Union[int, float] = 1.8,
     width: Union[int, float] = 0.3,
     return_cols: bool = False,
+    gen_isimp_cols: bool = False,
+    return_isimp_cols: bool = False,
 ):
     r"""
     Perform an imputation by modeling a distribution on the far left site of the actual distribution.
@@ -47,7 +49,7 @@ def imp_min_prob(
     ----------
     df : pd.dataframe
         Dataframe on which imputation is performed.
-    cols_to_impute : list
+    cols_to_impute : list or str
         Columns to impute. Should correspond to a single condition (i.e. control).
     min_missing : int, optional
         How many missing values have to be missing across all columns to perfom imputation
@@ -58,6 +60,10 @@ def imp_min_prob(
         How to scale the Std of the new distribution with respect to the original. The default is .3.
     return_cols : bool, optional
         Whether to return the columns that were imputed. The default is False.
+    gen_isimp_cols : bool, optional
+        Whether to generate columns indicating which values were imputed. The default is False.
+    return_isimp_cols : bool, optional
+        Whether to return the columns indicating which values were imputed. The default is False.
 
     Returns
     -------
@@ -86,13 +92,17 @@ def imp_min_prob(
         plt.legend()
         plt.show()
     """
-    df = df.copy(deep=True)
+    if return_isimp_cols and not gen_isimp_cols:
+        raise ValueError(
+            "You set return_isimp_cols to True but gen_isimp_cols is False. Cannot return columns that were not "
+            "generated."
+        )
 
     # test if cols_to_impute is iterable
     try:
         iter(cols_to_impute)
     except TypeError:
-        cols_to_impute = [cols_to_impute]
+        cols_to_impute: list[str] = [cols_to_impute]
 
     # idxs of rows in which imputation will be excluded
     if min_missing is not None:
@@ -103,6 +113,7 @@ def imp_min_prob(
         filter_idx = pd.Index([])
 
     imputed_cols = []
+    isimp_cols = []
     for col in cols_to_impute:
         count_na = df[col].isna().sum()
         na_index = df[df[col].isna()].index
@@ -123,9 +134,20 @@ def imp_min_prob(
         col_new = col + "_min_imputed"
         df[col_new] = df[col].fillna(imputed_s)
         imputed_cols.append(col_new)
+        if gen_isimp_cols:
+            isimp_col = col + "_is_imputed"
+            isimp_cols.append(isimp_col)
+            df[isimp_col] = False
+            df.loc[na_index, isimp_col] = True
 
-    # return the imputed df and the imputed cols if requested
-    return (df, imputed_cols) if return_cols else df
+    if return_isimp_cols and return_cols:
+        return df, imputed_cols, isimp_cols
+    elif return_isimp_cols:
+        return df, isimp_cols
+    elif return_cols:
+        return df, imputed_cols
+    else:
+        return df
 
 
 def imp_median(
