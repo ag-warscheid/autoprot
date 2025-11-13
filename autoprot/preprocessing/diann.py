@@ -56,13 +56,14 @@ def silac_protein_group_from_diann(df):
         pivot_df = pivot_df.reset_index()
 
         # calculate ratios between all combinations of channels
-        for combination in combinations(df['Channel'].unique(), 2):
+        for combination in combinations(df["Channel"].unique(), 2):
             ch1, ch2 = combination
             pivot_df[f"H_L_Ms1_{ch1}_vs_{ch2}"] = (
                 pivot_df[f"Ms1.Normalised_{ch1}"] / pivot_df[f"Ms1.Normalised_{ch2}"]
             )
             pivot_df[f"H_L_Precursor_{ch1}_vs_{ch2}"] = (
-                pivot_df[f"Precursor.Quantity_{ch1}"] / pivot_df[f"Precursor.Quantity_{ch2}"]
+                pivot_df[f"Precursor.Quantity_{ch1}"]
+                / pivot_df[f"Precursor.Quantity_{ch2}"]
             )
         # calculate ratios between all combinations of channels
         for combination in combinations(df["Channel"].unique(), 2):
