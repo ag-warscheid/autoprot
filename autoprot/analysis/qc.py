@@ -355,7 +355,7 @@ def enrichment_specificity(
     for name, group in df_evidence.groupby(groupby):
         nonmod = round(
             ((group[mod_col] == 0).astype(int).sum() / group.shape[0] * 100), 2
-        )  # noqa
+        )
         mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
 
         df_summary.loc[name, "Modified peptides [%]"] = mod
@@ -394,220 +394,123 @@ def enrichment_specificity(
 
 def SILAC_labeling_efficiency(
     df_evidence: pd.DataFrame,
-    label: list[Literal["L", "M", "H"]] = None,
-    r_to_p_conversion: Literal["Pro6", "Pro10"] = None,
-):
+    label: Literal["L", "M", "H"] = None,
+    lys_ax: plt.Axes = None,
+    arg_ax: plt.Axes = None,
+    r_to_p_conversion: Literal["Pro5", "Pro6"] = None,
+    r_to_p_return: bool = True,
+    r_to_p_ax: plt.Axes = None,
+) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
     """
     Parameters
     ----------
     df_evidence : MaxQuant evidence table
-        DESCRIPTION. clean reverse and contaminant first autoprot.preprocessing.cleaning()
-    label : list, optional
-        The labels used in the experiment. The default is ["L", "M", "H"].
-    r_to_p_conversion : variable modifications ["Pro6", "Pro10"] set in MaxQuant.
+        clean reverse and contaminant first autoprot.preprocessing.cleaning()
+    label : str, optional
+        The label type used in the experiment ('L', 'M', 'H'). The default is None (will analyze 'H').
+    lys_ax : matplotlib axis, optional
+        If provided, the Lys labeling plot will be drawn on the given axis.
+    arg_ax : matplotlib axis, optional
+        If provided, the Arg labeling plot will be drawn on the given axis.
+    r_to_p_conversion : str, optional
+        variable modifications e.g. ["Pro5", "Pro6"] set in MaxQuant.
+        If provided, Arg to Pro conversion will be calculated. The default is None.
+    r_to_p_return : bool, optional
+        If True, the Arg to Pro conversion table will be returned. The default is True.
+    r_to_p_ax : matplotlib axis, optional
+        If provided, the Arg to Pro conversion plot will be drawn on the given axis.
+
+    Notes
+    -----
+    To generate the evidence table, search the files in MaxQuant specifying the labels as labels (i.e.
+    multiplicity > 1) and the Arg to Pro conversion as variable modification. There is no need to separate into
+    different analysis groups for this analysis.
 
     Returns
     -------
     Fig, table for SILAC label incorporation
     """
+    # work on a copy of the dataframe
+    df_evidence: pd.DataFrame = df_evidence.copy()  # noqa
 
     if label is None:
-        label = list("LMH")
+        label = "H"
 
-    if r_to_p_conversion is not None:
-        if r_to_p_conversion not in ["Pro6", "Pro10"]:
-            raise ValueError('r_to_p_conversion should be either "Pro6" or "Pro10"')
+    if not isinstance(r_to_p_conversion, str):
+        raise TypeError("r_to_p_conversion is not a string")
 
-    # convert to dict
-    label = {x: [] for x in label}
-
-    # set plot style
-    plt.style.use("seaborn-v0_8-whitegrid")
-    # set parameters
-    today = date.today().isoformat()
+    if r_to_p_return and r_to_p_conversion is None:
+        raise ValueError(
+            "r_to_p_return is True but r_to_p_conversion is None. Please provide a modification name."
+        )
 
     df_evidence.sort_values(["Raw file"], inplace=True)
-    experiments = list(df_evidence["Experiment"].unique())
-    runs = list(df_evidence["Raw file"].unique())
+    experiments = list(df_evidence["Experiment"].unique())  # type: ignore
+    runs = list(df_evidence["Raw file"].unique())  # type: ignore
 
     # mapping raw file names to experiments
-    dic_setup = {}
+    raw2exp = {}
     for key, val in zip(runs, experiments):
-        dic_setup[key] = val
+        raw2exp[key] = val
 
-    if r_to_p_conversion is not None:
-        # calculate Arg to Pro for each raw file in df_evidence
-        if r_to_p_conversion == "Pro6":
-            title = "% Arg6 to Pro6 conversion"
-        else:
-            title = "% Arg10 to Pro10 conversion"
+    # Extracted from old function labeling_efficiency
+    # Create column names for the intensity and ratio columns.
+    intensity_col = f"Intensity {label}"
+    ratio_col_name = f"Ratio Intensity {label}/total"
 
-        df_r_to_p_summary = []  # collect dataframes per raw file
-        df_evidence["P count"] = df_evidence["Sequence"].str.count("P")
-        for raw, df_group in df_evidence.groupby("Raw file"):
-            df_r_to_p = pd.DataFrame()
-            df_r_to_p.loc[raw, ["P count"]] = df_group.loc[
-                df_group[r_to_p_conversion] == 0, "P count"
-            ].sum()
-            df_r_to_p.loc[raw, [r_to_p_conversion]] = df_group.loc[
-                df_group[r_to_p_conversion, r_to_p_conversion] > 0
-            ].sum()
-            df_r_to_p_summary.append(df_r_to_p)
+    # Create empty DataFrames to store the results.
+    df_labeling_eff_k = pd.DataFrame()
+    df_labeling_eff_r = pd.DataFrame()
 
-        df_r_to_p_summary = pd.concat(
-            df_r_to_p_summary, axis=0
-        )  # concat all rawfiles dfs
+    # Remove NaN values from the intensity column.
+    df_evidence[intensity_col] = df_evidence[intensity_col].dropna()  # type: ignore
 
-        df_r_to_p_summary.index = experiments
-        df_r_to_p_summary.dropna(inplace=True)
-        df_r_to_p_summary["RtoP [%]"] = (
-            df_r_to_p_summary[r_to_p_conversion] / df_r_to_p_summary["P count"] * 100
-        )
-
-        # making the box plot Arg to Pro conversion
-        x_ax = len(experiments) + 1
-        fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
-        fig.suptitle(title, fontdict=None, horizontalalignment="center", size=14)
-        df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=ax1)
-        ax1.set_xlabel("rawfile number", size=12)
-        ax1.set_ylabel("Arg to Pro [%]", size=12)
-
-        plt.tight_layout()
-        plt.savefig("{0}_BoxPlot_RtoP_summary.png".format(today))
-
-        # save df Arg to Pro conversion as .csv
-        df_r_to_p_summary.to_csv(
-            "{}_RtoP_summary-table.csv".format(today), sep="\t", index=False
-        )
-
-    def labeling_efficiency(df_evidence, label):
-        """
-        This function calculates the labeling efficiency of SILAC labeled samples using a MaxQuant evidence table.
-
-        Parameters
-        ----------
-        df_evidence : pandas.DataFrame
-            A MaxQuant evidence table that has been cleaned of reverse and contaminant peptides.
-        label : str
-            The SILAC label type used in the experiment ('L', 'M', or 'H').
-
-        Returns
-        -------
-        pandas.DataFrame
-            A table that shows the SILAC label incorporation for each sample.
-
-        """
-        # Create column names for the intensity and ratio columns.
-        intensity_col = f"Intensity {label}"
-        ratio_col_name = f"Ratio Intensity {label}/total"
-
-        # Create empty DataFrames to store the results.
-        df_labeling_eff_k = pd.DataFrame()
-        df_labeling_eff_r = pd.DataFrame()
-
-        # Remove NaN values from the intensity column.
-        df_evidence[intensity_col] = df_evidence[intensity_col].dropna()
-
-        # Calculate the SILAC labeling ratio for each peptide.
-        df_evidence[ratio_col_name] = (
-            df_evidence[intensity_col] / df_evidence["Intensity"] * 100
-        )
-
-        # Iterate through each sample (i.e., raw file).
-        for raw, df_group in df_evidence.groupby("Raw file"):
-            # Calculate the SILAC labeling efficiency for Lysine.
-            k_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
-            s_k_binned = df_group[ratio_col_name][k_filter].value_counts(
-                bins=range(0, 101, 10), sort=False
-            )
-            k_count = k_filter.sum()
-            s_relative_k_binned = s_k_binned / k_count * 100
-            df_labeling_eff_k[raw] = s_relative_k_binned
-
-            # Calculate the SILAC labeling efficiency for Arginine.
-            r_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
-            s_r_binned = df_group[ratio_col_name][r_filter].value_counts(
-                bins=range(0, 101, 10), sort=False
-            )
-            r_count = r_filter.sum()
-            s_relative_r_binned = s_r_binned / r_count * 100
-            df_labeling_eff_r[raw] = s_relative_r_binned
-
-        # Rename the columns to match the experimental setup.
-        exp = []
-        for elem in df_labeling_eff_k.columns:
-            exp.append(dic_setup[elem])
-        df_labeling_eff_k.columns = exp
-        df_labeling_eff_r.columns = exp
-
-        # Combine the two DataFrames into one and return it.
-        df_labeling_eff = pd.concat(
-            [df_labeling_eff_k, df_labeling_eff_r],
-            keys=["Lys incorpororation", "Arg incorpororation"],
-            names=["Amino acid", "bins"],
-        )
-
-        return df_labeling_eff
-
-    # check for input in labeling and filter for rawfiles while given
-    df_labeling_eff_summary_list = []
-
-    if "L" in label:
-        if bool(label["L"]):
-            list_raw = []
-            for rawfile in label["L"]:
-                list_raw.append(rawfile)
-            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtered, "L")
-        else:
-            df_labeling_eff = labeling_efficiency(df_evidence, "L")
-
-        df_labeling_eff_summary_list.append(df_labeling_eff)
-
-    if "M" in label:
-        if bool(label["M"]):
-            list_raw = []
-            for rawfile in label["M"]:
-                list_raw.append(rawfile)
-            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtered, "M")
-        else:
-            df_labeling_eff = labeling_efficiency(df_evidence, "M")
-
-        df_labeling_eff_summary_list.append(df_labeling_eff)
-
-    if "H" in label:
-        if bool(label["H"]):
-            list_raw = []
-            for rawfile in label["H"]:
-                list_raw.append(rawfile)
-            df_filtered = df_evidence[df_evidence["Raw file"].isin(list_raw)]
-            df_labeling_eff = labeling_efficiency(df_filtered, "H")
-        else:
-            df_labeling_eff = labeling_efficiency(df_evidence, "H")
-
-        df_labeling_eff_summary_list.append(df_labeling_eff)
-
-    df_labeling_eff_summary = pd.concat(df_labeling_eff_summary_list, axis=1)
-
-    # store the results
-    df_labeling_eff_summary.to_csv(
-        "{0}_labeling_eff_summary.csv".format(today), sep="\t"
+    # Calculate the SILAC labeling ratio for each peptide.
+    df_evidence[ratio_col_name] = (
+        df_evidence[intensity_col] / df_evidence["Intensity"] * 100  # type: ignore
     )
 
-    # plot labeling efficiency overview
-    x_ax = len(experiments) + 1
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(x_ax * 2, 4))
-    fig.suptitle(
-        "SILAC Labeling efficiency {}".format(", ".join(label.keys())),
-        fontdict=None,
-        horizontalalignment="center",
-        size=14,
-    )
-    for i, (aa, df) in enumerate(df_labeling_eff_summary.groupby(level=0)):
-        df.plot(kind="bar", ax=ax[i], legend=False)
+    # Iterate through each sample (i.e., raw file).
+    for raw, df_group in df_evidence.groupby("Raw file"):
+        # Calculate the SILAC labeling efficiency for Lysine.
+        k_filter = (df_group["R Count"] == 0) & (df_group["K Count"] > 0)
+        only_k = df_group.loc[k_filter, ratio_col_name].dropna()
+        s_k_binned = only_k.value_counts(bins=range(0, 101, 10), sort=False)
+        k_count = only_k.shape[0]
+        s_relative_k_binned = s_k_binned / k_count * 100
+        df_labeling_eff_k[raw] = s_relative_k_binned
 
-        ax[i].set_xticklabels(
+        # Calculate the SILAC labeling efficiency for Arginine.
+        r_filter = (df_group["R Count"] > 0) & (df_group["K Count"] == 0)
+        only_r = df_group.loc[r_filter, ratio_col_name].dropna()
+        s_r_binned = only_r.value_counts(bins=range(0, 101, 10), sort=False)
+        r_count = only_r.shape[0]
+        s_relative_r_binned = s_r_binned / r_count * 100
+        df_labeling_eff_r[raw] = s_relative_r_binned
+
+    # Rename the columns to match the experimental setup.
+    exp = []
+    for elem in df_labeling_eff_k.columns:
+        exp.append(raw2exp[elem])
+    df_labeling_eff_k.columns = exp
+    df_labeling_eff_r.columns = exp
+
+    # Combine the two DataFrames into one and return it.
+    df_labeling_eff = pd.concat(
+        [df_labeling_eff_k, df_labeling_eff_r],
+        keys=["Lys incorporation", "Arg incorporation"],
+        names=["Amino acid", "bins"],
+    )
+
+    if lys_ax is None and arg_ax is None:
+        fig, (lys_ax, arg_ax) = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+    elif (lys_ax is None) or (arg_ax is None):
+        raise ValueError("Both lys_ax and arg_ax must be provided or neither.")
+
+    for ax, (aa, df) in zip((lys_ax, arg_ax), (df_labeling_eff.groupby(level=0))):
+        df.plot(kind="bar", ax=ax, legend=True)
+
+        ax.set_xticklabels(
             [
                 "0-10",
                 "11-20",
@@ -621,13 +524,57 @@ def SILAC_labeling_efficiency(
                 "91-100",
             ]
         )
-        ax[i].set_xlabel("bins", size=12)
-        ax[i].set_ylabel("{} {} [%]".format(", ".join(label.keys()), aa), size=12)
+        ax.set_xlabel(
+            "bins",
+        )
 
-    plt.tight_layout()
-    plt.savefig("{0}_BoxPlot_Lab-eff_overview.png".format(today))
+        # set minor yticks every 10 percent
+        ax.yaxis.set_minor_locator(plt.MultipleLocator(10))
+        # set major yticks every 20 percent
+        ax.yaxis.set_major_locator(plt.MultipleLocator(20))
+        # activate grid on all yticks
+        ax.grid(which="both", axis="y", linestyle="--", linewidth=0.5)
 
-    return df_labeling_eff_summary
+        ax.set_ylabel(f"{label} {aa} [%]")
+        ax.set_ylim(0, 100)
+        plt.tight_layout()
+
+    df_r_to_p_summary = None
+
+    if r_to_p_conversion is not None:
+        # calculate Arg to Pro for each raw file in df_evidence
+        # collect per-rawfile summaries in a list of dicts then build DataFrame
+        df_evidence["P count"] = df_evidence["Sequence"].str.count("P")  # type: ignore
+        rows = []
+        for raw, df_group in df_evidence.groupby("Raw file"):
+            p_count = df_group.loc[df_group[r_to_p_conversion] == 0, "P count"].sum()
+            r_count = df_group.loc[
+                df_group[r_to_p_conversion] > 0, r_to_p_conversion
+            ].sum()
+            # map raw file to experiment name if available
+            exp_name = raw2exp[raw]
+            rows.append(
+                {"Experiment": exp_name, "P count": p_count, r_to_p_conversion: r_count}
+            )
+
+        df_r_to_p_summary = pd.DataFrame(rows).set_index("Experiment")
+        df_r_to_p_summary.dropna(inplace=True)
+        df_r_to_p_summary["RtoP [%]"] = (
+            df_r_to_p_summary[r_to_p_conversion] / df_r_to_p_summary["P count"] * 100
+        )
+
+        # making the box plot Arg to Pro conversion
+        if r_to_p_ax is None:
+            fig, r_to_p_ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 4))
+
+        df_r_to_p_summary["RtoP [%]"].plot(kind="bar", ax=r_to_p_ax)
+        r_to_p_ax.set_ylabel(f"Arg to {r_to_p_conversion} [%]")
+        plt.tight_layout()
+
+    if r_to_p_return and r_to_p_conversion is not None:
+        return df_labeling_eff, df_r_to_p_summary
+
+    return df_labeling_eff
 
 
 def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
