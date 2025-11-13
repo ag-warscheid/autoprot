@@ -524,9 +524,6 @@ def SILAC_labeling_efficiency(
                 "91-100",
             ]
         )
-        ax.set_xlabel(
-            "bins",
-        )
 
         # set minor yticks every 10 percent
         ax.yaxis.set_minor_locator(plt.MultipleLocator(10))
@@ -535,7 +532,8 @@ def SILAC_labeling_efficiency(
         # activate grid on all yticks
         ax.grid(which="both", axis="y", linestyle="--", linewidth=0.5)
 
-        ax.set_ylabel(f"{label} {aa} [%]")
+        ax.set_xlabel(f"{label} {aa} [%]")
+        ax.set_ylabel("Share of peptides [%]")
         ax.set_ylim(0, 100)
         plt.tight_layout()
 
