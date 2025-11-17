@@ -1,14 +1,6 @@
-import subprocess
 from typing import Union
-
+from importlib import metadata
 import pandas as pd
-
-try:
-    # noinspection PyProtectedMember
-    from pip._internal.operations import freeze
-except ImportError:  # pip < 10.0
-    # noinspection PyUnresolvedReferences
-    from pip.operations import freeze
 
 
 def set_default_kwargs(keyword_dict: Union[dict, None], default_dict: dict):
@@ -33,11 +25,21 @@ def set_default_kwargs(keyword_dict: Union[dict, None], default_dict: dict):
 
 def generate_environment_txt():
     with open("environment.txt", "w") as env_:
-        subprocess.call(["pip", "list"], stdout=env_)
+        # write header with whitespace padding
+        env_.write(f"{'Package':<30} {'Version':<15}\n")
+        env_.write(f"{'-' * 30} {'-' * 15}\n")
+        # get installed distributions (and sort)
+        distributions = sorted(
+            metadata.distributions(), key=lambda d: d.metadata["Name"].lower()
+        )
+        for dist in distributions:
+            name = dist.metadata["Name"]
+            version = dist.version
+            env_.write(f"{name:<30} {version:<15}\n")
 
 
 def get_uniprot_accession(
-    df: pd.DataFrame, gene: str, organism: str
+        df: pd.DataFrame, gene: str, organism: str
 ) -> Union[str, None]:
     """
     Finds the matching UniProt ID in a dataset given a gene name and a corresponding organism.
@@ -60,7 +62,7 @@ def get_uniprot_accession(
     try:
         gene_in_gene = (df["GENE"].str.upper() == gene) & (df["ORGANISM"] == organism)
         gene_in_protein = (df["PROTEIN"].str.upper() == gene) & (
-            df["ORGANISM"] == organism
+                df["ORGANISM"] == organism
         )
 
         uniprot_acc = df.loc[(gene_in_gene | gene_in_protein), "ACC_ID"].iloc[0]
@@ -72,7 +74,7 @@ def get_uniprot_accession(
 
 
 def get_uniprot_sequence_locally(
-    uniprot_acc: str, organism: str, uniprot: pd.DataFrame
+        uniprot_acc: str, organism: str, uniprot: pd.DataFrame
 ) -> str:
     """
     Get sequence from a locally stored uniprot file by UniProt ID.
@@ -98,7 +100,7 @@ def get_uniprot_sequence_locally(
 
     sequence = uniprot["Sequence"][
         (uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)
-    ]
+        ]
     try:
         sequence = sequence.values.tolist()[0]
     except IndexError:
