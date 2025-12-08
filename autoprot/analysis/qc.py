@@ -699,20 +699,42 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
     return df_labeling_eff
 
 
-def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_over):
+def tmt6plex_labeling_efficiency(
+    evidence_under,
+    evidence_sty_over=None,
+    evidence_h_over=None,
+    ax_peps_all=None,
+    ax_peps_not=None,
+    ax_over=None,
+):
     """
     Calculate TMT6plex labeling efficiency from 3 dedicated MaxQuant searches as described in Zecha et al. 2019.
     TMT6plex channels should be named in MQ experiments.
-    @author: Johannes Zimmermann
 
     Parameters
     ----------
-    evidence_under : evidence.txt as pd.DataFrame from under-labeling search,
-                     label-free search with TMT as variable modification on peptide n-term and lysine
-    evidence_sty_over : evidence.txt as pd.DataFrame from over-labeling search,
-                       MS2-TMT experiment with TMT as variable modification on serine, threonine, tyrosine
-    evidence_h_over : evidence.txt as pd.DataFrame from over-labeling search,
-                     MS2-TMT experiment with TMT as variable modification on histidine
+    evidence_under : pd.DataFrame
+        evidence.txt as pd.DataFrame from under-labeling search, label-free search with TMT as variable modification
+        on peptide n-term and lysine
+    evidence_sty_over : pd.DataFrame (optional)
+        evidence.txt as pd.DataFrame from over-labeling search, MS2-TMT experiment with TMT as variable modification
+        on serine, threonine, tyrosine
+    evidence_h_over : pd.Dataframe (optional)
+        evidence.txt as pd.DataFrame from over-labeling search, MS2-TMT experiment with TMT as variable modification
+         on histidine
+    ax_peps_all : matplotlib axis
+        If provided, the Peptide labeling plot (all) will be drawn on the given axis
+    ax_peps_not : matplotlib axis
+        If provided, the Peptide labeling plot (not labeled) will be drawn on the given
+        axis
+    ax_over : matplotlib axis
+        If provided, the Over-labeling plot will be drawn on the given axis
+
+    Notes
+    -----
+    Each of the three searches has to be performed with experiment names containing the TMT6plex channel
+    number (126-131), e.g. a search for three samples labeled with TMT6plex channels 126, 127, 128 could have the
+    experiment names "Sample1_126", "Sample2_127", "Sample3_128" in MaxQuant.
 
     Returns
     -------
@@ -722,185 +744,126 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
 
     """
 
-    # initiate DataFrame for results
-    df_efficiency = pd.DataFrame()
-
     # delete N-terminal acetylated arginines without lysine (can't be modified)
-    evidence_under = evidence_under[
-        ~(
-            evidence_under["Modified sequence"].str.contains(
-                r"\_\(Acetyl \(Protein N\-term\)\)"
-            )
-            & evidence_under["Modified sequence"].str.contains("K")
+    is_acetylated = evidence_under["Modified sequence"].str.contains(
+        r"_\(Acetyl \(Protein N-term\)\)"
+    )
+    has_lysine = evidence_under["Modified sequence"].str.contains("K")
+    evidence_under = evidence_under[~(is_acetylated & has_lysine)].copy()
+
+    # if one over-labelling df is given, both must be given
+    if ((evidence_sty_over is not None) and (evidence_h_over is None)) or (
+        (evidence_sty_over is None) and (evidence_h_over is not None)
+    ):
+        raise Exception(
+            "If one of the overlabelling dataframes is given, both must be given."
         )
-    ]
 
-    # cal
+    # count residues for later calculations
     evidence_under["K count"] = evidence_under["Sequence"].str.count("K")
-    evidence_sty_over["S count"] = evidence_sty_over["Sequence"].str.count("S")
-    evidence_sty_over["T count"] = evidence_sty_over["Sequence"].str.count("T")
-    evidence_sty_over["Y count"] = evidence_sty_over["Sequence"].str.count("Y")
+    if evidence_sty_over is not None:  # use evidence_sty as proxy for evidence_h
+        evidence_sty_over["S count"] = evidence_sty_over["Sequence"].str.count("S")
+        evidence_sty_over["T count"] = evidence_sty_over["Sequence"].str.count("T")
+        evidence_sty_over["Y count"] = evidence_sty_over["Sequence"].str.count("Y")
+        evidence_h_over["H count"] = evidence_h_over["Sequence"].str.count("H")
 
-    evidence_h_over["H count"] = evidence_h_over["Sequence"].str.count("H")
+    # check if experiment naming corresponds to nomenclature
+    experiment_names = evidence_under["Experiment"].unique()
+    if not all(
+        any(str(channel) in name for channel in range(126, 132))
+        for name in experiment_names
+    ):
+        raise ValueError(
+            "Not all experiment names in evidence_under contain TMT6plex channel numbers (126-131)."
+        )
 
-    for raw, group in evidence_under.groupby("Experiment"):
-        (
-            lysine,
-            nterm,
-            sty_over_experiment,
-            under_experiment,
-            sty_over,
-            h_over_experiment,
-            h_over,
-        ) = ("",) * 7
+    # initiate DataFrame for results
+    records = []
+    index = []
 
-        if str(126) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm126\)"
-            lysine = (
-                "TMT6plex-Lysine126"  # modifications have to be named after MQ mod.list
-            )
-            h_over = "TMT6plex (H)126"
-            sty_over = "TMT6plex (STY)126"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(126) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(126) in entry
-            ][0]
-        if str(127) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm127\)"
-            lysine = "TMT6plex-Lysine127"
-            h_over = "TMT6plex (H)127"
-            sty_over = "TMT6plex (STY)127"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(127) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(127) in entry
-            ][0]
-        if str(128) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm128\)"
-            lysine = "TMT6plex-Lysine128"
-            h_over = "TMT6plex (H)128"
-            sty_over = "TMT6plex (STY)128"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(128) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(128) in entry
-            ][0]
-        if str(129) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm129\)"
-            lysine = "TMT6plex-Lysine129"
-            h_over = "TMT6plex (H)129"
-            sty_over = "TMT6plex (STY)129"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(129) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(129) in entry
-            ][0]
-        if str(130) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm130\)"
-            lysine = "TMT6plex-Lysine130"
-            h_over = "TMT6plex (H)130"
-            sty_over = "TMT6plex (STY)130"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(130) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(130) in entry
-            ][0]
-        if str(131) in raw:
-            nterm = r"\_\(TMT6plex\-Nterm131\)"
-            lysine = "TMT6plex-Lysine131"
-            h_over = "TMT6plex (H)131"
-            sty_over = "TMT6plex (STY)131"
-            under_experiment = raw
-            h_over_experiment = [
-                entry
-                for entry in evidence_h_over["Experiment"].unique()
-                if str(131) in entry
-            ][0]
-            sty_over_experiment = [
-                entry
-                for entry in evidence_sty_over["Experiment"].unique()
-                if str(131) in entry
-            ][0]
+    for experiment_name, group in evidence_under.groupby("Experiment"):
+        # reset variables for each experiment
+        lysine = nterm = sty_over_experiment = sty_over = h_over_experiment = h_over = (
+            ""
+        )
 
-        df_efficiency.loc[raw, ["fully labeled"]] = (
-            (group["K count"] == group[lysine])
+        for channel in range(126, 132):
+            if str(channel) in experiment_name:
+                nterm = rf"\_\(TMT6plex-Nterm{channel}\)"
+                lysine = f"TMT6plex-Lysine{channel}"
+                if evidence_sty_over is not None:
+                    h_over = f"TMT6plex (H){channel}"
+                    sty_over = f"TMT6plex (STY){channel}"
+                    h_over_experiment = [
+                        entry
+                        for entry in evidence_h_over["Experiment"].unique()
+                        if str(channel) in entry
+                    ][0]
+                    sty_over_experiment = [
+                        entry
+                        for entry in evidence_sty_over["Experiment"].unique()
+                        if str(channel) in entry
+                    ][0]
+                break
+
+        per_exp_dict = {}
+        acetyl_nterm = r"\_\(Acetyl \(Protein N\-term\)\)"  # makes code more readable
+
+        per_exp_dict["fully labeled"] = (
+            (group["K count"] == group[lysine])  # all lysines labeled
             & (
                 ~(
-                    group["Modified sequence"].str.contains(
-                        r"\_\(Acetyl \(Protein N\-term\)\)"
-                    )
-                )
-                & (group["Modified sequence"].str.contains(nterm))
+                    group["Modified sequence"].str.contains(acetyl_nterm)
+                )  # no acetyl n-term
+                & (group["Modified sequence"].str.contains(nterm))  # n-term labeled
             )
         ).sum()
 
-        df_efficiency.loc[raw, ["partially labeled"]] = (
+        per_exp_dict["partially labeled"] = (
             group["Modified sequence"].str.contains(r"\(TMT6plex").sum()
-            - df_efficiency.loc[raw, ["fully labeled"]].values
+            - per_exp_dict["fully labeled"]
         )
 
-        df_efficiency.loc[raw, ["not labeled"]] = (
+        per_exp_dict["not labeled"] = (
             ~group["Modified sequence"].str.contains(r"\(TMT6plex")
         ).sum()
 
-        df_efficiency.loc[[under_experiment], "sum all labeled"] = (
-            df_efficiency["not labeled"]
-            + df_efficiency["fully labeled"]
-            + df_efficiency["partially labeled"]
+        per_exp_dict["sum all labeled"] = (
+            per_exp_dict["not labeled"]
+            + per_exp_dict["fully labeled"]
+            + per_exp_dict["partially labeled"]
         )
 
-        df_efficiency.loc[[under_experiment], "PSM STY"] = (
-            evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
-                "S count"
-            ].sum()
-            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
-                "T count"
-            ].sum()
-            + evidence_sty_over[evidence_sty_over["Experiment"] == sty_over_experiment][
-                "Y count"
-            ].sum()
-        )
-        df_efficiency.loc[[under_experiment], "TMT (STY)"] = evidence_sty_over[
-            evidence_sty_over["Experiment"] == sty_over_experiment
-        ][sty_over].sum()
+        if evidence_sty_over is not None:
+            per_exp_dict["PSM STY"] = (
+                evidence_sty_over[
+                    evidence_sty_over["Experiment"] == sty_over_experiment
+                ]["S count"].sum()
+                + evidence_sty_over[
+                    evidence_sty_over["Experiment"] == sty_over_experiment
+                ]["T count"].sum()
+                + evidence_sty_over[
+                    evidence_sty_over["Experiment"] == sty_over_experiment
+                ]["Y count"].sum()
+            )
 
-        df_efficiency.loc[[under_experiment], "PSM H"] = evidence_h_over[
-            evidence_h_over["Experiment"] == h_over_experiment
-        ]["H count"].sum()
-        df_efficiency.loc[[under_experiment], "TMT (H)"] = evidence_h_over[
-            evidence_h_over["Experiment"] == h_over_experiment
-        ][h_over].sum()
+            per_exp_dict["TMT (STY)"] = evidence_sty_over[
+                evidence_sty_over["Experiment"] == sty_over_experiment
+            ][sty_over].sum()
+
+            per_exp_dict["PSM H"] = evidence_h_over[
+                evidence_h_over["Experiment"] == h_over_experiment
+            ]["H count"].sum()
+
+            per_exp_dict["TMT (H)"] = evidence_h_over[
+                evidence_h_over["Experiment"] == h_over_experiment
+            ][h_over].sum()
+
+        records.append(per_exp_dict)
+        index.append(experiment_name)
+
+    df_efficiency = pd.DataFrame.from_records(records, index=index)
+    df_efficiency.index.name = "Experiment"  # set index name
 
     df_efficiency["% fully labeled"] = (
         df_efficiency["fully labeled"] / df_efficiency["sum all labeled"] * 100
@@ -911,20 +874,33 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     df_efficiency["% not labeled"] = (
         df_efficiency["not labeled"] / df_efficiency["sum all labeled"] * 100
     )
-    df_efficiency["% overlabeled STY"] = (
-        (df_efficiency["TMT (STY)"]) / df_efficiency["PSM STY"] * 100
-    )
-    df_efficiency["% overlabeled H"] = (
-        (df_efficiency["TMT (H)"]) / df_efficiency["PSM H"] * 100
-    )
-    df_efficiency["% overlabeled STY+H"] = (
-        df_efficiency["% overlabeled H"] + df_efficiency["% overlabeled STY"]
-    )
 
-    # make figure TMT6plex labeling efficiency
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
-        nrows=2, ncols=2, figsize=(10, 8), gridspec_kw={"height_ratios": [3, 1]}
-    )
+    if evidence_sty_over is not None:
+        df_efficiency["% overlabeled STY"] = (
+            (df_efficiency["TMT (STY)"]) / df_efficiency["PSM STY"] * 100
+        )
+        df_efficiency["% overlabeled H"] = (
+            (df_efficiency["TMT (H)"]) / df_efficiency["PSM H"] * 100
+        )
+        df_efficiency["% overlabeled STY+H"] = (
+            df_efficiency["% overlabeled H"] + df_efficiency["% overlabeled STY"]
+        )
+
+    if ax_peps_all is None and ax_peps_not is None and ax_over is None:
+        fig, (ax_peps_all, ax_peps_not, ax_over) = plt.subplots(
+            nrows=3,
+            ncols=1,
+            figsize=(8, 12),
+            gridspec_kw={"height_ratios": [3, 1, 1]},
+            sharex="all",
+        )
+    elif (ax_peps_all is None) or (ax_peps_not is None) or (ax_over is None):
+        raise ValueError(
+            "All axes (ax_peps_all, ax_peps_not, ax_over) must be provided or none."
+        )
+    else:
+        fig = ax_peps_all.get_figure()
+
     fig.suptitle(
         "Comparison of labeling efficiency in TMT6plex",
         fontdict=None,
@@ -936,7 +912,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
         y=df_efficiency["% fully labeled"]
         + df_efficiency["% partially labeled"]
         + df_efficiency["% not labeled"],
-        ax=ax1,
+        ax=ax_peps_all,
         color="#dd4e26",
         **{"label": "% not labeled"},
     )
@@ -944,7 +920,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     sns.barplot(
         x=df_efficiency.index,
         y=df_efficiency["% fully labeled"] + df_efficiency["% partially labeled"],
-        ax=ax1,
+        ax=ax_peps_all,
         color="#2596be",
         **{"label": "% partially labeled"},
     )
@@ -952,7 +928,7 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     sns.barplot(
         x=df_efficiency.index,
         y=df_efficiency["% fully labeled"],
-        ax=ax1,
+        ax=ax_peps_all,
         color="#063970",
         **{"label": "% fully labeled"},
     )
@@ -962,37 +938,50 @@ def tmt6plex_labeling_efficiency(evidence_under, evidence_sty_over, evidence_h_o
     )
 
     sns.barplot(
-        x=df_efficiency.index, y=df_efficiency["% not labeled"], ax=ax3, color="#dd4e26"
-    )
-
-    ax1.set_ylabel("Peptides [%]")
-    ax3.set_ylabel("Peptides [%]")
-    ax1.legend(bbox_to_anchor=(-0.75, 1), loc="upper left", borderaxespad=0.0)
-    ax3.set_xlabel("channel", horizontalalignment="center", fontsize=12)
-    ax1.set_xticklabels([])
-    ax3.set_xticklabels(df_efficiency.index, rotation=45, horizontalalignment="right")
-
-    sns.barplot(
         x=df_efficiency.index,
-        y=df_efficiency["% overlabeled STY+H"],
-        ax=ax2,
-        color="#cce7e8",
-        **{"label": "% overlabeled STY+H"},
+        y=df_efficiency["% not labeled"],
+        ax=ax_peps_not,
+        color="#dd4e26",
     )
 
-    sns.barplot(
-        x=df_efficiency.index,
-        y=df_efficiency["% overlabeled STY"],
-        ax=ax2,
-        color="#44bcd8",
-        **{"label": "% overlabeled STY"},
-    )
+    ax_peps_all.set_ylabel("Peptides [%]")
+    ax_peps_not.set_ylabel("Peptides [%]")
+    ax_peps_all.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
 
-    ax2.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
-    ax2.set_ylabel("AA Residues [%]")
+    if evidence_sty_over is not None:
+        sns.barplot(
+            x=df_efficiency.index,
+            y=df_efficiency["% overlabeled STY+H"],
+            ax=ax_over,
+            color="#cce7e8",
+            **{"label": "% overlabeled STY+H"},
+        )
 
-    ax2.set_xticklabels(df_efficiency.index, rotation=90, horizontalalignment="center")
+        sns.barplot(
+            x=df_efficiency.index,
+            y=df_efficiency["% overlabeled STY"],
+            ax=ax_over,
+            color="#44bcd8",
+            **{"label": "% overlabeled STY"},
+        )
 
-    ax4.remove()
+        ax_over.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
+        ax_over.set_ylabel("AA Residues [%]")
+
+        ax_over.set_xticklabels(
+            df_efficiency.index, rotation=90, horizontalalignment="center"
+        )
+    else:
+        # set explicit tick positions and labels for ax_peps_not
+        ax_peps_not.set_xticklabels(df_efficiency.index, rotation=90, ha="center")
+
+        # ensure bottom tick labels are shown (shared-x subplots hide them by default)
+        ax_peps_not.tick_params(axis="x", which="both", labelbottom=True)
+        ax_peps_not.xaxis.set_ticks_position("bottom")
+
+        # remove axis
+        ax_over.remove()
+
+    plt.tight_layout()
 
     return df_efficiency, fig
