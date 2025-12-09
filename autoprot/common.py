@@ -39,7 +39,7 @@ def generate_environment_txt():
 
 
 def get_uniprot_accession(
-        df: pd.DataFrame, gene: str, organism: str
+    df: pd.DataFrame, gene: str, organism: str
 ) -> Union[str, None]:
     """
     Finds the matching UniProt ID in a dataset given a gene name and a corresponding organism.
@@ -62,7 +62,7 @@ def get_uniprot_accession(
     try:
         gene_in_gene = (df["GENE"].str.upper() == gene) & (df["ORGANISM"] == organism)
         gene_in_protein = (df["PROTEIN"].str.upper() == gene) & (
-                df["ORGANISM"] == organism
+            df["ORGANISM"] == organism
         )
 
         uniprot_acc = df.loc[(gene_in_gene | gene_in_protein), "ACC_ID"].iloc[0]
@@ -74,7 +74,7 @@ def get_uniprot_accession(
 
 
 def get_uniprot_sequence_locally(
-        uniprot_acc: str, organism: str, uniprot: pd.DataFrame
+    uniprot_acc: str, organism: str, uniprot: pd.DataFrame
 ) -> str:
     """
     Get sequence from a locally stored uniprot file by UniProt ID.
@@ -100,7 +100,7 @@ def get_uniprot_sequence_locally(
 
     sequence = uniprot["Sequence"][
         (uniprot["Entry"] == uniprot_acc) & (uniprot["Organism"] == uniprot_organism)
-        ]
+    ]
     try:
         sequence = sequence.values.tolist()[0]
     except IndexError:
