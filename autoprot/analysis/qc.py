@@ -769,8 +769,9 @@ def tmt6plex_labeling_efficiency(
 
     # check if experiment naming corresponds to nomenclature
     experiment_names = evidence_under["Experiment"].unique()
+
     if not all(
-        any(str(channel) in name for channel in range(126, 132))
+        any(str(channel) in str(name) for channel in range(126, 132))
         for name in experiment_names
     ):
         raise ValueError(
