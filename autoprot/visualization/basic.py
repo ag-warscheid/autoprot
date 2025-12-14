@@ -1428,7 +1428,7 @@ def volcano(
     # noinspection PyUnresolvedReferences
     # noinspection PyShadowingNames
     # noinspection PyPep8
-    """
+    r"""
     Return static volcano plot.
 
     Parameters
@@ -1933,7 +1933,7 @@ def _prep_ratio_data(
     df: pd.DataFrame,
     col_name1: str,
     col_name2: str | None,
-    ratio_thresh: float | None,
+    ratio_thresh: tuple[float | None, float | None] | float | None,
 ) -> tuple[pd.DataFrame, str, str, pd.Index, pd.Index]:
     """
     Prepare ratio data for analysis.
@@ -1951,8 +1951,12 @@ def _prep_ratio_data(
         The name of the first column to be used in the ratio calculation.
     col_name2 : str
         The name of the second column to be used in the ratio calculation.
-    ratio_thresh : float
-        The threshold value for filtering the ratios.
+    ratio_thresh : float or None or tuple of float
+        The threshold value for filtering the ratios. If None, no filtering is applied.
+        If a tuple is provided, it should contain two float values representing the
+        lower and upper bounds for the ratio threshold. If a single float is provided,
+        it is treated as both the lower and upper bound. If None is included in the tuple,
+        that bound is ignored.
 
     Returns
     -------
@@ -1971,11 +1975,15 @@ def _prep_ratio_data(
     # Work with a copy of the dataframe
     df: pd.DataFrame = df.copy()  # noqa
 
-    # check that ratio_thresh is a number
+    # check that ratio_thresh is a number or a tuple of numbers
     if not isinstance(ratio_thresh, (int, float, type(None))):
-        raise ValueError(
-            f"[prep_ratio_data] The ratio threshold must be a number but was {type(ratio_thresh)}: {ratio_thresh}."
-        )
+        if isinstance(ratio_thresh, tuple) and len(ratio_thresh) == 2:
+            if all(isinstance(x, (int, float)) for x in ratio_thresh):
+                pass
+        else:
+            raise ValueError(
+                f"[prep_ratio_data] The ratio threshold must be a number or a tuple of axactly two numbers but was {type(ratio_thresh)}: {ratio_thresh}."
+            )
 
     if not isinstance(col_name1, str):
         raise ValueError(
@@ -1998,14 +2006,37 @@ def _prep_ratio_data(
 
     df["SigCat"] = "not significant"  # default value
     if ratio_thresh is not None:
+        if not isinstance(ratio_thresh, tuple):
+            ratio_thresh = (-ratio_thresh, ratio_thresh)
+
+        if ratio_thresh[1] is None:
+            sig_up = pd.Series([False] * len(df), index=df.index)
+        else:
+            sig_up = df[col_name1] > ratio_thresh[1]
+
+        if ratio_thresh[0] is None:
+            sig_down = pd.Series([False] * len(df), index=df.index)
+        else:
+            sig_down = df[col_name1] < ratio_thresh[0]
+
         if col_name2 is None:
             # significantly up or down
-            df.loc[df[col_name1].abs() > ratio_thresh, "SigCat"] = "ratio_thresh"
+            df.loc[sig_up | sig_down, "SigCat"] = "ratio_thresh"
         else:
+
+            if ratio_thresh[1] is None:
+                sig_up_2 = pd.Series([False] * len(df), index=df.index)
+            else:
+                sig_up_2 = df[col_name2] > ratio_thresh[1]
+
+            if ratio_thresh[0] is None:
+                sig_down_2 = pd.Series([False] * len(df), index=df.index)
+            else:
+                sig_down_2 = df[col_name2] < ratio_thresh[0]
+
             # significantly up or down in both
             df.loc[
-                (df[col_name1].abs() > ratio_thresh)
-                & (df[col_name2].abs() > ratio_thresh),
+                (sig_up & sig_up_2) | (sig_down & sig_down_2),
                 "SigCat",
             ] = "ratio_thresh"
 
@@ -2016,27 +2047,36 @@ def _prep_ratio_data(
 
 
 def _ratio_plot_style_axes(
-    ax: plt.Axes, ratio_thresh_x: float | None, ratio_thresh_y: float | None
+    ax: plt.Axes,
+    ratio_thresh_x: float | None | tuple[float, float],
+    ratio_thresh_y: float | None | tuple[float, float],
 ):
+
     if ratio_thresh_x is not None:
-        ax.axvline(x=ratio_thresh_x, color="grey", linestyle="--", alpha=0.8)
-        ax.axvline(x=-ratio_thresh_x, color="grey", linestyle="--", alpha=0.8)
-        ax.axhline(y=0, color="black", linestyle="-")
+        if not isinstance(ratio_thresh_x, tuple):
+            ratio_thresh_x = (ratio_thresh_x, ratio_thresh_x)
+        for thresh in ratio_thresh_x:
+            if thresh is None:  # Skip boundaries that should not be plotted
+                continue
+            ax.axvline(x=thresh, color="grey", linestyle="--", alpha=0.8)
 
     if ratio_thresh_y is not None:
-        ax.axhline(y=ratio_thresh_y, color="grey", linestyle="--", alpha=0.8)
-        ax.axhline(y=-ratio_thresh_y, color="grey", linestyle="--", alpha=0.8)
-        ax.axvline(x=0, color="black", linestyle="-")
+        if not isinstance(ratio_thresh_y, tuple):
+            ratio_thresh_y = (ratio_thresh_y, ratio_thresh_y)
+        for thresh in ratio_thresh_y:
+            if thresh is None:
+                continue
+            ax.axhline(y=thresh, color="grey", linestyle="--", alpha=0.8)
 
 
 def ratio_plot(
     df: pd.DataFrame,
     col_name1: str,
     col_name2: str = None,
-    ratio_thresh: float = None,
+    ratio_thresh: float | tuple[float | None, float | None] | None = None,
     xlabel: str = "Ratio col1",
     ylabel: str = "Ratio col2",
-    pointsize_colname: str or float = None,
+    pointsize_colname: str | float = None,
     pointsize_scaler: float = 1,
     highlight: Union[list, pd.Index, None] = None,
     title: str = None,
@@ -2056,7 +2096,7 @@ def ratio_plot(
     annotate_density: int = 100,
 ):
     # noinspection PyUnresolvedReferences
-    """
+    r"""
     Plot a ratio vs. ratio plot based on a pandas dataframe.
 
     Parameters
@@ -2344,7 +2384,7 @@ def ratio_vs_intens(
     df: pd.DataFrame,
     ratiocol: str,
     intenscol: str,
-    ratio_thresh: float | None,
+    ratio_thresh: tuple[float, float] | float | None,
     xlabel: str = "Ratio",
     ylabel: str = "Intensity",
     pointsize_colname: Union[str, float] = None,
