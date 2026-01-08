@@ -11,7 +11,7 @@ if (!require("pak", character.only = TRUE))
 
 # Collect all required packages as vectors and install with pak
 # see https://pak.r-lib.org/dev/reference/get-started.html
-CRAN_packages <- c("rrcovNA", "tidyverse", "tmvtnorm")
+CRAN_packages <- c("rrcovNA", "tidyverse", "tmvtnorm", "devtools")
 BC_packages <- c("limma", "vsn", "RankProd", "pcaMethods", "impute", "SummarizedExperiment")
 github_packages <- c("github::kreutz-lab/DIMAR")
 
