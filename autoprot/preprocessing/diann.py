@@ -6,6 +6,119 @@ import numpy as np
 import pandas as pd
 
 
+def load_parquet(
+    path, filters: dict = None, mbr: bool = True, crap_str: str | list[str] = "cRAP"
+) -> pd.DataFrame:
+    """Load Parquet file with optional filtering.
+
+    Parameters
+    ----------
+    path: str
+        Path to Parquet file.
+    filters: dict, optional
+        Dictionary of column names and threshold values for filtering.
+    mbr: bool, default=True
+        Whether to use MBR-specific filters.
+    crap_str: str or list of str, default='cRAP'
+        String or list of strings to filter out contaminants.
+
+    Returns
+    -------
+    pd.DataFrame
+        Filtered DataFrame.
+    """
+
+    # check if file exists
+    try:
+        rp = pd.read_parquet(path)
+        print(f"Loaded {len(rp)} precursors from report.parquet")
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {path}")
+
+    # Use default filters if none provided
+    if filters is None:
+        if mbr:
+            filters = {
+                "Q.Value": 0.01,  # Default filter for quality
+                "PG.Q.Value": 0.01,
+                "Lib.Q.Value": 0.01,
+                "Lib.PG.Q.Value": 0.01,
+            }
+        else:
+            filters = {
+                "Q.Value": 0.01,  # Default filter for quality
+                "PG.Q.Value": 0.01,
+                "Global.Q.Value": 0.01,
+                "Global.PG.Q.Value": 0.01,
+            }
+
+    if isinstance(crap_str, str):
+        crap_str = [crap_str]
+
+    for crp in crap_str:
+        initial_count = len(rp)
+        rp = rp[~rp["Protein.Names"].str.contains(crp, na=False)]
+        filtered_count = len(rp)
+        print(
+            f"Filtered out {initial_count - filtered_count} entries containing '{crp}'"
+        )
+
+    # Apply filters
+    all_filters_bool = [
+        rp[col] <= val for col, val in filters.items() if col in rp.columns
+    ]
+    initial_count = len(rp)
+    if all_filters_bool:
+        combined_filter = np.logical_and.reduce(all_filters_bool)
+        rp = rp[combined_filter]
+        filtered_count = len(rp)
+        print(
+            f"Applied filters: {filters}. Filtered out {initial_count - filtered_count} entries. Remaining: {filtered_count}."
+        )
+    else:
+        print("No valid filter columns found in DataFrame.")
+
+    return rp
+
+
+def parquet_to_pg(
+    path,
+    filters: dict = None,
+    mbr: bool = True,
+    crap_str: str | list[str] = "cRAP",
+    index_cols: list[str] = None,
+    reset_index: bool = True,
+) -> pd.DataFrame:
+    """
+    Load DIANN SILAC precursor data from a Parquet file and convert to protein group-level intensities.
+    """
+    rp = load_parquet(path, filters=filters, mbr=mbr, crap_str=crap_str)
+
+    # Select relevant columns and drop duplicates
+    pg = rp[["Run", "Protein.Group", "Genes", "PG.MaxLFQ"]].drop_duplicates().copy()
+    pg["PG.MaxLFQ"] = pg["PG.MaxLFQ"].replace(0, pd.NA)
+
+    if index_cols is None:
+        index_cols = ["Protein.Group", "Genes"]
+
+    pg = pg.pivot_table(
+        index=index_cols,
+        columns="Run",
+        values="PG.MaxLFQ",
+        aggfunc="first",  # noqa
+    )
+
+    # convert numerical columns to float
+    pg = pg.astype(float)
+
+    print(f"Aggretation to protein group level done. Final shape: {pg.shape}")
+
+    if reset_index:
+        pg = pg.reset_index()
+    return pg
+
+
 def silac_protein_group_from_diann(df):
     """
     Convert DIANN SILAC precursor data to protein group-level ratios.
