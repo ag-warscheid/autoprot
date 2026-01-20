@@ -721,7 +721,7 @@ def tmt6plex_labeling_efficiency(
         on serine, threonine, tyrosine
     evidence_h_over : pd.Dataframe (optional)
         evidence.txt as pd.DataFrame from over-labeling search, MS2-TMT experiment with TMT as variable modification
-         on histidine
+        on histidine
     ax_peps_all : matplotlib axis
         If provided, the Peptide labeling plot (all) will be drawn on the given axis
     ax_peps_not : matplotlib axis
