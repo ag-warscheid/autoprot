@@ -6,6 +6,7 @@ Autoprot Analysis Functions.
 
 @documentation: Julian
 """
+
 from functools import reduce
 from importlib import resources
 from typing import Union, Literal, List, Dict, Any, Tuple

@@ -6,6 +6,7 @@ Autoprot Preprocessing Functions.
 
 @documentation: Julian
 """
+
 import functools
 
 import numpy as np
@@ -14,7 +15,6 @@ from typing import Literal
 
 from autoprot.decorators import report
 from .. import r_helper
-
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
