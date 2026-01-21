@@ -10,6 +10,7 @@ Wignand Mühlhäuser
 Julian Bender <julian.bender@uni-wuerzburg.de>
 Johannes Zimmermann <johannes.zimmermann@uni-wuerzburg.de>
 """
+
 import collections
 import re
 import warnings

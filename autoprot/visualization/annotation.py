@@ -6,6 +6,7 @@ Autoprot Annotation Functions.
 
 @documentation: Julian
 """
+
 from typing import Union
 
 import pandas as pd
@@ -22,7 +23,6 @@ import logomaker
 import matplotlib.patches as patches
 
 from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
-
 
 # SEQUENCE LOGO
 
