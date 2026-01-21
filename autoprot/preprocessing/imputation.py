@@ -28,7 +28,7 @@ RFUNCTIONS, R = r_helper.return_r_path()
 # =============================================================================
 def imp_min_prob(
     df: pd.DataFrame,
-    cols_to_impute: Union[list[str], str],
+    cols: Union[list[str], str],
     min_missing: int = None,
     downshift: Union[int, float] = 1.8,
     width: Union[int, float] = 0.3,
@@ -49,11 +49,11 @@ def imp_min_prob(
     ----------
     df : pd.dataframe
         Dataframe on which imputation is performed.
-    cols_to_impute : list or str
+    cols : list or str
         Columns to impute. Should correspond to a single condition (i.e. control).
     min_missing : int, optional
         How many missing values have to be missing across all columns to perfom imputation
-        If None all values have to be missing. The default is None.
+        If None imputation will be performed on all cells. The default is None.
     downshift : float, optional
         How many Stds to lower values the mean of the new population is shifted. The default is 1.8.
     width : float, optional
@@ -100,25 +100,26 @@ def imp_min_prob(
 
     # test if cols_to_impute is iterable
     try:
-        iter(cols_to_impute)
+        iter(cols)
     except TypeError:
-        cols_to_impute: list[str] = [cols_to_impute]
+        cols: list[str] = [cols]
 
     # idxs of rows in which imputation will be excluded
     if min_missing is not None:
-        s_nan = df[cols_to_impute].isnull().sum(axis=1)
-        s_nan = s_nan[s_nan < min_missing]
-        filter_idx = s_nan.index
+        s_nan = df[cols].isnull().sum(axis=1)  # number of NaNs per row
+        filter_idx = s_nan[s_nan < min_missing].index  # index of rows with less than min_missing NaNs (i.e. to exclude)
+        print(f"Excluding {len(filter_idx)} rows from imputation because they have <{min_missing} missing values.")
     else:
         filter_idx = pd.Index([])
+        print("No rows are excluded from imputation.")
 
     imputed_cols = []
     isimp_cols = []
-    for col in cols_to_impute:
-        count_na = df[col].isna().sum()
-        na_index = df[df[col].isna()].index
+    for col in cols:
+        count_na = df[col].isna().sum()  # per column count of NaNs (requried for random number generation)
+        na_index = df[df[col].isna()].index  # index of rows to impute in the current column
         if min_missing is not None:
-            na_index = na_index.difference(filter_idx)
+            na_index = na_index.difference(filter_idx)  # remove idxs to exclude from imputation
             count_na = len(na_index)
 
         # define values before imputation
@@ -129,16 +130,16 @@ def imp_min_prob(
         minimp_var = var * width
 
         rnd = np.random.normal(minimp_mean, minimp_var, size=count_na)
-        imputed_s = pd.Series(data=rnd, index=na_index)
+        imputed_s = pd.Series(data=rnd, index=na_index)  # new series with imputed values and index of NaNs
 
         col_new = col + "_min_imputed"
-        df[col_new] = df[col].fillna(imputed_s)
+        df[col_new] = df[col].fillna(imputed_s)  # fillna will map the values based on the index
         imputed_cols.append(col_new)
         if gen_isimp_cols:
             isimp_col = col + "_is_imputed"
             isimp_cols.append(isimp_col)
             df[isimp_col] = False
-            df.loc[na_index, isimp_col] = True
+            df.loc[na_index, isimp_col] = True  # set only the imputed rows to True
 
     if return_isimp_cols and return_cols:
         return df, imputed_cols, isimp_cols
