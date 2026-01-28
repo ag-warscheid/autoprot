@@ -7,7 +7,8 @@ package:
 
 source:
   url: https://github.com/ag-warscheid/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: ""  # Add the SHA256 checksum of the source tarball here
+  sha256: ""  # TODO: Add SHA256 checksum when building from a tagged release
+  # To calculate: curl -sL https://github.com/ag-warscheid/autoprot/archive/refs/tags/v0.3.0.tar.gz | sha256sum
 
 build:
   number: 0
@@ -25,7 +26,7 @@ requirements:
     - biopython >=1.78
     - gprofiler-official >=1.0.0
     - logomaker >=0.8
-    - matplotlib-base >=3.8.4
+    - matplotlib >=3.8.4
     - matplotlib-venn >=0.11.7
     - missingno >=0.4.2
     - numpy >=1.22.3
@@ -37,24 +38,24 @@ requirements:
     - seaborn >=0.13.2
     - statsmodels >=0.13.2
     - upsetplot >=0.8.0
-    - r-base >=4.4.3
-    - r-tidyverse >=2.0.0
-    - r-tmvtnorm >=1.7
-    - bioconductor-limma >=3.28.10
+    - r-base >=4.4.3,<4.5
+    - r-tidyverse >=2.0.0,<3
+    - r-tmvtnorm >=1.7,<2
+    - bioconductor-limma >=3.28.10,<4
     - bioconductor-vsn >=3.74
-    - bioconductor-rankprod >=3.32.0
-    - bioconductor-pcamethods >=1.98.0
-    - bioconductor-impute >=1.80.0
-    - bioconductor-summarizedexperiment >=1.36.0
-    - r-pak >=0.9.0
-    - openpyxl >=3.1.5
-    - xlsxwriter >=3.2.9
+    - bioconductor-rankprod >=3.32.0,<4
+    - bioconductor-pcamethods >=1.98.0,<2
+    - bioconductor-impute >=1.80.0,<2
+    - bioconductor-summarizedexperiment >=1.36.0,<2
+    - r-pak >=0.9.0,<0.10
+    - openpyxl >=3.1.5,<4
+    - xlsxwriter >=3.2.9,<4
 
 test:
   imports:
     - autoprot
   commands:
-    - python -c "import autoprot; print(autoprot.__version__)"
+    - python -c "import autoprot"
 
 about:
   home: https://www.warscheidlab.de
@@ -67,7 +68,7 @@ about:
     preprocessing to visualisation. Its main features are:
     - Works with Pandas dataframes
     - Is modularised so that only a required submodule can be loaded for a certain task
-    - Connects with established R functions for advances bio-statistical analysis
+    - Connects with established R functions for advanced bio-statistical analysis
     - Supports interactive visualisations made with Plotly
   doc_url: https://ag-warscheid.github.io/autoprot/
   dev_url: https://github.com/ag-warscheid/autoprot
