@@ -1,0 +1,77 @@
+{% set name = "autoprot" %}
+{% set version = "0.3.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/ag-warscheid/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: ""  # Add the SHA256 checksum of the source tarball here
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - python >=3.8
+    - pip
+    - setuptools >=70.0.0
+  run:
+    - python >=3.8
+    - adjusttext >=0.7.3
+    - biopython >=1.78
+    - gprofiler-official >=1.0.0
+    - logomaker >=0.8
+    - matplotlib-base >=3.8.4
+    - matplotlib-venn >=0.11.7
+    - missingno >=0.4.2
+    - numpy >=1.22.3
+    - pandas >=2.0.0
+    - plotly >=5.8.0
+    - requests >=2.31.0
+    - scikit-learn >=1.0.1
+    - scipy >=1.7.3
+    - seaborn >=0.13.2
+    - statsmodels >=0.13.2
+    - upsetplot >=0.8.0
+    - r-base >=4.4.3
+    - r-tidyverse >=2.0.0
+    - r-tmvtnorm >=1.7
+    - bioconductor-limma >=3.28.10
+    - bioconductor-vsn >=3.74
+    - bioconductor-rankprod >=3.32.0
+    - bioconductor-pcamethods >=1.98.0
+    - bioconductor-impute >=1.80.0
+    - bioconductor-summarizedexperiment >=1.36.0
+    - r-pak >=0.9.0
+    - openpyxl >=3.1.5
+    - xlsxwriter >=3.2.9
+
+test:
+  imports:
+    - autoprot
+  commands:
+    - python -c "import autoprot; print(autoprot.__version__)"
+
+about:
+  home: https://www.warscheidlab.de
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Automated Proteomics Analysis
+  description: |
+    autoprot streamlines and simplifies proteomics data analysis from 
+    preprocessing to visualisation. Its main features are:
+    - Works with Pandas dataframes
+    - Is modularised so that only a required submodule can be loaded for a certain task
+    - Connects with established R functions for advances bio-statistical analysis
+    - Supports interactive visualisations made with Plotly
+  doc_url: https://ag-warscheid.github.io/autoprot/
+  dev_url: https://github.com/ag-warscheid/autoprot
+
+extra:
+  recipe-maintainers:
+    - ag-warscheid
