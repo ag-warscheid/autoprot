@@ -492,7 +492,7 @@ def boxplot(
     figsize: tuple = (15, 5),
     ax: Union[plt.axis, None] = None,
     **kwargs: object,
-) -> plt.figure:
+) -> plt.Figure | None:
     # noinspection PyUnresolvedReferences
     r"""
     Plot intensity boxplots.
@@ -699,6 +699,9 @@ def intensity_rank(
         If list, must be the same length as highlight.
     ascending : bool, optional
         Whether to sort the data in ascending order.
+    annotate_density: int, optional
+        Number of points to consider for density-based annotation.
+        The default is 100.
     **kwargs :
         Passed to seaborn.scatterplot.
 
@@ -1031,7 +1034,7 @@ def _init_scatter(
     figsize: tuple[float, float],
     pointsize_colname: str,
     pointsize_scaler: float,
-) -> tuple[plt.figure, plt.Axes, pd.DataFrame]:
+) -> tuple[plt.Figure, plt.Axes, pd.DataFrame]:
     """
     Initialize a scatter plot.
 
@@ -1350,9 +1353,6 @@ def _prep_volcano_data(
         If neither a p-score nor a p value is provided by the user.
 
     """
-    # Work with a copy of the dataframe
-    df = df.copy()
-
     if score_colname is None and p_colname is None:
         raise ValueError("You have to provide either a score or a (adjusted) p value.")
     elif score_colname is None:
@@ -1367,31 +1367,30 @@ def _prep_volcano_data(
     # four groups of points are present in a volcano plot:
     # (1) non-significant
     df["SigCat"] = "not significant"
+    p_sig_idx = pd.Index([])
+    logfc_sig_idx = pd.Index([])
+    both_sig_idx = pd.Index([])
+
     if p_thresh is not None:
         # (2) significant by score
-        df.loc[df[p_colname] < p_thresh, "SigCat"] = "p-value"
+        df, _, _, _, p_sig_idx = _prep_ratio_data(
+            df, p_colname, None, p_thresh, signficance_label="p-value"
+        )
 
     if log_fc_thresh is not None:
         # (3) significant above or below fc-thresh
-        df.loc[
-            (df["SigCat"] == "not significant")
-            & (abs(df[log_fc_colname]) > log_fc_thresh),
-            "SigCat",
-        ] = "log2FC"
+        df, _, _, _, logfc_sig_idx = _prep_ratio_data(
+            df, log_fc_colname, None, log_fc_thresh, signficance_label="log2FC"
+        )
 
     if p_thresh is not None and log_fc_thresh is not None:
         # (4) significant by both
-        df.loc[
-            (df["SigCat"] == "p-value") & (abs(df[log_fc_colname]) > log_fc_thresh),
-            "SigCat",
-        ] = "p-value and log2FC"
+        both_sig_idx = p_sig_idx.intersection(logfc_sig_idx)
+        df.loc[both_sig_idx, "SigCat"] = "p-value and log2FC"
 
     unsig = df[df["SigCat"] == "not significant"].index
-    sig_fc = df[df["SigCat"] == "log2FC"].index
-    sig_p = df[df["SigCat"] == "p-value"].index
-    sig_both = df[df["SigCat"] == "p-value and log2FC"].index
 
-    return df, score_colname, unsig, sig_fc, sig_p, sig_both
+    return df, score_colname, unsig, logfc_sig_idx, p_sig_idx, both_sig_idx
 
 
 def volcano(
@@ -1399,9 +1398,9 @@ def volcano(
     log_fc_colname: str,
     p_colname: str = None,
     score_colname: str = None,
-    p_thresh: float or None = 0.05,
-    log_fc_thresh: float or None = np.log2(2),
-    pointsize_colname: str or float = None,
+    p_thresh: float | None = 0.05,
+    log_fc_thresh: float | None = np.log2(2),
+    pointsize_colname: str | float = None,
     pointsize_scaler: float = 1,
     highlight: Union[pd.Index, list[pd.Index], None] = None,
     title: str = None,
@@ -1756,10 +1755,11 @@ def volcano(
 
     if show_thresh:
         if log_fc_thresh is not None:
-            ax.axvline(x=log_fc_thresh, color="black", linestyle="--")
-            ax.axvline(x=-log_fc_thresh, color="black", linestyle="--")
+            _ratio_plot_style_axes(
+                ax, ratio_thresh_x=log_fc_thresh, ratio_thresh_y=None
+            )
         if p_thresh is not None:
-            ax.axhline(y=-np.log10(p_thresh), color="black", linestyle="--")
+            _ratio_plot_style_axes(ax, ratio_thresh_x=None, ratio_thresh_y=p_thresh)
 
     if ret_fig:
         return fig
@@ -1771,10 +1771,10 @@ def ivolcano(
     log_fc_colname: str,
     p_colname: str = None,
     score_colname: str = None,
-    p_thresh: float or None = 0.05,
-    log_fc_thresh: float or None = None,
+    p_thresh: float | None = 0.05,
+    log_fc_thresh: float | None = None,
     annotate_colname: str = None,
-    pointsize_colname: str or float = None,
+    pointsize_colname: str | float = None,
     highlight: pd.Index = None,
     title: str = "Volcano Plot",
     show_legend: bool = True,
@@ -1935,14 +1935,15 @@ def _prep_ratio_data(
     col_name1: str,
     col_name2: str | None,
     ratio_thresh: tuple[float | None, float | None] | float | None,
+    signficance_label: str = "ratio_thresh",
 ) -> tuple[pd.DataFrame, str, str, pd.Index, pd.Index]:
     """
     Prepare ratio data for analysis.
 
-    This function takes a DataFrame and two column names representing ratios,
-    and filters the DataFrame based on a given ratio threshold. It returns a
-    new DataFrame containing only the rows where the absolute value of the
-    ratio between the two specified columns exceeds the threshold.
+    This function takes a DataFrame and two column names
+    and labels the DataFrame based on a given threshold. It returns a
+    new DataFrame with an additional 'SigCat' column indicating whether
+    the value exceeds the threshold in any of the columns.
 
     Parameters
     ----------
@@ -1950,7 +1951,7 @@ def _prep_ratio_data(
         The input DataFrame containing the data.
     col_name1 : str
         The name of the first column to be used in the ratio calculation.
-    col_name2 : str
+    col_name2 : str or None
         The name of the second column to be used in the ratio calculation.
     ratio_thresh : float or None or tuple of float
         The threshold value for filtering the ratios. If None, no filtering is applied.
@@ -1958,6 +1959,8 @@ def _prep_ratio_data(
         lower and upper bounds for the ratio threshold. If a single float is provided,
         it is treated as both the lower and upper bound. If None is included in the tuple,
         that bound is ignored.
+    signficance_label : str
+        The label to assign to significant ratios in the 'SigCat' column.
 
     Returns
     -------
@@ -1973,9 +1976,6 @@ def _prep_ratio_data(
     pd.Index
         The indices of the rows where the ratio is above the threshold.
     """
-    # Work with a copy of the dataframe
-    df: pd.DataFrame = df.copy()  # noqa
-
     # check that ratio_thresh is a number or a tuple of numbers
     if not isinstance(ratio_thresh, (int, float, type(None))):
         if isinstance(ratio_thresh, tuple) and len(ratio_thresh) == 2:
@@ -2022,7 +2022,7 @@ def _prep_ratio_data(
 
         if col_name2 is None:
             # significantly up or down
-            df.loc[sig_up | sig_down, "SigCat"] = "ratio_thresh"
+            df.loc[sig_up | sig_down, "SigCat"] = signficance_label
         else:
 
             if ratio_thresh[1] is None:
@@ -2039,10 +2039,10 @@ def _prep_ratio_data(
             df.loc[
                 (sig_up & sig_up_2) | (sig_down & sig_down_2),
                 "SigCat",
-            ] = "ratio_thresh"
+            ] = signficance_label
 
     non_sig_idx = df[df["SigCat"] == "not significant"].index
-    sig_idx = df[df["SigCat"] == "ratio_thresh"].index
+    sig_idx = df[df["SigCat"] == signficance_label].index
 
     return df, col_name1, col_name2, non_sig_idx, sig_idx
 
@@ -2055,7 +2055,7 @@ def _ratio_plot_style_axes(
 
     if ratio_thresh_x is not None:
         if not isinstance(ratio_thresh_x, tuple):
-            ratio_thresh_x = (ratio_thresh_x, ratio_thresh_x)
+            ratio_thresh_x = (-ratio_thresh_x, ratio_thresh_x)
         for thresh in ratio_thresh_x:
             if thresh is None:  # Skip boundaries that should not be plotted
                 continue
@@ -2063,7 +2063,7 @@ def _ratio_plot_style_axes(
 
     if ratio_thresh_y is not None:
         if not isinstance(ratio_thresh_y, tuple):
-            ratio_thresh_y = (ratio_thresh_y, ratio_thresh_y)
+            ratio_thresh_y = (-ratio_thresh_y, ratio_thresh_y)
         for thresh in ratio_thresh_y:
             if thresh is None:
                 continue
@@ -2274,7 +2274,7 @@ def iratio_plot(
     ratio_thresh: float = None,
     xlabel: str = "Ratio col1",
     ylabel: str = "Ratio col2",
-    pointsize_colname: str or float = None,
+    pointsize_colname: str | float = None,
     highlight: pd.Index = None,
     title: str = None,
     show_legend: bool = True,
