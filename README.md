@@ -24,6 +24,39 @@ Its main features are:
 
 ## Installation
 
+### Option 1: Using Conda (Recommended)
+
+Once autoprot is published on conda-forge or anaconda.org, you can install it using:
+
+```bash
+# Create a new conda environment
+conda create -n autoprot-env python=3.8
+
+# Activate the environment
+conda activate autoprot-env
+
+# Install autoprot (once published to conda-forge)
+conda install -c conda-forge autoprot
+```
+
+To build and install from the local conda recipe:
+
+```bash
+# Clone the repository
+git clone --recurse-submodules https://github.com/ag-warscheid/autoprot.git
+cd autoprot
+
+# Build the conda package
+conda build conda.recipe
+
+# Install the built package
+conda install --use-local autoprot
+```
+
+See [conda.recipe/README.md](conda.recipe/README.md) for more details on building and publishing the conda package.
+
+### Option 2: Manual Installation
+
 - Generate a new python environment using [anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 or [pip](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
   - Install required Python packages (see [pyproject.toml](pyproject.toml)) in the environment
