@@ -4,3 +4,4 @@ from .filtering import *
 from .imputation import *
 from .normalization import *
 from .transformation import *
+from .diann import *

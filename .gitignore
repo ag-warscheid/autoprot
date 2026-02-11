@@ -173,3 +173,6 @@ docs/_build/*
 /docs/R_environment.csv
 /environment.txt
 /R_environment.csv
+# pixi environments
+.pixi/*
+!.pixi/config.toml
