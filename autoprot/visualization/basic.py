@@ -1373,14 +1373,20 @@ def _prep_volcano_data(
 
     if p_thresh is not None:
         # (2) significant by score
+        # in contrast to typical applications, we now want to find values below the p_threshold
         df, _, _, _, p_sig_idx = _prep_ratio_data(
-            df, p_colname, None, p_thresh, signficance_label="p-value"
+            df,
+            p_colname,
+            None,
+            p_thresh,
+            significance_label="p-value",
+            direction="inside",
         )
 
     if log_fc_thresh is not None:
         # (3) significant above or below fc-thresh
         df, _, _, _, logfc_sig_idx = _prep_ratio_data(
-            df, log_fc_colname, None, log_fc_thresh, signficance_label="log2FC"
+            df, log_fc_colname, None, log_fc_thresh, significance_label="log2FC"
         )
 
     if p_thresh is not None and log_fc_thresh is not None:
@@ -1398,7 +1404,7 @@ def volcano(
     log_fc_colname: str,
     p_colname: str = None,
     score_colname: str = None,
-    p_thresh: float | None = 0.05,
+    p_thresh: float | None | tuple[float | None] = 0.05,
     log_fc_thresh: float | None = np.log2(2),
     pointsize_colname: str | float = None,
     pointsize_scaler: float = 1,
@@ -1759,7 +1765,21 @@ def volcano(
                 ax, ratio_thresh_x=log_fc_thresh, ratio_thresh_y=None
             )
         if p_thresh is not None:
-            _ratio_plot_style_axes(ax, ratio_thresh_x=None, ratio_thresh_y=p_thresh)
+            # convert p value to score
+            if isinstance(p_thresh, (int, float)):
+                score = -np.log10(p_thresh)
+            elif isinstance(p_thresh, (list, tuple)):
+                score = tuple(
+                    (
+                        -np.log10(x) if isinstance(x, (float, int)) else None
+                        for x in p_thresh
+                    )
+                )
+            else:
+                raise ValueError(
+                    f"[volcano] Cannot convert p_thresh {p_thresh} to score"
+                )
+            _ratio_plot_style_axes(ax, ratio_thresh_x=None, ratio_thresh_y=score)
 
     if ret_fig:
         return fig
@@ -1935,7 +1955,8 @@ def _prep_ratio_data(
     col_name1: str,
     col_name2: str | None,
     ratio_thresh: tuple[float | None, float | None] | float | None,
-    signficance_label: str = "ratio_thresh",
+    significance_label: str = "ratio_thresh",
+    direction: Literal["inside", "outside"] = "outside",
 ) -> tuple[pd.DataFrame, str, str, pd.Index, pd.Index]:
     """
     Prepare ratio data for analysis.
@@ -1959,8 +1980,11 @@ def _prep_ratio_data(
         lower and upper bounds for the ratio threshold. If a single float is provided,
         it is treated as both the lower and upper bound. If None is included in the tuple,
         that bound is ignored.
-    signficance_label : str
+    significance_label : str
         The label to assign to significant ratios in the 'SigCat' column.
+    direction : Literal['inside', 'outside']
+        Whether values inside the lower, upper boundary our outside of it are considered significant.
+        If a single number is given as threshold, the boundaries are calculates as (-value, value)
 
     Returns
     -------
@@ -1983,7 +2007,7 @@ def _prep_ratio_data(
                 pass
         else:
             raise ValueError(
-                f"[prep_ratio_data] The ratio threshold must be a number or a tuple of axactly two numbers but was {type(ratio_thresh)}: {ratio_thresh}."
+                f"[prep_ratio_data] The ratio threshold must be a number or a tuple of exactly two numbers but was {type(ratio_thresh)}: {ratio_thresh}."
             )
 
     if not isinstance(col_name1, str):
@@ -2007,42 +2031,66 @@ def _prep_ratio_data(
 
     df["SigCat"] = "not significant"  # default value
     if ratio_thresh is not None:
-        if not isinstance(ratio_thresh, tuple):
+        if isinstance(ratio_thresh, (int, float, None)):
             ratio_thresh = (-ratio_thresh, ratio_thresh)
-
-        if ratio_thresh[1] is None:
-            sig_up = pd.Series([False] * len(df), index=df.index)
-        else:
-            sig_up = df[col_name1] > ratio_thresh[1]
+            print(
+                f"[prep_ratio_data] Setting threshold for {significance_label} to {ratio_thresh}."
+            )
 
         if ratio_thresh[0] is None:
-            sig_down = pd.Series([False] * len(df), index=df.index)
+            sig_lower = pd.Series([False] * len(df), index=df.index)
         else:
-            sig_down = df[col_name1] < ratio_thresh[0]
+            if direction == "inside":
+                sig_lower = df[col_name1] > ratio_thresh[0]
+            else:
+                sig_lower = df[col_name1] < ratio_thresh[0]
+
+        if ratio_thresh[1] is None:
+            sig_upper = pd.Series([False] * len(df), index=df.index)
+        else:
+            if direction == "inside":
+                sig_upper = df[col_name1] < ratio_thresh[1]
+            else:
+                sig_upper = df[col_name1] > ratio_thresh[1]
 
         if col_name2 is None:
             # significantly up or down
-            df.loc[sig_up | sig_down, "SigCat"] = signficance_label
+            if direction == "inside":
+                # when the value is inside the interval, both tests must be true
+                df.loc[sig_upper & sig_lower, "SigCat"] = significance_label
+            else:
+                df.loc[sig_upper | sig_lower, "SigCat"] = significance_label
         else:
+            if ratio_thresh[0] is None:
+                sig_lower2 = pd.Series([False] * len(df), index=df.index)
+            else:
+                if direction == "inside":
+                    sig_lower2 = df[col_name2] > ratio_thresh[0]
+                else:
+                    sig_lower2 = df[col_name2] < ratio_thresh[0]
 
             if ratio_thresh[1] is None:
-                sig_up_2 = pd.Series([False] * len(df), index=df.index)
+                sig_upper2 = pd.Series([False] * len(df), index=df.index)
             else:
-                sig_up_2 = df[col_name2] > ratio_thresh[1]
-
-            if ratio_thresh[0] is None:
-                sig_down_2 = pd.Series([False] * len(df), index=df.index)
-            else:
-                sig_down_2 = df[col_name2] < ratio_thresh[0]
+                if direction == "inside":
+                    sig_upper2 = df[col_name2] < ratio_thresh[1]
+                else:
+                    sig_upper2 = df[col_name2] > ratio_thresh[1]
 
             # significantly up or down in both
-            df.loc[
-                (sig_up & sig_up_2) | (sig_down & sig_down_2),
-                "SigCat",
-            ] = signficance_label
+            if direction == "inside":
+                df.loc[
+                    (sig_upper & sig_lower) & (sig_upper2 & sig_lower2),
+                    "SigCat",
+                ] = significance_label
+            else:
+                df.loc[
+                    (sig_upper & sig_upper2) | (sig_lower & sig_lower2),
+                    "SigCat",
+                ] = significance_label
 
     non_sig_idx = df[df["SigCat"] == "not significant"].index
-    sig_idx = df[df["SigCat"] == signficance_label].index
+    sig_idx = df[df["SigCat"] == significance_label].index
 
     return df, col_name1, col_name2, non_sig_idx, sig_idx
 

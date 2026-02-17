@@ -37,7 +37,7 @@ def ttest(
     logged=True,
 ):
     # noinspection PyUnresolvedReferences
-    """
+    r"""
     Perform one or two sample ttest.
 
     Parameters
@@ -269,7 +269,13 @@ def cohen_d(df, group1, group2):
 
 
 def limma(
-    df, reps, cond="", custom_design=None, coef=None, print_r=False, return_cols=False
+    df: pd.DataFrame,
+    reps: list[list[str]],
+    cond: str = "",
+    custom_design: str = None,
+    coef: str = None,
+    print_r: bool = False,
+    return_cols: bool = False,
 ):
     # sourcery skip: extract-method, inline-immediately-returned-variable
     # noinspection PyUnresolvedReferences
@@ -342,6 +348,10 @@ def limma(
 
     """
     # TODO: better handle coefficient extraction in R
+    # check input dtypes
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a pandas DataFrame")
+
     df = df.copy()
     d = os.getcwd()
 
