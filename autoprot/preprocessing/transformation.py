@@ -12,6 +12,7 @@ Johannes Zimmermann <johannes.zimmermann@uni-wuerzburg.de>
 """
 
 import collections
+import logging
 import re
 import warnings
 from importlib import resources
@@ -19,11 +20,15 @@ from typing import Union, Literal, Sequence
 
 import numpy as np
 import pandas as pd
+from pandas.core.groupby.generic import DataFrameGroupBy
 import requests
 from pandas.core.groupby import DataFrameGroupBy
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import auc
+
+from pandera.typing import Series as PandasSeries
+from pandera.typing import DataFrame as PandasDataFrame
 
 from .. import r_helper, common
 
@@ -47,7 +52,7 @@ def log(
     ratio_replace: str = r"\3\2\1",
 ):
     # noinspection PyUnresolvedReferences
-    """
+    r"""
     Perform log transformation.
 
     Parameters
@@ -344,18 +349,22 @@ def collapse_rows(
 
 def exp_semi_col(
     df: pd.DataFrame,
-    columns: Union[list, str],
+    columns: Union[list[str], str],
     suffix: str = "_exploded",
     delimiter: str = ";",
-    cast_to: object = None,
-):
+    cast_to: (
+        Literal["str", "int", "float", "bool"]
+        | list[Literal["str", "int", "float", "bool"]]
+        | None
+    ) = None,
+) -> pd.DataFrame:
     # noinspection PyUnresolvedReferences
     r"""
     Expand a semicolon containing string column and generate a new column based on its content.
 
     Parameters
     ----------
-    df : pd.dataframe
+    df : pd.DataFrame
         Dataframe to expant columns.
     columns : str or list
         Colname of column(s) containing semicolon-separated values.
@@ -363,12 +372,12 @@ def exp_semi_col(
         Will be appended to the newly generated split column.
     delimiter: str, optional
         the delimiter to split the strings on. Default is semicolon.
-    cast_to : dtype, optional
-        If provided new column will be set to the provided dtype. The default is None.
+    cast_to : Literal["str", "int", "float", "None", "bool"] or list[Literal["str", "int", "float", "bool"]] or None,
+        optional. If provided new column will be set to the provided dtype. The default is None.
 
     Returns
     -------
-    df : pd.dataframe
+    df : pd.DataFrame
         Dataframe with the semicolon-separated values on separate rows.
 
     Examples
@@ -391,16 +400,6 @@ def exp_semi_col(
     Name: SingleProts, dtype: object
     """
 
-    def split_row_by_delimiter(row):
-        for col in row.index:
-            if col in columns:
-                cell = row[col]
-                if not pd.isnull(cell):
-                    row[col + suffix] = cell.split(delimiter)
-            else:
-                continue
-        return row
-
     df = df.copy(deep=True)
 
     if not isinstance(columns, list):
@@ -408,17 +407,32 @@ def exp_semi_col(
             columns,
         ]
     if not isinstance(cast_to, list) and cast_to is not None:
-        cast_to = [
+        cast_to: list[Literal["str", "int", "float", "bool"]] = [  # noqa
             cast_to,
         ]
-    new_columns = [c + suffix for c in columns]
 
-    # make temp df with expanded columns
-    df = df.apply(split_row_by_delimiter, axis=1).explode(new_columns)
+    # split by delimiter
+    new_columns = [c + suffix for c in columns]
+    for c, n in zip(columns, new_columns):
+        df[n] = df[c].str.split(delimiter, expand=False)
+
+    logging.debug(f"[exp_semi_col] {df[new_columns].dtypes}")
+
+    # explode the result
+    df = df.explode(column=new_columns)
+
+    logging.debug(f"[exp_semi_col] after exploding: {df[new_columns].dtypes}")
+
     if cast_to is not None:
         if len(cast_to) == 1:
+            cast_to: Literal["str", "int", "float", "bool"] = cast_to[0]
             df[new_columns] = df[new_columns].astype(cast_to)
         else:
+            # check that the length of the dtypes matches the number of columns
+            if not len(cast_to) == len(new_columns):
+                raise ValueError(
+                    f"Provided {len(cast_to)} dtypes for a total of {len(new_columns)} columns"
+                )
             for t, col in zip(cast_to, new_columns):
                 df[col] = df[col].astype(t)
 
@@ -435,7 +449,7 @@ def merge_semi_cols(
     """
     Merge two dataframes on a semicolon separated column.
 
-    Here m2 is merged to m1 (left merge).
+    By default, m2 is merged to m1 (left merge).
     -> entries in m2 which are not matched to m1 are dropped
 
     Parameters
@@ -445,12 +459,12 @@ def merge_semi_cols(
     m2 : pd.Dataframe
         Second dataframe to merge with first.
     semicolon_col1 : str
-        Colname of a column containing semicolon-separated values in m1.
+        Name of a column containing semicolon-separated values in m1.
     semicolon_col2 : str, optional
-        Colname of a column containing semicolon-separated values in m2.
+        Name of a column containing semicolon-separated values in m2.
         If sCol2 is None it is assumed to be the same as sCol1.
         The default is None.
-    how: 'left', 'right', 'outer', 'inner'
+    how: Literal["left", "right", "outer", "inner"]
         How to perform the merge
 
     Returns
@@ -482,82 +496,56 @@ def merge_semi_cols(
     #     2      E    12    E;F     2
     # =============================================================================
 
-    # helper functions
-    def _form_merge_pairs(s: DataFrameGroupBy) -> list:
-        """
-        Group the data back on the main data identifier and create the appropriate matching entries of the other data.
-
-        Parameters
-        ----------
-        s : pd.groupby
-            Groupby object grouped on the first identifier.
-
-        Returns
-        -------
-        list
-            A list with the ids corresponding to m1 and the entries to the matching idcs in m2.
-
-        """
-        ids = list({i for i in s if not np.isnan(i)})
-        return ids or [np.nan]
-
-    def _aggregate_duplicates(s: pd.DataFrame) -> pd.DataFrame:
-        # this might be an oversimplification but there should only be
-        # object columns and numerical columns in the data
-
-        if s.name == "mergeID_m1":
-            print(s)
-
-        if s.dtype != "O":
-            return s.median()
-        try:
-            return s.mode()[0]
-        except Exception:
-            return s.mode()
-
     m1, m2 = m1.copy(), m2.copy()
 
     # make IDs to reduce data after expansion
-    m1["mergeID_m1"] = range(m1.shape[0])
-    m2["mergeID_m2"] = range(m2.shape[0])
+    m1["mergeID_m1"] = pd.Series(range(m1.shape[0])).astype("Int64")
+    # Int64 because it might contain NaN later
+    m2["mergeID_m2"] = pd.Series(range(m2.shape[0])).astype("Int64")
 
     # rename ssCol2 if it is not the same as ssCol1
     if semicolon_col1 != semicolon_col2:
         m2.rename(columns={semicolon_col2: semicolon_col1}, inplace=True)
 
+    logging.debug(f"[merge_semi_col] m1 dtype: {m1.dtypes}, m2 dtype: {m2.dtypes}")
+
     # expand the semicol columns and name the new col sUID
-    m1_exp = exp_semi_col(m1, semicolon_col1)
-    m2_exp = exp_semi_col(m2, semicolon_col1)
+    m1_exp: PandasDataFrame = exp_semi_col(m1, semicolon_col1)
+    m2_exp: PandasDataFrame = exp_semi_col(m2, semicolon_col1)
+
+    logging.debug(
+        f"[merge_semi_col] m1_exp dtype: {m1_exp.dtypes}, m2_exp dtype: {m2_exp.dtypes}"
+    )
 
     # add the appropriate original row indices of m2 to the corresponding rows
     # of m1_exp
     # here one might want to consider other kind of merges
-    merge = pd.merge(
-        m1_exp,
+    merge_pairs = pd.merge(  # noqa
+        m1_exp[["mergeID_m1", semicolon_col1 + "_exploded"]],
         m2_exp[["mergeID_m2", semicolon_col1 + "_exploded"]],
         on=semicolon_col1 + "_exploded",
-        how=how,
-    )
+        how="inner",
+    ).drop(
+        semicolon_col1 + "_exploded", axis=1
+    )  # can drop column as only the ID mapping is needed
 
-    merge_pairs = (
-        merge[["mergeID_m1", "mergeID_m2"]].groupby("mergeID_m1").agg(_form_merge_pairs)
-    )
-    # This is necessary if there are more than one matching columns
-    merge_pairs = merge_pairs.explode("mergeID_m2")
+    logging.debug(f"[merge_semi_col] m1_exp dtype: {merge_pairs.dtypes}")
 
-    # merge of m2 columns
-    merge_pairs = (
-        merge_pairs.reset_index()
-        .merge(m2, on="mergeID_m2", how="left")
-        .groupby("mergeID_m1")
-        .agg(_aggregate_duplicates)
-        .reset_index()
-    )
+    logging.debug(f"[merge_semi_col] merge_pairs complete:\n{merge_pairs.dtypes}")
 
-    # merge of m1 columns (those should all be unique)
-    merge_pairs = merge_pairs.merge(m1, on="mergeID_m1", how="outer")
+    # merge back the original dataframes
+    merged_df = merge_pairs.merge(m2, on="mergeID_m2", how=how)  # noqa
+    # invert the merge direction for the first df
+    if how == "left":
+        how = "right"
+    elif how == "right":
+        how = "left"
+    merged_df = merged_df.merge(m1, on="mergeID_m1", how=how)
 
-    return merge_pairs.drop(["mergeID_m1", "mergeID_m2"], axis=1)
+    # by exploding and merge there can be duplicates (i.e. ID1 x ID2  vs ID2 x ID1) which should be dropped
+    merged_df = merged_df.reset_index(drop=True).drop_duplicates()
+
+    return merged_df.drop(["mergeID_m1", "mergeID_m2"], axis=1)
 
 
 def calculate_iBAQ(
