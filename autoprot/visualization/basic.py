@@ -2031,7 +2031,7 @@ def _prep_ratio_data(
 
     df["SigCat"] = "not significant"  # default value
     if ratio_thresh is not None:
-        if isinstance(ratio_thresh, (int, float, None)):
+        if isinstance(ratio_thresh, (int, float)):
             ratio_thresh = (-ratio_thresh, ratio_thresh)
             print(
                 f"[prep_ratio_data] Setting threshold for {significance_label} to {ratio_thresh}."
