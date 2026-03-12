@@ -39,7 +39,7 @@ docs = [
     "Sphinx>=7.3.7",
     "numpydoc>=1.7.0",
     "pydata-sphinx-theme>=0.15.2",
-    "myst-parser>=3.0.1"
+    "myst-parser>=3.0.1",
     "black>=26.3.1",
 ]
 
