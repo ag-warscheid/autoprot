@@ -31,7 +31,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "statsmodels>=0.13.2",
     "UpSetPlot>=0.8.0",
-    "pandera>=0.1"
+    "pandera>=0.1",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +40,7 @@ docs = [
     "numpydoc>=1.7.0",
     "pydata-sphinx-theme>=0.15.2",
     "myst-parser>=3.0.1"
+    "black>=26.3.1",
 ]
 
 testing = [
