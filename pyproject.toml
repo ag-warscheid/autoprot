@@ -49,7 +49,8 @@ testing = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["autoprot"]
+include = ["autoprot", "autoprot.preprocessing", "autoprot.analysis", "autoprot.visualization",
+    "autoprot.dependencies", "autoprot.dependencies.plotlylogo", "autoprot.dependencies.venn"]
 
 [tool.pixi.workspace]
 channels = ["conda-forge", "bioconda"]
