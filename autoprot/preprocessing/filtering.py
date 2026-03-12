@@ -8,18 +8,24 @@ Autoprot Preprocessing Functions.
 """
 
 import functools
+from typing import Literal
 
 import numpy as np
 import pandas as pd
-from typing import Literal
 
-from autoprot.decorators import report
 from autoprot import r_helper
+from autoprot.decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # defines which functions are exposed at the module level
-__all__ = ['cleaning', 'filter_loc_prob', 'filter_seq_cov', 'filter_vv', 'remove_non_quant']
+__all__ = [
+    "cleaning",
+    "filter_loc_prob",
+    "filter_seq_cov",
+    "filter_vv",
+    "remove_non_quant",
+]
 
 # =============================================================================
 # Note: When using R functions provided column names might get changed

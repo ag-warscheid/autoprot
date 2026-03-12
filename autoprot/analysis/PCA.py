@@ -9,15 +9,14 @@ Autoprot Analysis Functions.
 
 from typing import Union, Literal
 
-import pandas as pd
-import numpy as np
 import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-
-from sklearn.decomposition import PCA
-from autoprot import r_helper
-
 from gprofiler import GProfiler
+from sklearn.decomposition import PCA
+
+from autoprot import r_helper
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()

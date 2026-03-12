@@ -1,7 +1,8 @@
 import sys
+
 from . import common
-from . import r_helper
 from . import decorators
+from . import r_helper
 
 __version__ = "dev"
 __author__ = "The autoprot contributors"

@@ -20,21 +20,25 @@ from typing import Union, Literal, Sequence
 
 import numpy as np
 import pandas as pd
-from pandas.core.groupby.generic import DataFrameGroupBy
 import requests
-from pandas.core.groupby import DataFrameGroupBy
+from pandera.typing import DataFrame as PandasDataFrame
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import auc
-
-from pandera.typing import Series as PandasSeries
-from pandera.typing import DataFrame as PandasDataFrame
 
 from autoprot import r_helper, common
 
 RFUNCTIONS, R = r_helper.return_r_path()
 # defines which functions are exposed at the module level
-__all__ = ['log', 'expand_site_table', 'collapse_rows', 'exp_semi_col', 'merge_semi_cols', 'calculate_iBAQ', 'merge_semi_cols']
+__all__ = [
+    "log",
+    "expand_site_table",
+    "collapse_rows",
+    "exp_semi_col",
+    "merge_semi_cols",
+    "calculate_iBAQ",
+    "merge_semi_cols",
+]
 
 # =============================================================================
 # Note: When using R functions provided column names might get changed
@@ -128,8 +132,10 @@ def log(
     try:
         keep = df[cols] > 0
     except TypeError:
-        raise TypeError(f"[log] Could not mask negative an NaN values in columns {', '.join(cols)}."
-                        f" Please check if they are all numerical.")
+        raise TypeError(
+            f"[log] Could not mask negative an NaN values in columns {', '.join(cols)}."
+            f" Please check if they are all numerical."
+        )
 
     # Apply log transformation to all columns at once
     log_values = np.log(df[cols].where(keep)) / np.log(base)

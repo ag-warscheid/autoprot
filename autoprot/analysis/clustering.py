@@ -16,10 +16,10 @@ import matplotlib.colors as clrs
 import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
 import seaborn as sns
 from gprofiler import GProfiler
 from numpy.typing import ArrayLike
+from pandas.api.types import is_numeric_dtype
 from scipy import cluster as clst
 from scipy.spatial import distance
 from scipy.stats import zscore

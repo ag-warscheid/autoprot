@@ -9,23 +9,32 @@ Autoprot Annotation Functions.
 
 from typing import Union
 
-import pandas as pd
-import numpy as np
-import seaborn as sns
+import logomaker
+import matplotlib.patches as patches
 import matplotlib.pylab as plt
-import plotly.graph_objects as go
+import numpy as np
+import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+import seaborn as sns
 from pandas import DataFrame
 from plotly.graph_objs import Figure
 from plotly.subplots import make_subplots
 
-import logomaker
-import matplotlib.patches as patches
-
 from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 # SEQUENCE LOGO
-__all__ = ['sequence_logo', 'isequence_logo', 'vis_psites', 'ivis_psites', 'ptm_lolli_plot', 'ptm_mirror_lolli_plot', 'i_lolli_plot', 'i_mirror_lolli_plot']
+__all__ = [
+    "sequence_logo",
+    "isequence_logo",
+    "vis_psites",
+    "ivis_psites",
+    "ptm_lolli_plot",
+    "ptm_mirror_lolli_plot",
+    "i_lolli_plot",
+    "i_mirror_lolli_plot",
+]
+
 
 def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False):
     """

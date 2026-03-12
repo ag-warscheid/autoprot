@@ -1,12 +1,14 @@
+import multiprocessing
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import multiprocessing
 from itertools import combinations
+
 import numpy as np
 import pandas as pd
 
 # defines which functions are exposed at the module level
-__all__ = ['load_parquet', 'parquet_to_pg', 'silac_protein_group_from_diann']
+__all__ = ["load_parquet", "parquet_to_pg", "silac_protein_group_from_diann"]
+
 
 def load_parquet(
     path, filters: dict = None, mbr: bool = True, crap_str: str | list[str] = "cRAP"

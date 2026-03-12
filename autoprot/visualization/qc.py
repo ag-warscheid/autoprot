@@ -7,12 +7,13 @@ Autoprot Quality Control Plotting Functions.
 @documentation: Julian
 """
 
-import pandas as pd
-import seaborn as sns
+from typing import Literal, Union
+
 import matplotlib.pylab as plt
 import matplotlib.ticker as ticker
+import pandas as pd
 import plotly.express as px
-from typing import Literal, Union
+import seaborn as sns
 
 __all__ = [
     "sty_count_plot",

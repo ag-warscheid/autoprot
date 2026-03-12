@@ -11,15 +11,14 @@ from functools import reduce
 from importlib import resources
 from typing import Union, Literal, List, Dict, Any, Tuple
 
-import pandas as pd
-import numpy as np
 import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-
-from autoprot import visualization as vis
-from autoprot import r_helper
-
 from gprofiler import GProfiler
+
+from autoprot import r_helper
+from autoprot import visualization as vis
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()

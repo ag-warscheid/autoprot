@@ -7,19 +7,18 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 
-from typing import Literal
 from datetime import date
-
-import pandas as pd
-import numpy as np
-import matplotlib.pylab as plt
-import seaborn as sns
 from operator import itemgetter
+from typing import Literal
+
+import matplotlib.pylab as plt
 import missingno as msn
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from gprofiler import GProfiler
 
 from autoprot import r_helper
-
-from gprofiler import GProfiler
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
