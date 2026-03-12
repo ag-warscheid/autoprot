@@ -91,16 +91,16 @@ def parquet_to_pg(
     reset_index: bool = True,
 ) -> pd.DataFrame:
     """
-    Load DIANN SILAC precursor data from a Parquet file and convert to protein group-level intensities.
+    Load DIANN precursor data from a Parquet file and convert to protein group-level intensities.
     """
     rp = load_parquet(path, filters=filters, mbr=mbr, crap_str=crap_str)
 
-    # Select relevant columns and drop duplicates
-    pg = rp[["Run", "Protein.Group", "Genes", "PG.MaxLFQ"]].drop_duplicates().copy()
-    pg["PG.MaxLFQ"] = pg["PG.MaxLFQ"].replace(0, pd.NA)
-
     if index_cols is None:
         index_cols = ["Protein.Group", "Genes"]
+
+    # Select relevant columns and drop duplicates
+    pg = rp[["Run", "PG.MaxLFQ"] + index_cols].drop_duplicates().copy()
+    pg["PG.MaxLFQ"] = pg["PG.MaxLFQ"].replace(0, pd.NA)
 
     pg = pg.pivot_table(
         index=index_cols,
@@ -112,7 +112,7 @@ def parquet_to_pg(
     # convert numerical columns to float
     pg = pg.astype(float)
 
-    print(f"Aggretation to protein group level done. Final shape: {pg.shape}")
+    print(f"Aggregation to protein group level done. Final shape: {pg.shape}")
 
     if reset_index:
         pg = pg.reset_index()
