@@ -17,7 +17,7 @@ import seaborn as sns
 from operator import itemgetter
 import missingno as msn
 
-from .. import r_helper
+from autoprot import r_helper
 
 from gprofiler import GProfiler
 
@@ -26,6 +26,15 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
+__all__ = [
+    "miss_analysis",
+    "missed_cleavages",
+    "enrichment_specificity",
+    "SILAC_labeling_efficiency",
+    "dimethyl_labeling_efficieny",
+    "tmt6plex_labeling_efficiency",
+]
 
 
 def miss_analysis(
@@ -234,8 +243,10 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
     today = date.today().isoformat()
 
     if "Experiment" not in df_evidence.columns.tolist():
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
         experiments = list(set((df_evidence["Raw file"])))
     else:
         experiments = list(set((df_evidence["Experiment"])))
@@ -243,8 +254,10 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
     rawfiles = list(set((df_evidence["Raw file"])))
     if len(experiments) != len(rawfiles):
         experiments = rawfiles
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
 
     # calculate miss cleavage for each raw file in df_evidence
     df_missed_cleavage_summary = pd.DataFrame()
@@ -601,8 +614,10 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
         experiments = list((df_evidence["Experiment"].unique()))
     else:
         experiments = list((df_evidence["Raw file"].unique()))
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
+        print(
+            "Warning: Column [Experiment] either not unique or missing,\n\
+              column [Raw file] used"
+        )
 
     df_labeling_eff = pd.DataFrame()
 

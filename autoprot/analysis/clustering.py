@@ -30,13 +30,15 @@ from sklearn.metrics import (
     davies_bouldin_score,
 )
 
-from .. import r_helper
+from autoprot import r_helper
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
+__all__ = ["HCA", "KMeans"]
 
 
 class _Cluster:

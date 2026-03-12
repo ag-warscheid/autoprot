@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pylab as plt
 import seaborn as sns
 
-from .. import r_helper
+from autoprot import r_helper
 
 from gprofiler import GProfiler
 
@@ -21,6 +21,8 @@ RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
+__all__ = ["edm", "loess", "make_psm"]
 
 
 def edm(matrix_a, matrix_b):
