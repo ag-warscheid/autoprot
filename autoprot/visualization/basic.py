@@ -29,11 +29,32 @@ from scipy import stats
 from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
 
-from .. import common as com
-from ..dependencies.venn import venn
+from autoprot import common as com
+from autoprot.dependencies.venn import venn
 
 # ignore FutureWarnings from upsetplot
 warnings.filterwarnings("ignore", module="upsetplot", category=FutureWarning)
+
+__all__ = [
+    "correlogram",
+    "corr_map",
+    "prob_plot",
+    "boxplot",
+    "intensity_rank",
+    "venn_diagram",
+    "volcano",
+    "ivolcano",
+    "ratio_plot",
+    "iratio_plot",
+    "ratio_vs_intens",
+    "log_int_plot",
+    "ilog_int_plot",
+    "ma_plot",
+    "ima_plot",
+    "mean_sd_plot",
+    "plot_traces",
+    "pval_hist",
+]
 
 
 def correlogram(
@@ -50,7 +71,7 @@ def correlogram(
     ret_fig: bool = False,
     correlation_colorrange: tuple[float, float] = (0.8, 1),
     figsize: Union[bool, tuple] = None,
-    to_count: str = 'proteins'
+    to_count: str = "proteins",
 ):
     # noinspection PyUnresolvedReferences
     """Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.

@@ -22,10 +22,10 @@ from plotly.subplots import make_subplots
 import logomaker
 import matplotlib.patches as patches
 
-from ..dependencies.plotlylogo.PlotlyLogo import logo as plogo
+from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
 
 # SEQUENCE LOGO
-
+__all__ = ['sequence_logo', 'isequence_logo', 'vis_psites', 'ivis_psites', 'ptm_lolli_plot', 'ptm_mirror_lolli_plot', 'i_lolli_plot', 'i_mirror_lolli_plot']
 
 def _find_sequence_motif(row: pd.Series, sequence_motif: str, rename_to_st=False):
     """
