@@ -124,7 +124,11 @@ def log(
 
     df = df.copy()
     # values to keep for log transformation
-    keep = df[cols] > 0
+    try:
+        keep = df[cols] > 0
+    except TypeError:
+        raise TypeError(f"[log] Could not mask negative an NaN values in columns {', '.join(cols)}."
+                        f" Please check if they are all numerical.")
 
     # Apply log transformation to all columns at once
     log_values = np.log(df[cols].where(keep)) / np.log(base)
