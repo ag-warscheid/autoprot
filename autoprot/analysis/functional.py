@@ -11,21 +11,22 @@ from functools import reduce
 from importlib import resources
 from typing import Union, Literal, List, Dict, Any, Tuple
 
-import pandas as pd
-import numpy as np
 import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-
-from .. import visualization as vis
-from .. import r_helper
-
 from gprofiler import GProfiler
+
+from autoprot import r_helper
+from autoprot import visualization as vis
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
+__all__ = ["go_analysis", "KSEA"]
 
 
 def go_analysis(

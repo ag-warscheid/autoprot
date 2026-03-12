@@ -26,7 +26,6 @@ Its main features are:
 
 - Generate a new python environment using [anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 or [pip](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
-  - Install required Python packages (see [pyproject.toml](pyproject.toml)) in the environment
 - Download or clone autoprot
   - If you clone the repository, make sure to include the dependencies as submodules (example below)
 
@@ -40,7 +39,23 @@ git clone --recurse-submodules https://github.com/ag-warscheid/autoprot.git
 git submodule update --init --recursive
 ```
 
-- Next you need to install R. Please follow the instructions at the [R manual](https://cran.r-project.org/index.html) and install R to a custom location
+- Install autoprot to your Python env using
+
+```
+cd autoprot
+pip install .
+```
+- Next you need to install R. Please follow the instructions from the [R manual](https://cran.r-project.org/index.html) and install R to a custom location
+  - On Linux you could typically do
+
+```bash
+wget https://cran.r-project.org/src/base/R-4/R-4.5.3.tar.gz
+tar -xzf R-4.5.3.tar.gz
+cd R-4.5.3
+./configure
+make
+```
+
 - Start autoprot by importing it from any Python console you like. It will generate an autoprot.conf file in the autoprot package directory that you need to edit.
   - Insert the path to your Rscript executable that you just installed as value for the R variable
   - The RFunctions variable should point the RFunctions.R file from autoprot.

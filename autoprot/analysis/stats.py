@@ -7,20 +7,21 @@ Autoprot Analysis Functions.
 @documentation: Julian
 """
 
-import pandas as pd
-import numpy as np
 import matplotlib.pylab as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
-
-from .. import r_helper
-
 from gprofiler import GProfiler
+
+from autoprot import r_helper
 
 gp = GProfiler(user_agent="autoprot", return_dataframe=True)
 RFUNCTIONS, R = r_helper.return_r_path()
 
 # check where this is actually used and make it local
 cmap = sns.diverging_palette(150, 275, s=80, l=55, n=9)
+
+__all__ = ["edm", "loess", "make_psm"]
 
 
 def edm(matrix_a, matrix_b):

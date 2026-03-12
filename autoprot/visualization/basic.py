@@ -29,11 +29,32 @@ from scipy import stats
 from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
 
-from .. import common as com
-from ..dependencies.venn import venn
+from autoprot import common as com
+from autoprot.dependencies.venn import venn
 
 # ignore FutureWarnings from upsetplot
 warnings.filterwarnings("ignore", module="upsetplot", category=FutureWarning)
+
+__all__ = [
+    "correlogram",
+    "corr_map",
+    "prob_plot",
+    "boxplot",
+    "intensity_rank",
+    "venn_diagram",
+    "volcano",
+    "ivolcano",
+    "ratio_plot",
+    "iratio_plot",
+    "ratio_vs_intens",
+    "log_int_plot",
+    "ilog_int_plot",
+    "ma_plot",
+    "ima_plot",
+    "mean_sd_plot",
+    "plot_traces",
+    "pval_hist",
+]
 
 
 def correlogram(
@@ -50,6 +71,7 @@ def correlogram(
     ret_fig: bool = False,
     correlation_colorrange: tuple[float, float] = (0.8, 1),
     figsize: Union[bool, tuple] = None,
+    to_count: str = "proteins",
 ):
     # noinspection PyUnresolvedReferences
     """Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
@@ -97,6 +119,8 @@ def correlogram(
         Sets the colormap range for the upper-right correlation tiles. Default is (0.8, 1)
     figsize : tuple, optional
         The figure size in x and y direction.
+    to_count: str
+        Label for the number of elements counted (depends on the input file)
 
     Raises
     ------
@@ -251,11 +275,6 @@ def correlogram(
         _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
         r, d = calculate_correlation(x, y)
         ax = plt.gca()
-
-        if file == "Phospho (STY)":
-            to_count = "peptides"
-        else:
-            to_count = "proteins"
 
         ax.annotate(f"{len(d)} {to_count}", xy=(0.1, 0.9), xycoords=ax.transAxes)
         ax.annotate(
