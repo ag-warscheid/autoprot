@@ -50,6 +50,7 @@ def correlogram(
     ret_fig: bool = False,
     correlation_colorrange: tuple[float, float] = (0.8, 1),
     figsize: Union[bool, tuple] = None,
+    to_count: str = 'proteins'
 ):
     # noinspection PyUnresolvedReferences
     """Plot a pair plot of the dataframe intensity columns in order to assess the reproducibility.
@@ -97,6 +98,8 @@ def correlogram(
         Sets the colormap range for the upper-right correlation tiles. Default is (0.8, 1)
     figsize : tuple, optional
         The figure size in x and y direction.
+    to_count: str
+        Label for the number of elements counted (depends on the input file)
 
     Raises
     ------
@@ -251,11 +254,6 @@ def correlogram(
         _ = kwargs  # kwargs required to catch seaborn calling kwargs color and label
         r, d = calculate_correlation(x, y)
         ax = plt.gca()
-
-        if file == "Phospho (STY)":
-            to_count = "peptides"
-        else:
-            to_count = "proteins"
 
         ax.annotate(f"{len(d)} {to_count}", xy=(0.1, 0.9), xycoords=ax.transAxes)
         ax.annotate(
