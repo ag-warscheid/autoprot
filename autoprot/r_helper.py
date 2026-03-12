@@ -1,6 +1,7 @@
 import hashlib
 import os
 from subprocess import run, STDOUT, Popen, PIPE
+
 import pandas as pd
 
 # this is a pointer to the module object instance itself.
@@ -100,13 +101,21 @@ def check_r_install():
     base_path = str(os.path.join(os.path.dirname(os.path.realpath(__file__))))
 
     if not os.path.isfile(os.path.join(base_path, "autoprot.conf")):
-        with open(os.path.join(base_path, "autoprot.conf"), "w") as wf:
-            wf.write(
-                f"R = PATH_TO_RSCRIPT\nRFUNCTIONS = {os.path.join(base_path, 'RFunctions.R')}"
+        # check if you have write permissions
+        if not os.access(os.path.join(base_path, "autoprot.conf")):
+            raise OSError(
+                f"Could not create autoprot.conf file at {os.path.join(base_path, 'autoprot.conf')}. "
+                f"Please create a file with the following content and place at this dir:"
+                f" \n R = PATH_TO_RSCRIPT\nRFUNCTIONS = {os.path.join(base_path, 'RFunctions.R')}"
             )
-        raise OSError(
-            "No R installation configured. Generated autoprot.conf. Please edit and try again."
-        )
+        else:
+            with open(os.path.join(base_path, "autoprot.conf"), "w") as wf:
+                wf.write(
+                    f"R = PATH_TO_RSCRIPT\nRFUNCTIONS = {os.path.join(base_path, 'RFunctions.R')}"
+                )
+            raise OSError(
+                "No R installation configured. Generated autoprot.conf. Please edit and try again."
+            )
     else:
         with open(os.path.join(base_path, "autoprot.conf"), "r") as rf:
             for line in rf:
