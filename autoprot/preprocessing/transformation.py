@@ -30,10 +30,11 @@ from sklearn.metrics import auc
 from pandera.typing import Series as PandasSeries
 from pandera.typing import DataFrame as PandasDataFrame
 
-from .. import r_helper, common
+from autoprot import r_helper, common
 
 RFUNCTIONS, R = r_helper.return_r_path()
-
+# defines which functions are exposed at the module level
+__all__ = ['log', 'expand_site_table', 'collapse_rows', 'exp_semi_col', 'merge_semi_cols', 'calculate_iBAQ', 'merge_semi_cols']
 
 # =============================================================================
 # Note: When using R functions provided column names might get changed

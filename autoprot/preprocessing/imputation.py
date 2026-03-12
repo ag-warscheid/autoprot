@@ -11,12 +11,13 @@ import numpy as np
 import pandas as pd
 from subprocess import run, PIPE, STDOUT
 from typing import Union
-from .. import r_helper
-from .. import preprocessing as pp
+from autoprot import r_helper
+from autoprot import preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
-
+# defines which functions are exposed at the module level
+__all__ = ['imp_min_prob', 'imp_median', 'imp_seq', 'dima']
 # =============================================================================
 # Note: When using R functions provided column names might get changed
 # Especially, do not use +,- or spaces in your column names. Maybe write decorator to

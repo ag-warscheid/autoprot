@@ -13,6 +13,8 @@ import requests
 from urllib import parse
 from ftplib import FTP
 
+# defines which functions are exposed at the module level
+__all__ = ['read_csv', 'to_csv', 'download_from_ftp', 'fetch_from_pride',]
 
 def read_csv(file, sep="\t", low_memory=False, **kwargs):
     r"""

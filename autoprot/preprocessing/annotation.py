@@ -16,13 +16,14 @@ import numpy as np
 import pandas as pd
 import requests
 
-# noinspection PyPackageRequirements
 from Bio import Align
-from .. import r_helper, common
+from autoprot import r_helper, common
 from autoprot.decorators import report
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
+# defines which functions are exposed at the module level
+__all__ = ['go_annot', 'motif_annot', 'annotate_phosphosite', 'to_canonical_ps', 'get_subcellular_loc']
 
 # =============================================================================
 # Note: When using R functions provided column names might get changed

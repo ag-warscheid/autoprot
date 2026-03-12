@@ -11,11 +11,13 @@ import numpy as np
 import pandas as pd
 import os
 from typing import Union, Literal, Tuple, List
-from .. import r_helper
-from .. import preprocessing as pp
+from autoprot import r_helper
+from autoprot import preprocessing as pp
 
 RFUNCTIONS, R = r_helper.return_r_path()
 
+# defines which functions are exposed at the module level
+__all__ = ['loading_norm', 'quantile_norm', 'vsn', 'cyclic_loess', 'norm_to_prot']
 
 # =============================================================================
 # Note: When using R functions provided column names might get changed
