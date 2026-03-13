@@ -31,7 +31,7 @@ __all__ = [
     "missed_cleavages",
     "enrichment_specificity",
     "SILAC_labeling_efficiency",
-    "dimethyl_labeling_efficieny",
+    "dimethyl_labeling_efficiency",
     "tmt6plex_labeling_efficiency",
 ]
 
@@ -580,9 +580,9 @@ def SILAC_labeling_efficiency(
     return df_labeling_eff
 
 
-def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
+def dimethyl_labeling_efficiency(df_evidence, label, save=True) -> pd.DataFrame:
     """
-    This function calculates the labeling efficiency of dimethyl labeled samples using a MaxQuant evidence table.
+    This function calculates the labelling efficiency of dimethyl labelled samples using a MaxQuant evidence table.
 
     Parameters
     ----------
@@ -598,9 +598,6 @@ def dimethyl_labeling_efficieny(df_evidence, label, save=True) -> pd.DataFrame:
     pd.DataFrame
         Results from the analysis
     """
-    # set plot style
-    plt.style.use("seaborn-v0_8-whitegrid")
-
     # set parameters
     today = date.today().isoformat()
 
