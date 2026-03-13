@@ -32,6 +32,7 @@ dependencies = [
     "statsmodels>=0.13.2",
     "UpSetPlot>=0.8.0",
     "pandera>=0.1",
+    "openpyxl>=3.1.0",
     "PlotlyLogo@git+https://github.com/aretaon/PlotlyLogo.git",
     "pyvenn@git+https://github.com/y9c/pyvenn.git",
 ]
