@@ -10,7 +10,7 @@ Autoprot Basic Plotting Functions.
 import warnings
 from functools import reduce
 from itertools import combinations
-from typing import Literal, Union, List
+from typing import Literal, Union
 
 import matplotlib.colors as mcolors
 import matplotlib.patches as patches
@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import pyvenn.venn as venn
 import seaborn as sns
-import upsetplot
 from adjustText import adjust_text
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
@@ -28,9 +28,9 @@ from pandas.core.dtypes.common import is_numeric_dtype
 from scipy import stats
 from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
+import upsetplot
 
 from autoprot import common as com
-from autoprot.dependencies.venn import venn
 
 # ignore FutureWarnings from upsetplot
 warnings.filterwarnings("ignore", module="upsetplot", category=FutureWarning)

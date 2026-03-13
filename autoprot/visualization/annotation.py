@@ -20,8 +20,7 @@ import seaborn as sns
 from pandas import DataFrame
 from plotly.graph_objs import Figure
 from plotly.subplots import make_subplots
-
-from autoprot.dependencies.plotlylogo.PlotlyLogo import logo as plogo
+from PlotlyLogo import logo as plogo
 
 # SEQUENCE LOGO
 __all__ = [

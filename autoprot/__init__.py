@@ -16,3 +16,5 @@ module_pointer.check_r_install = False
 common.generate_environment_txt()
 
 from . import preprocessing
+from . import analysis
+from . import visualization
