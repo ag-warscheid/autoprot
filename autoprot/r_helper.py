@@ -102,7 +102,7 @@ def check_r_install():
 
     if not os.path.isfile(os.path.join(base_path, "autoprot.conf")):
         # check if you have write permissions
-        if not os.access(os.path.join(base_path, "autoprot.conf")):
+        if not os.access(os.path.join(base_path, "autoprot.conf"), os.W_OK):
             raise OSError(
                 f"Could not create autoprot.conf file at {os.path.join(base_path, 'autoprot.conf')}. "
                 f"Please create a file with the following content and place at this dir:"
