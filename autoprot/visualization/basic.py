@@ -1175,7 +1175,7 @@ def _label_scatter(
         ],
         None,
     ],
-    highlight: Union[pd.Index, List[pd.Index], None],
+    highlight: pd.Index | list[pd.Index] | None,
     annotate_colname: str,
     annotate_density: float,
 ) -> None:
