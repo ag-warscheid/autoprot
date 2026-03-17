@@ -153,7 +153,7 @@ def silac_protein_group_from_diann(df):
             raise KeyError(f"Missing columns : {missing}")
 
         print(
-            f"Pivoting DataFrame of shape {df.shape} with channels {df['Channel'].unique()}"
+            f"Pivoting DataFrame of shape {df.shape} with channels {', '.join(df['Channel'].unique().tolist())}"
         )
 
         pivot_df = df.pivot_table(
@@ -173,22 +173,12 @@ def silac_protein_group_from_diann(df):
         pivot_df = pivot_df.reset_index()
 
         # calculate ratios between all combinations of channels
-        for combination in combinations(df["Channel"].unique(), 2):
+        for combination in combinations(sorted(df["Channel"].unique()), 2):
             ch1, ch2 = combination
-            pivot_df[f"H_L_Ms1_{ch1}_vs_{ch2}"] = (
+            pivot_df[f"Ratio_{ch1}_{ch2}_Ms1"] = (
                 pivot_df[f"Ms1.Normalised_{ch1}"] / pivot_df[f"Ms1.Normalised_{ch2}"]
             )
-            pivot_df[f"H_L_Precursor_{ch1}_vs_{ch2}"] = (
-                pivot_df[f"Precursor.Quantity_{ch1}"]
-                / pivot_df[f"Precursor.Quantity_{ch2}"]
-            )
-        # calculate ratios between all combinations of channels
-        for combination in combinations(df["Channel"].unique(), 2):
-            ch1, ch2 = combination
-            pivot_df[f"H_L_Ms1_{ch1}_vs_{ch2}"] = (
-                pivot_df[f"Ms1.Normalised_{ch1}"] / pivot_df[f"Ms1.Normalised_{ch2}"]
-            )
-            pivot_df[f"H_L_Precursor_{ch1}_vs_{ch2}"] = (
+            pivot_df[f"Ratio_{ch1}_{ch2}_Precursor"] = (
                 pivot_df[f"Precursor.Quantity_{ch1}"]
                 / pivot_df[f"Precursor.Quantity_{ch2}"]
             )
@@ -196,23 +186,11 @@ def silac_protein_group_from_diann(df):
         pivot_df.replace([0, np.inf, -np.inf], np.nan, inplace=True)
         return pivot_df
 
-    def sum_per_run(run_name, ratio_df):
+    def sum_per_run(run_name, ratio_df, mapper):
         """Per-run protein aggregation"""
         return (
             ratio_df.groupby("Protein.Group", observed=True)
-            .agg(
-                {
-                    "H_L_Ms1": "median",
-                    "H_L_Precursor": "median",
-                    "Ms1.Normalised_H": "sum",
-                    "Ms1.Normalised_L": "sum",
-                    "Precursor.Quantity_H": "sum",
-                    "Precursor.Quantity_L": "sum",
-                    "Global.PG.Q.Value_H": "min",
-                    "Channel.Q.Value_H": "min",
-                    "Stripped.Sequence": lambda x: ",".join(x.unique()),
-                }
-            )
+            .agg(mapper)
             .add_suffix(f"_{run_name}")
         )
 
@@ -236,6 +214,7 @@ def silac_protein_group_from_diann(df):
     # Step 1: Pivot and calculate ratios for each run
     start_time = time.time()
     ratio_df = pivot_and_calc_ratios(df)
+
     # set Protein.Group as categorical for memory efficiency
     ratio_df["Run"] = ratio_df["Run"].astype("category")
     ratio_df["Protein.Group"] = ratio_df["Protein.Group"].astype("category")
@@ -244,6 +223,22 @@ def silac_protein_group_from_diann(df):
     )
 
     # Step 2: Process runs in parallel
+    # construct aggregation mapper
+    mapper = {}
+    for ch1, ch2 in combinations(sorted(df["Channel"].unique()), 2):
+        mapper[f"Ratio_{ch1}_{ch2}_Ms1"] = "median"
+        mapper[f"Ratio_{ch1}_{ch2}_Precursor"] = "median"
+        mapper[f"Ms1.Normalised_{ch1}"] = "sum"
+        mapper[f"Ms1.Normalised_{ch2}"] = "sum"
+        mapper[f"Precursor.Quantity_{ch1}"] = "sum"
+        mapper[f"Precursor.Quantity_{ch2}"] = "sum"
+        mapper[f"Global.PG.Q.Value_{ch1}"] = "min"
+        mapper[f"Global.PG.Q.Value_{ch2}"] = "min"
+        mapper[f"Channel.Q.Value_{ch1}"] = "min"
+        mapper[f"Channel.Q.Value_{ch2}"] = "min"
+        mapper[f"Stripped.Sequence"] = lambda x: ",".join(x.unique())
+
+    print(f"Using aggregation mapper\n {mapper}")
     start_time = time.time()
     results = []
     run_groups = ratio_df.groupby("Run", sort=False, observed=True)
@@ -252,7 +247,7 @@ def silac_protein_group_from_diann(df):
     )
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         futures_list = {
-            executor.submit(sum_per_run, run_name, group): run_name
+            executor.submit(sum_per_run, run_name, group, mapper): run_name
             for run_name, group in run_groups
         }
         for fut in as_completed(futures_list):
