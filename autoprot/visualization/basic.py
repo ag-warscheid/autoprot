@@ -1423,7 +1423,7 @@ def volcano(
     log_fc_colname: str,
     p_colname: str = None,
     score_colname: str = None,
-    p_thresh: float | None | tuple[float | None] = 0.05,
+    p_thresh: float | None | tuple[float | None] = (None, 0.05),
     log_fc_thresh: float | None = np.log2(2),
     pointsize_colname: str | float = None,
     pointsize_scaler: float = 1,
