@@ -34,6 +34,7 @@ dependencies = [
     "pandera>=0.1",
     "openpyxl>=3.1.0",
     "pyarrow>20.0.0",
+    "tabulate>0.3.0",
     "PlotlyLogo@git+https://github.com/aretaon/PlotlyLogo.git",
     "pyvenn@git+https://github.com/y9c/pyvenn.git",
 ]
@@ -55,6 +56,9 @@ testing = [
 [tool.setuptools.packages.find]
 include = ["autoprot", "autoprot.preprocessing", "autoprot.analysis", "autoprot.visualization",
     "autoprot.dependencies", "autoprot.dependencies.plotlylogo", "autoprot.dependencies.venn"]
+
+[tool.setuptools.package-data]
+"autoprot" = ["*.R"]
 
 [tool.pixi.workspace]
 channels = ["conda-forge", "bioconda"]
