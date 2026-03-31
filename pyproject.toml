@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "autoprot"
-version = "0.3.1"
+version = "0.3.2"
 description = "Automated Proteomics Analysis"
 authors = [
     { name = "Julian Bender", email = "julian.bender@uni-wuerzburg.de" },
@@ -14,6 +14,7 @@ authors = [
 ]
 license = { text = "BSD-3-Clause" }
 urls = { Homepage = "https://www.warscheidlab.de" }
+
 dependencies = [
     "adjustText>=0.7.3",
     "biopython>=1.78",
@@ -59,36 +60,3 @@ include = ["autoprot", "autoprot.preprocessing", "autoprot.analysis", "autoprot.
 
 [tool.setuptools.package-data]
 "autoprot" = ["*.R"]
-
-[tool.pixi.workspace]
-channels = ["conda-forge", "bioconda"]
-platforms = ["linux-64"]
-
-[tool.pixi.pypi-dependencies]
-autoprot = { path = ".", editable = true }
-
-[tool.pixi.dependencies]
-pixi-pycharm = ">=0.0.9,<0.0.10"
-r-base = ">=4.4.3,<4.5"
-r-tidyverse = ">=2.0.0,<3"
-r-tmvtnorm = ">=1.7,<2"
-bioconductor-limma = ">=3.28.10,<4"
-bioconductor-vsn = ">=3.74"
-bioconductor-rankprod = ">=3.32.0,<4"
-bioconductor-pcamethods = ">=1.98.0,<2"
-bioconductor-impute = ">=1.80.0,<2"
-bioconductor-summarizedexperiment = ">=1.36.0,<2"
-r-pak = ">=0.9.0,<0.10"
-openpyxl = ">=3.1.5,<4"
-xlsxwriter = ">=3.2.9,<4"
-notebook = ">=7.4.7,<8"
-pip = ">=25.2,<26"
-pyarrow = ">=22.0.0,<23"
-zlib = ">=1.3.1,<2"
-
-[tool.pixi.environments]
-default = { solve-group = "default" }
-docs = { features = ["docs"], solve-group = "default" }
-testing = { features = ["testing"], solve-group = "default" }
-
-[tool.pixi.tasks]
