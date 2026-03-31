@@ -100,7 +100,7 @@ def parquet_to_pg(
     crap_str: str | list[str] = "cRAP",
     index_cols: list[str] = None,
     reset_index: bool = True,
-    values_colname: str = 'PG.MaxLFQ'
+    values_colname: str = "PG.MaxLFQ",
 ) -> pd.DataFrame:
     """
     Load DIANN precursor data from a Parquet file and convert to protein group-level intensities.
