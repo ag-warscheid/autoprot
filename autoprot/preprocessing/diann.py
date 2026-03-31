@@ -11,7 +11,11 @@ __all__ = ["load_parquet", "parquet_to_pg", "silac_protein_group_from_diann"]
 
 
 def load_parquet(
-    path, filters: dict = None, mbr: bool = True, crap_str: str | list[str] = "cRAP"
+    path,
+    filters: dict = None,
+    mbr: bool = True,
+    crap_str: str | list[str] = "cRAP",
+    reader_kwargs=None,
 ) -> pd.DataFrame:
     """Load Parquet file with optional filtering.
 
@@ -25,16 +29,19 @@ def load_parquet(
         Whether to use MBR-specific filters.
     crap_str: str or list of str, default='cRAP'
         String or list of strings to filter out contaminants.
+    reader_kwargs: list of
 
     Returns
     -------
     pd.DataFrame
         Filtered DataFrame.
     """
+    if reader_kwargs is None:
+        reader_kwargs = dict()
 
     # check if file exists
     try:
-        rp = pd.read_parquet(path)
+        rp = pd.read_parquet(path, **reader_kwargs)
         print(f"Loaded {len(rp)} precursors from report.parquet")
 
     except FileNotFoundError:
@@ -93,6 +100,7 @@ def parquet_to_pg(
     crap_str: str | list[str] = "cRAP",
     index_cols: list[str] = None,
     reset_index: bool = True,
+    values_colname: str = 'PG.MaxLFQ'
 ) -> pd.DataFrame:
     """
     Load DIANN precursor data from a Parquet file and convert to protein group-level intensities.
@@ -102,14 +110,20 @@ def parquet_to_pg(
     if index_cols is None:
         index_cols = ["Protein.Group", "Genes"]
 
+    # check if values colname is correct
+    if not values_colname in rp.columns:
+        raise ValueError(f"values_colname {values_colname} not in DataFrame.")
+    else:
+        print(f"Using {values_colname} for value aggregation")
+
     # Select relevant columns and drop duplicates
-    pg = rp[["Run", "PG.MaxLFQ"] + index_cols].drop_duplicates().copy()
-    pg["PG.MaxLFQ"] = pg["PG.MaxLFQ"].replace(0, pd.NA)
+    pg = rp[["Run", values_colname] + index_cols].drop_duplicates().copy()
+    pg[values_colname] = pg[values_colname].replace(0, pd.NA)
 
     pg = pg.pivot_table(
         index=index_cols,
         columns="Run",
-        values="PG.MaxLFQ",
+        values=values_colname,
         aggfunc="first",  # noqa
     )
 
