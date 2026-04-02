@@ -768,6 +768,7 @@ def intensity_rank(
 
     if highlight is None:
         if n is not None:  # add the n largest and small ranks to the highlight
+            annotate = "highlight"  # required for downstream labeling to work
             highlight = [
                 data.nlargest(n, "# rank").index.union(
                     data.nsmallest(n, "# rank").index
