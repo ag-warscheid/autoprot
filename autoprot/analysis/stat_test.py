@@ -113,23 +113,17 @@ def ttest(
     """
 
     def one_samp_ttest(x):
-        # nan-containing/masked inputs with nan_policy='omit' are currently not supported by one-sided alternatives.
-        x = x[~np.isnan(x)]
-        return np.ma.filled(
-            ttest_1samp(x, nan_policy="raise", alternative=alternative, popmean=0)[1],
-            np.nan,
-        )
+        if np.count_nonzero(~np.isnan(x)) < 2:
+            return np.nan
+        return ttest_1samp(x, nan_policy="omit", alternative=alternative, popmean=0)[1]
 
     def two_samp_ttest(x):
-        return np.ma.filled(
-            ttest_ind(
-                x[: len(reps[0])],
-                x[len(reps[0]) :],
-                alternative=alternative,
-                nan_policy="omit",
-            )[1],
-            np.nan,
-        )
+        return ttest_ind(
+            x[: len(reps[0])],
+            x[len(reps[0]) :],
+            alternative=alternative,
+            nan_policy="omit",
+        )[1]
 
     if isinstance(reps[0], list) and len(reps) == 2:
         print("Performing two-sample t-Test")

@@ -21,6 +21,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pyvenn.venn as venn
 import seaborn as sns
+import upsetplot
 from adjustText import adjust_text
 from matplotlib_venn import venn2
 from matplotlib_venn import venn3
@@ -28,7 +29,6 @@ from pandas.core.dtypes.common import is_numeric_dtype
 from scipy import stats
 from scipy.linalg import LinAlgError
 from scipy.stats import zscore, gaussian_kde
-import upsetplot
 
 from autoprot import common as com
 
@@ -502,14 +502,14 @@ def prob_plot(df, col, dist="norm", figsize=(6, 6), ax=None):
 def boxplot(
     df: pd.DataFrame,
     reps: list,
-    title: Union[str, list[str], None] = None,
-    labels: Union[list, None] = None,
+    title: str | list[str] | None = None,
+    labels: list | None = None,
     compare: bool = False,
     ylabel: str = "log_fc",
-    file: Union[None, str] = None,
+    file: None | str = None,
     ret_fig: bool = False,
     figsize: tuple = (15, 5),
-    ax: Union[plt.axis, None] = None,
+    ax: plt.Axes | None = None,
     **kwargs: object,
 ) -> plt.Figure | None:
     # noinspection PyUnresolvedReferences
@@ -1394,6 +1394,10 @@ def _prep_volcano_data(
     if p_thresh is not None:
         # (2) significant by score
         # in contrast to typical applications, we now want to find values below the p_threshold
+        p_thresh = (
+            None,
+            p_thresh,
+        )  # adapt to the common tuple scheme, but p values cannot be negative
         df, _, _, _, p_sig_idx = _prep_ratio_data(
             df,
             p_colname,
@@ -1424,8 +1428,8 @@ def volcano(
     log_fc_colname: str,
     p_colname: str = None,
     score_colname: str = None,
-    p_thresh: float | None | tuple[float | None] = (None, 0.05),
-    log_fc_thresh: float | None = np.log2(2),
+    p_thresh: float | None = 0.05,
+    log_fc_thresh: float | None | tuple[float | None, float | None] = np.log2(2),
     pointsize_colname: str | float = None,
     pointsize_scaler: float = 1,
     highlight: Union[pd.Index, list[pd.Index], None] = None,
@@ -1787,11 +1791,15 @@ def volcano(
         if p_thresh is not None:
             # convert p value to score
             if isinstance(p_thresh, (int, float)):
-                score = -np.log10(p_thresh)
+                score = -np.log10(p_thresh) if (p_thresh > 0) else None
             elif isinstance(p_thresh, (list, tuple)):
                 score = tuple(
                     (
-                        -np.log10(x) if isinstance(x, (float, int)) else None
+                        (
+                            -np.log10(x)
+                            if isinstance(x, (float, int)) and (x > 0)
+                            else None
+                        )
                         for x in p_thresh
                     )
                 )
