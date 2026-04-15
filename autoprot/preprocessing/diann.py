@@ -14,7 +14,7 @@ def load_parquet(
     path,
     filters: dict = None,
     mbr: bool = True,
-    crap_str: str | list[str] = "cRAP",
+    crap_str: str | list[str] | None = "cRAP",
     reader_kwargs=None,
 ) -> pd.DataFrame:
     """Load Parquet file with optional filtering.
@@ -64,12 +64,14 @@ def load_parquet(
                 "Global.PG.Q.Value": 0.01,
             }
 
+    if crap_str is None:
+        crap_str: list = []
     if isinstance(crap_str, str):
-        crap_str = [crap_str]
+        crap_str: list = [crap_str]
 
     for crp in crap_str:
         initial_count = len(rp)
-        rp = rp[~rp["Protein.Names"].str.contains(crp, na=False)]
+        rp = rp[~rp["Protein.Ids"].str.contains(crp, na=False)]
         filtered_count = len(rp)
         print(
             f"Filtered out {initial_count - filtered_count} entries containing '{crp}'"
