@@ -1393,18 +1393,13 @@ def _prep_volcano_data(
 
     if p_thresh is not None:
         # (2) significant by score
-        # in contrast to typical applications, we now want to find values below the p_threshold
-        p_thresh = (
-            None,
-            p_thresh,
-        )  # adapt to the common tuple scheme, but p values cannot be negative
         df, _, _, _, p_sig_idx = _prep_ratio_data(
             df,
             p_colname,
             None,
             p_thresh,
             significance_label="p-value",
-            direction="inside",
+            direction="inside",  # because we are looking at p values and not scores
         )
 
     if log_fc_thresh is not None:
@@ -1789,25 +1784,19 @@ def volcano(
                 ax, ratio_thresh_x=log_fc_thresh, ratio_thresh_y=None
             )
         if p_thresh is not None:
-            # convert p value to score
             if isinstance(p_thresh, (int, float)):
-                score = -np.log10(p_thresh) if (p_thresh > 0) else None
-            elif isinstance(p_thresh, (list, tuple)):
-                score = tuple(
-                    (
-                        (
-                            -np.log10(x)
-                            if isinstance(x, (float, int)) and (x > 0)
-                            else None
-                        )
-                        for x in p_thresh
-                    )
+                score: float | None = (
+                    float(-np.log10(p_thresh)) if (p_thresh > 0) else None
                 )
             else:
                 raise ValueError(
                     f"[volcano] Cannot convert p_thresh {p_thresh} to score"
                 )
-            _ratio_plot_style_axes(ax, ratio_thresh_x=None, ratio_thresh_y=score)
+
+            if score is not None:
+                _ratio_plot_style_axes(
+                    ax, ratio_thresh_x=None, ratio_thresh_y=(None, score)
+                )
 
     if ret_fig:
         return fig
@@ -2125,8 +2114,12 @@ def _prep_ratio_data(
 
 def _ratio_plot_style_axes(
     ax: plt.Axes,
-    ratio_thresh_x: float | None | tuple[float, float],
-    ratio_thresh_y: float | None | tuple[float, float],
+    ratio_thresh_x: (
+        float | None | tuple[float, float] | tuple[None, float] | tuple[float | None]
+    ),
+    ratio_thresh_y: (
+        float | None | tuple[float, float] | tuple[None, float] | tuple[float | None]
+    ),
 ):
 
     if ratio_thresh_x is not None:
