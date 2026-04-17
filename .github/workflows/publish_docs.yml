@@ -32,7 +32,8 @@ jobs:
           r-version: '4.5.3' # The R version to download (if necessary) and use.
       - name: Install R package requirements
         # libcurl is required for r curl
-        run: sudo apt-get update
+        run: |
+          sudo apt-get update
           sudo apt-get install -y tree libcurl4-openssl-dev
           tree
       - name: Set up Python
