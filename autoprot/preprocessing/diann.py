@@ -29,7 +29,7 @@ def load_parquet(
         Whether to use MBR-specific filters.
     crap_str: str or list of str, default='cRAP'
         String or list of strings to filter out contaminants.
-    reader_kwargs: list of
+    reader_kwargs: list of arguments to pass to pd.read_parquet
 
     Returns
     -------
@@ -75,6 +75,12 @@ def load_parquet(
         filtered_count = len(rp)
         print(
             f"Filtered out {initial_count - filtered_count} entries containing '{crp}'"
+        )
+
+    # check if all filter columns are present in the dataframe
+    if not all([x in rp.columns for x in filters]):
+        raise ValueError(
+            f"Column(s) {set(filters.keys()) - set(rp.columns)} not found in DataFrame."
         )
 
     # Apply filters
