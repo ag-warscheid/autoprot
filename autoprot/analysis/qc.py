@@ -311,12 +311,14 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
 
 
 def enrichment_specificity(
-    df_evidence,
-    mod_col="Phospho (STY)",
-    groupby="Experiment",
-    save=True,
-    ax=None,
-    title=None,
+        df_evidence,
+        mod_col="Phospho (STY)",
+        groupby="Experiment",
+        mode: 'count' or 'intensity' = 'count',
+        intensity_colname='Intensity',
+        save=True,
+        ax=None,
+        title=None,
 ):
     """
 
@@ -328,8 +330,12 @@ def enrichment_specificity(
           ('Met--> Phosphonate', 'Cys--> Phosphonate', 'Met --> Biotin')
     groupby : str,
         Column name to group the data by. The default is 'Experiment'.
+    mode : str,
+        How to calculate the enrichment specificity. Possible values are 'count' and 'intensity'.
+    intensity_colname : str,
+        Column name for the intensity values. The default is 'Intensity'.
     save : bool,
-        While True table and fig will be saved in active filepath.
+        While True table and fig will be saved in the active filepath.
     ax: matplotlib axis, optional
         If provided, the plot will be drawn on the given axis.
     title: str, optional
@@ -358,10 +364,19 @@ def enrichment_specificity(
     df_summary = pd.DataFrame()
 
     for name, group in df_evidence.groupby(groupby):
-        nonmod = round(
-            ((group[mod_col] == 0).astype(int).sum() / group.shape[0] * 100), 2
-        )
-        mod = round(((group[mod_col] > 0).sum() / group.shape[0] * 100), 2)
+        mod_mask = group[mod_col].astype(int) == 1
+
+        if mode == "count":
+            mod = round(mod_mask.astype(int).sum() / group.shape[0] * 100, 2)
+            nonmod = round((~mod_mask).astype(int).sum() / group.shape[0] * 100, 2)
+        elif mode == "intensity":
+            if intensity_colname not in group.columns:
+                raise KeyError(
+                    f'Could not find column [{intensity_colname}] in columns. '
+                    f'Please provide a valid intensity column via the intensity_colname parameter')
+
+            mod = group.loc[mod_mask, intensity_colname].sum() / group[intensity_colname].sum() * 100
+            nonmod = group.loc[~mod_mask, intensity_colname].sum() / group[intensity_colname].sum() * 100
 
         df_summary.loc[name, "Modified peptides [%]"] = mod
         df_summary.loc[name, "Non-modified peptides [%]"] = nonmod
