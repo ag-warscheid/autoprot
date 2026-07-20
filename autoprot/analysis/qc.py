@@ -311,14 +311,14 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
 
 
 def enrichment_specificity(
-        df_evidence,
-        mod_col="Phospho (STY)",
-        groupby="Experiment",
-        mode: 'count' or 'intensity' = 'count',
-        intensity_colname='Intensity',
-        save=True,
-        ax=None,
-        title=None,
+    df_evidence,
+    mod_col="Phospho (STY)",
+    groupby="Experiment",
+    mode: "count" or "intensity" = "count",
+    intensity_colname="Intensity",
+    save=True,
+    ax=None,
+    title=None,
 ):
     """
 
@@ -372,11 +372,20 @@ def enrichment_specificity(
         elif mode == "intensity":
             if intensity_colname not in group.columns:
                 raise KeyError(
-                    f'Could not find column [{intensity_colname}] in columns. '
-                    f'Please provide a valid intensity column via the intensity_colname parameter')
+                    f"Could not find column [{intensity_colname}] in columns. "
+                    f"Please provide a valid intensity column via the intensity_colname parameter"
+                )
 
-            mod = group.loc[mod_mask, intensity_colname].sum() / group[intensity_colname].sum() * 100
-            nonmod = group.loc[~mod_mask, intensity_colname].sum() / group[intensity_colname].sum() * 100
+            mod = (
+                group.loc[mod_mask, intensity_colname].sum()
+                / group[intensity_colname].sum()
+                * 100
+            )
+            nonmod = (
+                group.loc[~mod_mask, intensity_colname].sum()
+                / group[intensity_colname].sum()
+                * 100
+            )
 
         df_summary.loc[name, "Modified peptides [%]"] = mod
         df_summary.loc[name, "Non-modified peptides [%]"] = nonmod
