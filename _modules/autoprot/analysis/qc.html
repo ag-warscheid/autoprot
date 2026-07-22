@@ -1,0 +1,1487 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.analysis.qc &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/analysis/qc';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.analysis.qc</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.analysis.qc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Analysis Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">missingno</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">msn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gprofiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">GProfiler</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span>
+
+<span class="n">gp</span> <span class="o">=</span> <span class="n">GProfiler</span><span class="p">(</span><span class="n">user_agent</span><span class="o">=</span><span class="s2">&quot;autoprot&quot;</span><span class="p">,</span> <span class="n">return_dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># check where this is actually used and make it local</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;miss_analysis&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;missed_cleavages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;enrichment_specificity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SILAC_labeling_efficiency&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dimethyl_labeling_efficiency&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tmt6plex_labeling_efficiency&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="miss_analysis">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.miss_analysis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">miss_analysis</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">cols</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;ascending&quot;</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">vis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">extra_vis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print missing statistics for a dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        Input dataframe with missing values.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Columns to perform missing values analysis on.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        How many rows of the dataframe to displayed.</span>
+<span class="sd">        The default is None (uses all rows).</span>
+<span class="sd">    sort : str, optional</span>
+<span class="sd">        &quot;ascending&quot; or &quot;descending&quot;.</span>
+<span class="sd">        The default is &#39;ascending&#39;.</span>
+<span class="sd">    text : bool, optional</span>
+<span class="sd">        Whether to output text summaryMap.</span>
+<span class="sd">        The default is True.</span>
+<span class="sd">    vis : bool, optional</span>
+<span class="sd">        whether to return barplot showing missingness.</span>
+<span class="sd">        The default is True.</span>
+<span class="sd">    extra_vis : bool, optional</span>
+<span class="sd">        Whether to return matrix plot showing missingness.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        Path to folder where the results should be saved.</span>
+<span class="sd">        The default is None.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If n_entries is incorrectly specified.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    miss_analysis gives a quick overview of the missingness of the provided</span>
+<span class="sd">    dataframe. You can provide the complete or prefiltered dataframe as input.</span>
+<span class="sd">    Providing n_entries allows you to specify how many of the entries of the dataframe</span>
+<span class="sd">    (sorted by missingness) are displayed (i.e. only display the n_entries columns with</span>
+<span class="sd">    most (or least) missing values) With the sort argument you can define</span>
+<span class="sd">    whether the dataframe is sorted by least to most missing values or vice versa</span>
+<span class="sd">    (using &quot;descending&quot; and &quot;ascending&quot;, respectively). The vis and extra_vis</span>
+<span class="sd">    arguments can be used to toggle the graphical output.</span>
+<span class="sd">    In case of large data (a lot of columns) those might be better turned off.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        phos = pd.read_csv(&quot;../data/Phospho (STY)Sites_minimal.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        phos = pp.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phos = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">        phos = pp.filter_loc_prob(phos, thresh=.75)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phos = pp.remove_non_quant(phos, phosRatio)</span>
+
+<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/. normalized R.___&quot;).columns</span>
+<span class="sd">        phos_expanded = pp.expand_site_table(phos, phosRatio)</span>
+
+<span class="sd">        twitchVsmild = [&#39;log2_Ratio H/M normalized R1&#39;,&#39;log2_Ratio M/L normalized R2&#39;,&#39;log2_Ratio H/M normalized R3&#39;,</span>
+<span class="sd">                        &#39;log2_Ratio H/L normalized R4&#39;,&#39;log2_Ratio H/M normalized R5&#39;,&#39;log2_Ratio M/L normalized R6&#39;]</span>
+<span class="sd">        twitchVsctrl = [&quot;log2_Ratio H/L normalized R1&quot;,&quot;log2_Ratio H/M normalized R2&quot;,&quot;log2_Ratio H/L normalized R3&quot;,</span>
+<span class="sd">                        &quot;log2_Ratio M/L normalized R4&quot;, &quot;log2_Ratio H/L normalized R5&quot;,&quot;log2_Ratio H/M normalized R6&quot;]</span>
+<span class="sd">        mildVsctrl = [&quot;log2_Ratio M/L normalized R1&quot;,&quot;log2_Ratio H/L normalized R2&quot;,&quot;log2_Ratio M/L normalized R3&quot;,</span>
+<span class="sd">                      &quot;log2_Ratio H/M normalized R4&quot;,&quot;log2_Ratio M/L normalized R5&quot;,&quot;log2_Ratio H/L normalized R6&quot;]</span>
+<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond=&quot;TvM&quot;)</span>
+<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond=&quot;TvC&quot;)</span>
+
+<span class="sd">        ana.miss_analysis(phos_expanded,</span>
+<span class="sd">                         twitchVsctrl+twitchVsmild+mildVsctrl,</span>
+<span class="sd">                         text=False,</span>
+<span class="sd">                         sort=&quot;descending&quot;,</span>
+<span class="sd">                         extra_vis = True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># only analyse subset of cols</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>
+    <span class="c1"># sorted list of lists with every sublist containing</span>
+    <span class="c1"># [colname,total_n, n_missing, percentage, rank]</span>
+
+    <span class="c1"># calculate summary missing statistics</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># implicitly iterate over dataframe cols</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+        <span class="c1"># len dataframe</span>
+        <span class="n">n_entries</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># how many are missing</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="c1"># percentage</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">n_entries</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">n_entries</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">])</span>
+
+    <span class="c1"># Sort data by the percentage of missingness</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+    <span class="c1"># inverse dataframe if required</span>
+    <span class="k">if</span> <span class="n">sort</span> <span class="o">==</span> <span class="s2">&quot;descending&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># add a number corresponding to the position in the ranking</span>
+    <span class="c1"># to every condition aka column.</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+    <span class="c1"># determine number of entries to show</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;n_entries&#39; is larger than dataframe!</span><span class="se">\n</span><span class="s2">Displaying complete dataframe.&quot;</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;n_entries&#39; has to be a positive integer!&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">text</span><span class="p">:</span>  <span class="c1"># print summary statistics and saves them to file</span>
+        <span class="n">allines</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">allines</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> entries missing (</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%).&quot;</span>
+            <span class="n">allines</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="c1"># line separator</span>
+            <span class="n">allines</span> <span class="o">+=</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+
+        <span class="k">if</span> <span class="n">save_dir</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_dir</span><span class="si">}</span><span class="s2">/missAnalysis_text.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">allines</span><span class="p">)</span>
+
+        <span class="c1"># write all lines at once</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">allines</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">vis</span>
+    <span class="p">):</span>  <span class="c1"># Visualize the % missingness of first n entries of dataframe as a bar plot.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;tot_values&quot;</span><span class="p">,</span> <span class="s2">&quot;tot_miss&quot;</span><span class="p">,</span> <span class="s2">&quot;perc_miss&quot;</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">()</span>
+        <span class="c1"># plot colname against total missing values</span>
+        <span class="n">splot</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tot_miss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">n</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">n</span><span class="p">])</span>
+
+        <span class="c1"># add the percentage of missingness to every bar of the plot</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">splot</span><span class="o">.</span><span class="n">patches</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s2">%&quot;</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.01</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">splot</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Missing values of dataframe columns.&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_dir</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_dir</span><span class="si">}</span><span class="s2">/missAnalysis_vis1.pdf&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">extra_vis</span><span class="p">:</span>  <span class="c1"># Visualize the missingness in the dataset using missingno.</span>
+        <span class="c1"># plots are generated with missingno.matrix.</span>
+        <span class="c1"># See https://github.com/ResidentMario/missingno</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">msn</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s2">&quot;ascending&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">sparkline</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_dir</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">+</span> <span class="s2">&quot;/missAnalysis_vis2.pdf&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="missed_cleavages">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.missed_cleavages">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">missed_cleavages</span><span class="p">(</span><span class="n">df_evidence</span><span class="p">,</span> <span class="n">enzyme</span><span class="o">=</span><span class="s2">&quot;Trypsin/P&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_evidence : cleaned pandas DataFrame from Maxquant analysis</span>
+<span class="sd">    enzyme : str,</span>
+<span class="sd">        Give any chosen Protease from MQ. The default is &quot;Trypsin/P&quot;.</span>
+<span class="sd">    save : bool,</span>
+<span class="sd">        While True table and fig will be saved in active filepath.</span>
+<span class="sd">    ax: matplotlib axis, optional</span>
+<span class="sd">        If provided, the plot will be drawn on the given axis.</span>
+<span class="sd">    title: str, optional</span>
+<span class="sd">        Title for the plot. If None, a default title will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure, pd.DataFrame</span>
+<span class="sd">        Fig and table for missed cleavage analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># set plot style</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-v0_8-whitegrid&quot;</span><span class="p">)</span>
+
+    <span class="c1"># set parameters</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s2">&quot;Experiment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Column [Experiment] either not unique or missing,</span><span class="se">\n\</span>
+<span class="s2">              column [Raw file] used&quot;</span><span class="p">)</span>
+        <span class="n">experiments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Raw file&quot;</span><span class="p">])))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">experiments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">])))</span>
+
+    <span class="n">rawfiles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Raw file&quot;</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rawfiles</span><span class="p">):</span>
+        <span class="n">experiments</span> <span class="o">=</span> <span class="n">rawfiles</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Column [Experiment] either not unique or missing,</span><span class="se">\n\</span>
+<span class="s2">              column [Raw file] used&quot;</span><span class="p">)</span>
+
+    <span class="c1"># calculate miss cleavage for each raw file in df_evidence</span>
+    <span class="n">df_missed_cleavage_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Raw file&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">enzyme</span> <span class="o">==</span> <span class="s2">&quot;Trypsin/P&quot;</span><span class="p">:</span>
+            <span class="n">df_missed_cleavage</span> <span class="o">=</span> <span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;Missed cleavages&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_missed_cleavage</span> <span class="o">=</span> <span class="n">df_group</span><span class="p">[</span>
+                <span class="s2">&quot;Missed cleavages (</span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">enzyme</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="n">df_missed_cleavage_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df_missed_cleavage_summary</span><span class="p">,</span> <span class="n">df_missed_cleavage</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df_missed_cleavage_summary</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">experiments</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected error in col [Experiment]: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">df_missed_cleavage_summary</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_missed_cleavage_summary</span>
+        <span class="o">/</span> <span class="n">df_missed_cleavage_summary</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+    <span class="n">df_missed_cleavage_summary</span> <span class="o">=</span> <span class="n">df_missed_cleavage_summary</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># making the barchart figure missed cleavage</span>
+    <span class="n">x_ax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">x_ax</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">ax</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="s2">&quot;% Missed cleavage per run&quot;</span><span class="p">,</span>
+            <span class="n">fontdict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">df_missed_cleavage_summary</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Experiment assinged in MaxQuant&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Missed cleavage [%]&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="c1"># save fig in cwd with date</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">today</span><span class="si">}</span><span class="s2">_BarChart_missed-cleavage.pdf&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+        <span class="c1"># save df missed cleavage summery as .csv</span>
+        <span class="n">df_missed_cleavage_summary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">today</span><span class="si">}</span><span class="s2">_Missed-cleavage_result-table.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">df_missed_cleavage_summary</span></div>
+
+
+
+<div class="viewcode-block" id="enrichment_specificity">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.enrichment_specificity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">enrichment_specificity</span><span class="p">(</span>
+    <span class="n">df_evidence</span><span class="p">,</span>
+    <span class="n">mod_col</span><span class="o">=</span><span class="s2">&quot;Phospho (STY)&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;Experiment&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="s2">&quot;count&quot;</span> <span class="ow">or</span> <span class="s2">&quot;intensity&quot;</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span>
+    <span class="n">intensity_colname</span><span class="o">=</span><span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_evidence : cleaned pandas DataFrame from Maxquant analysis</span>
+<span class="sd">    mod_col : str,</span>
+<span class="sd">          Give type of enrichment for analysis. The default is &#39;Phospho (STY)&#39;.</span>
+<span class="sd">          (&#39;Met--&gt; Phosphonate&#39;, &#39;Cys--&gt; Phosphonate&#39;, &#39;Met --&gt; Biotin&#39;)</span>
+<span class="sd">    groupby : str,</span>
+<span class="sd">        Column name to group the data by. The default is &#39;Experiment&#39;.</span>
+<span class="sd">    mode : str,</span>
+<span class="sd">        How to calculate the enrichment specificity. Possible values are &#39;count&#39; and &#39;intensity&#39;.</span>
+<span class="sd">    intensity_colname : str,</span>
+<span class="sd">        Column name for the intensity values. The default is &#39;Intensity&#39;.</span>
+<span class="sd">    save : bool,</span>
+<span class="sd">        While True table and fig will be saved in the active filepath.</span>
+<span class="sd">    ax: matplotlib axis, optional</span>
+<span class="sd">        If provided, the plot will be drawn on the given axis.</span>
+<span class="sd">    title: str, optional</span>
+<span class="sd">        Title for the plot. If None, a default title will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plt.Figure, pd.DataFrame</span>
+<span class="sd">        Fig and table for enrichment specificity analysis</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># set parameters</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">groupby</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s2">&quot;Raw file&quot;</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Warning: Column [</span><span class="si">{</span><span class="n">groupby</span><span class="si">}</span><span class="s2">] either not unique or missing, column [Raw file] used&quot;</span>
+            <span class="p">)</span>
+            <span class="n">groupby</span> <span class="o">=</span> <span class="s2">&quot;Raw file&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;Columns [Experiment] and [Raw file] are missing. Is this a MaxQuant evidence table?&quot;</span>
+            <span class="p">)</span>
+
+    <span class="n">df_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groupby</span><span class="p">):</span>
+        <span class="n">mod_mask</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">mod_col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">mod_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">group</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">nonmod</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="o">~</span><span class="n">mod_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">group</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;intensity&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">intensity_colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not find column [</span><span class="si">{</span><span class="n">intensity_colname</span><span class="si">}</span><span class="s2">] in columns. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please provide a valid intensity column via the intensity_colname parameter&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">mod</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mod_mask</span><span class="p">,</span> <span class="n">intensity_colname</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">/</span> <span class="n">group</span><span class="p">[</span><span class="n">intensity_colname</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="mi">100</span>
+            <span class="p">)</span>
+            <span class="n">nonmod</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">mod_mask</span><span class="p">,</span> <span class="n">intensity_colname</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">/</span> <span class="n">group</span><span class="p">[</span><span class="n">intensity_colname</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="mi">100</span>
+            <span class="p">)</span>
+
+        <span class="n">df_summary</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Modified peptides [%]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
+        <span class="n">df_summary</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Non-modified peptides [%]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonmod</span>
+
+    <span class="c1"># make barchart</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Enrichment specificity [%] for </span><span class="si">{</span><span class="n">mod_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontdict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="n">df_summary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;peptides [%]&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="c1"># save fig in cwd with date</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">today</span><span class="si">}</span><span class="s2">_BarPlot_enrichmentSpecificity.pdf&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+        <span class="c1"># save df missed cleavage summery as .csv</span>
+        <span class="n">df_summary</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">today</span><span class="si">}</span><span class="s2">_enrichmentSpecificity_result-table.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">df_summary</span></div>
+
+
+
+<div class="viewcode-block" id="SILAC_labeling_efficiency">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.SILAC_labeling_efficiency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">SILAC_labeling_efficiency</span><span class="p">(</span>
+    <span class="n">df_evidence</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;L&quot;</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lys_ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">arg_ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">r_to_p_conversion</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Pro5&quot;</span><span class="p">,</span> <span class="s2">&quot;Pro6&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">r_to_p_return</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">r_to_p_ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_evidence : MaxQuant evidence table</span>
+<span class="sd">        clean reverse and contaminant first autoprot.preprocessing.cleaning()</span>
+<span class="sd">    label : str, optional</span>
+<span class="sd">        The label type used in the experiment (&#39;L&#39;, &#39;M&#39;, &#39;H&#39;). The default is None (will analyze &#39;H&#39;).</span>
+<span class="sd">    lys_ax : matplotlib axis, optional</span>
+<span class="sd">        If provided, the Lys labeling plot will be drawn on the given axis.</span>
+<span class="sd">    arg_ax : matplotlib axis, optional</span>
+<span class="sd">        If provided, the Arg labeling plot will be drawn on the given axis.</span>
+<span class="sd">    r_to_p_conversion : str, optional</span>
+<span class="sd">        variable modifications e.g. [&quot;Pro5&quot;, &quot;Pro6&quot;] set in MaxQuant.</span>
+<span class="sd">        If provided, Arg to Pro conversion will be calculated. The default is None.</span>
+<span class="sd">    r_to_p_return : bool, optional</span>
+<span class="sd">        If True, the Arg to Pro conversion table will be returned. The default is True.</span>
+<span class="sd">    r_to_p_ax : matplotlib axis, optional</span>
+<span class="sd">        If provided, the Arg to Pro conversion plot will be drawn on the given axis.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    To generate the evidence table, search the files in MaxQuant specifying the labels as labels (i.e.</span>
+<span class="sd">    multiplicity &gt; 1) and the Arg to Pro conversion as variable modification. There is no need to separate into</span>
+<span class="sd">    different analysis groups for this analysis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Fig, table for SILAC label incorporation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># work on a copy of the dataframe</span>
+    <span class="n">df_evidence</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># noqa</span>
+
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r_to_p_conversion</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;r_to_p_conversion is not a string&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">r_to_p_return</span> <span class="ow">and</span> <span class="n">r_to_p_conversion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;r_to_p_return is True but r_to_p_conversion is None. Please provide a modification name.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">df_evidence</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;Raw file&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">experiments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+    <span class="n">runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Raw file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+
+    <span class="c1"># mapping raw file names to experiments</span>
+    <span class="n">raw2exp</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">experiments</span><span class="p">):</span>
+        <span class="n">raw2exp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="c1"># Extracted from old function labeling_efficiency</span>
+    <span class="c1"># Create column names for the intensity and ratio columns.</span>
+    <span class="n">intensity_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Intensity </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">ratio_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Ratio Intensity </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">/total&quot;</span>
+
+    <span class="c1"># Create empty DataFrames to store the results.</span>
+    <span class="n">df_labeling_eff_k</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">df_labeling_eff_r</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># Remove NaN values from the intensity column.</span>
+    <span class="n">df_evidence</span><span class="p">[</span><span class="n">intensity_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_evidence</span><span class="p">[</span><span class="n">intensity_col</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+
+    <span class="c1"># Calculate the SILAC labeling ratio for each peptide.</span>
+    <span class="n">df_evidence</span><span class="p">[</span><span class="n">ratio_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_evidence</span><span class="p">[</span><span class="n">intensity_col</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Intensity&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>  <span class="c1"># type: ignore</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Iterate through each sample (i.e., raw file).</span>
+    <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Raw file&quot;</span><span class="p">):</span>
+        <span class="c1"># Calculate the SILAC labeling efficiency for Lysine.</span>
+        <span class="n">k_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;R Count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;K Count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">only_k</span> <span class="o">=</span> <span class="n">df_group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">k_filter</span><span class="p">,</span> <span class="n">ratio_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">s_k_binned</span> <span class="o">=</span> <span class="n">only_k</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">k_count</span> <span class="o">=</span> <span class="n">only_k</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s_relative_k_binned</span> <span class="o">=</span> <span class="n">s_k_binned</span> <span class="o">/</span> <span class="n">k_count</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">df_labeling_eff_k</span><span class="p">[</span><span class="n">raw</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_relative_k_binned</span>
+
+        <span class="c1"># Calculate the SILAC labeling efficiency for Arginine.</span>
+        <span class="n">r_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;R Count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;K Count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">only_r</span> <span class="o">=</span> <span class="n">df_group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">r_filter</span><span class="p">,</span> <span class="n">ratio_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">s_r_binned</span> <span class="o">=</span> <span class="n">only_r</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">r_count</span> <span class="o">=</span> <span class="n">only_r</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s_relative_r_binned</span> <span class="o">=</span> <span class="n">s_r_binned</span> <span class="o">/</span> <span class="n">r_count</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">df_labeling_eff_r</span><span class="p">[</span><span class="n">raw</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_relative_r_binned</span>
+
+    <span class="c1"># Rename the columns to match the experimental setup.</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">df_labeling_eff_k</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw2exp</span><span class="p">[</span><span class="n">elem</span><span class="p">])</span>
+    <span class="n">df_labeling_eff_k</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">exp</span>
+    <span class="n">df_labeling_eff_r</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">exp</span>
+
+    <span class="c1"># Combine the two DataFrames into one and return it.</span>
+    <span class="n">df_labeling_eff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df_labeling_eff_k</span><span class="p">,</span> <span class="n">df_labeling_eff_r</span><span class="p">],</span>
+        <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Lys incorporation&quot;</span><span class="p">,</span> <span class="s2">&quot;Arg incorporation&quot;</span><span class="p">],</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Amino acid&quot;</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lys_ax</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">arg_ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">lys_ax</span><span class="p">,</span> <span class="n">arg_ax</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">lys_ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">arg_ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both lys_ax and arg_ax must be provided or neither.&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">lys_ax</span><span class="p">,</span> <span class="n">arg_ax</span><span class="p">),</span> <span class="p">(</span><span class="n">df_labeling_eff</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">))):</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;0-10&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;11-20&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;21-30&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;31-40&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;41-50&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;51-60&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;61-70&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;71-80&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;81-90&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;91-100&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># set minor yticks every 10 percent</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+        <span class="c1"># set major yticks every 20 percent</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+        <span class="c1"># activate grid on all yticks</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">aa</span><span class="si">}</span><span class="s2"> [%]&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Share of peptides [%]&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="n">df_r_to_p_summary</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">r_to_p_conversion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># calculate Arg to Pro for each raw file in df_evidence</span>
+        <span class="c1"># collect per-rawfile summaries in a list of dicts then build DataFrame</span>
+        <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;P count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Raw file&quot;</span><span class="p">):</span>
+            <span class="n">p_count</span> <span class="o">=</span> <span class="n">df_group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_group</span><span class="p">[</span><span class="n">r_to_p_conversion</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;P count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">r_count</span> <span class="o">=</span> <span class="n">df_group</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">df_group</span><span class="p">[</span><span class="n">r_to_p_conversion</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r_to_p_conversion</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="c1"># map raw file to experiment name if available</span>
+            <span class="n">exp_name</span> <span class="o">=</span> <span class="n">raw2exp</span><span class="p">[</span><span class="n">raw</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;Experiment&quot;</span><span class="p">:</span> <span class="n">exp_name</span><span class="p">,</span> <span class="s2">&quot;P count&quot;</span><span class="p">:</span> <span class="n">p_count</span><span class="p">,</span> <span class="n">r_to_p_conversion</span><span class="p">:</span> <span class="n">r_count</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="n">df_r_to_p_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Experiment&quot;</span><span class="p">)</span>
+        <span class="n">df_r_to_p_summary</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_r_to_p_summary</span><span class="p">[</span><span class="s2">&quot;RtoP [%]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df_r_to_p_summary</span><span class="p">[</span><span class="n">r_to_p_conversion</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_r_to_p_summary</span><span class="p">[</span><span class="s2">&quot;P count&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="p">)</span>
+
+        <span class="c1"># making the box plot Arg to Pro conversion</span>
+        <span class="k">if</span> <span class="n">r_to_p_ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">r_to_p_ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+        <span class="n">df_r_to_p_summary</span><span class="p">[</span><span class="s2">&quot;RtoP [%]&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">r_to_p_ax</span><span class="p">)</span>
+        <span class="n">r_to_p_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Arg to </span><span class="si">{</span><span class="n">r_to_p_conversion</span><span class="si">}</span><span class="s2"> [%]&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">r_to_p_return</span> <span class="ow">and</span> <span class="n">r_to_p_conversion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df_labeling_eff</span><span class="p">,</span> <span class="n">df_r_to_p_summary</span>
+
+    <span class="k">return</span> <span class="n">df_labeling_eff</span></div>
+
+
+
+<div class="viewcode-block" id="dimethyl_labeling_efficiency">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.dimethyl_labeling_efficiency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dimethyl_labeling_efficiency</span><span class="p">(</span><span class="n">df_evidence</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function calculates the labelling efficiency of dimethyl labelled samples using a MaxQuant evidence table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_evidence : pd.DataFrame</span>
+<span class="sd">        MaxQuant evidence table as pandas.Dataframe</span>
+<span class="sd">    label : str</span>
+<span class="sd">        The label type used in the experiment (&#39;L&#39;, &#39;M&#39;, &#39;H&#39;)</span>
+<span class="sd">    save : bool</span>
+<span class="sd">        If True table and fig will be saved in active filepath.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Results from the analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># set parameters</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+    <span class="n">df_evidence</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;Raw file&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Experiment&quot;</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="n">experiments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">experiments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Raw file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Column [Experiment] either not unique or missing,</span><span class="se">\n\</span>
+<span class="s2">              column [Raw file] used&quot;</span><span class="p">)</span>
+
+    <span class="n">df_labeling_eff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">df_evidence</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intensity&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Ratio Intensity </span><span class="si">{}</span><span class="s2">/total&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Intensity </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span> <span class="o">/</span> <span class="n">df_evidence</span><span class="p">[</span><span class="s2">&quot;Intensity&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+
+    <span class="c1"># build label ratio based on given label</span>
+    <span class="k">for</span> <span class="n">raw</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">df_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Raw file&quot;</span><span class="p">):</span>
+        <span class="n">s_binned</span> <span class="o">=</span> <span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;Ratio Intensity </span><span class="si">{}</span><span class="s2">/total&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span>
+            <span class="n">bins</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">101</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">df_group</span><span class="p">[</span><span class="s2">&quot;Ratio Intensity </span><span class="si">{}</span><span class="s2">/total&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">s_relative_binned</span> <span class="o">=</span> <span class="n">s_binned</span> <span class="o">/</span> <span class="n">count</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">df_labeling_eff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_labeling_eff</span><span class="p">,</span> <span class="n">s_relative_binned</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df_labeling_eff</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">experiments</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected error in col [Experiment]: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">df_labeling_eff</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_labeling_eff_</span><span class="si">{1}</span><span class="s2">_summary.csv&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># plot labeling efficiency overview</span>
+    <span class="n">x_ax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">x_ax</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+        <span class="s2">&quot;Dimethyl Labeling efficiency </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">),</span>
+        <span class="n">fontdict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+        <span class="c1"># ,fontweight=&quot;bold&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df_labeling_eff</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;bins&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> labeling [%]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_BoxPlot_Lab-eff-</span><span class="si">{1}</span><span class="s2">_overview.pdf&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span>
+        <span class="p">)</span>
+
+    <span class="c1"># plot labeling efficiency Lys for each experiment separately</span>
+    <span class="c1"># columns and rows from number of experiments in df_evidence</span>
+    <span class="n">number_of_subplots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">number_of_subplots</span> <span class="o">%</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">number_of_columns</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">number_of_subplots</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">number_of_columns</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">number_of_columns</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">number_of_rows</span> <span class="o">=</span> <span class="n">number_of_subplots</span> <span class="o">//</span> <span class="n">number_of_columns</span>
+
+    <span class="c1"># adjust figsize</span>
+    <span class="c1"># 8.3 *11.7 inch is the size of a dinA4</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">2.76</span> <span class="o">*</span> <span class="n">number_of_columns</span><span class="p">,</span> <span class="mf">2.925</span> <span class="o">*</span> <span class="n">number_of_rows</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">plot</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">experiments</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_subplots</span><span class="p">)):</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">number_of_rows</span><span class="p">,</span> <span class="n">number_of_columns</span><span class="p">,</span> <span class="n">plot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># filter for bins with low values: set 1%</span>
+        <span class="n">df_labeling_eff</span><span class="p">[</span><span class="n">col_name</span><span class="p">][</span><span class="n">df_labeling_eff</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span>
+        <span class="p">)</span>
+
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;bins&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Dimethyl incorporation [%]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">95</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+        <span class="s2">&quot;Dimethyl Labeling efficiency </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_BoxPlot_Lab-eff-</span><span class="si">{1}</span><span class="s2">-seperately.pdf&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">today</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">1200</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_labeling_eff</span></div>
+
+
+
+<div class="viewcode-block" id="tmt6plex_labeling_efficiency">
+<a class="viewcode-back" href="../../../analysis/qc.html#autoprot.analysis.qc.tmt6plex_labeling_efficiency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tmt6plex_labeling_efficiency</span><span class="p">(</span>
+    <span class="n">evidence_under</span><span class="p">,</span>
+    <span class="n">evidence_sty_over</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">evidence_h_over</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax_peps_all</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax_peps_not</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax_over</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate TMT6plex labeling efficiency from 3 dedicated MaxQuant searches as described in Zecha et al. 2019.</span>
+<span class="sd">    TMT6plex channels should be named in MQ experiments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    evidence_under : pd.DataFrame</span>
+<span class="sd">        evidence.txt as pd.DataFrame from under-labeling search, label-free search with TMT as variable modification</span>
+<span class="sd">        on peptide n-term and lysine</span>
+<span class="sd">    evidence_sty_over : pd.DataFrame (optional)</span>
+<span class="sd">        evidence.txt as pd.DataFrame from over-labeling search, MS2-TMT experiment with TMT as variable modification</span>
+<span class="sd">        on serine, threonine, tyrosine</span>
+<span class="sd">    evidence_h_over : pd.Dataframe (optional)</span>
+<span class="sd">        evidence.txt as pd.DataFrame from over-labeling search, MS2-TMT experiment with TMT as variable modification</span>
+<span class="sd">        on histidine</span>
+<span class="sd">    ax_peps_all : matplotlib axis</span>
+<span class="sd">        If provided, the Peptide labeling plot (all) will be drawn on the given axis</span>
+<span class="sd">    ax_peps_not : matplotlib axis</span>
+<span class="sd">        If provided, the Peptide labeling plot (not labeled) will be drawn on the given</span>
+<span class="sd">        axis</span>
+<span class="sd">    ax_over : matplotlib axis</span>
+<span class="sd">        If provided, the Over-labeling plot will be drawn on the given axis</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Each of the three searches has to be performed with experiment names containing the TMT6plex channel</span>
+<span class="sd">    number (126-131), e.g. a search for three samples labeled with TMT6plex channels 126, 127, 128 could have the</span>
+<span class="sd">    experiment names &quot;Sample1_126&quot;, &quot;Sample2_127&quot;, &quot;Sample3_128&quot; in MaxQuant.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">         Results from labeling efficiency calculations as absolute and relative numbers.</span>
+<span class="sd">    fig : Figure of labeling efficiency as stacked bars. Under/Over-labeling as separated axis.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># delete N-terminal acetylated arginines without lysine (can&#39;t be modified)</span>
+    <span class="n">is_acetylated</span> <span class="o">=</span> <span class="n">evidence_under</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;_\(Acetyl \(Protein N-term\)\)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">has_lysine</span> <span class="o">=</span> <span class="n">evidence_under</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">)</span>
+    <span class="n">evidence_under</span> <span class="o">=</span> <span class="n">evidence_under</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">is_acetylated</span> <span class="o">&amp;</span> <span class="n">has_lysine</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># if one over-labelling df is given, both must be given</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">evidence_h_over</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">evidence_h_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;If one of the overlabelling dataframes is given, both must be given.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># count residues for later calculations</span>
+    <span class="n">evidence_under</span><span class="p">[</span><span class="s2">&quot;K count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_under</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use evidence_sty as proxy for evidence_h</span>
+        <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;S count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>
+        <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;T count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+        <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Y count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">)</span>
+        <span class="n">evidence_h_over</span><span class="p">[</span><span class="s2">&quot;H count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_h_over</span><span class="p">[</span><span class="s2">&quot;Sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">)</span>
+
+    <span class="c1"># check if experiment naming corresponds to nomenclature</span>
+    <span class="n">experiment_names</span> <span class="o">=</span> <span class="n">evidence_under</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">126</span><span class="p">,</span> <span class="mi">132</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">experiment_names</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Not all experiment names in evidence_under contain TMT6plex channel numbers (126-131).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># initiate DataFrame for results</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">evidence_under</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Experiment&quot;</span><span class="p">):</span>
+        <span class="c1"># reset variables for each experiment</span>
+        <span class="n">lysine</span> <span class="o">=</span> <span class="n">nterm</span> <span class="o">=</span> <span class="n">sty_over_experiment</span> <span class="o">=</span> <span class="n">sty_over</span> <span class="o">=</span> <span class="n">h_over_experiment</span> <span class="o">=</span> <span class="n">h_over</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">126</span><span class="p">,</span> <span class="mi">132</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="n">experiment_name</span><span class="p">:</span>
+                <span class="n">nterm</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;\_\(TMT6plex-Nterm</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">\)&quot;</span>
+                <span class="n">lysine</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TMT6plex-Lysine</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">h_over</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TMT6plex (H)</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">sty_over</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;TMT6plex (STY)</span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">h_over_experiment</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">entry</span>
+                        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">evidence_h_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="n">entry</span>
+                    <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">sty_over_experiment</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">entry</span>
+                        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="n">entry</span>
+                    <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">break</span>
+
+        <span class="n">per_exp_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">acetyl_nterm</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\_\(Acetyl \(Protein N\-term\)\)&quot;</span>  <span class="c1"># makes code more readable</span>
+
+        <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;fully labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;K count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">[</span><span class="n">lysine</span><span class="p">])</span>  <span class="c1"># all lysines labeled</span>
+            <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">acetyl_nterm</span><span class="p">)</span>
+                <span class="p">)</span>  <span class="c1"># no acetyl n-term</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">nterm</span><span class="p">))</span>  <span class="c1"># n-term labeled</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;partially labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(TMT6plex&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="o">-</span> <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;fully labeled&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;not labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="o">~</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;Modified sequence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(TMT6plex&quot;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;sum all labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;not labeled&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;fully labeled&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;partially labeled&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;PSM STY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">evidence_sty_over</span><span class="p">[</span>
+                    <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sty_over_experiment</span>
+                <span class="p">][</span><span class="s2">&quot;S count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">+</span> <span class="n">evidence_sty_over</span><span class="p">[</span>
+                    <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sty_over_experiment</span>
+                <span class="p">][</span><span class="s2">&quot;T count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">+</span> <span class="n">evidence_sty_over</span><span class="p">[</span>
+                    <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sty_over_experiment</span>
+                <span class="p">][</span><span class="s2">&quot;Y count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;TMT (STY)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_sty_over</span><span class="p">[</span>
+                <span class="n">evidence_sty_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sty_over_experiment</span>
+            <span class="p">][</span><span class="n">sty_over</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;PSM H&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_h_over</span><span class="p">[</span>
+                <span class="n">evidence_h_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">h_over_experiment</span>
+            <span class="p">][</span><span class="s2">&quot;H count&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="n">per_exp_dict</span><span class="p">[</span><span class="s2">&quot;TMT (H)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence_h_over</span><span class="p">[</span>
+                <span class="n">evidence_h_over</span><span class="p">[</span><span class="s2">&quot;Experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">h_over_experiment</span>
+            <span class="p">][</span><span class="n">h_over</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">per_exp_dict</span><span class="p">)</span>
+        <span class="n">index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)</span>
+
+    <span class="n">df_efficiency</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Experiment&quot;</span>  <span class="c1"># set index name</span>
+
+    <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% f</span><span class="s2">ully labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;fully labeled&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;sum all labeled&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+    <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% partially labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;partially labeled&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;sum all labeled&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+    <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% not labeled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;not labeled&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;sum all labeled&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;TMT (STY)&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;PSM STY&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled H&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;TMT (H)&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;PSM H&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY+H&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled H&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ax_peps_all</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ax_peps_not</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ax_over</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_peps_all</span><span class="p">,</span> <span class="n">ax_peps_not</span><span class="p">,</span> <span class="n">ax_over</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="n">nrows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+            <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span>
+            <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">ax_peps_all</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ax_peps_not</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ax_over</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;All axes (ax_peps_all, ax_peps_not, ax_over) must be provided or none.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax_peps_all</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+        <span class="s2">&quot;Comparison of labeling efficiency in TMT6plex&quot;</span><span class="p">,</span>
+        <span class="n">fontdict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% f</span><span class="s2">ully labeled&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% partially labeled&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% not labeled&quot;</span><span class="p">],</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax_peps_all</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dd4e26&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;% not labeled&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% f</span><span class="s2">ully labeled&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% partially labeled&quot;</span><span class="p">],</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax_peps_all</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#2596be&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;% partially labeled&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% f</span><span class="s2">ully labeled&quot;</span><span class="p">],</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax_peps_all</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#063970&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">% f</span><span class="s2">ully labeled&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">)),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;right&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;% not labeled&quot;</span><span class="p">],</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax_peps_not</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dd4e26&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ax_peps_all</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Peptides [%]&quot;</span><span class="p">)</span>
+    <span class="n">ax_peps_not</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Peptides [%]&quot;</span><span class="p">)</span>
+    <span class="n">ax_peps_all</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">evidence_sty_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY+H&quot;</span><span class="p">],</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax_over</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#cce7e8&quot;</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY+H&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">df_efficiency</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY&quot;</span><span class="p">],</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax_over</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#44bcd8&quot;</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">% o</span><span class="s2">verlabeled STY&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">ax_over</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">ax_over</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;AA Residues [%]&quot;</span><span class="p">)</span>
+
+        <span class="n">ax_over</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+            <span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># set explicit tick positions and labels for ax_peps_not</span>
+        <span class="n">ax_peps_not</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">df_efficiency</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ensure bottom tick labels are shown (shared-x subplots hide them by default)</span>
+        <span class="n">ax_peps_not</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">labelbottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax_peps_not</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
+
+        <span class="c1"># remove axis</span>
+        <span class="n">ax_over</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">df_efficiency</span><span class="p">,</span> <span class="n">fig</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+phos_lfq = pd.read_csv("../data/Phospho (STY)Sites_lfq_minimal.zip", sep="\t", low_memory=False)
+intens_cols = phos_lfq.filter(regex="Intensity .").columns.to_list()
+phos_lfq[intens_cols] = phos_lfq[intens_cols].replace(0, np.nan)
+phos_lfq, norm_cols = pp.vsn(phos_lfq, intens_cols, return_cols = True)
+phos_lfq, log_cols = pp.log(phos_lfq, intens_cols, base=2, return_cols=True)
+vis.boxplot(phos_lfq, reps=[log_cols, norm_cols], compare=True)

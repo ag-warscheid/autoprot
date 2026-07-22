@@ -1,0 +1,1038 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.analysis.stat_test &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/analysis/stat_test';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.analysis.stat_test</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.analysis.stat_test</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Analysis Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gprofiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">GProfiler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pylab</span> <span class="k">as</span> <span class="n">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">ttest_1samp</span><span class="p">,</span> <span class="n">ttest_ind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">multitest</span> <span class="k">as</span> <span class="n">mt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocessing</span> <span class="k">as</span> <span class="n">pp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span>
+
+<span class="n">gp</span> <span class="o">=</span> <span class="n">GProfiler</span><span class="p">(</span><span class="n">user_agent</span><span class="o">=</span><span class="s2">&quot;autoprot&quot;</span><span class="p">,</span> <span class="n">return_dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># check where this is actually used and make it local</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ttest&quot;</span><span class="p">,</span> <span class="s2">&quot;adjust_p&quot;</span><span class="p">,</span> <span class="s2">&quot;cohen_d&quot;</span><span class="p">,</span> <span class="s2">&quot;limma&quot;</span><span class="p">,</span> <span class="s2">&quot;rank_prod&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ttest">
+<a class="viewcode-back" href="../../../analysis/stat_test.html#autoprot.analysis.stat_test.ttest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ttest</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">reps</span><span class="p">,</span>
+    <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">return_fc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">adjust_p_vals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;two-sided&quot;</span><span class="p">,</span>
+    <span class="n">logged</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform one or two sample ttest.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    reps : list of str or list of lists of str</span>
+<span class="sd">        The replicates to be included in the statistical test.</span>
+<span class="sd">        Either a list of the replicates or a list containing two list with the</span>
+<span class="sd">        respective replicates.</span>
+<span class="sd">    cond : str, optional</span>
+<span class="sd">        The name of the condition.</span>
+<span class="sd">        This is used for naming the returned results.</span>
+<span class="sd">        The default is &quot;&quot;.</span>
+<span class="sd">    return_fc : bool, optional</span>
+<span class="sd">        Whether to calculate the fold-change of the provided data.</span>
+<span class="sd">        The processing of the fold-change can be controlled by the logged</span>
+<span class="sd">        switch.</span>
+<span class="sd">        The default is True.</span>
+<span class="sd">    adjust_p_vals : bool, optional</span>
+<span class="sd">        Whether to adjust P-values. The default is True.</span>
+<span class="sd">    alternative : {&#39;two-sided&#39;, &#39;less&#39;, &#39;greater&#39;}, optional</span>
+<span class="sd">        Defines the alternative hypothesis.</span>
+<span class="sd">        The following options are available (default is &#39;two-sided&#39;):</span>
+
+<span class="sd">        * &#39;two-sided&#39;: the mean of the underlying distribution of the sample</span>
+<span class="sd">          is different from the given population mean (`popmean`)</span>
+<span class="sd">        * &#39;less&#39;: the mean of the underlying distribution of the sample is</span>
+<span class="sd">          less than the given population mean (`popmean`)</span>
+<span class="sd">        * &#39;greater&#39;: the mean of the underlying distribution of the sample is</span>
+<span class="sd">          greater than the given population mean (`popmean`)</span>
+<span class="sd">    logged: bool, optional</span>
+<span class="sd">        Set to True if input values are log-transformed (or VSN normalised).</span>
+<span class="sd">        This returns the difference between values as log_fc, otherwise</span>
+<span class="sd">        values are log2 transformed to gain log_fc.</span>
+<span class="sd">        Default is true.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe with additional cols.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        twitchVsmild = [&#39;log2_Ratio H/M normalized BC18_1&#39;,&#39;log2_Ratio M/L normalized BC18_2&#39;,</span>
+<span class="sd">                        &#39;log2_Ratio H/M normalized BC18_3&#39;,</span>
+<span class="sd">                        &#39;log2_Ratio H/L normalized BC36_1&#39;,&#39;log2_Ratio H/M normalized BC36_2&#39;,</span>
+<span class="sd">                        &#39;log2_Ratio M/L normalized BC36_2&#39;]</span>
+<span class="sd">        prot = pd.read_csv(&quot;../data/proteinGroups_minimal.zip&quot;, sep=&#39;\\t&#39;, low_memory=False)</span>
+<span class="sd">        protRatio = prot.filter(regex=r&quot;Ratio .\/. normalized&quot;).columns</span>
+<span class="sd">        protLog = pp.log(prot, protRatio, base=2)</span>
+<span class="sd">        prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond=&quot;_TvM&quot;, return_fc=True, adjust_p_vals=True)</span>
+<span class="sd">        prot_tt[&quot;pValue_TvM&quot;].hist(bins=50)</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        df = pd.DataFrame({&quot;a1&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                  &quot;a2&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                  &quot;a3&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                  &quot;b1&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">                  &quot;b2&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">                  &quot;b3&quot;:np.random.normal(loc=0.5, size=4000),})</span>
+<span class="sd">        ana.ttest(df=df, reps=[[&quot;a1&quot;,&quot;a2&quot;, &quot;a3&quot;],[&quot;b1&quot;,&quot;b2&quot;, &quot;b3&quot;]])[&quot;pValue&quot;].hist(bins=50)</span>
+<span class="sd">        plt.show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">one_samp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">ttest_1samp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="n">alternative</span><span class="p">,</span> <span class="n">popmean</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">two_samp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ttest_ind</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span>
+            <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">:],</span>
+            <span class="n">alternative</span><span class="o">=</span><span class="n">alternative</span><span class="p">,</span>
+            <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Performing two-sample t-Test&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">two_samp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">pvals</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># replace values &lt;= 0 with nan to avoid division by zero</span>
+        <span class="n">pvals</span><span class="p">[</span><span class="n">pvals</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="c1"># calculate -log10 of p-values</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;score</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">pvals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_fc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">logged</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;logFC</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;logFC</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Performing one-sample t-Test&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">one_samp_ttest</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;score</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">return_fc</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;logFC</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">logged</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">adjust_p_vals</span><span class="p">:</span>
+        <span class="n">adjust_p</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;pValue</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="adjust_p">
+<a class="viewcode-back" href="../../../analysis/stat_test.html#autoprot.analysis.stat_test.adjust_p">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">adjust_p</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">p_col</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fdr_bh&quot;</span><span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use statsmodels.multitest on dataframes.</span>
+
+<span class="sd">    Note: when nan in p-value this function will return only nan.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    p_col : str</span>
+<span class="sd">        column containing p-values for correction.</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        &#39;b&#39;: &#39;Bonferroni&#39;,</span>
+<span class="sd">        &#39;s&#39;: &#39;Sidak&#39;,</span>
+<span class="sd">        &#39;h&#39;: &#39;Holm&#39;,</span>
+<span class="sd">        &#39;hs&#39;: &#39;Holm-Sidak&#39;,</span>
+<span class="sd">        &#39;sh&#39;: &#39;Simes-Hochberg&#39;,</span>
+<span class="sd">        &#39;ho&#39;: &#39;Hommel&#39;,</span>
+<span class="sd">        &#39;fdr_bh&#39;: &#39;FDR Benjamini-Hochberg&#39;,</span>
+<span class="sd">        &#39;fdr_by&#39;: &#39;FDR Benjamini-Yekutieli&#39;,</span>
+<span class="sd">        &#39;fdr_tsbh&#39;: &#39;FDR 2-stage Benjamini-Hochberg&#39;,</span>
+<span class="sd">        &#39;fdr_tsbky&#39;: &#39;FDR 2-stage Benjamini-Krieger-Yekutieli&#39;,</span>
+<span class="sd">        &#39;fdr_gbs&#39;: &#39;FDR adaptive Gavrilov-Benjamini-Sarkar&#39;</span>
+<span class="sd">        The default is &quot;fdr_bh&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The input dataframe with adjusted p-values.</span>
+<span class="sd">        The dataframe will have a column named &quot;adj.{pCol}&quot;</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; twitchVsmild = [&#39;log2_Ratio H/M normalized BC18_1&#39;,&#39;log2_Ratio M/L normalized BC18_2&#39;,</span>
+<span class="sd">    ...                 &#39;log2_Ratio H/M normalized BC18_3&#39;,</span>
+<span class="sd">    ...                 &#39;log2_Ratio H/L normalized BC36_1&#39;,&#39;log2_Ratio H/M normalized BC36_2&#39;,</span>
+<span class="sd">    ...                 &#39;log2_Ratio M/L normalized BC36_2&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; prot = pd.read_csv(&quot;_static/testdata/03_proteinGroups_minimal.zip&quot;, sep=&#39;\t&#39;, low_memory=False)</span>
+<span class="sd">    &gt;&gt;&gt; protRatio = prot.filter(regex=&quot;Ratio .\/. normalized&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; protLog = pp.log(prot, protRatio, base=2)</span>
+<span class="sd">    &gt;&gt;&gt; prot_tt = ana.ttest(df=protLog, reps=twitchVsmild, cond=&quot;TvM&quot;, mean=True, adjust_p_vals=False)</span>
+<span class="sd">    &gt;&gt;&gt; prot_tt_adj = ana.adjust_p(prot_tt, p_col=&quot;pValue_TvM&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; prot_tt_adj.filter(regex=&#39;pValue&#39;).head()</span>
+<span class="sd">       pValue_TvM  adj.pValue_TvM</span>
+<span class="sd">    0         NaN             NaN</span>
+<span class="sd">    1    0.947334        0.966514</span>
+<span class="sd">    2         NaN             NaN</span>
+<span class="sd">    3         NaN             NaN</span>
+<span class="sd">    4    0.031292        0.206977</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># indices of rows containing values</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">p_col</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span><span class="o">.</span><span class="n">index</span>
+    <span class="c1"># init new col with for adjusted p-values</span>
+    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;adj.</span><span class="si">{</span><span class="n">p_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="c1"># apply correction for selected rows</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;adj.</span><span class="si">{</span><span class="n">p_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">p_col</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="cohen_d">
+<a class="viewcode-back" href="../../../analysis/stat_test.html#autoprot.analysis.stat_test.cohen_d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cohen_d</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">group1</span><span class="p">,</span> <span class="n">group2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Cohen&#39;s d effect size for two groups.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    group1 : str</span>
+<span class="sd">        Colname for group1.</span>
+<span class="sd">    group2 : str</span>
+<span class="sd">        Colname for group2.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        Input dataframe with a new column &quot;cohenD&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Cohen&#39;s d is defined as the difference between two means divided by a standard deviation for the data.</span>
+<span class="sd">    Note that the pooled standard deviation here is calculated differently than</span>
+<span class="sd">    originally proposed by Cohen.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] Cohen, Jacob (1988). Statistical Power Analysis for the Behavioral Sciences. Routledge.</span>
+<span class="sd">    [2] https://www.doi.org/10.22237/jmasm/1257035100</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mean1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">group1</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">std1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">group1</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">mean2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">group2</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">std2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">group2</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># TODO: the pooled sd here is calculated omitting the sample sizes n</span>
+    <span class="c1"># This is not exactly what was proposed for cohens d: https://en.wikipedia.org/wiki/Effect_size</span>
+    <span class="n">sd_pooled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">std1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">std2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cohenD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">mean1</span> <span class="o">-</span> <span class="n">mean2</span><span class="p">))</span> <span class="o">/</span> <span class="n">sd_pooled</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="limma">
+<a class="viewcode-back" href="../../../analysis/stat_test.html#autoprot.analysis.stat_test.limma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">limma</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">reps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">cond</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">custom_design</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coef</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">print_r</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># sourcery skip: extract-method, inline-immediately-returned-variable</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform moderated ttest as implemented from R LIMMA.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    reps : list of lists of str</span>
+<span class="sd">        Column names of the replicates.</span>
+<span class="sd">        Common replicates are grouped together in a single list.</span>
+<span class="sd">    cond : str, optional</span>
+<span class="sd">        Term to append to the newly generated colnames.</span>
+<span class="sd">        The default is &quot;&quot;.</span>
+<span class="sd">    custom_design : str, optional</span>
+<span class="sd">        Path to custom design file.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    coef : str, optional</span>
+<span class="sd">        The coefficients serving as the basis for calculating p-vlaues and fold-changes from the eBayes.</span>
+<span class="sd">        Must refer to design matrix colnames. If no custom design is specified the default coeficient is &quot;coef&quot;.</span>
+<span class="sd">        Differences are indicated e.g. by &quot;CondA-CondB&quot;. See https://rdrr.io/bioc/limma/man/toptable.html for details.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    print_r : bool, optional</span>
+<span class="sd">        Whether to print the R output.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns of the R output DataFrame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The input dataframe with additional columns.</span>
+<span class="sd">    list [str] | None</span>
+<span class="sd">        If return_cols is True, returns the columns of the R output DataFrame excluding &quot;UID&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    A custom design matriox has rows corresponding to arrays and columns to coefficients to be estimated</span>
+<span class="sd">    can be provided using customDesign.</span>
+<span class="sd">    If customDesign is the unit vector meaning that the arrays are treated as replicates.</span>
+<span class="sd">    See: https://www.rdocumentation.org/packages/limma/versions/3.28.14/topics/lmFit</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; data = pd.DataFrame({&quot;a1&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">    ...                      &quot;a2&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">    ...                      &quot;a3&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">    ...                      &quot;b1&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">    ...                      &quot;b2&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">    ...                      &quot;b3&quot;:np.random.normal(loc=0.5, size=4000),})</span>
+<span class="sd">    &gt;&gt;&gt; testRes = ana.limma(df=data, reps=[[&quot;a1&quot;,&quot;a2&quot;, &quot;a3&quot;],[&quot;b1&quot;,&quot;b2&quot;, &quot;b3&quot;]], cond=&quot;_test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; testRes[&quot;P.Value_test&quot;].hist()</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        import autoprot.analysis as ana</span>
+
+<span class="sd">        df = pd.DataFrame({&quot;a1&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                           &quot;a2&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                           &quot;a3&quot;:np.random.normal(loc=0, size=4000),</span>
+<span class="sd">                           &quot;b1&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">                           &quot;b2&quot;:np.random.normal(loc=0.5, size=4000),</span>
+<span class="sd">                           &quot;b3&quot;:np.random.normal(loc=0.5, size=4000),})</span>
+<span class="sd">        testRes = ana.limma(df, reps=[[&quot;a1&quot;,&quot;a2&quot;, &quot;a3&quot;],[&quot;b1&quot;,&quot;b2&quot;, &quot;b3&quot;]], cond=&quot;_test&quot;)</span>
+<span class="sd">        testRes[&quot;P.Value_test&quot;].hist()</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: better handle coefficient extraction in R</span>
+    <span class="c1"># check input dtypes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;df must be a pandas DataFrame&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+    <span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">,</span> <span class="n">hashstring</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">generate_paths_for_r</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">write_csv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_hash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;_limma&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># limma handles fold-change calculation opposite to all other autoprot tools</span>
+    <span class="c1"># this changes the order for function consistency</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">reps</span> <span class="o">=</span> <span class="n">reps</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># flatten in case of two sample</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">reps</span><span class="p">))],</span> <span class="n">data_loc</span><span class="p">)</span>
+
+    <span class="c1"># Normally no custom_design is provided</span>
+    <span class="k">if</span> <span class="n">custom_design</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">design_loc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">hashstring</span><span class="si">}</span><span class="s2">_design.csv&quot;</span>
+        <span class="c1"># if two lists are provided with reps, this likely is a twoSample test</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LIMMA: Assuming a two sample test with:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample 1: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]])))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample 2: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]])))</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="s2">&quot;twoSample&quot;</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+                    <span class="s2">&quot;coef&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="c1"># =============================================================================</span>
+            <span class="c1">#             creates a design matrix such as</span>
+            <span class="c1">#                 Intercept  coef</span>
+            <span class="c1">#              0          1     0</span>
+            <span class="c1">#              1          1     0</span>
+            <span class="c1">#              2          1     0</span>
+            <span class="c1">#              3          1     1</span>
+            <span class="c1">#              4          1     1</span>
+            <span class="c1">#              5          1     1</span>
+            <span class="c1"># =============================================================================</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using design matrix:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">design</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">())</span>
+
+            <span class="c1"># save the design for R to read</span>
+            <span class="n">pp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">design</span><span class="p">,</span> <span class="n">design_loc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="s2">&quot;oneSample&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LIMMA: Assuming a one sample test&quot;</span><span class="p">)</span>
+            <span class="c1"># The R function will generate a design matrix corresponding to</span>
+            <span class="c1"># ones</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LIMMA: Assuming a custom design test with:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Design specified at </span><span class="si">{</span><span class="n">custom_design</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Columns: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">reps</span><span class="p">)))))</span>
+
+        <span class="n">design</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">custom_design</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using design matrix:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">design</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">())</span>
+
+        <span class="n">test</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span>
+        <span class="n">design_loc</span> <span class="o">=</span> <span class="n">custom_design</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">R</span><span class="p">,</span>
+        <span class="s2">&quot;--vanilla&quot;</span><span class="p">,</span>
+        <span class="n">RFUNCTIONS</span><span class="p">,</span>
+        <span class="s2">&quot;limma&quot;</span><span class="p">,</span>
+        <span class="n">data_loc</span><span class="p">,</span>
+        <span class="n">output_loc</span><span class="p">,</span>
+        <span class="n">test</span><span class="p">,</span>
+        <span class="n">design_loc</span><span class="p">,</span>
+        <span class="n">coef</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">r_helper</span><span class="o">.</span><span class="n">run_r_command</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">print_r</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_loc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">merge_data_from_r</span><span class="p">(</span>
+        <span class="n">res</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">cond</span><span class="p">,</span>
+        <span class="n">locs_to_remove</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">,</span> <span class="n">design_loc</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">custom_design</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">[</span><span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="n">return_cols</span><span class="o">=</span><span class="n">return_cols</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="rank_prod">
+<a class="viewcode-back" href="../../../analysis/stat_test.html#autoprot.analysis.stat_test.rank_prod">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rank_prod</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">print_r</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">correct_fc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_vv</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">return_cols</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform RankProd test as in R RankProd package.</span>
+
+<span class="sd">    At the moment one sample test only.</span>
+<span class="sd">    Test for up and downregulated genes separately therefore returns two p values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    reps : list of lists of str</span>
+<span class="sd">        Column names of the replicates.</span>
+<span class="sd">        Common replicates are grouped together in a single list.</span>
+<span class="sd">    cond : str, optional</span>
+<span class="sd">        Term to append to the newly generated colnames.</span>
+<span class="sd">        The default is &quot;&quot;.</span>
+<span class="sd">    print_r : bool, optional</span>
+<span class="sd">        Whether to print the R output.</span>
+<span class="sd">        The default is False.</span>
+<span class="sd">    correct_fc : bool, optional</span>
+<span class="sd">        The rankProd package does not calculate fold-changes for rows with</span>
+<span class="sd">        missing values (p Values are calculated). If correct_fc is False</span>
+<span class="sd">        the original fold changes from rankProd are return, else fold</span>
+<span class="sd">        changes are calculated for all values after ignoring NaNs.</span>
+<span class="sd">    min_vv : int, optional</span>
+<span class="sd">        Minimum number of valid values for a row to be considered.</span>
+<span class="sd">        The default is 1.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns of the R output DataFrame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe with additional columns from RankProd.</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The adjusted p-values returned from the R backend are the percentage of</span>
+<span class="sd">    false positives calculated by the rankProd package. This is akin to corrected</span>
+<span class="sd">    p values, but care should be taken to name these values accordingly.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">generate_paths_for_r</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">write_csv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;_rank_prod&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;rankProd: Only up to two sample tests are supported. Please change the reps input.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rankProd: Assuming a two sample test with:&quot;</span><span class="p">)</span>
+        <span class="n">enough_vvs</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_vv</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_vv</span>
+        <span class="p">)</span>
+
+        <span class="n">class_labels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample 1: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]])))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample 2: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]])))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Class labels: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">class_labels</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rankProd: Assuming a one sample test&quot;</span><span class="p">)</span>
+        <span class="n">enough_vvs</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_vv</span>
+        <span class="n">class_labels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">enough_vvs</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;rankProd: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">enough_vvs</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> rows with less than </span><span class="si">{</span><span class="n">min_vv</span><span class="si">}</span><span class="s2"> valid values per rep were ignored&quot;</span>
+        <span class="p">)</span>
+    <span class="n">for_r</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">enough_vvs</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># flatten in case of two sample</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">for_r</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">reps</span><span class="p">))],</span> <span class="n">data_loc</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">R</span><span class="p">,</span>
+        <span class="s2">&quot;--vanilla&quot;</span><span class="p">,</span>
+        <span class="n">RFUNCTIONS</span><span class="p">,</span>  <span class="c1"># script location</span>
+        <span class="s2">&quot;rankProd&quot;</span><span class="p">,</span>  <span class="c1"># functionName</span>
+        <span class="n">data_loc</span><span class="p">,</span>  <span class="c1"># data location</span>
+        <span class="n">output_loc</span><span class="p">,</span>  <span class="c1"># output file,</span>
+        <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">class_labels</span><span class="p">]),</span>
+    <span class="p">]</span>
+
+    <span class="n">r_helper</span><span class="o">.</span><span class="n">run_r_command</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">print_r</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_loc</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">merge_data_from_r</span><span class="p">(</span>
+        <span class="n">res</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">cond</span><span class="p">,</span>
+        <span class="n">locs_to_remove</span><span class="o">=</span><span class="p">[</span><span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">],</span>
+        <span class="n">return_cols</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">correct_fc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Column must be called logFC as this is also the column name returned by RankProd</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;logFC&quot;</span> <span class="o">+</span> <span class="n">cond</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span>
+                <span class="n">reps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;logFC&quot;</span> <span class="o">+</span> <span class="n">cond</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">reps</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">cols</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.preprocessing.imputation &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/preprocessing/imputation';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.preprocessing.imputation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.preprocessing.imputation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Preprocessing Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">STDOUT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocessing</span> <span class="k">as</span> <span class="n">pp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span>
+
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># defines which functions are exposed at the module level</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;imp_min_prob&quot;</span><span class="p">,</span> <span class="s2">&quot;imp_median&quot;</span><span class="p">,</span> <span class="s2">&quot;imp_seq&quot;</span><span class="p">,</span> <span class="s2">&quot;dima&quot;</span><span class="p">]</span>
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Note: When using R functions provided column names might get changed</span>
+<span class="c1"># Especially, do not use +,- or spaces in your column names. Maybe write decorator to</span>
+<span class="c1"># validate proper column formatting and handle exceptions</span>
+<span class="c1"># =============================================================================</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># IMPUTATION ALGORITHMS</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="imp_min_prob">
+<a class="viewcode-back" href="../../../preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_min_prob">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">imp_min_prob</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">cols</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">min_missing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">downshift</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.8</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">return_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gen_isimp_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_isimp_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform an imputation by modeling a distribution on the far left site of the actual distribution.</span>
+
+<span class="sd">    The final distribution will be mean shifted and has a smaller variation.</span>
+<span class="sd">    Intensities should be log-transformed before being supplied to this function.</span>
+
+<span class="sd">    Downsshift: mean - downshift*sigma</span>
+<span class="sd">    Var: width*sigma</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.dataframe</span>
+<span class="sd">        Dataframe on which imputation is performed.</span>
+<span class="sd">    cols : list or str</span>
+<span class="sd">        Columns to impute. Should correspond to a single condition (i.e. control).</span>
+<span class="sd">    min_missing : int, optional</span>
+<span class="sd">        How many missing values have to be missing across all columns to perfom imputation</span>
+<span class="sd">        If None imputation will be performed on all cells. The default is None.</span>
+<span class="sd">    downshift : float, optional</span>
+<span class="sd">        How many Stds to lower values the mean of the new population is shifted. The default is 1.8.</span>
+<span class="sd">    width : float, optional</span>
+<span class="sd">        How to scale the Std of the new distribution with respect to the original. The default is .3.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns that were imputed. The default is False.</span>
+<span class="sd">    gen_isimp_cols : bool, optional</span>
+<span class="sd">        Whether to generate columns indicating which values were imputed. The default is False.</span>
+<span class="sd">    return_isimp_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns indicating which values were imputed. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.dataframe</span>
+<span class="sd">        The dataframe with imputed values.</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Columns that were imputed.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        phos = pd.read_csv(&quot;../data/Phospho (STY)Sites_minimal.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        forImp = np.log10(phos.filter(regex=&quot;Int.*R1&quot;).replace(0, np.nan))</span>
+<span class="sd">        impProt = pp.imp_min_prob(forImp, phos.filter(regex=&quot;Int.*R1&quot;).columns, width=.4, downshift=2.5)</span>
+<span class="sd">        fig, ax1 = plt.subplots(1)</span>
+<span class="sd">        imputed_values = impProt.filter(regex=&quot;Int.*R1$&quot;).isnull()</span>
+<span class="sd">        ax1.hist(impProt.filter(regex=&quot;Int.*R1_min_imputed&quot;).values[~imputed_values],</span>
+<span class="sd">                  density=True, bins=50, label=&quot;not Imputed&quot;, alpha=.5)</span>
+<span class="sd">        ax1.hist(impProt.filter(regex=&quot;Int.*R1_min_imputed&quot;).values[imputed_values],</span>
+<span class="sd">                  density=True, bins=50, label=&quot;Imputed&quot;, alpha=.5)</span>
+<span class="sd">        ax1.set_xlabel(&quot;log10 Intensity&quot;)</span>
+<span class="sd">        ax1.set_ylabel(&quot;Density&quot;)</span>
+
+<span class="sd">        plt.legend()</span>
+<span class="sd">        plt.show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">return_isimp_cols</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;You set return_isimp_cols to True but gen_isimp_cols is False. Cannot return columns that were not &quot;</span>
+            <span class="s2">&quot;generated.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># test if cols_to_impute is iterable</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">iter</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cols</span><span class="p">]</span>
+
+    <span class="c1"># idxs of rows in which imputation will be excluded</span>
+    <span class="k">if</span> <span class="n">min_missing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">s_nan</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># number of NaNs per row</span>
+        <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">s_nan</span><span class="p">[</span>
+            <span class="n">s_nan</span> <span class="o">&lt;</span> <span class="n">min_missing</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">index</span>  <span class="c1"># index of rows with less than min_missing NaNs (i.e. to exclude)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Excluding </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filter_idx</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows from imputation because they have &lt;</span><span class="si">{</span><span class="n">min_missing</span><span class="si">}</span><span class="s2"> missing values.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No rows are excluded from imputation.&quot;</span><span class="p">)</span>
+
+    <span class="n">imputed_cols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">isimp_cols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+        <span class="n">count_na</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="p">)</span>  <span class="c1"># per column count of NaNs (requried for random number generation)</span>
+        <span class="n">na_index</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">index</span>  <span class="c1"># index of rows to impute in the current column</span>
+        <span class="k">if</span> <span class="n">min_missing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">na_index</span> <span class="o">=</span> <span class="n">na_index</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+                <span class="n">filter_idx</span>
+            <span class="p">)</span>  <span class="c1"># remove idxs to exclude from imputation</span>
+            <span class="n">count_na</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">na_index</span><span class="p">)</span>
+
+        <span class="c1"># define values before imputation</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="c1"># new mean, val for imputation</span>
+        <span class="n">minimp_mean</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">downshift</span> <span class="o">*</span> <span class="n">var</span>
+        <span class="n">minimp_var</span> <span class="o">=</span> <span class="n">var</span> <span class="o">*</span> <span class="n">width</span>
+
+        <span class="n">rnd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">minimp_mean</span><span class="p">,</span> <span class="n">minimp_var</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">count_na</span><span class="p">)</span>
+        <span class="n">imputed_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">rnd</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">na_index</span>
+        <span class="p">)</span>  <span class="c1"># new series with imputed values and index of NaNs</span>
+
+        <span class="n">col_new</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_min_imputed&quot;</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+            <span class="n">imputed_s</span>
+        <span class="p">)</span>  <span class="c1"># fillna will map the values based on the index</span>
+        <span class="n">imputed_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_new</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+            <span class="n">isimp_col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_is_imputed&quot;</span>
+            <span class="n">isimp_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isimp_col</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">isimp_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_index</span><span class="p">,</span> <span class="n">isimp_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># set only the imputed rows to True</span>
+
+    <span class="k">if</span> <span class="n">return_isimp_cols</span> <span class="ow">and</span> <span class="n">return_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">imputed_cols</span><span class="p">,</span> <span class="n">isimp_cols</span>
+    <span class="k">elif</span> <span class="n">return_isimp_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">isimp_cols</span>
+    <span class="k">elif</span> <span class="n">return_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">imputed_cols</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="imp_median">
+<a class="viewcode-back" href="../../../preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_median">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">imp_median</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">cols_to_impute</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span>
+    <span class="n">min_missing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_missing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gen_isimp_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_isimp_cols</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
+    <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+    <span class="o">|</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+    <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform an imputation by replacing missing values with the median of the row.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe on which imputation is performed.</span>
+<span class="sd">    cols_to_impute : list of str or pd.Index</span>
+<span class="sd">        Columns to impute. Should correspond to a single condition (i.e. control).</span>
+<span class="sd">    min_missing : int, optional</span>
+<span class="sd">        How many missing values have to be missing across all columns to perform imputation.</span>
+<span class="sd">        If None one value has to be missing. The default is None.</span>
+<span class="sd">    max_missing : int, optional</span>
+<span class="sd">        How many missing values are allowed across all columns to perform imputation.</span>
+<span class="sd">        If None the number of columns minus one is used (i.e. one value has to be present). The default is None.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns that were imputed. The default is False.</span>
+<span class="sd">    gen_isimp_cols : bool, optional</span>
+<span class="sd">        Whether to generate columns indicating which values were imputed. The default is False.</span>
+<span class="sd">    return_isimp_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns indicating which values were imputed. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        The dataframe with imputed values.</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Columns that were imputed.</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Columns indicating which values were imputed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">return_isimp_cols</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;You set return_isimp_cols to True but gen_isimp_cols is False. Cannot return columns that were not &quot;</span>
+            <span class="s2">&quot;generated.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># test if cols_to_impute is iterable</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">iter</span><span class="p">(</span><span class="n">cols_to_impute</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">cols_to_impute</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cols_to_impute</span><span class="p">]</span>
+
+    <span class="n">min_missing</span> <span class="o">=</span> <span class="n">min_missing</span> <span class="k">if</span> <span class="n">min_missing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">max_missing</span> <span class="o">=</span> <span class="n">max_missing</span> <span class="k">if</span> <span class="n">max_missing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols_to_impute</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="c1"># idxs of rows for imputation</span>
+    <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="n">min_missing</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols_to_impute</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">cols_to_impute</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_missing</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="p">)</span>
+
+    <span class="n">imputed_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">imputed_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="s2">&quot;_median_imputed&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cols_to_impute</span><span class="p">]</span>
+    <span class="n">isimp_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="s2">&quot;_is_imputed&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cols_to_impute</span><span class="p">]</span>
+    <span class="n">isimp_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imputing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filter_idx</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows out of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">filter_idx</span><span class="p">,</span> <span class="n">cols_to_impute</span><span class="p">]</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">row_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="c1"># fill the NaN values with the median of the row</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">row_median</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">imputed_cols</span><span class="p">)</span>
+        <span class="n">imputed_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+            <span class="n">isimp_row</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">row</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">imputed_cols</span><span class="p">)</span>
+            <span class="n">isimp_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isimp_row</span><span class="p">)</span>
+
+    <span class="c1"># create a new DataFrame with the imputed rows</span>
+    <span class="n">imputed_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">imputed_rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">imputed_cols</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">filter_idx</span><span class="p">)</span>
+    <span class="c1"># join the imputed DataFrame with the original DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">imputed_df</span><span class="p">)</span>
+    <span class="c1"># create a new DataFrame with the is_imputed rows</span>
+    <span class="k">if</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+        <span class="n">isimp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">isimp_rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">isimp_cols</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">filter_idx</span><span class="p">)</span>
+        <span class="c1"># join the is_imputed DataFrame with the original DataFrame</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">isimp_df</span><span class="p">)</span>
+
+    <span class="c1"># set the rows which were not imputed to the original values</span>
+    <span class="c1"># the loop above only created the imputed rows</span>
+    <span class="n">untouched_rows</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">filter_idx</span><span class="p">)</span>
+    <span class="c1"># Create a temporary DataFrame with imputed values</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">untouched_rows</span><span class="p">,</span> <span class="n">cols_to_impute</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">tmp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">imputed_cols</span>  <span class="c1"># Rename if necessary</span>
+    <span class="c1"># Update only the selected columns in the original df</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+        <span class="c1"># fill the unset values in the is_imputed cols with False</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">isimp_cols</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_isimp_cols</span> <span class="ow">and</span> <span class="n">return_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">imputed_cols</span><span class="p">,</span> <span class="n">isimp_cols</span>
+    <span class="k">elif</span> <span class="n">return_isimp_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">isimp_cols</span>
+    <span class="k">elif</span> <span class="n">gen_isimp_cols</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">imputed_cols</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="imp_seq">
+<a class="viewcode-back" href="../../../preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_seq">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">imp_seq</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">cols</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span>
+    <span class="n">print_r</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_cols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_imputed&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform sequential imputation in R using impSeq from rrcovNA.</span>
+
+<span class="sd">    See https://rdrr.io/cran/rrcovNA/man/impseq.html for a description of the algorithm. SEQimpute starts from a</span>
+<span class="sd">    complete subset of the data set Xc and estimates sequentially the missing values in an incomplete observation,</span>
+<span class="sd">    say x*, by minimizing the determinant of the covariance of the augmented data matrix X* = [Xc; x&#39;]. Then the</span>
+<span class="sd">    observation x* is added to the complete data matrix and the algorithm continues with the next observation with</span>
+<span class="sd">    missing values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        Colnames to perform imputation of.</span>
+<span class="sd">    print_r : bool, optional</span>
+<span class="sd">        Whether to print the output of R, default is False.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns that were imputed. The default is False.</span>
+<span class="sd">    suffix : str, optional</span>
+<span class="sd">        Suffix to add to the imputed columns. Default is &#39;_imputed&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Dataframe with imputed values.</span>
+<span class="sd">        Cols with imputed values are named _imputed.</span>
+<span class="sd">        Contains a col UID that was used for processing.</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Columns that were imputed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">generate_paths_for_r</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;_imp_seq&quot;</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">R</span><span class="p">,</span>
+        <span class="s2">&quot;--vanilla&quot;</span><span class="p">,</span>
+        <span class="n">RFUNCTIONS</span><span class="p">,</span>  <span class="c1"># script location</span>
+        <span class="s2">&quot;impSeq&quot;</span><span class="p">,</span>  <span class="c1"># functionName</span>
+        <span class="n">data_loc</span><span class="p">,</span>  <span class="c1"># data location</span>
+        <span class="n">output_loc</span><span class="p">,</span>  <span class="c1"># output file</span>
+    <span class="p">]</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">print_r</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_loc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">merge_data_from_r</span><span class="p">(</span>
+        <span class="n">res</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+        <span class="n">locs_to_remove</span><span class="o">=</span><span class="p">[</span><span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">],</span>
+        <span class="n">return_cols</span><span class="o">=</span><span class="n">return_cols</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dima">
+<a class="viewcode-back" href="../../../preprocessing/imputation.html#autoprot.preprocessing.imputation.dima">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dima</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">cols</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span>
+    <span class="n">selection_substr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ttest_substr</span><span class="o">=</span><span class="s2">&quot;cluster&quot;</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="s2">&quot;fast&quot;</span><span class="p">,</span>
+    <span class="n">npat</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">performance_metric</span><span class="o">=</span><span class="s2">&quot;RMSE&quot;</span><span class="p">,</span>
+    <span class="n">print_r</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">min_values_for_imputation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_cols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_imputed&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Data-Driven Selection of an Imputation Algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Input dataframe.</span>
+<span class="sd">    cols : list of str or pd.Index</span>
+<span class="sd">        Colnames to perform imputation on.</span>
+<span class="sd">        NOTE: if used on intensities, use log-transformed values.</span>
+<span class="sd">    selection_substr : str</span>
+<span class="sd">        pattern to extract columns for processing during DIMA run.</span>
+<span class="sd">    ttest_substr : 2-element list or str</span>
+<span class="sd">        For statistical interpretation based on the t-test, the RMSEt ≔ RMSE(tR, tI) serves as rank criterion,</span>
+<span class="sd">        where t is the t-test statistics calculated from the observed data R and the imputed data O.Todefine the null</span>
+<span class="sd">        hypothesis H0, the group assignments of the samples have to be specified by the user.</span>
+
+<span class="sd">        If is string, two elements need to be separated by &#39;,&#39;</span>
+<span class="sd">        If is list, concatenation will be done automatically.</span>
+<span class="sd">        The two elements must be substrings of the columns to compare.</span>
+<span class="sd">        Make sure that for each substring at least two matching colnames</span>
+<span class="sd">        are present in the data.</span>
+<span class="sd">    methods : str or list of str, optional</span>
+<span class="sd">        Methods to evaluate. Default &#39;fast&#39; for the 9 most used imputation</span>
+<span class="sd">        methods. Possible values are &#39;impSeqRob&#39;,&#39;impSeq&#39;,&#39;missForest&#39;,</span>
+<span class="sd">        &#39;imputePCA&#39;,&#39;ppca&#39;,&#39;bpca&#39;, ...</span>
+<span class="sd">    npat : int, optional</span>
+<span class="sd">        Number of missing value patterns to evaluate</span>
+<span class="sd">    performance_metric : str, optional</span>
+<span class="sd">        Metric used to select the best algorithm. Possible values are</span>
+<span class="sd">        Dev, RMSE, RSR, pF,  Acc, PCC, RMSEt.</span>
+<span class="sd">    min_values_for_imputation : int, optional</span>
+<span class="sd">        Minimum number of non-missing values for imputation.</span>
+<span class="sd">        Default is 0, which means that all values will be imputed.</span>
+<span class="sd">    print_r : bool</span>
+<span class="sd">        Whether to print the R output to the Python console.</span>
+<span class="sd">    return_cols : bool, optional</span>
+<span class="sd">        Whether to return the columns that were imputed. The default is False.</span>
+<span class="sd">    suffix : str, optional</span>
+<span class="sd">        Suffix to add to the imputed columns. Default is &#39;_imputed&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Input dataframe with imputed values.</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Overview of performance metrices of the different algorithms.</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Columns that were imputed.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    We will use a standard sample dataframe and generate some missing values to</span>
+<span class="sd">    demonstrate the imputation.</span>
+
+<span class="sd">    &gt;&gt;&gt; from autoprot import preprocessing as pp</span>
+<span class="sd">    &gt;&gt;&gt; import seaborn as sns</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; iris = sns.load_dataset(&#39;iris&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; _ = iris.pop(&#39;species&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; for col in iris.columns:</span>
+<span class="sd">    ...     iris.loc[iris.sample(frac=0.1).index, col] = np.nan</span>
+
+<span class="sd">    &gt;&gt;&gt; imp, perf = pp.dima(</span>
+<span class="sd">    ...     iris, iris.columns, performance_metric=&quot;RMSEt&quot;, ttest_substr=[&quot;petal&quot;, &quot;sepal&quot;]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &gt;&gt;&gt; imp.head()</span>
+<span class="sd">       sepal_length  sepal_width  petal_length  ...  sepal_width_imputed  petal_length_imputed  petal_width_imputed</span>
+<span class="sd">    0           5.1          3.5           1.4  ...                  3.5                   1.4                  0.2</span>
+<span class="sd">    1           4.9          3.0           1.4  ...                  3.0                   1.4                  0.2</span>
+<span class="sd">    2           4.7          3.2           1.3  ...                  3.2                   1.3                  0.2</span>
+<span class="sd">    3           4.6          3.1           1.5  ...                  3.1                   1.5                  0.2</span>
+<span class="sd">    4           5.0          3.6           1.4  ...                  3.6                   1.4                  0.2</span>
+
+<span class="sd">    [5 rows x 9 columns]</span>
+
+<span class="sd">    &gt;&gt;&gt; perf.head()</span>
+<span class="sd">                Deviation      RMSE       RSR  p-Value_F-test   Accuracy       PCC  RMSEttest</span>
+<span class="sd">    impSeqRob    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656</span>
+<span class="sd">    impSeq       0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783</span>
+<span class="sd">    missForest   0.348815  0.515518  0.256984        0.943464  95.413732  0.997563   0.223783</span>
+<span class="sd">    imputePCA    0.404402  0.531824  0.265112        0.924158  94.735915  0.997449   0.222656</span>
+<span class="sd">    ppca         0.377638  0.500354  0.249424        0.933919  95.000000  0.997721   0.199830</span>
+
+
+<span class="sd">    It is also possible to specify the minimum number of non-missing values that are required for imputation.</span>
+
+<span class="sd">    &gt;&gt;&gt; for col in iris.columns:</span>
+<span class="sd">    ...     iris.loc[iris.sample(frac=0.4).index, col] = np.nan</span>
+<span class="sd">    &gt;&gt;&gt; imp, perf = pp.dima(</span>
+<span class="sd">    ...     iris, iris.columns, performance_metric=&quot;RMSEt&quot;, min_values_for_imputation=2</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Egert, J., Brombacher, E., Warscheid, B. &amp; Kreutz, C. DIMA: Data-Driven Selection of an Imputation Algorithm.</span>
+<span class="sd">        Journal of Proteome Research 20, 3489–3496 (2021-06).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Your dataframe does not contain missing values. Will return as is.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">generate_paths_for_r</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;_dima&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+        <span class="n">mvs</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mvs</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">% MVs in column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">selection_substr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">selection_substr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;UID&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># UID is basically a row index starting at 1</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;UID&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">],</span> <span class="n">data_loc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ttest_substr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">ttest_substr</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ttest_substr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+
+    <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">R</span><span class="p">,</span>
+        <span class="s2">&quot;--vanilla&quot;</span><span class="p">,</span>
+        <span class="n">RFUNCTIONS</span><span class="p">,</span>  <span class="c1"># script location</span>
+        <span class="s2">&quot;dima&quot;</span><span class="p">,</span>  <span class="c1"># functionName</span>
+        <span class="n">data_loc</span><span class="p">,</span>  <span class="c1"># data location</span>
+        <span class="n">output_loc</span><span class="p">,</span>  <span class="c1"># output file</span>
+        <span class="n">ttest_substr</span><span class="p">,</span>  <span class="c1"># substring for ttesting</span>
+        <span class="n">methods</span><span class="p">,</span>  <span class="c1"># method(s) aka algorithms to benchmark</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">npat</span><span class="p">),</span>  <span class="c1"># number of patterns</span>
+        <span class="n">performance_metric</span><span class="p">,</span>  <span class="c1"># to select the best algorithm</span>
+        <span class="nb">str</span><span class="p">(</span>
+            <span class="n">min_values_for_imputation</span>
+        <span class="p">),</span>  <span class="c1"># minimum number of non-missing values for imputation</span>
+    <span class="p">]</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">print_r</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_loc</span><span class="p">)</span>
+    <span class="c1"># keep only the columns added by DIMA and the UID for merging</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Imputation&quot;</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;UID&quot;</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Imputation.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+    <span class="n">perf</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_loc</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_performance.csv&quot;</span><span class="p">)</span>
+
+    <span class="n">imputed_and_cols</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">merge_data_from_r</span><span class="p">(</span>
+        <span class="n">res</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">,</span>
+        <span class="n">locs_to_remove</span><span class="o">=</span><span class="p">[</span><span class="n">data_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">,</span> <span class="n">output_loc</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_performance.csv&quot;</span><span class="p">],</span>
+        <span class="n">return_cols</span><span class="o">=</span><span class="n">return_cols</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># return the imputed df and the performance metrics</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">imputed_and_cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">perf</span><span class="p">,</span> <span class="n">imputed_and_cols</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">return_cols</span>
+        <span class="k">else</span> <span class="p">(</span><span class="n">imputed_and_cols</span><span class="p">,</span> <span class="n">perf</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

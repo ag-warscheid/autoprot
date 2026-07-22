@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.preprocessing.filtering &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/preprocessing/filtering';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.preprocessing.filtering</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.preprocessing.filtering</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Preprocessing Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
+
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># defines which functions are exposed at the module level</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;cleaning&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter_loc_prob&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter_seq_cov&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter_vv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_non_quant&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Note: When using R functions provided column names might get changed</span>
+<span class="c1"># Especially, do not use +,- or spaces in your column names. Maybe write decorator to</span>
+<span class="c1"># validate proper column formatting and handle exceptions</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="cleaning">
+<a class="viewcode-back" href="../../../preprocessing/filtering.html#autoprot.preprocessing.filtering.cleaning">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleaning</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;proteinGroups&quot;</span><span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove contaminant, reverse and identified by site only entries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to clean up.</span>
+<span class="sd">    file : str, optional</span>
+<span class="sd">        Which file is provided in the dataframe.</span>
+<span class="sd">        Possible values are &quot;proteinGroups&quot;; &quot;Phospho (STY)&quot;, &quot;evidence&quot;,  &quot;modificationSpecificPeptides&quot; or</span>
+<span class="sd">        &quot;peptides&quot;. The default is &quot;proteinGroups&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The cleaned dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Cleaning can target different MQ txt files such as proteinGroups and</span>
+<span class="sd">    phospho (STY) tables. The variables phos and prot are parsed MQ results tables.</span>
+
+<span class="sd">    &gt;&gt;&gt; prot_clean = pp.cleaning(prot, &quot;proteinGroups&quot;)</span>
+<span class="sd">    4910 rows before filter operation.</span>
+<span class="sd">    4624 rows after filter operation.</span>
+
+<span class="sd">    &gt;&gt;&gt; phos_clean = pp.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    47420 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">if</span> <span class="n">file</span> <span class="o">==</span> <span class="s2">&quot;proteinGroups&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;Potential contaminant&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span>
+            <span class="ow">or</span> <span class="s2">&quot;Reverse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span>
+            <span class="ow">or</span> <span class="s2">&quot;Only identified by site&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span>
+        <span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Is this data already cleaned?</span><span class="se">\n</span><span class="s2">Mandatory columns for cleaning not present in data!&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returning provided dataframe!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Potential contaminant&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Reverse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
+            <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Only identified by site&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;Potential contaminant&quot;</span><span class="p">,</span> <span class="s2">&quot;Reverse&quot;</span><span class="p">,</span> <span class="s2">&quot;Only identified by site&quot;</span><span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;Phospho (STY)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;evidence&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;modificationSpecificPeptides&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peptides&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;Potential contaminant&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span> <span class="ow">or</span> <span class="s2">&quot;Reverse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Is this data already cleaned?</span><span class="se">\n</span><span class="s2">Mandatory columns for cleaning not present in data!&quot;</span>
+            <span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returning provided dataframe!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Potential contaminant&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Reverse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;Potential contaminant&quot;</span><span class="p">,</span> <span class="s2">&quot;Reverse&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="filter_loc_prob">
+<a class="viewcode-back" href="../../../preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_loc_prob">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_loc_prob</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter by localization probability.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    thresh : int, optional</span>
+<span class="sd">        Entries with localization probability below will be removed. The default is .75.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The .filter_loc_prob() function filters a Phospho (STY)Sites.txt file.</span>
+<span class="sd">    You can provide the desired threshold with the *thresh* parameter.</span>
+
+<span class="sd">    &gt;&gt;&gt; phos_filter = pp.filter_loc_prob(phos, thresh=.75)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    33311 rows after filter operation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="k">if</span> <span class="s2">&quot;Localization prob&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This dataframe has no &#39;Localization prob&#39; column!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Localization prob&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresh</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="filter_seq_cov">
+<a class="viewcode-back" href="../../../preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_seq_cov">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_seq_cov</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter by sequence coverage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    thresh : int, optional</span>
+<span class="sd">        Entries below that value will be excluded from the dataframe.</span>
+<span class="sd">    cols : list of str, optional</span>
+<span class="sd">        List of sequence coverage colnames.</span>
+<span class="sd">        A row is excluded fromt the final dataframe the value in any of the provided columns is below the threshold.</span>
+<span class="sd">        The default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># make sure to keep the original dataframe unmodified</span>
+    <span class="k">if</span> <span class="n">cols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresh</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Sequence coverage [%]&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresh</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="filter_vv">
+<a class="viewcode-back" href="../../../preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_vv">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_vv</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">min_valid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">valid_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">operator</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;and&quot;</span><span class="p">,</span> <span class="s2">&quot;or&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;and&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter dataframe for minimum number of valid values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to be filtered.</span>
+<span class="sd">    groups : list of lists of str</span>
+<span class="sd">        Lists of colnames of the experimental groups.</span>
+<span class="sd">        Each group is filtered for at least n vv.</span>
+<span class="sd">    min_valid : int, optional</span>
+<span class="sd">        Minimum amount of valid values. The default is 2.</span>
+<span class="sd">    valid_values : bool, optional</span>
+<span class="sd">        True for minimum amount of valid values; False for maximum amount of missing values. The default is True.</span>
+<span class="sd">    operator : Literal[&#39;and&#39;, &#39;or&#39;], optional</span>
+<span class="sd">        How to combine the results of the groups. If &#39;and&#39;, only rows that are valid in all groups are kept.</span>
+<span class="sd">        If &#39;or&#39;, rows that are valid in at least one group are kept. The default is &#39;and&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+<span class="sd">    set (optional)</span>
+<span class="sd">        Set of indices after filtering.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The function filterVv() filters the dataframe for a minimum number of valid values per group.</span>
+<span class="sd">    You have to provide the data, the groups as well as the desired number of valid values.</span>
+<span class="sd">    If the specified n is not reached in one or more groups the respective row is dropped.</span>
+<span class="sd">    Setting the keyword vv=False inverts the logic and filters the dataframe for a maximum number of missing values.</span>
+
+<span class="sd">    &gt;&gt;&gt; protRatio = prot.filter(regex=&quot;Ratio .\/. normalized&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; protLog = pp.log(prot, protRatio, base=2)</span>
+
+<span class="sd">    &gt;&gt;&gt; a = [&#39;log2_Ratio H/M normalized BC18_1&#39;,&#39;log2_Ratio M/L normalized BC18_2&#39;,</span>
+<span class="sd">    ...      &#39;log2_Ratio H/M normalized BC18_3&#39;,&#39;log2_Ratio H/L normalized BC36_1&#39;,</span>
+<span class="sd">    ...      &#39;log2_Ratio H/M normalized BC36_2&#39;,&#39;log2_Ratio M/L normalized BC36_2&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; b = [&quot;log2_Ratio H/L normalized BC18_1&quot;,&quot;log2_Ratio H/M normalized BC18_2&quot;,</span>
+<span class="sd">    ...      &quot;log2_Ratio H/L normalized BC18_3&quot;,&quot;log2_Ratio M/L normalized BC36_1&quot;,</span>
+<span class="sd">    ...      &quot;log2_Ratio H/L normalized BC36_2&quot;,&quot;log2_Ratio H/M normalized BC36_2&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; c = [&quot;log2_Ratio M/L normalized BC18_1&quot;,&quot;log2_Ratio H/L normalized BC18_2&quot;,</span>
+<span class="sd">    ...      &quot;log2_Ratio M/L normalized BC18_3&quot;, &quot;log2_Ratio H/M normalized BC36_1&quot;,</span>
+<span class="sd">    ...      &quot;log2_Ratio M/L normalized BC36_2&quot;,&quot;log2_Ratio H/L normalized BC36_2&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; protFilter = pp.filter_vv(protLog, groups=[a,b,c], min_valid=3)</span>
+<span class="sd">    4910 rows before filter operation.</span>
+<span class="sd">    2674 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># make sure to keep the original dataframe unmodified</span>
+
+    <span class="k">if</span> <span class="n">valid_values</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_valid</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">min_valid</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;and&quot;</span><span class="p">:</span>
+        <span class="c1"># indices that are valid in all groups</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">idxs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
+        <span class="c1"># indices that are valid in at least one group</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">idxs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Operator must be &#39;and&#39; or &#39;or&#39;.&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="remove_non_quant">
+<a class="viewcode-back" href="../../../preprocessing/filtering.html#autoprot.preprocessing.filtering.remove_non_quant">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_non_quant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove entries without quantitative data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Dataframe to filter.</span>
+<span class="sd">    cols : list of str</span>
+<span class="sd">        cols to be evaluated for missingness.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Filtered dataframe.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; df = pd.DataFrame({&#39;a&#39;:[1,2,np.nan,4], &#39;b&#39;:[4,0,np.nan,1], &#39;c&#39;:[None, None, 1, 1]})</span>
+<span class="sd">    &gt;&gt;&gt; pp.remove_non_quant(df, cols=[&#39;a&#39;, &#39;b&#39;])</span>
+<span class="sd">    4 rows before filter operation.</span>
+<span class="sd">    3 rows after filter operation.</span>
+<span class="sd">         a    b    c</span>
+<span class="sd">    0  1.0  4.0  NaN</span>
+<span class="sd">    1  2.0  0.0  NaN</span>
+<span class="sd">    3  4.0  1.0  1.0</span>
+
+<span class="sd">    Rows are only removed if the all values in the specified columns are NaN.</span>
+
+<span class="sd">    &gt;&gt;&gt; pp.remove_non_quant(df, cols=[&#39;b&#39;, &#39;c&#39;])</span>
+<span class="sd">    4 rows before filter operation.</span>
+<span class="sd">    4 rows after filter operation.</span>
+<span class="sd">         a    b    c</span>
+<span class="sd">    0  1.0  4.0  NaN</span>
+<span class="sd">    1  2.0  0.0  NaN</span>
+<span class="sd">    2  NaN  NaN  1.0</span>
+<span class="sd">    3  4.0  1.0  1.0</span>
+
+<span class="sd">    Example with real data.</span>
+
+<span class="sd">    &gt;&gt;&gt; phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">    &gt;&gt;&gt; phosQuant = pp.remove_non_quant(phosLog, phosRatio)</span>
+<span class="sd">    47936 rows before filter operation.</span>
+<span class="sd">    39398 rows after filter operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

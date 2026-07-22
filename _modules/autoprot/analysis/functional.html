@@ -1,0 +1,1420 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.analysis.functional &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/analysis/functional';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.analysis.functional</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.analysis.functional</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Autoprot Analysis Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gprofiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">GProfiler</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">visualization</span> <span class="k">as</span> <span class="n">vis</span>
+
+<span class="n">gp</span> <span class="o">=</span> <span class="n">GProfiler</span><span class="p">(</span><span class="n">user_agent</span><span class="o">=</span><span class="s2">&quot;autoprot&quot;</span><span class="p">,</span> <span class="n">return_dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># check where this is actually used and make it local</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">diverging_palette</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">55</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;go_analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;KSEA&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="go_analysis">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.go_analysis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">go_analysis</span><span class="p">(</span>
+    <span class="n">gene_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">organism</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hsapiens&quot;</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">significance_threshold_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;g_SCS&quot;</span><span class="p">,</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">,</span> <span class="s2">&quot;fdr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform go Enrichment analysis (also KEGG and REAC).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gene_list : list of str</span>
+<span class="sd">        list of gene names.</span>
+<span class="sd">    organism : str, optional</span>
+<span class="sd">        identifier for the organism.</span>
+<span class="sd">        See https://biit.cs.ut.ee/gprofiler/page/organism-list for details.</span>
+<span class="sd">        The default is &quot;hsapiens&quot;.</span>
+<span class="sd">    background: list of str or None, optional</span>
+<span class="sd">        Gene set against which the enrichment is calculated.</span>
+<span class="sd">    significance_threshold_method: One of &quot;g_SCS&quot;|&quot;bonferroni&quot;|&quot;fdr&quot;.</span>
+<span class="sd">        The method to correct for multiple testing. Default is &quot;bonferroni&quot;.</span>
+<span class="sd">        See https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold.</span>
+<span class="sd">    keyword arguments:</span>
+<span class="sd">        Passed to GProfiler.profile. See https://biit.cs.ut.ee/gprofiler</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input could not be parsed as list of gene names.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gp.profile</span>
+<span class="sd">        Dataframe-like object with the GO annotations.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; ana.go_analysis([&#39;PEX14&#39;, &#39;PEX18&#39;]).iloc[:3,:3]</span>
+<span class="sd">    source      native                                   name</span>
+<span class="sd">    0  CORUM  CORUM:1984                 PEX14 homodimer complex</span>
+<span class="sd">    1  GO:CC  GO:1990429          peroxisomal importomer complex</span>
+<span class="sd">    2  GO:BP  GO:0036250  peroxisome transport along microtubule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gene_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gene_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">gene_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">gene_list</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide a list of gene names&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">background</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gp</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+            <span class="n">organism</span><span class="o">=</span><span class="n">organism</span><span class="p">,</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">gene_list</span><span class="p">,</span>
+            <span class="n">no_evidences</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">significance_threshold_method</span><span class="o">=</span><span class="n">significance_threshold_method</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">background</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">background</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Please provide a list of gene names as argument for &#39;background&#39;&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">gp</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+            <span class="n">organism</span><span class="o">=</span><span class="n">organism</span><span class="p">,</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">gene_list</span><span class="p">,</span>
+            <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+            <span class="n">no_evidences</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">significance_threshold_method</span><span class="o">=</span><span class="n">significance_threshold_method</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="KSEA">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KSEA</span><span class="p">:</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform kinase substrate enrichment analysis.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    KSEA uses the Kinase-substrate dataset and the</span>
+<span class="sd">    regulatory-sites dataset from https://www.phosphosite.org/staticDownloads</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    KSEA is a method to get insights on which kinases are active in a given</span>
+<span class="sd">    phosphoproteomic dataset. This is a great method to gain deeper insights</span>
+<span class="sd">    on the underlying signaling mechanisms and also to generate novel</span>
+<span class="sd">    hypothesis and find new connections in signaling processes.</span>
+<span class="sd">    The KSEA class allows you to easily perform the analysis and</span>
+<span class="sd">    comes with helpful functions to visualize and interpret your results.</span>
+
+<span class="sd">    In the first step of the analysis you have to generate a KSEA object.</span>
+
+<span class="sd">    Next, you can annotate the data with respective kinases.</span>
+<span class="sd">    You can provide the function with a organism of your choice as well as</span>
+<span class="sd">    toggle whether to screen for only in vivo determined substrate</span>
+<span class="sd">    phosphorylation of the respective kinases.</span>
+
+<span class="sd">    After the annotation it is always a good idea to get an overview of the</span>
+<span class="sd">    kinases in the data and how many substrates they have. Based on this you</span>
+<span class="sd">    might want to adjust a cutoff specifying the minimum number of substrates</span>
+<span class="sd">    per kinase.</span>
+
+<span class="sd">    Next, you can perform the actual kinase substrate enrichment analysis.</span>
+<span class="sd">    The analysis is based on the log fold change of your data.</span>
+<span class="sd">    Therefore, you have to provide the function with the appropiate column of</span>
+<span class="sd">    your data and the minimum number of substrates per kinase.</span>
+
+<span class="sd">    After the ksea has finished, you can get information for further analysis</span>
+<span class="sd">    such as the substrates of a specific kinase (or a list of kinases) or a new dataframe with additional</span>
+<span class="sd">    columns for every kinase showing if the protein is a substrate of that kinase or not.</span>
+
+<span class="sd">    Eventually, you can also generate plots of the enrichment analysis.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        phos = pd.read_csv(&quot;../data/Phospho (STY)Sites_minimal.zip&quot;, sep=&quot;\t&quot;, low_memory=False)</span>
+<span class="sd">        phos = pp.cleaning(phos, file = &quot;Phospho (STY)&quot;)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;^Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phos = pp.log(phos, phosRatio, base=2)</span>
+<span class="sd">        phos = pp.filter_loc_prob(phos, thresh=.75)</span>
+<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/.( | normalized )R.___&quot;).columns</span>
+<span class="sd">        phos = pp.remove_non_quant(phos, phosRatio)</span>
+
+<span class="sd">        phosRatio = phos.filter(regex=&quot;log2_Ratio .\/. normalized R.___&quot;).columns</span>
+<span class="sd">        phos_expanded = pp.expand_site_table(phos, phosRatio)</span>
+
+<span class="sd">        twitchVsmild = [&#39;log2_Ratio H/M normalized R1&#39;,&#39;log2_Ratio M/L normalized R2&#39;,&#39;log2_Ratio H/M normalized R3&#39;,</span>
+<span class="sd">                        &#39;log2_Ratio H/L normalized R4&#39;,&#39;log2_Ratio H/M normalized R5&#39;,&#39;log2_Ratio M/L normalized R6&#39;]</span>
+<span class="sd">        twitchVsctrl = [&quot;log2_Ratio H/L normalized R1&quot;,&quot;log2_Ratio H/M normalized R2&quot;,&quot;log2_Ratio H/L normalized R3&quot;,</span>
+<span class="sd">                        &quot;log2_Ratio M/L normalized R4&quot;, &quot;log2_Ratio H/L normalized R5&quot;,&quot;log2_Ratio H/M normalized R6&quot;]</span>
+
+<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsmild, cond=&quot;_TvM&quot;)</span>
+<span class="sd">        phos = ana.ttest(df=phos_expanded, reps=twitchVsctrl, cond=&quot;_TvC&quot;)</span>
+
+<span class="sd">        ksea = ana.KSEA(phos)</span>
+<span class="sd">        ksea.annotate(organism=&quot;mouse&quot;, only_in_vivo=True)</span>
+<span class="sd">        ksea.get_kinase_overview(kois=[&quot;Akt1&quot;,&quot;MKK4&quot;, &quot;P38A&quot;, &quot;Erk1&quot;])</span>
+<span class="sd">        ksea.ksea(col=&quot;logFC_TvC&quot;, min_subs=5)</span>
+
+<span class="sd">        ksea.plot_enrichment(up_col=&quot;salmon&quot;)</span>
+
+<span class="sd">    You can also highlight a list of kinases in volcano plots.</span>
+<span class="sd">    This is based on the autoprot volcano function.</span>
+<span class="sd">    You can pass all the common parameters to this function.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        ksea.plot_volcano(log_fc=&quot;logFC_TvC&quot;, p_colname=&quot;pValue_TvC&quot;, kinases=[&quot;Akt1&quot;, &quot;mTOR&quot;],</span>
+<span class="sd">                          annotate_colname=&quot;Gene names&quot;)</span>
+
+<span class="sd">    Sometimes the enrichment is crowded by various kinase isoforms.</span>
+<span class="sd">    In such cases it makes sense to simplify the annotation by grouping those</span>
+<span class="sd">    isoforms together.</span>
+
+<span class="sd">    .. plot::</span>
+<span class="sd">        :context: close-figs</span>
+
+<span class="sd">        simplify = {&quot;ERK&quot;:[&quot;ERK1&quot;,&quot;ERK2&quot;],</span>
+<span class="sd">                    &quot;GSK3&quot;:[&quot;GSK3A&quot;, &quot;GSK3B&quot;],</span>
+<span class="sd">                    &quot;AMPKA&quot;:[&quot;AMPKA1&quot;,&quot;AMPKA2&quot;]}</span>
+<span class="sd">        ksea.ksea(col=&quot;logFC_TvC&quot;, min_subs=5, simplify=simplify)</span>
+<span class="sd">        ksea.plot_enrichment()</span>
+
+<span class="sd">    Of course, you can also get the ksea results as a dataframe to save or to further customize.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        ksea.return_enrichment()</span>
+
+<span class="sd">    Of course is the database not exhaustive, and you might want to add additional</span>
+<span class="sd">    substrates manually. This can be done the following way.</span>
+<span class="sd">    Manually added substrates are always added irrespective of the species used</span>
+<span class="sd">    for the annotation.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        ksea = ana.KSEA(phos)</span>
+<span class="sd">        genes = [&quot;RPGR&quot;]</span>
+<span class="sd">        modRsds = [&quot;S564&quot;]</span>
+<span class="sd">        kinases = [&quot;mTOR&quot;]</span>
+<span class="sd">        ksea.add_substrate(kinases=kinases, substrates=genes, sub_mod_rsd=modRsds)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise the KSEA object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pd.DataFrame</span>
+<span class="sd">            matrix_a phosphoproteomics datasaet.</span>
+<span class="sd">            This data has to contain information about Gene name, position and amino acid of the peptides with</span>
+<span class="sd">            &quot;Gene names&quot;, &quot;Position&quot; and &quot;Amino acid&quot; as the respective column names.</span>
+<span class="sd">            Optionally you can provide a &quot;Multiplicity&quot; column.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Fetch the Kinase substrate dataset from the web</span>
+        <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span>
+            <span class="s2">&quot;autoprot.data&quot;</span><span class="p">,</span> <span class="s2">&quot;Kinase_Substrate_Dataset.zip&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+        <span class="c1"># harmonize gene naming</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;SUB_GENE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;SUB_GENE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;NA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="c1"># add source information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PSP&quot;</span>
+        <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">&quot;autoprot.data&quot;</span><span class="p">,</span> <span class="s2">&quot;Regulatory_sites.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PSP_regSits</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that all necessary columns are present in the input data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">,</span> <span class="s2">&quot;Position&quot;</span><span class="p">,</span> <span class="s2">&quot;Amino acid&quot;</span><span class="p">]]</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Please provide a dataframe with columns &#39;Gene names&#39;, &#39;Position&#39; and &#39;Amino acid&#39;.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Harmonize the input data and store them to the class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="c1"># init other class objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">koi</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simpleDf</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define MOD_RSD, ucGene and mergeID cols in the input dataset.&quot;&quot;&quot;</span>
+        <span class="c1"># New column containing the modified residue as Ser201</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;MOD_RSD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Amino acid&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">int</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="c1"># The Gene names as defined for the Kinase substrate dataset</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Gene names&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;NA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="c1"># an index column</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;mergeID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_enrichment</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kinase</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the enrichment score for a certain kinase.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : pd.Dataframe</span>
+<span class="sd">            Input datafame with enrichment information.</span>
+<span class="sd">        col : str</span>
+<span class="sd">            Column containing enrichment information e.g. intensity ratios.</span>
+<span class="sd">            Must be present in df.</span>
+<span class="sd">        kinase : str</span>
+<span class="sd">            Kinase to calculate the enrichment for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            a tuple of kinase name and score.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get enrichment values for rows containing the kinase of interest</span>
+        <span class="n">ks</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">ks</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># mean FC of kinase subs</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># mean FC of all substrates</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">ks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># number of kinase substrates</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>  <span class="c1"># standard dev of FC of all</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(((</span><span class="n">s</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">/</span> <span class="n">sig</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">kinase</span><span class="p">,</span> <span class="n">score</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_kois</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Count the number of substrates for each kinase in a merged df.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : pd.DataFrame</span>
+<span class="sd">            Merged dataframe containing kinase substrate pairs present in the</span>
+<span class="sd">            input dataframe.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Dataframe with columns &quot;Kinase&quot; and &quot;#Subs&quot; containing the</span>
+<span class="sd">            numbers of appearances of each kinase in the merged input dataset.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract all strings present in the KINASE column as list of str</span>
+        <span class="c1"># This is mainly out of caution as all entries in the kinase col should be</span>
+        <span class="c1"># strings</span>
+        <span class="n">koi</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
+        <span class="c1"># remove duplicates</span>
+        <span class="n">ks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">koi</span><span class="p">)</span>
+        <span class="c1"># empty list to take on sets of kinase:count pairs</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">koi</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">k</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ks</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Kinase&quot;</span><span class="p">,</span> <span class="s2">&quot;#Subs&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="KSEA.add_substrate">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.add_substrate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_substrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinases</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">substrates</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">sub_mod_rsd</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Manually add a substrate to the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kinases : list of str</span>
+<span class="sd">            Name of the kinases e.g. PAK2.</span>
+<span class="sd">        substrates : list of str</span>
+<span class="sd">            Name of the substrate e.g. Prkd1.</span>
+<span class="sd">        sub_mod_rsd : list of str</span>
+<span class="sd">            Phosphorylated residues e.g. S203.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the three provided lists do not match in length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the length of the first list</span>
+        <span class="n">the_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kinases</span><span class="p">)</span>
+        <span class="c1"># Check if the lengths of all lists are equal</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">!=</span> <span class="n">the_len</span> <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="p">[</span><span class="n">substrates</span><span class="p">,</span> <span class="n">sub_mod_rsd</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all lists have the same length!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># generate new empty df to fill in the new kinases</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">,</span> <span class="s2">&quot;SUB_GENE&quot;</span><span class="p">,</span> <span class="s2">&quot;SUB_MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kinases</span><span class="p">)):</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;KINASE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;SUB_GENE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">substrates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;SUB_MOD_RSD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_mod_rsd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;manual&quot;</span>
+        <span class="c1"># append to the original database from PSP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">,</span> <span class="n">temp</span><span class="p">],</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># reset the index</span>
+            <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>  <span class="c1"># will add columns if they are not present in the temp df</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KSEA.clear_manual_substrates">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.clear_manual_substrates">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_manual_substrates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all manual entries from the PSP database.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PSP&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="KSEA.annotate">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.annotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">organism</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="n">only_in_vivo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Annotate with known kinase substrate pairs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        organism : str, optional</span>
+<span class="sd">            The target organism. The default is &quot;human&quot;.</span>
+<span class="sd">        only_in_vivo : bool, optional</span>
+<span class="sd">            Whether to restrict analysis to in vivo evidence.</span>
+<span class="sd">            The default is False.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Manually added kinases will be included in the annotation search</span>
+<span class="sd">        independent of the setting of organism and onInVivo.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># return a kinase substrate dataframe including only entries of the target organism that were validated in vitro</span>
+        <span class="k">if</span> <span class="n">only_in_vivo</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;KIN_ORGANISM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">organism</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;SUB_ORGANISM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">organism</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;IN_VIVO_RXN&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="c1"># only filter for the target organism</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;KIN_ORGANISM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">organism</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;SUB_ORGANISM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">organism</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PSP_KS</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="c1"># merge the kinase substrate data tables with the input dataframe</span>
+        <span class="c1"># include the multiplicity column in the merge if present in the</span>
+        <span class="c1"># input dataframe the substrate gene names and the modification position are used for merging</span>
+        <span class="k">if</span> <span class="s2">&quot;Multiplicity&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;Multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;mergeID&quot;</span><span class="p">]],</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">],</span>
+                <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SUB_GENE&quot;</span><span class="p">,</span> <span class="s2">&quot;SUB_MOD_RSD&quot;</span><span class="p">],</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>  <span class="c1"># keep only entries that are present in the input dataframe</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;mergeID&quot;</span><span class="p">]],</span>
+                <span class="n">temp</span><span class="p">,</span>
+                <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">],</span>
+                <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SUB_GENE&quot;</span><span class="p">,</span> <span class="s2">&quot;SUB_MOD_RSD&quot;</span><span class="p">],</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># generate a df with kinase:number of substrate pairs for the dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">koi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_kois</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span><span class="p">)</span></div>
+
+
+    <span class="c1"># noinspection PyBroadException</span>
+<div class="viewcode-block" id="KSEA.get_kinase_overview">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.get_kinase_overview">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kinase_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kois</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a graphical overview of the kinases acting on the proteins in the dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kois : list of str, optional</span>
+<span class="sd">            Kinases of interest for which a detailed overview of substrate numbers</span>
+<span class="sd">            is plotted. The default is None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ax[0] is a histogram of kinase substrate numbers and ax[1] is a table of top10 kinases</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="s2">&quot;#Subs&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Overview of #Subs per kinase&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get axis[1] ready - basically remove everthing</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+            <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>  <span class="c1"># changes apply to the x-axis</span>
+            <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>  <span class="c1"># both major and minor ticks are affected</span>
+            <span class="n">bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># ticks along the bottom edge are off</span>
+            <span class="n">top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># ticks along the top edge are off</span>
+            <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">labelbottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># labels along the bottom edge are off</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># plot table</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;Top10</span><span class="se">\n</span><span class="s2">Kinase&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;#Subs&quot;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.975</span><span class="p">,</span> <span class="mf">0.975</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.975</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get top 10 kinases for annotation</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;#Subs&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">j</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">j</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># plot some descriptive stats</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Substrates for </span><span class="si">{</span><span class="n">tot</span><span class="si">}</span><span class="s2"> kinases found in data.&quot;</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.975</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">med</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="s2">&quot;#Subs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Median #Sub: </span><span class="si">{</span><span class="n">med</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.925</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">mea</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="s2">&quot;#Subs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mean #Sub: </span><span class="si">{</span><span class="n">mea</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.875</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="c1"># if kois are provided plot those</span>
+        <span class="k">if</span> <span class="n">kois</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="mf">0.8</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kois</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="s2">&quot;Kinase&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span> <span class="o">==</span> <span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                    <span class="p">][</span><span class="s2">&quot;#Subs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">ss</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> substrates.&quot;</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">ss</span><span class="p">)</span>
+                <span class="n">pos</span> <span class="o">-=</span> <span class="mf">0.055</span></div>
+
+
+<div class="viewcode-block" id="KSEA.ksea">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.ksea">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ksea</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">min_subs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">simplify</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">],</span> <span class="n">Dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate Kinase Enrichment Score.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        col : str</span>
+<span class="sd">            Column used for the analysis containing the kinase substrate</span>
+<span class="sd">            enrichments.</span>
+<span class="sd">        min_subs : int, optional</span>
+<span class="sd">            Minimum number of substrates a kinase must have to be considered.</span>
+<span class="sd">            The default is 5.</span>
+<span class="sd">        simplify : None, &quot;auto&quot; or dict, optional</span>
+<span class="sd">            Merge multiple kinases during analysis.</span>
+<span class="sd">            Using &quot;auto&quot; a predefined set of kinase isoforms is merged.</span>
+<span class="sd">            If provided with a dict, the dict has to contain a list of kinases</span>
+<span class="sd">            to merge as values and the name of the merged kinases as key.</span>
+<span class="sd">            The default is None.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The enrichment score is calculated as</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{kinase}}}{\sigma_{all}}</span>
+
+<span class="sd">        i.e. the difference in mean fold change between kinase and all substrates</span>
+<span class="sd">        multiplied by the square root of number of kinase substrates and divided</span>
+<span class="sd">        by the standard deviation of the fold change of all substrates (see [1]).</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        [1] https://academic.oup.com/bioinformatics/article/33/21/3489/3892392</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO wouldn&#39;t it make more sense to perform simplification in the annotate function?</span>
+        <span class="n">copy_annot_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">simplify</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">simplify</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="n">simplify</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;AKT&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span> <span class="s2">&quot;Akt2&quot;</span><span class="p">,</span> <span class="s2">&quot;Akt3&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;PKC&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;PKCA&quot;</span><span class="p">,</span> <span class="s2">&quot;PKCD&quot;</span><span class="p">,</span> <span class="s2">&quot;PKCE&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;ERK&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ERK1&quot;</span><span class="p">,</span> <span class="s2">&quot;ERK2&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;GSK3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;GSK3B&quot;</span><span class="p">,</span> <span class="s2">&quot;GSK3A&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;JNK&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;JNK1&quot;</span><span class="p">,</span> <span class="s2">&quot;JNK2&quot;</span><span class="p">,</span> <span class="s2">&quot;JNK3&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;FAK&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;FAK iso2&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;p70S6K&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;p70S6K&quot;</span><span class="p">,</span> <span class="s2">&quot;p70SKB&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;RSK&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;p90RSK&quot;</span><span class="p">,</span> <span class="s2">&quot;RSK2&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;P38&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;P38A&quot;</span><span class="p">,</span> <span class="s2">&quot;P38B&quot;</span><span class="p">,</span> <span class="s2">&quot;P38C&quot;</span><span class="p">,</span> <span class="s2">&quot;P38D&quot;</span><span class="p">],</span>
+                <span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">simplify</span><span class="p">:</span>
+                <span class="n">copy_annot_df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy_annot_df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="n">simplify</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">simplify</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="p">)</span>
+
+            <span class="c1"># drop rows which are now duplicates</span>
+            <span class="k">if</span> <span class="s2">&quot;Multiplicity&quot;</span> <span class="ow">in</span> <span class="n">copy_annot_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">copy_annot_df</span><span class="p">[[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;Multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;KINASE&quot;</span><span class="p">]]</span>
+                    <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">index</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">copy_annot_df</span><span class="p">[[</span><span class="s2">&quot;ucGene&quot;</span><span class="p">,</span> <span class="s2">&quot;MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;KINASE&quot;</span><span class="p">]]</span>
+                    <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">index</span>
+                <span class="p">)</span>
+            <span class="n">copy_annot_df</span> <span class="o">=</span> <span class="n">copy_annot_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">simpleDf</span> <span class="o">=</span> <span class="n">copy_annot_df</span>
+
+            <span class="c1"># repeat annotation with the simplified dataset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">koi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_kois</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simpleDf</span><span class="p">)</span>
+
+        <span class="c1"># filter kinases with at least min_subs number of substrates</span>
+        <span class="n">koi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="p">[</span><span class="s2">&quot;#Subs&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_subs</span><span class="p">][</span><span class="s2">&quot;Kinase&quot;</span><span class="p">]</span>
+
+        <span class="c1"># init empty list to collect sub-dfs</span>
+        <span class="n">ksea_results_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># add the enrichment column back to the annotation df using the mergeID</span>
+        <span class="n">copy_annot_df</span> <span class="o">=</span> <span class="n">copy_annot_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;mergeID&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;mergeID&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">koi</span><span class="p">:</span>
+            <span class="c1"># calculate the enrichment score</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enrichment</span><span class="p">(</span>
+                <span class="n">copy_annot_df</span><span class="p">[</span><span class="n">copy_annot_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()],</span> <span class="n">col</span><span class="p">,</span> <span class="n">kinase</span>
+            <span class="p">)</span>
+            <span class="c1"># new dataframe containing kinase names and scores</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;kinase&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="c1"># add the new df to the pre-initialised list</span>
+            <span class="n">ksea_results_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+        <span class="c1"># generate a single large df from the collected temp dfs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ksea_results_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># sort the concatenated dfs by kinase enrichment score</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KSEA.return_enrichment">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.return_enrichment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">return_enrichment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dataframe of kinase:score pairs.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First perform the enrichment&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># dropna in case of multiple columns in data</span>
+            <span class="c1"># sometimes there are otherwise nan</span>
+            <span class="c1"># nans are dropped in ksea enrichment</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="KSEA.plot_enrichment">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.plot_enrichment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_enrichment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">up_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span>
+        <span class="n">down_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+        <span class="n">bg_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
+        <span class="n">plot_bg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">ret_fig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the KSEA results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        up_col : str, optional</span>
+<span class="sd">            Color for enriched/upregulated kinases.</span>
+<span class="sd">            The default is &quot;orange&quot;.</span>
+<span class="sd">        down_col : str, optional</span>
+<span class="sd">            Colour for deriched/downregulated kinases.</span>
+<span class="sd">            The default is &quot;blue&quot;.</span>
+<span class="sd">        bg_col : str, optional</span>
+<span class="sd">            Colour for kinases that did not change significantly.</span>
+<span class="sd">            The default is &quot;lightgray&quot;.</span>
+<span class="sd">        plot_bg : bool, optional</span>
+<span class="sd">            Whether to plot the unaffected kinases.</span>
+<span class="sd">            The default is True.</span>
+<span class="sd">        ret_fig : bool, optional</span>
+<span class="sd">            Whether to return the figure object.</span>
+<span class="sd">            The default is False.</span>
+<span class="sd">        title : str, optional</span>
+<span class="sd">            Title of the figure. The default is &quot;&quot;.</span>
+<span class="sd">        figsize : tuple of int, optional</span>
+<span class="sd">            Figure size. The default is (5,10).</span>
+<span class="sd">        ax : matplotlib.axis, optional</span>
+<span class="sd">            The axis to plot on. Default is None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib figure.</span>
+<span class="sd">            Only returned in ret is True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First perform the enrichment&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># set all proteins to bg_col</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg_col</span>
+            <span class="c1"># highlight up and down regulated</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">up_col</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">down_col</span>
+
+            <span class="c1"># init figure</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+
+            <span class="c1"># only plot the unaffected substrates if plot_bg is True</span>
+            <span class="k">if</span> <span class="n">plot_bg</span><span class="p">:</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s2">&quot;kinase&quot;</span><span class="p">,</span>
+                    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;kinase&quot;</span><span class="p">,</span>
+                    <span class="n">palette</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="o">.</span><span class="n">dropna</span><span class="p">()[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                    <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># else remove the unaffected substrates from the plotting df</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">bg_col</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s2">&quot;kinase&quot;</span><span class="p">,</span>
+                    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;kinase&quot;</span><span class="p">,</span>
+                    <span class="n">palette</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kseaResults</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">bg_col</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">dropna</span><span class="p">()[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                    <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># remove top and right spines/plot lines</span>
+            <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;dashed&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
+            <span class="c1"># return the figure object only if demanded</span>
+            <span class="k">if</span> <span class="n">ret_fig</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">fig</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="KSEA.plot_volcano">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.plot_volcano">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_volcano</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">log_fc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">p_colname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">kinases</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ret_fig</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot volcano plots highlighting substrates of a given kinase.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        log_fc : str</span>
+<span class="sd">            Column name of column containing the log fold changes.</span>
+<span class="sd">            Must be present in the dataframe KSEA was initialised with.</span>
+<span class="sd">        p_colname : str</span>
+<span class="sd">            Column name of column containing the p values.</span>
+<span class="sd">            Must be present in the dataframe KSEA was initialised with.</span>
+<span class="sd">        kinases : list of str, optional</span>
+<span class="sd">            Limit the analysis to these kinases. The default is [].</span>
+<span class="sd">        ret_fig : bool</span>
+<span class="sd">            Whether to return a list of figures for every kinase.</span>
+<span class="sd">        **kwargs :</span>
+<span class="sd">            passed to autoprot.visualisation.volcano.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        volcano_returns : list</span>
+<span class="sd">            list of all returned figure objects. Only if ret_fig is True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># generate a df containing only the kinases of interest</span>
+        <span class="k">if</span> <span class="n">kinases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kinases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">koi</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;#Subs&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)[</span><span class="s2">&quot;Kinase&quot;</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Kinase supplied, plotting the top 5 kinases.&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate_df</span><span class="p">(</span><span class="n">kinases</span><span class="o">=</span><span class="n">kinases</span><span class="p">)</span>
+
+        <span class="n">volcano_returns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kinases</span><span class="p">:</span>
+            <span class="c1"># index for highlighting the selected kinase substrates</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">vis</span><span class="o">.</span><span class="n">volcano</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">,</span>
+                <span class="n">log_fc</span><span class="p">,</span>
+                <span class="n">p_colname</span><span class="o">=</span><span class="n">p_colname</span><span class="p">,</span>
+                <span class="n">highlight</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+                <span class="n">annotate</span><span class="o">=</span><span class="s2">&quot;highlight&quot;</span><span class="p">,</span>  <span class="c1"># annotate the highlighted substrates</span>
+                <span class="n">kwargs_highlight</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> substrate&quot;</span><span class="p">},</span>
+                <span class="n">kwargs_both_sig</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">},</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># add to the return list</span>
+            <span class="n">volcano_returns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ret_fig</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">volcano_returns</span></div>
+
+
+<div class="viewcode-block" id="KSEA.return_kinase_substrate">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.return_kinase_substrate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">return_kinase_substrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return new dataframe with substrates of one or multiple kinase(s).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kinase : str or list of str</span>
+<span class="sd">            Kinase(s) to analyse.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If kinase is neither list of str nor str.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df_filter : pd.Dataframe</span>
+<span class="sd">            Dataframe containing detailed information on kinase-substrate pairs</span>
+<span class="sd">            including reference literature.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># use the simplified dataset if it is present</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleDf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleDf</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># otherwise use the complete dataset including kinase isoforms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotDf</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># if a list of kinases is provided, iterate through the list and</span>
+        <span class="c1"># collect corresponding indices</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kinase</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">df</span><span class="p">[</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;NA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span> <span class="o">==</span> <span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">index</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kinase</span>
+            <span class="p">]</span>
+
+            <span class="c1"># merge all row indices and use them to create a sub-df containing</span>
+            <span class="c1"># only the kinases of interest</span>
+            <span class="n">df_filter</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">idx</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kinase</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">df_filter</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;KINASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;NA&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span> <span class="o">==</span> <span class="n">kinase</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Please provide either a string or a list of strings representing kinases of interest.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># data are merged implicitly on common column nnames i.e. on SITE_GRP_ID</span>
+        <span class="c1"># only entries present in the filtered annotDfare retained</span>
+        <span class="n">df_filter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_filter</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;GENE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KINASE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;KIN_ACC_ID&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SUBSTRATE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SUB_ACC_ID&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SUB_GENE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SUB_MOD_RSD&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SITE_GRP_ID&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SITE_+/-7_AA&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;DOMAIN&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IN_VIVO_RXN&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IN_VITRO_RXN&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CST_CAT#&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;mergeID&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PSP_regSits</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;SITE_GRP_ID&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ON_FUNCTION&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ON_PROCESS&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ON_PROT_INTERACT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ON_OTHER_INTERACT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PMIDs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;LT_LIT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MS_LIT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MS_CST&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;NOTES&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_filter</span></div>
+
+
+<div class="viewcode-block" id="KSEA.annotate_df">
+<a class="viewcode-back" href="../../../analysis/functional.html#autoprot.analysis.functional.KSEA.annotate_df">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinases</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Annotate the provided dataframe with boolean columns for given kinases.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kinases : list of str or None, optional</span>
+<span class="sd">            List of kinases. The default is None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            annotated dataframe containing a column for each provided kinase</span>
+<span class="sd">            with boolean values representing a row/protein being a kinase</span>
+<span class="sd">            substrate or not.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kinases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide at least one kinase for annotation&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kinases</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># remove the two columns from the returned df</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;MOD_RSD&quot;</span><span class="p">,</span> <span class="s2">&quot;ucGene&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">kinases</span><span class="p">:</span>
+                <span class="c1"># find substrates for the given kinase in the dataset</span>
+                <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_kinase_substrate</span><span class="p">(</span><span class="n">kinase</span><span class="p">)[</span><span class="s2">&quot;mergeID&quot;</span><span class="p">]</span>
+                <span class="c1"># init the boolean column with zeros</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># check if the unique ID for each protein is present in the</span>
+                <span class="c1"># returnKinaseSubstrate df. If so set the column value to 1.</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;mergeID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1"># remove also the mergeID column before returning the df</span>
+            <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;mergeID&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide at least one kinase for annotation&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

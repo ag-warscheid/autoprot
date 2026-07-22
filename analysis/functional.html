@@ -1,0 +1,897 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Functional Annotation &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'analysis/functional';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Principal Component Analysis" href="pca.html" />
+    <link rel="prev" title="Clustering" href="clustering.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Functional Annotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pca.html">Principal Component Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qc.html">Quality Control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stat_test.html">Statistical Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html">Various Statistical Tools</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Analysis</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Functional Annotation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-autoprot.analysis.functional">
+<span id="functional-annotation"></span><h1>Functional Annotation<a class="headerlink" href="#module-autoprot.analysis.functional" title="Link to this heading">#</a></h1>
+<p>Autoprot Analysis Functions.</p>
+<p>&#64;author: Wignand, Julian, Johannes</p>
+<p>&#64;documentation: Julian</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">autoprot.analysis.functional.</span></span><span class="sig-name descname"><span class="pre">KSEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA" title="Link to this definition">#</a></dt>
+<dd><p>Perform kinase substrate enrichment analysis.</p>
+<p class="rubric">Notes</p>
+<p>KSEA uses the Kinase-substrate dataset and the
+regulatory-sites dataset from <a class="reference external" href="https://www.phosphosite.org/staticDownloads">https://www.phosphosite.org/staticDownloads</a></p>
+<p class="rubric">Examples</p>
+<p>KSEA is a method to get insights on which kinases are active in a given
+phosphoproteomic dataset. This is a great method to gain deeper insights
+on the underlying signaling mechanisms and also to generate novel
+hypothesis and find new connections in signaling processes.
+The KSEA class allows you to easily perform the analysis and
+comes with helpful functions to visualize and interpret your results.</p>
+<p>In the first step of the analysis you have to generate a KSEA object.</p>
+<p>Next, you can annotate the data with respective kinases.
+You can provide the function with a organism of your choice as well as
+toggle whether to screen for only in vivo determined substrate
+phosphorylation of the respective kinases.</p>
+<p>After the annotation it is always a good idea to get an overview of the
+kinases in the data and how many substrates they have. Based on this you
+might want to adjust a cutoff specifying the minimum number of substrates
+per kinase.</p>
+<p>Next, you can perform the actual kinase substrate enrichment analysis.
+The analysis is based on the log fold change of your data.
+Therefore, you have to provide the function with the appropiate column of
+your data and the minimum number of substrates per kinase.</p>
+<p>After the ksea has finished, you can get information for further analysis
+such as the substrates of a specific kinase (or a list of kinases) or a new dataframe with additional
+columns for every kinase showing if the protein is a substrate of that kinase or not.</p>
+<p>Eventually, you can also generate plots of the enrichment analysis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">phos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;../data/Phospho (STY)Sites_minimal.zip&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">phos</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">cleaning</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;Phospho (STY)&quot;</span><span class="p">)</span>
+<span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">phos</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">phos</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">filter_loc_prob</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">.75</span><span class="p">)</span>
+<span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2_Ratio .\/.( | normalized )R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">phos</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">remove_non_quant</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">)</span>
+
+<span class="n">phosRatio</span> <span class="o">=</span> <span class="n">phos</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s2">&quot;log2_Ratio .\/. normalized R.___&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">phos_expanded</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">expand_site_table</span><span class="p">(</span><span class="n">phos</span><span class="p">,</span> <span class="n">phosRatio</span><span class="p">)</span>
+
+<span class="n">twitchVsmild</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log2_Ratio H/M normalized R1&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized R2&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized R3&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;log2_Ratio H/L normalized R4&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio H/M normalized R5&#39;</span><span class="p">,</span><span class="s1">&#39;log2_Ratio M/L normalized R6&#39;</span><span class="p">]</span>
+<span class="n">twitchVsctrl</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;log2_Ratio H/L normalized R1&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/M normalized R2&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/L normalized R3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;log2_Ratio M/L normalized R4&quot;</span><span class="p">,</span> <span class="s2">&quot;log2_Ratio H/L normalized R5&quot;</span><span class="p">,</span><span class="s2">&quot;log2_Ratio H/M normalized R6&quot;</span><span class="p">]</span>
+
+<span class="n">phos</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">ttest</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">phos_expanded</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="n">twitchVsmild</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;_TvM&quot;</span><span class="p">)</span>
+<span class="n">phos</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">ttest</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">phos_expanded</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="n">twitchVsctrl</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="s2">&quot;_TvC&quot;</span><span class="p">)</span>
+
+<span class="n">ksea</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">KSEA</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">organism</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">,</span> <span class="n">only_in_vivo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">get_kinase_overview</span><span class="p">(</span><span class="n">kois</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span><span class="s2">&quot;MKK4&quot;</span><span class="p">,</span> <span class="s2">&quot;P38A&quot;</span><span class="p">,</span> <span class="s2">&quot;Erk1&quot;</span><span class="p">])</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">min_subs</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">ksea</span><span class="o">.</span><span class="n">plot_enrichment</span><span class="p">(</span><span class="n">up_col</span><span class="o">=</span><span class="s2">&quot;salmon&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="../_downloads/fe4bfe031e7e7161adaa99795d7eb7b3/functional-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>You can also highlight a list of kinases in volcano plots.
+This is based on the autoprot volcano function.
+You can pass all the common parameters to this function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ksea</span><span class="o">.</span><span class="n">plot_volcano</span><span class="p">(</span><span class="n">log_fc</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">p_colname</span><span class="o">=</span><span class="s2">&quot;pValue_TvC&quot;</span><span class="p">,</span> <span class="n">kinases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Akt1&quot;</span><span class="p">,</span> <span class="s2">&quot;mTOR&quot;</span><span class="p">],</span>
+                  <span class="n">annotate_colname</span><span class="o">=</span><span class="s2">&quot;Gene names&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="../_downloads/c11c35ee792d5915c910db46d0e13ded/functional-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/functional-2_00.png" class="plot-directive" src="../_images/functional-2_00.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference download internal" download="" href="../_downloads/bc4dbcee9aa51b7a71f2c98f1ad916ab/functional-2_00.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/a36fb96d19feda77aae9cc8e1e4ba1bc/functional-2_00.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/e7e4299ee1a220ce33421715bc8e7492/functional-2_00.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<img alt="../_images/functional-2_01.png" class="plot-directive" src="../_images/functional-2_01.png" />
+<figcaption>
+<p><span class="caption-text">(<a class="reference download internal" download="" href="../_downloads/bf4546d3b7f918a2306a9a55644ce639/functional-2_01.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/da020e8e50a500030e78298caccfdf8c/functional-2_01.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/7908963f90488a06a8797a0504eef8f2/functional-2_01.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Sometimes the enrichment is crowded by various kinase isoforms.
+In such cases it makes sense to simplify the annotation by grouping those
+isoforms together.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simplify</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ERK&quot;</span><span class="p">:[</span><span class="s2">&quot;ERK1&quot;</span><span class="p">,</span><span class="s2">&quot;ERK2&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;GSK3&quot;</span><span class="p">:[</span><span class="s2">&quot;GSK3A&quot;</span><span class="p">,</span> <span class="s2">&quot;GSK3B&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;AMPKA&quot;</span><span class="p">:[</span><span class="s2">&quot;AMPKA1&quot;</span><span class="p">,</span><span class="s2">&quot;AMPKA2&quot;</span><span class="p">]}</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">ksea</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="s2">&quot;logFC_TvC&quot;</span><span class="p">,</span> <span class="n">min_subs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="n">simplify</span><span class="p">)</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">plot_enrichment</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="../_downloads/2de0f6337fadd4d5b226d21fff367ec2/functional-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>)</p>
+<p>Of course, you can also get the ksea results as a dataframe to save or to further customize.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ksea</span><span class="o">.</span><span class="n">return_enrichment</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Of course is the database not exhaustive, and you might want to add additional
+substrates manually. This can be done the following way.
+Manually added substrates are always added irrespective of the species used
+for the annotation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ksea</span> <span class="o">=</span> <span class="n">ana</span><span class="o">.</span><span class="n">KSEA</span><span class="p">(</span><span class="n">phos</span><span class="p">)</span>
+<span class="n">genes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RPGR&quot;</span><span class="p">]</span>
+<span class="n">modRsds</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S564&quot;</span><span class="p">]</span>
+<span class="n">kinases</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mTOR&quot;</span><span class="p">]</span>
+<span class="n">ksea</span><span class="o">.</span><span class="n">add_substrate</span><span class="p">(</span><span class="n">kinases</span><span class="o">=</span><span class="n">kinases</span><span class="p">,</span> <span class="n">substrates</span><span class="o">=</span><span class="n">genes</span><span class="p">,</span> <span class="n">sub_mod_rsd</span><span class="o">=</span><span class="n">modRsds</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.add_substrate">
+<span class="sig-name descname"><span class="pre">add_substrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_mod_rsd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.add_substrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.add_substrate" title="Link to this definition">#</a></dt>
+<dd><p>Manually add a substrate to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kinases</strong> (<em>list</em><em> of </em><em>str</em>) – Name of the kinases e.g. PAK2.</p></li>
+<li><p><strong>substrates</strong> (<em>list</em><em> of </em><em>str</em>) – Name of the substrate e.g. Prkd1.</p></li>
+<li><p><strong>sub_mod_rsd</strong> (<em>list</em><em> of </em><em>str</em>) – Phosphorylated residues e.g. S203.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the three provided lists do not match in length.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.annotate">
+<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">organism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'human'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_in_vivo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.annotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.annotate" title="Link to this definition">#</a></dt>
+<dd><p>Annotate with known kinase substrate pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>organism</strong> (<em>str</em><em>, </em><em>optional</em>) – The target organism. The default is “human”.</p></li>
+<li><p><strong>only_in_vivo</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to restrict analysis to in vivo evidence.
+The default is False.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Manually added kinases will be included in the annotation search
+independent of the setting of organism and onInVivo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.annotate_df">
+<span class="sig-name descname"><span class="pre">annotate_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.annotate_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.annotate_df" title="Link to this definition">#</a></dt>
+<dd><p>Annotate the provided dataframe with boolean columns for given kinases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kinases</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – List of kinases. The default is None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>annotated dataframe containing a column for each provided kinase
+with boolean values representing a row/protein being a kinase
+substrate or not.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.clear_manual_substrates">
+<span class="sig-name descname"><span class="pre">clear_manual_substrates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.clear_manual_substrates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.clear_manual_substrates" title="Link to this definition">#</a></dt>
+<dd><p>Remove all manual entries from the PSP database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.get_kinase_overview">
+<span class="sig-name descname"><span class="pre">get_kinase_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kois</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.get_kinase_overview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.get_kinase_overview" title="Link to this definition">#</a></dt>
+<dd><p>Plot a graphical overview of the kinases acting on the proteins in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kois</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Kinases of interest for which a detailed overview of substrate numbers
+is plotted. The default is None.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.ksea">
+<span class="sig-name descname"><span class="pre">ksea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_subs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simplify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'auto'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.ksea"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.ksea" title="Link to this definition">#</a></dt>
+<dd><p>Calculate Kinase Enrichment Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>col</strong> (<em>str</em>) – Column used for the analysis containing the kinase substrate
+enrichments.</p></li>
+<li><p><strong>min_subs</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of substrates a kinase must have to be considered.
+The default is 5.</p></li>
+<li><p><strong>simplify</strong> (<em>None</em><em>, </em><em>&quot;auto&quot;</em><em> or </em><em>dict</em><em>, </em><em>optional</em>) – Merge multiple kinases during analysis.
+Using “auto” a predefined set of kinase isoforms is merged.
+If provided with a dict, the dict has to contain a list of kinases
+to merge as values and the name of the merged kinases as key.
+The default is None.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The enrichment score is calculated as</p>
+<div class="math notranslate nohighlight">
+\[\frac{(\langle FC_{kinase} \rangle - \langle FC_{all} \rangle)\sqrt{N_{kinase}}}{\sigma_{all}}\]</div>
+<p>i.e. the difference in mean fold change between kinase and all substrates
+multiplied by the square root of number of kinase substrates and divided
+by the standard deviation of the fold change of all substrates (see [1]).</p>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="https://academic.oup.com/bioinformatics/article/33/21/3489/3892392">https://academic.oup.com/bioinformatics/article/33/21/3489/3892392</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.plot_enrichment">
+<span class="sig-name descname"><span class="pre">plot_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">up_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'orange'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lightgray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(5,</span> <span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.plot_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.plot_enrichment" title="Link to this definition">#</a></dt>
+<dd><p>Plot the KSEA results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>up_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Color for enriched/upregulated kinases.
+The default is “orange”.</p></li>
+<li><p><strong>down_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for deriched/downregulated kinases.
+The default is “blue”.</p></li>
+<li><p><strong>bg_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Colour for kinases that did not change significantly.
+The default is “lightgray”.</p></li>
+<li><p><strong>plot_bg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the unaffected kinases.
+The default is True.</p></li>
+<li><p><strong>ret_fig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the figure object.
+The default is False.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title of the figure. The default is “”.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>int</em><em>, </em><em>optional</em>) – Figure size. The default is (5,10).</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axis</em><em>, </em><em>optional</em>) – The axis to plot on. Default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – Only returned in ret is True.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib figure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.plot_volcano">
+<span class="sig-name descname"><span class="pre">plot_volcano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_fc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_colname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.plot_volcano"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.plot_volcano" title="Link to this definition">#</a></dt>
+<dd><p>Plot volcano plots highlighting substrates of a given kinase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log_fc</strong> (<em>str</em>) – Column name of column containing the log fold changes.
+Must be present in the dataframe KSEA was initialised with.</p></li>
+<li><p><strong>p_colname</strong> (<em>str</em>) – Column name of column containing the p values.
+Must be present in the dataframe KSEA was initialised with.</p></li>
+<li><p><strong>kinases</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Limit the analysis to these kinases. The default is [].</p></li>
+<li><p><strong>ret_fig</strong> (<em>bool</em>) – Whether to return a list of figures for every kinase.</p></li>
+<li><p><strong>**kwargs</strong> – passed to autoprot.visualisation.volcano.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>volcano_returns</strong> – list of all returned figure objects. Only if ret_fig is True.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.return_enrichment">
+<span class="sig-name descname"><span class="pre">return_enrichment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.return_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.return_enrichment" title="Link to this definition">#</a></dt>
+<dd><p>Return a dataframe of kinase:score pairs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.KSEA.return_kinase_substrate">
+<span class="sig-name descname"><span class="pre">return_kinase_substrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#KSEA.return_kinase_substrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.KSEA.return_kinase_substrate" title="Link to this definition">#</a></dt>
+<dd><p>Return new dataframe with substrates of one or multiple kinase(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kinase</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – Kinase(s) to analyse.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If kinase is neither list of str nor str.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df_filter</strong> – Dataframe containing detailed information on kinase-substrate pairs
+including reference literature.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autoprot.analysis.functional.go_analysis">
+<span class="sig-prename descclassname"><span class="pre">autoprot.analysis.functional.</span></span><span class="sig-name descname"><span class="pre">go_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gene_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hsapiens'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">significance_threshold_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'g_SCS'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bonferroni'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fdr'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bonferroni'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/autoprot/analysis/functional.html#go_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autoprot.analysis.functional.go_analysis" title="Link to this definition">#</a></dt>
+<dd><p>Perform go Enrichment analysis (also KEGG and REAC).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gene_list</strong> (<em>list</em><em> of </em><em>str</em>) – list of gene names.</p></li>
+<li><p><strong>organism</strong> (<em>str</em><em>, </em><em>optional</em>) – identifier for the organism.
+See <a class="reference external" href="https://biit.cs.ut.ee/gprofiler/page/organism-list">https://biit.cs.ut.ee/gprofiler/page/organism-list</a> for details.
+The default is “hsapiens”.</p></li>
+<li><p><strong>background</strong> (<em>list</em><em> of </em><em>str</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Gene set against which the enrichment is calculated.</p></li>
+<li><p><strong>significance_threshold_method</strong> (<em>One</em><em> of </em><em>&quot;g_SCS&quot;</em><em>|</em><em>&quot;bonferroni&quot;</em><em>|</em><em>&quot;fdr&quot;.</em>) – The method to correct for multiple testing. Default is “bonferroni”.
+See <a class="reference external" href="https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold">https://biit.cs.ut.ee/gprofiler/page/docs#significance_threhshold</a>.</p></li>
+<li><p><strong>arguments</strong> (<em>keyword</em>) – Passed to GProfiler.profile. See <a class="reference external" href="https://biit.cs.ut.ee/gprofiler">https://biit.cs.ut.ee/gprofiler</a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the input could not be parsed as list of gene names.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dataframe-like object with the GO annotations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>gp.profile</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ana</span><span class="o">.</span><span class="n">go_analysis</span><span class="p">([</span><span class="s1">&#39;PEX14&#39;</span><span class="p">,</span> <span class="s1">&#39;PEX18&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">3</span><span class="p">,:</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">source      native                                   name</span>
+<span class="go">0  CORUM  CORUM:1984                 PEX14 homodimer complex</span>
+<span class="go">1  GO:CC  GO:1990429          peroxisomal importomer complex</span>
+<span class="go">2  GO:BP  GO:0036250  peroxisome transport along microtubule</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="clustering.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Clustering</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pca.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Principal Component Analysis</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA"><code class="docutils literal notranslate"><span class="pre">KSEA</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.add_substrate"><code class="docutils literal notranslate"><span class="pre">KSEA.add_substrate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.annotate"><code class="docutils literal notranslate"><span class="pre">KSEA.annotate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.annotate_df"><code class="docutils literal notranslate"><span class="pre">KSEA.annotate_df()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.clear_manual_substrates"><code class="docutils literal notranslate"><span class="pre">KSEA.clear_manual_substrates()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.get_kinase_overview"><code class="docutils literal notranslate"><span class="pre">KSEA.get_kinase_overview()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.ksea"><code class="docutils literal notranslate"><span class="pre">KSEA.ksea()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.plot_enrichment"><code class="docutils literal notranslate"><span class="pre">KSEA.plot_enrichment()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.plot_volcano"><code class="docutils literal notranslate"><span class="pre">KSEA.plot_volcano()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.return_enrichment"><code class="docutils literal notranslate"><span class="pre">KSEA.return_enrichment()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.KSEA.return_kinase_substrate"><code class="docutils literal notranslate"><span class="pre">KSEA.return_kinase_substrate()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#autoprot.analysis.functional.go_analysis"><code class="docutils literal notranslate"><span class="pre">go_analysis()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/analysis/functional.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

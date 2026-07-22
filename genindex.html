@@ -1,0 +1,932 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.add_substrate">add_substrate() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="analysis/stat_test.html#autoprot.analysis.stat_test.adjust_p">adjust_p() (in module autoprot.analysis.stat_test)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.annotate">annotate() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.annotate_df">annotate_df() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="preprocessing/annotation.html#autoprot.preprocessing.annotation.annotate_phosphosite">annotate_phosphosite() (in module autoprot.preprocessing.annotation)</a>
+</li>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.HCA.auto_run">auto_run() (autoprot.analysis.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="analysis/clustering.html#autoprot.analysis.clustering.KMeans.auto_run">(autoprot.analysis.clustering.KMeans method)</a>
+</li>
+      </ul></li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA">AutoPCA (class in autoprot.analysis.PCA)</a>
+</li>
+      <li>
+    autoprot.analysis.functional
+
+      <ul>
+        <li><a href="analysis/functional.html#module-autoprot.analysis.functional">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.analysis.qc
+
+      <ul>
+        <li><a href="analysis/qc.html#module-autoprot.analysis.qc">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.analysis.stat_test
+
+      <ul>
+        <li><a href="analysis/stat_test.html#module-autoprot.analysis.stat_test">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.analysis.stats
+
+      <ul>
+        <li><a href="analysis/stats.html#module-autoprot.analysis.stats">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.preprocessing.annotation
+
+      <ul>
+        <li><a href="preprocessing/annotation.html#module-autoprot.preprocessing.annotation">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    autoprot.preprocessing.data_handling
+
+      <ul>
+        <li><a href="preprocessing/data_handling.html#module-autoprot.preprocessing.data_handling">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.preprocessing.filtering
+
+      <ul>
+        <li><a href="preprocessing/filtering.html#module-autoprot.preprocessing.filtering">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.preprocessing.imputation
+
+      <ul>
+        <li><a href="preprocessing/imputation.html#module-autoprot.preprocessing.imputation">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.preprocessing.normalization
+
+      <ul>
+        <li><a href="preprocessing/normalization.html#module-autoprot.preprocessing.normalization">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.preprocessing.transformation
+
+      <ul>
+        <li><a href="preprocessing/transformation.html#module-autoprot.preprocessing.transformation">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.visualization.annotation
+
+      <ul>
+        <li><a href="visualization/annotation.html#module-autoprot.visualization.annotation">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.visualization.basic
+
+      <ul>
+        <li><a href="visualization/basic.html#module-autoprot.visualization.basic">module</a>
+</li>
+      </ul></li>
+      <li>
+    autoprot.visualization.qc
+
+      <ul>
+        <li><a href="visualization/qc.html#module-autoprot.visualization.qc">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.bar_load">bar_load() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.bi_plot">bi_plot() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.boxplot">boxplot() (in module autoprot.visualization.basic)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.calculate_iBAQ">calculate_iBAQ() (in module autoprot.preprocessing.transformation)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.charge_plot">charge_plot() (in module autoprot.visualization.qc)</a>
+</li>
+      <li><a href="preprocessing/filtering.html#autoprot.preprocessing.filtering.cleaning">cleaning() (in module autoprot.preprocessing.filtering)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.clear_manual_substrates">clear_manual_substrates() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="analysis/stat_test.html#autoprot.analysis.stat_test.cohen_d">cohen_d() (in module autoprot.analysis.stat_test)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.collapse_rows">collapse_rows() (in module autoprot.preprocessing.transformation)</a>
+</li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.corr_comp">corr_comp() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.corr_map">corr_map() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.correlogram">correlogram() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.count_mod_aa">count_mod_aa() (in module autoprot.visualization.qc)</a>
+</li>
+      <li><a href="preprocessing/normalization.html#autoprot.preprocessing.normalization.cyclic_loess">cyclic_loess() (in module autoprot.preprocessing.normalization)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/imputation.html#autoprot.preprocessing.imputation.dima">dima() (in module autoprot.preprocessing.imputation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.dimethyl_labeling_efficiency">dimethyl_labeling_efficiency() (in module autoprot.analysis.qc)</a>
+</li>
+      <li><a href="preprocessing/data_handling.html#autoprot.preprocessing.data_handling.download_from_ftp">download_from_ftp() (in module autoprot.preprocessing.data_handling)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/stats.html#autoprot.analysis.stats.edm">edm() (in module autoprot.analysis.stats)</a>
+</li>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.enrichment_specificity">enrichment_specificity() (in module autoprot.analysis.qc)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.exp_semi_col">exp_semi_col() (in module autoprot.preprocessing.transformation)</a>
+</li>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.expand_site_table">expand_site_table() (in module autoprot.preprocessing.transformation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/data_handling.html#autoprot.preprocessing.data_handling.fetch_from_pride">fetch_from_pride() (in module autoprot.preprocessing.data_handling)</a>
+</li>
+      <li><a href="preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_loc_prob">filter_loc_prob() (in module autoprot.preprocessing.filtering)</a>
+</li>
+      <li><a href="preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_seq_cov">filter_seq_cov() (in module autoprot.preprocessing.filtering)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/filtering.html#autoprot.preprocessing.filtering.filter_vv">filter_vv() (in module autoprot.preprocessing.filtering)</a>
+</li>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.HCA.find_nclusters">find_nclusters() (autoprot.analysis.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="analysis/clustering.html#autoprot.analysis.clustering.KMeans.find_nclusters">(autoprot.analysis.clustering.KMeans method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.get_kinase_overview">get_kinase_overview() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="preprocessing/annotation.html#autoprot.preprocessing.annotation.get_subcellular_loc">get_subcellular_loc() (in module autoprot.preprocessing.annotation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.go_analysis">go_analysis() (in module autoprot.analysis.functional)</a>
+</li>
+      <li><a href="preprocessing/annotation.html#autoprot.preprocessing.annotation.go_annot">go_annot() (in module autoprot.preprocessing.annotation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.HCA">HCA (class in autoprot.analysis.clustering)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.i_lolli_plot">i_lolli_plot() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.i_mirror_lolli_plot">i_mirror_lolli_plot() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.icharge_plot">icharge_plot() (in module autoprot.visualization.qc)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.icount_mod_aa">icount_mod_aa() (in module autoprot.visualization.qc)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.ima_plot">ima_plot() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_median">imp_median() (in module autoprot.preprocessing.imputation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_min_prob">imp_min_prob() (in module autoprot.preprocessing.imputation)</a>
+</li>
+      <li><a href="preprocessing/imputation.html#autoprot.preprocessing.imputation.imp_seq">imp_seq() (in module autoprot.preprocessing.imputation)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.intensity_rank">intensity_rank() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.isequence_logo">isequence_logo() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.isty_count_plot">isty_count_plot() (in module autoprot.visualization.qc)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.ivolcano">ivolcano() (in module autoprot.visualization.basic)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.KMeans">KMeans (class in autoprot.analysis.clustering)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA">KSEA (class in autoprot.analysis.functional)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.ksea">ksea() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/stat_test.html#autoprot.analysis.stat_test.limma">limma() (in module autoprot.analysis.stat_test)</a>
+</li>
+      <li><a href="preprocessing/normalization.html#autoprot.preprocessing.normalization.loading_norm">loading_norm() (in module autoprot.preprocessing.normalization)</a>
+</li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.loading_plot">loading_plot() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/stats.html#autoprot.analysis.stats.loess">loess() (in module autoprot.analysis.stats)</a>
+</li>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.log">log() (in module autoprot.preprocessing.transformation)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.log_int_plot">log_int_plot() (in module autoprot.visualization.basic)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.ma_plot">ma_plot() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.HCA.make_cluster">make_cluster() (autoprot.analysis.clustering.HCA method)</a>
+
+      <ul>
+        <li><a href="analysis/clustering.html#autoprot.analysis.clustering.KMeans.make_cluster">(autoprot.analysis.clustering.KMeans method)</a>
+</li>
+      </ul></li>
+      <li><a href="analysis/clustering.html#autoprot.analysis.clustering.HCA.make_linkage">make_linkage() (autoprot.analysis.clustering.HCA method)</a>
+</li>
+      <li><a href="analysis/stats.html#autoprot.analysis.stats.make_psm">make_psm() (in module autoprot.analysis.stats)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.mean_sd_plot">mean_sd_plot() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="preprocessing/transformation.html#autoprot.preprocessing.transformation.merge_semi_cols">merge_semi_cols() (in module autoprot.preprocessing.transformation)</a>
+</li>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.miss_analysis">miss_analysis() (in module autoprot.analysis.qc)</a>
+</li>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.missed_cleavages">missed_cleavages() (in module autoprot.analysis.qc)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="analysis/functional.html#module-autoprot.analysis.functional">autoprot.analysis.functional</a>
+</li>
+        <li><a href="analysis/qc.html#module-autoprot.analysis.qc">autoprot.analysis.qc</a>
+</li>
+        <li><a href="analysis/stat_test.html#module-autoprot.analysis.stat_test">autoprot.analysis.stat_test</a>
+</li>
+        <li><a href="analysis/stats.html#module-autoprot.analysis.stats">autoprot.analysis.stats</a>
+</li>
+        <li><a href="preprocessing/annotation.html#module-autoprot.preprocessing.annotation">autoprot.preprocessing.annotation</a>
+</li>
+        <li><a href="preprocessing/data_handling.html#module-autoprot.preprocessing.data_handling">autoprot.preprocessing.data_handling</a>
+</li>
+        <li><a href="preprocessing/filtering.html#module-autoprot.preprocessing.filtering">autoprot.preprocessing.filtering</a>
+</li>
+        <li><a href="preprocessing/imputation.html#module-autoprot.preprocessing.imputation">autoprot.preprocessing.imputation</a>
+</li>
+        <li><a href="preprocessing/normalization.html#module-autoprot.preprocessing.normalization">autoprot.preprocessing.normalization</a>
+</li>
+        <li><a href="preprocessing/transformation.html#module-autoprot.preprocessing.transformation">autoprot.preprocessing.transformation</a>
+</li>
+        <li><a href="visualization/annotation.html#module-autoprot.visualization.annotation">autoprot.visualization.annotation</a>
+</li>
+        <li><a href="visualization/basic.html#module-autoprot.visualization.basic">autoprot.visualization.basic</a>
+</li>
+        <li><a href="visualization/qc.html#module-autoprot.visualization.qc">autoprot.visualization.qc</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/annotation.html#autoprot.preprocessing.annotation.motif_annot">motif_annot() (in module autoprot.preprocessing.annotation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/normalization.html#autoprot.preprocessing.normalization.norm_to_prot">norm_to_prot() (in module autoprot.preprocessing.normalization)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.pair_plot">pair_plot() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.plot_enrichment">plot_enrichment() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.plot_traces">plot_traces() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.plot_volcano">plot_volcano() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.prob_plot">prob_plot() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.ptm_lolli_plot">ptm_lolli_plot() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.ptm_mirror_lolli_plot">ptm_mirror_lolli_plot() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.pval_hist">pval_hist() (in module autoprot.visualization.basic)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/normalization.html#autoprot.preprocessing.normalization.quantile_norm">quantile_norm() (in module autoprot.preprocessing.normalization)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/stat_test.html#autoprot.analysis.stat_test.rank_prod">rank_prod() (in module autoprot.analysis.stat_test)</a>
+</li>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.ratio_plot">ratio_plot() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="preprocessing/data_handling.html#autoprot.preprocessing.data_handling.read_csv">read_csv() (in module autoprot.preprocessing.data_handling)</a>
+</li>
+      <li><a href="preprocessing/filtering.html#autoprot.preprocessing.filtering.remove_non_quant">remove_non_quant() (in module autoprot.preprocessing.filtering)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.return_enrichment">return_enrichment() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="analysis/functional.html#autoprot.analysis.functional.KSEA.return_kinase_substrate">return_kinase_substrate() (autoprot.analysis.functional.KSEA method)</a>
+</li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.return_load">return_load() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.return_score">return_score() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.score_plot">score_plot() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+      <li><a href="analysis/pca.html#autoprot.analysis.PCA.AutoPCA.scree">scree() (autoprot.analysis.PCA.AutoPCA method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.sequence_logo">sequence_logo() (in module autoprot.visualization.annotation)</a>
+</li>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.SILAC_labeling_efficiency">SILAC_labeling_efficiency() (in module autoprot.analysis.qc)</a>
+</li>
+      <li><a href="visualization/qc.html#autoprot.visualization.qc.sty_count_plot">sty_count_plot() (in module autoprot.visualization.qc)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis/qc.html#autoprot.analysis.qc.tmt6plex_labeling_efficiency">tmt6plex_labeling_efficiency() (in module autoprot.analysis.qc)</a>
+</li>
+      <li><a href="preprocessing/annotation.html#autoprot.preprocessing.annotation.to_canonical_ps">to_canonical_ps() (in module autoprot.preprocessing.annotation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="preprocessing/data_handling.html#autoprot.preprocessing.data_handling.to_csv">to_csv() (in module autoprot.preprocessing.data_handling)</a>
+</li>
+      <li><a href="analysis/stat_test.html#autoprot.analysis.stat_test.ttest">ttest() (in module autoprot.analysis.stat_test)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.venn_diagram">venn_diagram() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="visualization/annotation.html#autoprot.visualization.annotation.vis_psites">vis_psites() (in module autoprot.visualization.annotation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="visualization/basic.html#autoprot.visualization.basic.volcano">volcano() (in module autoprot.visualization.basic)</a>
+</li>
+      <li><a href="preprocessing/normalization.html#autoprot.preprocessing.normalization.vsn">vsn() (in module autoprot.preprocessing.normalization)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
