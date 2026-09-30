@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>autoprot.preprocessing.annotation &#8212; autoprot  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/autoprot/preprocessing/annotation';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/ag-warscheid/autoprot/dev/docs/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="dev" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">autoprot</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../preprocessing/index.html">
+    Preprocessing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../analysis/index.html">
+    Analysis
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../visualization/index.html">
+    Visualization
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">autoprot.preprocessing.annotation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for autoprot.preprocessing.annotation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">"""</span>
+<span class="sd">Autoprot Preprocessing Functions.</span>
+
+<span class="sd">@author: Wignand, Julian, Johannes</span>
+
+<span class="sd">@documentation: Julian</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Bio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Align</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot</span><span class="w"> </span><span class="kn">import</span> <span class="n">r_helper</span><span class="p">,</span> <span class="n">common</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autoprot.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span>
+
+<span class="n">RFUNCTIONS</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">r_helper</span><span class="o">.</span><span class="n">return_r_path</span><span class="p">()</span>
+
+<span class="c1"># defines which functions are exposed at the module level</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"go_annot"</span><span class="p">,</span>
+    <span class="s2">"motif_annot"</span><span class="p">,</span>
+    <span class="s2">"annotate_phosphosite"</span><span class="p">,</span>
+    <span class="s2">"to_canonical_ps"</span><span class="p">,</span>
+    <span class="s2">"get_subcellular_loc"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Note: When using R functions provided column names might get changed</span>
+<span class="c1"># Especially, do not use +,- or spaces in your column names. Maybe write decorator to</span>
+<span class="c1"># validate proper column formatting and handle exceptions</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="go_annot">
+<a class="viewcode-back" href="../../../preprocessing/annotation.html#autoprot.preprocessing.annotation.go_annot">[docs]</a>
+<span class="nd">@report</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">go_annot</span><span class="p">(</span>
+    <span class="n">prots</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gos</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">only_prots</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Filter a list of experimentally determined gene names by GO annotation.</span>
+
+<span class="sd">    Homo sapiens.gene_info and gene2go files are needed for annotation</span>
+
+<span class="sd">    In case of multiple gene names per line (e.g. AKT1;PKB)</span>
+<span class="sd">    only the first name will be extracted.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prots : list of str</span>
+<span class="sd">        List of Gene names.</span>
+<span class="sd">    gos : list of str</span>
+<span class="sd">        List of go terms.</span>
+<span class="sd">    only_prots : bool, optional</span>
+<span class="sd">        Whether to return dataframe or only list of gene names annotated with terms. The default is False.</span>
+<span class="sd">    exact : bool, optional</span>
+<span class="sd">        Whether the go term must match exactly. i.e. MAPK activity &lt;-&gt; regulation of MAPK acitivity etc.</span>
+<span class="sd">        The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame or pd.Series</span>
+<span class="sd">        Dataframe with columns "index", "Gene names", "GeneID", "GO_ID", "GO_term"</span>
+<span class="sd">        or</span>
+<span class="sd">        Series with gene names</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; gos = ["ribosome"]</span>
+<span class="sd">    &gt;&gt;&gt; go = autoprot.preprocessing.go_annot(prot["Gene names"],gos, only_prots=False)</span>
+<span class="sd">    &gt;&gt;&gt; go.head()</span>
+<span class="sd">       index Gene names  GeneID       GO_ID   GO_term</span>
+<span class="sd">    0   1944      RPS27    6232  GO:0005840  ribosome</span>
+<span class="sd">    1   6451      RPS25    6230  GO:0005840  ribosome</span>
+<span class="sd">    2   7640     RPL36A    6173  GO:0005840  ribosome</span>
+<span class="sd">    3  11130      RRBP1    6238  GO:0005840  ribosome</span>
+<span class="sd">    4  16112        SF1    7536  GO:0005840  ribosome</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"Homo_sapiens.zip"</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">gene_info</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"gene2go_alt.zip"</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">gene2go</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">)</span>
+    <span class="c1"># generate dataframe with single columns corresponding to experimental gene names</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prots</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"Gene names"</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># add the column GeneID by merging with the gene_info table</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">prots</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">gene_info</span><span class="p">[[</span><span class="s2">"Symbol"</span><span class="p">,</span> <span class="s2">"GeneID"</span><span class="p">]],</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="s2">"Gene names"</span><span class="p">,</span>
+        <span class="n">right_on</span><span class="o">=</span><span class="s2">"Symbol"</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># add the columns GO_ID and GO_term by merging on GeneID</span>
+    <span class="n">prots</span> <span class="o">=</span> <span class="n">prots</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">gene2go</span><span class="p">[[</span><span class="s2">"GeneID"</span><span class="p">,</span> <span class="s2">"GO_ID"</span><span class="p">,</span> <span class="s2">"GO_term"</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">"GeneID"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span>
+    <span class="p">)</span>
+
+    <span class="c1"># if the go terms must match exactly, pandas' isin is used</span>
+    <span class="k">if</span> <span class="n">exact</span><span class="p">:</span>
+        <span class="n">red_prots</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">"GO_term"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gos</span><span class="p">)]</span>
+    <span class="c1"># if they should only contain the go term, the str contains method with the OR separator is used</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">red_prots</span> <span class="o">=</span> <span class="n">prots</span><span class="p">[</span><span class="n">prots</span><span class="p">[</span><span class="s2">"GO_term"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gos</span><span class="p">),</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+    <span class="c1"># if only the proteins should be returned, the Symbol column from the GO annotation is returned</span>
+    <span class="k">if</span> <span class="n">only_prots</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">red_prots</span><span class="p">[</span><span class="s2">"Symbol"</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># else the complete dataframe without the Symabol column is returned</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">red_prots</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"Symbol"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="motif_annot">
+<a class="viewcode-back" href="../../../preprocessing/annotation.html#autoprot.preprocessing.annotation.motif_annot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">motif_annot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"Sequence window"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Search for phosphorylation motif in the provided dataframe.</span>
+
+<span class="sd">    If not specified, the "Sequence window" column is searched.</span>
+<span class="sd">    The phosphorylated central residue in a motif has to be indicated with "S/T".</span>
+<span class="sd">    Arbitrary amino acids can be denoted with x.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        input dataframe.</span>
+<span class="sd">    motif : str</span>
+<span class="sd">        Target motif. E.g. "RxRxxS/T", "PxS/TP" or "RxRxxS/TxSxxR"</span>
+<span class="sd">    col : str, optional</span>
+<span class="sd">        Alternative column to be searched in if Sequence window is not desired.</span>
+<span class="sd">        The default is "Sequence window".</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.dataframe</span>
+<span class="sd">        Dataframe with additional boolean column with True/False for whether the motif is found in this .</span>
+
+<span class="sd">    """</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># make sure to keep the original dataframe unmodified</span>
+
+    <span class="c1"># TODO</span>
+    <span class="c1"># make some assertions that the column is indeed the proper MQ output</span>
+    <span class="c1"># (might want to customize the possibilities later)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_motif</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">motlen</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="n">seqs</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">";"</span> <span class="ow">in</span> <span class="n">seq</span> <span class="k">else</span> <span class="p">[</span><span class="n">seq</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">seqs</span><span class="p">:</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos2</span><span class="p">:</span>
+                <span class="c1"># iterate over re match objects</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos2</span><span class="p">:</span>
+                    <span class="c1"># p.end() is the index of the last matching element of the searchstring</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+                    <span class="c1"># only return a match if the motif in centred in the sequence window</span>
+                    <span class="c1"># i.e. if the corresponding peptide was identified</span>
+                    <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">motlen</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">assert</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="c1"># generate a regex string out of the input motif</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="n">motif</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"S/T"</span><span class="p">,</span> <span class="s2">"(S|T)"</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"(S|T)"</span><span class="p">)</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="n">search</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="n">search</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">5</span> <span class="p">:]</span>
+    <span class="c1"># the regex contains a lookbehind (?&lt;=SEQUENCEBEFORE), the actual modified residues (S/T)</span>
+    <span class="c1"># and a lookahead with the following seqeunce for this motif (?=SEQUENCEAFTER)</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"(?&lt;=</span><span class="si">{</span><span class="n">before</span><span class="si">}</span><span class="s2">)(S|T)(?=</span><span class="si">{</span><span class="n">after</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="c1"># the lengths of the sequences in the sequence window column are all the same, take it from the first row</span>
+    <span class="n">motlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">find_motif</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">motif</span><span class="o">=</span><span class="n">search</span><span class="p">,</span> <span class="n">motlen</span><span class="o">=</span><span class="n">motlen</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="annotate_phosphosite">
+<a class="viewcode-back" href="../../../preprocessing/annotation.html#autoprot.preprocessing.annotation.annotate_phosphosite">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">annotate_phosphosite</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">cols_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Annotate phosphosites with information derived from PhosphositePlus.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.Dataframe</span>
+<span class="sd">        dataframe containing PS of interst.</span>
+<span class="sd">    ps : str</span>
+<span class="sd">        Column containing info about the PS.</span>
+<span class="sd">        Format: GeneName_AminoacidPositoin (e.g. AKT_T308).</span>
+<span class="sd">    cols_to_keep : list, optional</span>
+<span class="sd">        Which columns from original dataframe (input df) to keep in output.</span>
+<span class="sd">        The default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.Dataframe</span>
+<span class="sd">        The input dataframe with the kept columns and additional phosphosite cols.</span>
+
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">cols_to_keep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cols_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_merge_col</span><span class="p">(</span><span class="n">df_to_merge</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">"regSites"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Format the phosphosite positions and gene names so that merging is possible."""</span>
+        <span class="k">if</span> <span class="n">file</span> <span class="o">==</span> <span class="s2">"regSites"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">df_to_merge</span><span class="p">[</span><span class="s2">"GENE"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+                <span class="o">+</span> <span class="s2">"_"</span>
+                <span class="o">+</span> <span class="n">df_to_merge</span><span class="p">[</span><span class="s2">"MOD_RSD"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df_to_merge</span><span class="p">[</span><span class="s2">"SUB_GENE"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="o">+</span> <span class="s2">"_"</span>
+            <span class="o">+</span> <span class="n">df_to_merge</span><span class="p">[</span><span class="s2">"SUB_MOD_RSD"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"Kinase_Substrate_Dataset.zip"</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">ks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">)</span>
+        <span class="n">ks</span><span class="p">[</span><span class="s2">"merge"</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_merge_col</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="s2">"KS"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"Regulatory_sites.zip"</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">reg_sites</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">)</span>
+        <span class="n">reg_sites</span><span class="p">[</span><span class="s2">"merge"</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_merge_col</span><span class="p">(</span><span class="n">reg_sites</span><span class="p">)</span>
+
+    <span class="n">ks_coi</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"KINASE"</span><span class="p">,</span> <span class="s2">"DOMAIN"</span><span class="p">,</span> <span class="s2">"IN_VIVO_RXN"</span><span class="p">,</span> <span class="s2">"IN_VITRO_RXN"</span><span class="p">,</span> <span class="s2">"CST_CAT#"</span><span class="p">,</span> <span class="s2">"merge"</span><span class="p">]</span>
+    <span class="n">reg_sites_coi</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">"ON_FUNCTION"</span><span class="p">,</span>
+        <span class="s2">"ON_PROCESS"</span><span class="p">,</span>
+        <span class="s2">"ON_PROT_INTERACT"</span><span class="p">,</span>
+        <span class="s2">"ON_OTHER_INTERACT"</span><span class="p">,</span>
+        <span class="s2">"PMIDs"</span><span class="p">,</span>
+        <span class="s2">"NOTES"</span><span class="p">,</span>
+        <span class="s2">"LT_LIT"</span><span class="p">,</span>
+        <span class="s2">"MS_LIT"</span><span class="p">,</span>
+        <span class="s2">"MS_CST"</span><span class="p">,</span>
+        <span class="s2">"merge"</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">ps</span><span class="p">:</span> <span class="s2">"merge"</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">"merge"</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols_to_keep</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ks</span><span class="p">[</span><span class="n">ks_coi</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">"merge"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">reg_sites</span><span class="p">[</span><span class="n">reg_sites_coi</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">"merge"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="to_canonical_ps">
+<a class="viewcode-back" href="../../../preprocessing/annotation.html#autoprot.preprocessing.annotation.to_canonical_ps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_canonical_ps</span><span class="p">(</span>
+    <span class="n">series</span><span class="p">,</span> <span class="n">organism</span><span class="o">=</span><span class="s2">"human"</span><span class="p">,</span> <span class="n">get_seq</span><span class="o">=</span><span class="s2">"online"</span><span class="p">,</span> <span class="n">uniprot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_alignment</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert phosphosites to "canonical" phosphosites.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : pd.Series</span>
+<span class="sd">        Series containing the indices "Gene names" and "Sequence Window".</span>
+<span class="sd">        Corresponds e.g. to a row in MQ Phospho(STY)Sites.txt.</span>
+<span class="sd">    organism : str, optional</span>
+<span class="sd">        This conversion is based on Uniprot Identifier used in PSP data.</span>
+<span class="sd">        possible organisms: 'mouse', 'human', 'rat', 'sheep', 'SARSCoV2', 'guinea pig', 'cow',</span>
+<span class="sd">        'hamster', 'fruit fly', 'dog', 'rabbit', 'pig', 'chicken', 'frog',</span>
+<span class="sd">        'quail', 'horse', 'goat', 'papillomavirus', 'water buffalo',</span>
+<span class="sd">        'marmoset', 'turkey', 'cat', 'starfish', 'torpedo', 'SARSCoV1',</span>
+<span class="sd">        'green monkey', 'ferret'. The default is "human".</span>
+<span class="sd">    get_seq : "local" or "online"</span>
+<span class="sd">    uniprot : str, optional</span>
+<span class="sd">        Path to a gzipped uniprot.tsv file. Required if get_seq is 'local'</span>
+<span class="sd">    print_alignment: bool, optional</span>
+<span class="sd">        If True, alignments from which the new phosphosite information is derived are printed.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function compares a certain gene name to the genes found in the</span>
+<span class="sd">    phosphosite plus (https://www.phosphosite.org) phosphorylation site dataset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (str, str, str)</span>
+<span class="sd">        (UniProt ID, Position of phosphosite in the UniProt sequence, score)</span>
+<span class="sd">    Proteins with two Gene names seperated by a semicolon are given back in the same way and order.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The correct position of the phosphorylation is returned independent of the</span>
+<span class="sd">    completeness of the sequence window.</span>
+
+<span class="sd">    &gt;&gt;&gt; series=pd.Series(['PEX14', "VSNESTSSSPGKEGHSPEGSTVTYHLLGPQE"], index=['Gene names', 'Sequence window'])</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.to_canonical_ps(series, organism='human')</span>
+<span class="sd">    ['O75381', '282', '31.0']</span>
+<span class="sd">    &gt;&gt;&gt; series=pd.Series(['PEX14', "_____TSSSPGKEGHSPEGSTVTYHLLGP__"], index=['Gene names', 'Sequence window'])</span>
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.to_canonical_ps(series, organism='human')</span>
+<span class="sd">    ['O75381', '282', '31.0']</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># open the phospho site plus phosphorylation dataset</span>
+
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span>
+        <span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"Phosphorylation_site_dataset.zip"</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">ps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_uniprot_sequence</span><span class="p">(</span><span class="n">uniprot_acc</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Download sequence from uniprot by UniProt ID."""</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.uniprot.org/uniprot/</span><span class="si">{</span><span class="n">uniprot_acc</span><span class="si">}</span><span class="s2">.fasta"</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">seq</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canonical_psite</span><span class="p">(</span><span class="n">seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ps_seq</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">aa_to_ps</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Align an experimental phospho site sequence window to the corresponding UniProt sequence."""</span>
+        <span class="n">aligner</span> <span class="o">=</span> <span class="n">Align</span><span class="o">.</span><span class="n">PairwiseAligner</span><span class="p">()</span>
+        <span class="n">aligner</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">"local"</span>  <span class="c1"># generate local alignments</span>
+        <span class="n">aligner</span><span class="o">.</span><span class="n">open_gap_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">aligner</span><span class="o">.</span><span class="n">extend_gap_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">alignment</span> <span class="o">=</span> <span class="n">aligner</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">ps_seq</span><span class="p">)</span>
+
+        <span class="n">t_aligned</span><span class="p">,</span> <span class="n">q_aligned</span> <span class="o">=</span> <span class="n">alignment</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">aligned</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">alignment</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span>
+
+        <span class="n">canonical_psite</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">q_aligned</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">aa_to_ps</span> <span class="o">&lt;</span> <span class="n">end</span>
+            <span class="p">):</span>  <span class="c1"># is the query phospho site in the aligned subsequences</span>
+                <span class="c1"># start of the target subsequence + absolute position of the phospho site - absolute position of the</span>
+                <span class="c1"># subsequence</span>
+                <span class="n">canonical_psite</span> <span class="o">=</span> <span class="n">t_aligned</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa_to_ps</span> <span class="o">-</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">print_alignment</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">alignment</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">canonical_psite</span><span class="p">,</span> <span class="n">score</span>
+
+    <span class="n">uniprot_acc_extr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ps_seq_extr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">gene</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="s2">"Gene names"</span><span class="p">])</span>
+    <span class="n">ps_seq</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="s2">"Sequence window"</span><span class="p">]</span>
+
+    <span class="n">ps_seq_list</span> <span class="o">=</span> <span class="n">ps_seq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
+    <span class="n">gene_list</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps_seq_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_list</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">get_seq</span> <span class="o">==</span> <span class="s2">"online"</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gene list does not match sequence list:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">gene</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">ps_seq</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">ps_seq_list</span> <span class="o">=</span> <span class="n">ps_seq_list</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_list</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gene_list</span><span class="p">):</span>
+        <span class="n">uniprot_acc_ex</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">get_uniprot_accession</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">organism</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">uniprot_acc_ex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">uniprot_acc_extr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uniprot_acc_ex</span><span class="p">)</span>
+        <span class="n">ps_seq_extr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ps_seq_list</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniprot_acc_extr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"No matching Uniprot ID found"</span>
+
+    <span class="n">canonical_ps_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">score_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># get the local uniprot file</span>
+    <span class="k">if</span> <span class="n">get_seq</span> <span class="o">==</span> <span class="s2">"local"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">uniprot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">uniprot</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Please provide a valid path to a valid compressed uniprot tsv file (tsv.gz)."</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uniprot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">uniprot</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"gzip"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">uniprot_acc</span><span class="p">,</span> <span class="n">ps_seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">uniprot_acc_extr</span><span class="p">,</span> <span class="n">ps_seq_extr</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">get_seq</span> <span class="o">==</span> <span class="s2">"local"</span><span class="p">:</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">get_uniprot_sequence_locally</span><span class="p">(</span><span class="n">uniprot_acc</span><span class="p">,</span> <span class="n">organism</span><span class="p">,</span> <span class="n">uniprot</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">get_seq</span> <span class="o">==</span> <span class="s2">"online"</span><span class="p">:</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">get_uniprot_sequence</span><span class="p">(</span><span class="n">uniprot_acc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">seq</span><span class="p">:</span>
+            <span class="n">canonical_ps_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"no match"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aa_to_ps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">))</span>
+            <span class="n">ps_seq</span> <span class="o">=</span> <span class="n">ps_seq</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
+            <span class="n">canonical_ps</span><span class="p">,</span> <span class="n">score</span> <span class="o">=</span> <span class="n">get_canonical_psite</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">ps_seq</span><span class="p">,</span> <span class="n">aa_to_ps</span><span class="p">)</span>
+            <span class="n">canonical_ps_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">canonical_ps</span><span class="p">))</span>
+            <span class="n">score_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">uniprot_acc_extr</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">canonical_ps_list</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">score_list</span><span class="p">)),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_subcellular_loc">
+<a class="viewcode-back" href="../../../preprocessing/annotation.html#autoprot.preprocessing.annotation.get_subcellular_loc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_subcellular_loc</span><span class="p">(</span>
+    <span class="n">series</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s2">"compartments"</span><span class="p">,</span> <span class="n">loca</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colname</span><span class="o">=</span><span class="s2">"Gene names"</span>
+<span class="p">):</span>
+    <span class="c1"># noinspection PyUnresolvedReferences</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Annotate the df with subcellular localization.</span>
+
+<span class="sd">    For compartments gene names are required.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    series : pd.Series</span>
+<span class="sd">        Must contain the colname to identify genes.</span>
+<span class="sd">    database : str, optional</span>
+<span class="sd">        Possible values are "compartments" and "hpa".</span>
+<span class="sd">        The default is "compartments".</span>
+<span class="sd">    loca : str, optional</span>
+<span class="sd">        Only required for the compartments database.</span>
+<span class="sd">        Filter the returned localisation table by this string.</span>
+<span class="sd">        Must match exactly to the localisation terms in the compartments DB.</span>
+<span class="sd">        The default is None.</span>
+<span class="sd">    colname : str, optional</span>
+<span class="sd">        Colname holding the gene names.</span>
+<span class="sd">        The default is "Gene names".</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Wrong value is provided for the database arg.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The compartments database is obtained from https://compartments.jensenlab.org/Downloads .</span>
+<span class="sd">    The hpa database is the human protein atlas available at https://www.proteinatlas.org .</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        Dataframe with columns "ENSMBL", "Gene name", "LOCID", "LOCNAME", "SCORE"</span>
+<span class="sd">        for compartments database.</span>
+<span class="sd">    tuple of lists (main_loc, alt_loc)</span>
+<span class="sd">        Lists of main and alternative localisations if the hpa database was chosen.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; series = pd.Series(['PEX14',], index=['Gene names'])</span>
+
+<span class="sd">    Find all subcellular localisations of PEX14.</span>
+<span class="sd">    The second line filters the returned dataframe so that only values with the</span>
+<span class="sd">    highest score are retained. The dataframe is converted to list for better</span>
+<span class="sd">    visualisation.</span>
+
+<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.get_subcellular_loc(series)</span>
+<span class="sd">    &gt;&gt;&gt; sorted(loc_df.loc[loc_df[loc_df['SCORE'] == loc_df['SCORE'].max()].index,</span>
+<span class="sd">    ...                   'LOCNAME'].tolist())</span>
+<span class="sd">    ['Bounding membrane of organelle', 'Cellular anatomical entity', 'Cytoplasm', 'Intracellular',</span>
+<span class="sd">    'Intracellular membrane-bounded organelle', 'Intracellular organelle', 'Membrane', 'Microbody',</span>
+<span class="sd">    'Microbody membrane', 'Nucleus', 'Organelle', 'Organelle membrane', 'Peroxisomal membrane', 'Peroxisome',</span>
+<span class="sd">    'Whole membrane', 'cellular_component', 'membrane-bounded organelle', 'protein-containing complex']</span>
+
+<span class="sd">    Get the score for PEX14 being peroxisomally localised</span>
+
+<span class="sd">    &gt;&gt;&gt; loc_df = autoprot.preprocessing.get_subcellular_loc(series, loca='Peroxisome')</span>
+<span class="sd">    &gt;&gt;&gt; loc_df['SCORE'].tolist()[0]</span>
+<span class="sd">    5.0</span>
+
+<span class="sd">    Using the Human Protein Atlas, a tuple of two lists containing the main and</span>
+<span class="sd">    alternative localisations is returned</span>
+
+<span class="sd">    &gt;&gt;&gt; autoprot.preprocessing.get_subcellular_loc(series, database='hpa')</span>
+<span class="sd">    (['Peroxisomes'], ['Nucleoli fibrillar center'])</span>
+<span class="sd">    """</span>
+    <span class="n">gene</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">database</span> <span class="o">==</span> <span class="s2">"compartments"</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span>
+            <span class="s2">"autoprot.data"</span><span class="p">,</span> <span class="s2">"human_compartment_integrated_full.zip"</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">comp_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">comp_data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ENSMBL"</span><span class="p">,</span> <span class="s2">"Gene name"</span><span class="p">,</span> <span class="s2">"LOCID"</span><span class="p">,</span> <span class="s2">"LOCNAME"</span><span class="p">,</span> <span class="s2">"SCORE"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">loca</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if loca is not provided, a table with all predicted localisations</span>
+            <span class="c1"># is returned</span>
+            <span class="k">return</span> <span class="n">comp_data</span><span class="p">[(</span><span class="n">comp_data</span><span class="p">[</span><span class="s2">"Gene name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">gene</span><span class="p">)][[</span><span class="s2">"LOCNAME"</span><span class="p">,</span> <span class="s2">"SCORE"</span><span class="p">]]</span>
+        <span class="c1"># if loca is provided, only rows with the correspoding locname and score</span>
+        <span class="c1"># are returned</span>
+        <span class="k">return</span> <span class="n">comp_data</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">comp_data</span><span class="p">[</span><span class="s2">"Gene name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">gene</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">comp_data</span><span class="p">[</span><span class="s2">"LOCNAME"</span><span class="p">]</span> <span class="o">==</span> <span class="n">loca</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">elif</span> <span class="n">database</span> <span class="o">==</span> <span class="s2">"hpa"</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="s2">"g,scl,scml,scal"</span>
+        <span class="c1"># obtain protein atlas subset for the gene of interest</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"https://www.proteinatlas.org/api/search_download.php?search=</span><span class="si">{</span><span class="n">gene</span><span class="si">}</span><span class="s2">&amp;format=json&amp;"</span>
+            <span class="sa">f</span><span class="s2">"columns=</span><span class="si">{</span><span class="n">cols</span><span class="si">}</span><span class="s2">&amp;compress=no"</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">main_loc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">html</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"Subcellular main location"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">',"Subcellular additional location'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'":['</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">alt_loc</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">html</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"Subcellular additional location"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"}"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'":['</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">main_loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'"]'</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">main_loc</span><span class="p">]</span>
+        <span class="n">alt_loc</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'"]'</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"}"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alt_loc</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">main_loc</span><span class="p">,</span> <span class="n">alt_loc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Database can be either "compartments" or "hpa"'</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The autoprot contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
