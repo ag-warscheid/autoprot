@@ -218,58 +218,56 @@ def miss_analysis(
 
 def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=None):
     """
+    Calculate the percentage of missed cleavages per experiment (or raw file).
+
+    Groups the evidence table by experiment (or raw file, when the experiment
+    column is missing or not unique) and reports the relative frequency of
+    peptides with 0, 1, 2, ... missed cleavages as stacked bars.
+
     Parameters
     ----------
-    df_evidence : cleaned pandas DataFrame from Maxquant analysis
-    enzyme : str,
-        Give any chosen Protease from MQ. The default is "Trypsin/P".
-    save : bool,
-        While True table and fig will be saved in active filepath.
-    ax: matplotlib axis, optional
-        If provided, the plot will be drawn on the given axis.
-    title: str, optional
-        Title for the plot. If None, a default title will be used.
+    df_evidence : pd.DataFrame
+        Cleaned MaxQuant evidence table, e.g. after
+        :func:`autoprot.preprocessing.cleaning`.
+    enzyme : str, optional
+        Protease used for the digestion as defined in MaxQuant. The default is
+        "Trypsin/P".
+    save : bool, optional
+        If True, the figure and the result table are saved to the current
+        working directory. The default is True.
+    ax : matplotlib.axes.Axes, optional
+        If provided, the plot is drawn on the given axis. The default is None.
+    title : str, optional
+        Title for the plot. If None, no title is set. The default is None.
 
     Returns
     -------
-    plt.Figure, pd.DataFrame
-        Fig and table for missed cleavage analysis
+    fig : matplotlib.figure.Figure
+        Figure with the stacked bar plot of missed cleavages.
+    df_missed_cleavage_summary : pd.DataFrame
+        Table with the percentage of peptides with 0, 1, 2, ... missed
+        cleavages per experiment (or raw file).
     """
-    # set plot style
-    plt.style.use("seaborn-v0_8-whitegrid")
-
-    # set parameters
-    today = date.today().isoformat()
-
-    if "Experiment" not in df_evidence.columns.tolist():
-        print("Warning: Column [Experiment] either not unique or missing,\n\
-              column [Raw file] used")
-        experiments = list(set((df_evidence["Raw file"])))
+    if (
+        "Experiment" in df_evidence.columns.tolist()
+        and df_evidence["Experiment"].nunique() == df_evidence["Raw file"].nunique()
+    ):
+        groupby = "Experiment"
     else:
-        experiments = list(set((df_evidence["Experiment"])))
-
-    rawfiles = list(set((df_evidence["Raw file"])))
-    if len(experiments) != len(rawfiles):
-        experiments = rawfiles
         print("Warning: Column [Experiment] either not unique or missing,\n\
               column [Raw file] used")
+        groupby = "Raw file"
 
-    # calculate miss cleavage for each raw file in df_evidence
+    # calculate miss cleavage for each experiment (or raw file) in df_evidence
     df_missed_cleavage_summary = pd.DataFrame()
-    for raw, df_group in df_evidence.groupby("Raw file"):
+    for name, df_group in df_evidence.groupby(groupby):
         if enzyme == "Trypsin/P":
             df_missed_cleavage = df_group["Missed cleavages"].value_counts()
         else:
             df_missed_cleavage = df_group[
                 "Missed cleavages ({0})".format(enzyme)
             ].value_counts()
-        df_missed_cleavage_summary = pd.concat(
-            [df_missed_cleavage_summary, df_missed_cleavage], axis=1
-        )
-    try:
-        df_missed_cleavage_summary.columns = experiments
-    except Exception as e:
-        print(f"unexpected error in col [Experiment]: {e}")
+        df_missed_cleavage_summary[name] = df_missed_cleavage
     df_missed_cleavage_summary = (
         df_missed_cleavage_summary
         / df_missed_cleavage_summary.apply(np.sum, axis=0)
@@ -278,21 +276,14 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
     df_missed_cleavage_summary = df_missed_cleavage_summary.round(2)
 
     # making the barchart figure missed cleavage
-    x_ax = len(experiments) + 1
+    x_ax = len(df_missed_cleavage_summary.columns) + 1
     if ax is None:
         fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(x_ax, 4))
     else:
         fig = ax.get_figure()
         ax1 = ax
 
-    if title is None:
-        fig.suptitle(
-            "% Missed cleavage per run",
-            fontdict=None,
-            horizontalalignment="center",
-            size=14,
-        )
-    else:
+    if title is not None:
         fig.suptitle(title)
     df_missed_cleavage_summary.T.plot(kind="bar", stacked=True, ax=ax1)
     ax1.set_xlabel("Experiment assinged in MaxQuant", size=12)
@@ -301,10 +292,10 @@ def missed_cleavages(df_evidence, enzyme="Trypsin/P", save=True, ax=None, title=
 
     if save:
         # save fig in cwd with date
-        plt.savefig(f"{today}_BarChart_missed-cleavage.pdf", dpi=600)
+        plt.savefig("BarChart_missed-cleavage.pdf", dpi=600)
         # save df missed cleavage summery as .csv
         df_missed_cleavage_summary.to_csv(
-            f"{today}_Missed-cleavage_result-table.csv", sep="\t", index=False
+            "Missed-cleavage_result-table.csv", sep="\t", index=False
         )
 
     return fig, df_missed_cleavage_summary
