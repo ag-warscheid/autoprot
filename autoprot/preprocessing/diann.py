@@ -109,11 +109,56 @@ def parquet_to_pg(
     index_cols: list[str] = None,
     reset_index: bool = True,
     values_colname: str = "PG.MaxLFQ",
+    reader_kwargs: dict = None,
 ) -> pd.DataFrame:
+    """Load a Parquet file and aggregate quantitative data to the protein group level.
+
+    This function reads proteomics data from the specified Parquet file, applies
+    filtering for contaminants and match-between-runs (MBR) data, and pivots the
+    dataset into a wide format where protein groups form the rows and runs form
+    the columns.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        File path to the Parquet dataset to be loaded.
+    filters : dict, optional
+        Key-value filters to apply when reading the Parquet file.
+    mbr : bool, default=True
+        Whether to include match-between-runs results.
+    crap_str : str or list of str, default='cRAP'
+        Contaminant identifier string or list of strings used to filter out
+        contaminant proteins.
+    index_cols : list of str, optional
+        Columns used to define unique protein group rows in the pivoted output.
+        Defaults to ``["Protein.Group", "Genes"]`` if None.
+    reset_index : bool, default=True
+        If True, resets the row index of the aggregated table to columns.
+    values_colname : str, default='PG.MaxLFQ'
+        Name of the column containing intensity or abundance values to
+        aggregate.
+    reader_kwargs : dict, optional
+        Additional keyword arguments passed to the underlying Parquet reader
+        function.
+
+    Returns
+    -------
+    pd.DataFrame
+        Pivoted DataFrame containing aggregated protein group values across
+        runs.
+
+    Raises
+    ------
+    ValueError
+        If `values_colname` is not found within the loaded DataFrame columns.
     """
-    Load DIANN precursor data from a Parquet file and convert to protein group-level intensities.
-    """
-    rp = load_parquet(path, filters=filters, mbr=mbr, crap_str=crap_str)
+    rp = load_parquet(
+        path,
+        filters=filters,
+        mbr=mbr,
+        crap_str=crap_str,
+        reader_kwargs=reader_kwargs,
+    )
 
     if index_cols is None:
         index_cols = ["Protein.Group", "Genes"]
