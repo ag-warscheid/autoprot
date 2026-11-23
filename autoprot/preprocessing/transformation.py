@@ -21,7 +21,6 @@ from typing import Union, Literal, Sequence
 import numpy as np
 import pandas as pd
 import requests
-from pandera.typing import DataFrame as PandasDataFrame
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import auc
@@ -521,8 +520,8 @@ def merge_semi_cols(
     logging.debug(f"[merge_semi_col] m1 dtype: {m1.dtypes}, m2 dtype: {m2.dtypes}")
 
     # expand the semicol columns and name the new col sUID
-    m1_exp: PandasDataFrame = exp_semi_col(m1, semicolon_col1)
-    m2_exp: PandasDataFrame = exp_semi_col(m2, semicolon_col1)
+    m1_exp: pd.DataFrame = exp_semi_col(m1, semicolon_col1)
+    m2_exp: pd.DataFrame = exp_semi_col(m2, semicolon_col1)
 
     logging.debug(
         f"[merge_semi_col] m1_exp dtype: {m1_exp.dtypes}, m2_exp dtype: {m2_exp.dtypes}"
